@@ -10,7 +10,7 @@ Provide lightweight but reliable persistence for a local-first orchestration wor
 
 ## Current Status
 
-`planned`
+`in_progress`
 
 ## Initial Direction
 
@@ -34,6 +34,7 @@ The preferred initial persistence direction is `SQLite`.
 - AI-assisted inspection and script generation authorizations should be auditable
 - lifecycle action mapping changes should be auditable with user attribution
 - the system should prioritize practical local reliability over premature complexity
+- the initial persistence bootstrap should provide a real migration path early, even before the first business entities are fully implemented
 
 ## Main Relationships
 

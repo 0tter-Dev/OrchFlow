@@ -1,0 +1,1 @@
+"""API delivery adapter package."""

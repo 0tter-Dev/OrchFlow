@@ -1,0 +1,75 @@
+"""Integration coverage for configuration and persistence bootstrap."""
+
+from __future__ import annotations
+
+import os
+from pathlib import Path
+
+from alembic import command
+from alembic.config import Config
+from sqlalchemy import text
+
+from orchflow.infrastructure.config.settings import AppSettings, get_settings
+from orchflow.infrastructure.persistence.session import (
+    check_database_connection,
+    create_engine_from_settings,
+)
+
+
+def test_settings_normalize_local_paths(tmp_path: Path) -> None:
+    settings = AppSettings(
+        data_dir=tmp_path / "data",
+        runtime_dir=tmp_path / "runtime",
+        database_url="sqlite:///./data/test-settings.db",
+    )
+
+    settings.ensure_runtime_directories()
+
+    assert settings.resolved_data_dir.exists()
+    assert settings.resolved_runtime_dir.exists()
+    assert settings.database_file_path is not None
+    assert settings.database_file_path.parent.exists()
+    assert settings.normalized_database_url.startswith("sqlite:///")
+
+
+def test_database_connection_check_succeeds_for_local_sqlite(tmp_path: Path) -> None:
+    settings = AppSettings(
+        data_dir=tmp_path / "data",
+        runtime_dir=tmp_path / "runtime",
+        database_url=f"sqlite:///{(tmp_path / 'data' / 'connectivity.db').as_posix()}",
+    )
+
+    settings.ensure_runtime_directories()
+
+    assert check_database_connection(settings) is True
+
+
+def test_alembic_upgrade_head_runs_against_local_sqlite(tmp_path: Path) -> None:
+    database_path = tmp_path / "data" / "alembic.db"
+    os.environ["ORCHFLOW_DATABASE_URL"] = f"sqlite:///{database_path.as_posix()}"
+    os.environ["ORCHFLOW_DATA_DIR"] = str(tmp_path / "data")
+    os.environ["ORCHFLOW_RUNTIME_DIR"] = str(tmp_path / "runtime")
+    get_settings.cache_clear()
+
+    try:
+        config = Config("alembic.ini")
+        command.upgrade(config, "head")
+    finally:
+        get_settings.cache_clear()
+        os.environ.pop("ORCHFLOW_DATABASE_URL", None)
+        os.environ.pop("ORCHFLOW_DATA_DIR", None)
+        os.environ.pop("ORCHFLOW_RUNTIME_DIR", None)
+
+    assert database_path.exists()
+    engine = create_engine_from_settings(get_settings())
+    try:
+        with engine.connect() as connection:
+            table_count = connection.execute(
+                text(
+                    "SELECT COUNT(*) FROM sqlite_master "
+                    "WHERE type = 'table' AND name IN ('users', 'audit_events')"
+                )
+            ).scalar_one()
+    finally:
+        engine.dispose()
+    assert table_count == 2

@@ -10,7 +10,7 @@ Ensure that project visibility and lifecycle actions are restricted according to
 
 ## Current Status
 
-`planned`
+`implemented`
 
 ## Roles
 
@@ -31,6 +31,8 @@ Ensure that project visibility and lifecycle actions are restricted according to
 - permissions must be enforced consistently across CLI, API, and interface channels
 - access control decisions belong in the application core, not only in adapters
 - admin capabilities must be explicit and auditable
+- the first registered user may become the bootstrap `admin` so the local-first installation can be initialized without a pre-provisioned account
+- API and CLI should expose the same authentication and authorization capabilities when those capabilities are intentionally available to operators
 
 ## Main Relationships
 

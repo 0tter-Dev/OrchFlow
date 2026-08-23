@@ -4,43 +4,79 @@
 
 This document tracks the next planned steps for OrchFlow after the initial documentation foundation.
 
-## Near-Term Planning
+## Current Implementation Sequence
 
-- define the first branch and pull request workflow
-- refine the initial GitHub repository configuration
-- validate the final `.gitignore`, `.gitattributes`, and repository governance files
-- define the first backend and frontend bootstrap commands based on `uv` and the UI toolchain
+The near-term implementation plan is organized into the next two pull requests after the completed backend bootstrap foundation, configuration plus persistence bootstrap, access-control foundation, project-registry foundation, lifecycle-orchestration foundation, and runtime-inspection milestones.
 
-## Project Structure Planning
+The current frontend package manager decision is `pnpm`.
 
-- refine the source tree for `core`, `shared`, `external`, and `interface`
-- define the initial module boundaries for domain, application, and infrastructure
-- define the first file plan for adapters, repositories, services, and contracts
+Implemented planning items should be removed from this document as work progresses so it remains focused on what comes next.
 
-## Functional Implementation Planning
+## PR 7: Web Bootstrap With pnpm
 
-- implement the `core` foundation
-- implement the `AI Agent Adapter`
-- implement the `Project Adapter` direction for lifecycle script interaction
-- implement lifecycle action mapping persistence and auditing
-- implement the `CLI` adapter
-- implement the `API` adapter
-- implement the initial `web` client
-- plan the future `mobile` and `desktop` clients
-- implement access control
-- implement persistence and audit logging
-- implement runtime inspection
+### Purpose
 
-## Quality Planning
+Create the initial `interface/web` application boundary without jumping ahead into full product behavior.
 
-- define the testing strategy in concrete technical terms
-- implement unit, integration, and contract test foundations
-- define local validation commands
-- define CI workflows for linting, testing, and build verification
+### Planned Scope
 
-## Delivery Planning
+- bootstrap `interface/web` with `React`, `TypeScript`, `Vite`, and `pnpm`
+- define the initial web folder structure for app, shared utilities, and feature modules
+- configure linting, testing, and build scripts for the web client
+- add a minimal API client boundary and health-check screen
+- document the frontend setup and validation flow
 
-- define semantic versioning and release conventions
-- design the initial GitHub Actions CI pipeline
-- define the future CD and DevOps direction
-- define documentation update rules as part of delivery quality gates
+### Local Validation
+
+- `corepack enable`
+- `pnpm install`
+- `pnpm lint`
+- `pnpm test`
+- `pnpm build`
+
+### Manual Git And GitHub Steps
+
+- create branch `feat/web-bootstrap`
+- confirm the committed lockfile and package-manager metadata are correct
+- open a PR documenting the selected frontend workflow and commands
+
+## PR 8: First Web Integration With Auth And Projects
+
+### Purpose
+
+Connect the web client to the stabilized backend contracts for the first useful operator flow.
+
+### Planned Scope
+
+- implement login flow against the API
+- implement project listing and project detail views
+- display basic runtime status information
+- wire the first lifecycle control actions through the API
+- validate the initial end-to-end contract between backend and web
+
+### Local Validation
+
+- `uv sync --dev`
+- `uv run ruff check .`
+- `uv run mypy src`
+- `uv run pytest`
+- `corepack enable`
+- `pnpm install`
+- `pnpm lint`
+- `pnpm test`
+- `pnpm build`
+
+### Manual Git And GitHub Steps
+
+- create branch `feat/web-project-integration`
+- validate both backend and frontend locally before opening the PR
+- open a PR with explicit notes about API contracts consumed by the web client
+
+## Cross-Cutting Follow-Ups To Keep Visible
+
+- tighten CI as tests and build scripts become real instead of bootstrap placeholders
+- add backend contract and migration validation once API and persistence stabilize
+- extend repository automation for frontend validation after `interface/web` exists
+- revisit future `mobile` and `desktop` planning only after the API and web flows are stable
+- avoid speculative support layers for containers or shared kernels unless a later approved requirement makes them necessary
+- evaluate broader lifecycle script compatibility beyond the current Windows command-dispatch-by-argument assumption in a future approved step if real project scripts require it

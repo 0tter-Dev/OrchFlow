@@ -10,7 +10,7 @@ Provide a normalized internal project definition regardless of how a project was
 
 ## Current Status
 
-`planned`
+`implemented`
 
 ## Supported Registration Paths
 
@@ -31,6 +31,7 @@ The user selects a project folder, OrchFlow analyzes it through the `AI Agent Ad
 - project connection details should be represented through a generic `Project Adapter` contract
 - project-specific lifecycle action mappings must be persistable when canonical labels are not used
 - AI-generated script proposals must not be persisted without user review
+- the first concrete registration flow may focus on existing `.bat` files before AI-assisted onboarding is introduced
 
 ## Main Relationships
 

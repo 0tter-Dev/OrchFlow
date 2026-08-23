@@ -1,6 +1,6 @@
 [project]
 name = "orchflow"
-version = "0.1.0"
+version = "0.1.2"
 description = "Local-first project lifecycle orchestrator with CLI, API, UI, and AI-assisted bat generation."
 readme = "README.md"
 authors = [
@@ -20,9 +20,12 @@ dependencies = [
     "uvicorn[standard]>=0.36.0",
 ]
 
+[project.scripts]
+orchflow = "orchflow.external.cli.app:run"
+
 [dependency-groups]
 dev = [
-    "httpx>=0.28.1",
+    "httpx2>=2.10.0",
     "mypy>=1.17.1",
     "pytest>=8.4.2",
     "pytest-asyncio>=1.1.0",
