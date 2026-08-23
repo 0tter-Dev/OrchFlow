@@ -6,17 +6,14 @@ This document tracks the next planned steps for OrchFlow after the initial docum
 
 ## Near-Term Planning
 
-- initialize the repository with Git
-- connect the local repository to an empty GitHub remote
 - define the first branch and pull request workflow
-- create the initial `.gitignore`
-- decide the real technology stack for core, API, CLI, and UI
-- define the concrete persistence approach around `SQLite`
+- refine the initial GitHub repository configuration
+- validate the final `.gitignore`, `.gitattributes`, and repository governance files
+- define the first backend and frontend bootstrap commands based on `uv` and the UI toolchain
 
 ## Project Structure Planning
 
 - refine the source tree for `core`, `shared`, `external`, and `interface`
-- define the first non-code configuration files needed by the project
 - define the initial module boundaries for domain, application, and infrastructure
 - define the first file plan for adapters, repositories, services, and contracts
 
@@ -25,9 +22,11 @@ This document tracks the next planned steps for OrchFlow after the initial docum
 - implement the `core` foundation
 - implement the `AI Agent Adapter`
 - implement the `Project Adapter` direction for lifecycle script interaction
+- implement lifecycle action mapping persistence and auditing
 - implement the `CLI` adapter
 - implement the `API` adapter
-- implement the `UI` layer
+- implement the initial `web` client
+- plan the future `mobile` and `desktop` clients
 - implement access control
 - implement persistence and audit logging
 - implement runtime inspection

@@ -2,15 +2,21 @@
 
 ## Purpose
 
-This module defines the visual user-facing interface for OrchFlow.
+This module defines the user-facing interface boundary for OrchFlow clients.
 
 ## Objective
 
-Provide a simple and efficient way to inspect project status, review metrics, and trigger lifecycle actions.
+Provide a clean separation between the backend core and multiple user-facing clients that consume the API.
 
 ## Current Status
 
 `planned`
+
+## Initial Clients
+
+- `web`
+- `mobile`
+- `desktop`
 
 ## Focus Areas
 
@@ -22,9 +28,11 @@ Provide a simple and efficient way to inspect project status, review metrics, an
 
 ## Key Rules
 
-- the interface should remain a consumer of platform capabilities, not their owner
-- the interface should rely on the API-facing surface rather than bypassing application boundaries
+- interface clients should remain consumers of platform capabilities, not their owners
+- interface clients should rely on the API-facing surface rather than bypassing application boundaries
+- the `interface/` folder should act as a physical boundary between the backend core and client implementations
 - visual complexity should remain secondary to operational clarity in `v0.1.0`
+- the first concrete client direction is `web`, but the structure should allow future `mobile` and `desktop` clients
 
 ## Main Relationships
 

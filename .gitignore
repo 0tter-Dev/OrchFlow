@@ -1,0 +1,66 @@
+# Operating system
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editors and IDEs
+.idea/
+.vscode/
+*.code-workspace
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+*.pyo
+*.so
+.Python
+.venv/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+dist/
+build/
+site/
+*.egg-info/
+pip-wheel-metadata/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Logs and runtime files
+*.log
+*.pid
+*.pid.lock
+tmp/
+temp/
+
+# Node / UI
+node_modules/
+interface/ui/dist/
+interface/ui/coverage/
+interface/ui/.vite/
+interface/ui/.cache/
+*.tsbuildinfo
+
+# Test artifacts
+test-results/
+playwright-report/
+
+# SQLite and local data
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# Project runtime artifacts
+runtime/
+data/
+artifacts/

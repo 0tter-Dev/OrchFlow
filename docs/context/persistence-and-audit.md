@@ -23,6 +23,7 @@ The preferred initial persistence direction is `SQLite`.
 - projects
 - project ownership metadata
 - lifecycle definitions
+- project-specific lifecycle action mappings
 - runtime-related snapshots when appropriate
 - lifecycle and audit events
 
@@ -31,6 +32,7 @@ The preferred initial persistence direction is `SQLite`.
 - persistence concerns must remain outside the core domain logic
 - lifecycle actions should leave an audit trail
 - AI-assisted inspection and script generation authorizations should be auditable
+- lifecycle action mapping changes should be auditable with user attribution
 - the system should prioritize practical local reliability over premature complexity
 
 ## Main Relationships

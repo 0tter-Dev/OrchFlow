@@ -30,6 +30,8 @@ The user then provides or confirms:
 - a project reference name
 - the project folder
 - optional descriptive metadata
+- any project-specific settings required by the lifecycle script
+- any lifecycle action mappings needed when the script uses non-canonical labels
 
 #### Option B: Analyze A Folder With An AI Agent Adapter
 
@@ -44,10 +46,13 @@ OrchFlow then:
 - lets the user choose a model or agent
 - analyzes the project folder
 - suggests a `.bat` lifecycle script
+- follows the documented lifecycle script template
 
 OrchFlow then asks for explicit authorization before creating or overwriting the lifecycle `.bat` file.
 
 The user reviews the generated suggestion and confirms or edits it before saving the project definition.
+
+If the project script uses different action names such as `iniciar`, `parar`, or `reiniciar`, the user can explicitly map them to OrchFlow canonical actions before finishing the registration.
 
 ### 3. Inspect Project Status
 

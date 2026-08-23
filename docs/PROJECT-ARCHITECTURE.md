@@ -13,6 +13,7 @@ The platform must centralize:
 - project registration
 - lifecycle control
 - runtime inspection
+- environment and local configuration management
 - user permissions
 - operational history
 - external access through CLI, API, and interface layers
@@ -61,6 +62,9 @@ The `AI Agent Adapter` is optional and assistive. It may connect OrchFlow to a l
 
 - OrchFlow must support at least `status`, `start`, `stop`, and `restart`
 - Lifecycle actions must be routed through a normalized project definition
+- lifecycle execution must pass through a generic `Project Adapter` boundary
+- OrchFlow should use canonical lifecycle actions internally even when projects expose different script labels
+- project-specific action mappings must be persistable, reviewable, and auditable
 - Lifecycle operations must be auditable
 - Runtime inspection must not be implemented as a UI-only concern
 
@@ -74,7 +78,16 @@ The `AI Agent Adapter` is optional and assistive. It may connect OrchFlow to a l
 - OrchFlow must not download new models automatically
 - the user must explicitly authorize project inspection before AI analysis starts
 - the user must explicitly authorize creation or overwrite of a lifecycle `.bat` file
+- the user must explicitly authorize persistence of AI-suggested action mappings
 - AI suggestions and generated files must be reviewable by the user before becoming part of a project definition
+
+### Configuration And Environment
+
+- OrchFlow should use environment-based configuration for local runtime settings
+- local configuration must be represented through a documented `.env` contract
+- secrets must not be hardcoded in source files
+- environment configuration must stay outside core business rules
+- default configuration should be development-friendly without weakening security boundaries
 
 ### Documentation Governance
 
@@ -90,6 +103,7 @@ OrchFlow should:
 - validate lifecycle definitions
 - run lifecycle actions
 - inspect runtime state
+- load and validate environment configuration
 - persist relevant metadata and operational history
 - authenticate users
 - authorize access to projects and actions
@@ -108,7 +122,10 @@ OrchFlow should not, in `v0.1.0`:
 - `User`
 - `Permission`
 - `Project`
+- `Project Adapter`
 - `Project Lifecycle Script`
+- `Lifecycle Action Mapping`
+- `Lifecycle Script Template`
 - `Project Definition`
 - `Runtime Snapshot`
 - `Metric Snapshot`
@@ -122,15 +139,46 @@ The project should follow a clean architecture or equivalent layered architectur
 
 - business rules remain independent from delivery mechanisms
 - CLI, API, and interface layers act as adapters
+- project-specific runtime integrations are accessed through `Project Adapter` contracts
 - AI providers are accessed through adapters instead of core-domain coupling
 - infrastructure concerns remain outside core domain logic
 - persistence and external integrations can evolve without rewriting the domain model
+
+## Physical Boundary Direction
+
+The project structure should preserve clear physical separation between:
+
+- the backend core and its internal layers
+- external operational surfaces such as CLI and API
+- interface clients that consume the API
+
+The `interface/` folder should act as a physical boundary for user-facing clients such as:
+
+- `web`
+- `mobile`
+- `desktop`
+
+These interface clients should consume the API rather than bypassing the backend architecture.
 
 ## Persistence Direction
 
 `SQLite` is the initial persistence candidate because it supports a lightweight local-first workflow while still allowing robust enough storage for users, projects, permissions, lifecycle metadata, and audit events.
 
-This is an architectural direction, not a permanently locked technology decision.
+For `v0.1.0`, the selected backend persistence stack is `SQLite` with `SQLAlchemy` and `Alembic`.
+
+## Selected Technology Direction
+
+The project currently adopts the following implementation direction:
+
+- backend language: `Python`
+- package and environment management: `uv`
+- CLI adapter: `Typer`
+- API adapter: `FastAPI`
+- persistence: `SQLite`
+- ORM and migrations: `SQLAlchemy` and `Alembic`
+- authentication: JWT plus password hashing with `bcrypt`
+- backend quality tooling: `pytest`, `ruff`, and `mypy`
+- web interface layer: `React`, `TypeScript`, and `Vite`
 
 ## Delivery Expectation
 

@@ -16,9 +16,12 @@ This guide defines how OrchFlow should be developed, changed, and maintained.
 
 - Follow clean architecture or an equivalent layered model
 - Keep domain and application rules independent from CLI, API, and UI delivery concerns
+- Keep project-specific execution behavior behind explicit adapter contracts
 - Keep infrastructure dependencies outside the core business layer
 - Avoid leaking persistence or transport details into domain rules
+- Avoid leaking environment-loading concerns into domain rules
 - Favor explicit contracts and use cases over ad hoc service coupling
+- Keep interface clients separated from the backend core through the API boundary
 
 ## Code Quality Rules
 
@@ -56,6 +59,13 @@ Changes require explicit review when they:
 - Cross-feature relationship changes belong in `docs/INDEX.md`
 - User-facing workflow changes should be reflected in `docs/USER-GUIDE.md`
 
+## Configuration Rules
+
+- Runtime configuration should be loaded from environment variables
+- A versioned `.env.example` should document the expected local variables
+- Local secrets must stay out of version control
+- Configuration validation should happen near the application boundary
+
 ## Testing Direction
 
 The project should adopt tests progressively in the following order:
@@ -86,16 +96,29 @@ At minimum, the project should prepare for:
 
 Deployment automation may be added later, but CI quality gates should be designed early.
 
+## Selected Technology Baseline
+
+The current implementation baseline is:
+
+- backend language: `Python`
+- package and environment management: `uv`
+- CLI: `Typer`
+- API: `FastAPI`
+- persistence: `SQLite`
+- ORM and migrations: `SQLAlchemy` and `Alembic`
+- authentication: JWT and `bcrypt`
+- backend tests: `pytest`
+- quality tooling: `ruff` and `mypy`
+- initial web interface layer: `React`, `TypeScript`, and `Vite`
+
 ## Technology Decision Policy
 
-The initial documentation intentionally avoids locking the full stack too early.
+The core technology direction is now selected for `v0.1.0`.
 
-Technology choices should be made according to:
+Future changes should still be evaluated according to:
 
 - fit for the documented architecture
 - support for local-first workflows
 - testability
 - maintainability
 - operational clarity
-
-`SQLite` is currently the leading persistence direction, but the broader stack remains open for deliberate selection later.

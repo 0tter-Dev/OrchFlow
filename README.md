@@ -4,6 +4,18 @@ OrchFlow is a local-first project lifecycle orchestrator focused on registering,
 
 In `v0.1.0`, OrchFlow is designed around a concrete execution base: each managed project must expose a lifecycle control script, initially standardized as a Windows `.bat` file. OrchFlow may optionally use an `AI Agent Adapter` to analyze a selected project folder and help the user generate that `.bat` file, but AI assistance is never the primary source of truth for lifecycle control.
 
+## Selected Stack
+
+- Core runtime: Python
+- Dependency and environment management: `uv`
+- CLI: `Typer`
+- API: `FastAPI`
+- Persistence: `SQLite`
+- ORM and migrations: `SQLAlchemy` and `Alembic`
+- Authentication: JWT with password hashing through `bcrypt`
+- Quality tooling: `pytest`, `ruff`, `mypy`
+- Web interface: `React`, `TypeScript`, and `Vite`
+
 ## Documentation
 
 - [Project Architecture](./docs/PROJECT-ARCHITECTURE.md)
@@ -11,7 +23,7 @@ In `v0.1.0`, OrchFlow is designed around a concrete execution base: each managed
 - [Feature Status](./docs/STATUS.md)
 - [Development Guide](./docs/DEVELOPMENT-GUIDE.md)
 - [User Guide](./docs/USER-GUIDE.md)
-- [To-Do](./TO-DO.md)
+- [To-Do](./docs/TO-DO.md)
 - [Agent Rules](./AGENTS.md)
 
 ## Initial Scope
@@ -24,6 +36,26 @@ In `v0.1.0`, OrchFlow is designed around a concrete execution base: each managed
 - User authentication and authorization with `admin` and `member`
 - External access through `CLI`, `API`, and a simple visual interface
 
+## Repository Foundation
+
+- `pyproject.toml` defines the Python package metadata and the initial backend toolchain
+- `.env.example` should define the documented local configuration contract
+- `.gitignore` excludes Python, UI, database, and local runtime artifacts
+- `.gitattributes` normalizes line endings while preserving Windows-oriented script compatibility
+- `.editorconfig` defines shared editor behavior
+- `LICENSE` currently uses `MIT`
+- `interface/` should act as the physical boundary for API-consuming clients such as web, mobile, and desktop
+
+## Local Setup
+
+```bash
+uv sync --dev
+```
+
+This project uses `uv` as the source of truth for Python dependency resolution and local environment management.
+
+For local runtime configuration, copy `.env.example` into a local `.env` file and adjust the values for your machine.
+
 ## Out Of Scope For v0.1.0
 
 - Container orchestration
@@ -34,4 +66,4 @@ In `v0.1.0`, OrchFlow is designed around a concrete execution base: each managed
 
 ## Status
 
-The repository is currently in the documentation-first foundation stage. The initial architectural documentation defines the product boundaries, domain concepts, feature map, and development rules before source code implementation begins.
+The repository is currently in the foundation stage. The architectural documentation is established, the Python project metadata exists, and the repository-level configuration is being prepared before application code is implemented.

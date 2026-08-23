@@ -22,11 +22,15 @@ Help the user analyze a project folder and produce a reviewable lifecycle `.bat`
 - let the user choose a model or agent
 - analyze a selected project folder
 - suggest a lifecycle `.bat` script for user review
+- follow the documented lifecycle script template when generating or updating scripts
+- suggest canonical lifecycle labels when possible
+- detect non-canonical labels in existing scripts and suggest action mappings for user approval
 
 ## Authorization Rules
 
 - OrchFlow must request explicit user authorization before AI inspection of a project begins
 - OrchFlow must request explicit user authorization before creating or overwriting a lifecycle `.bat` file
+- OrchFlow must request explicit user authorization before persisting AI-suggested action mappings
 - AI outputs must remain reviewable before they become part of a project definition
 
 ## Key Rules
@@ -35,10 +39,12 @@ Help the user analyze a project folder and produce a reviewable lifecycle `.bat`
 - AI assistance must remain optional
 - AI analysis supports registration but does not replace the lifecycle script contract
 - the adapter boundary must allow future providers to be added without changing core business rules significantly
+- AI should prefer standard label conventions, but must tolerate project-specific variations through the `Project Adapter`
 
 ## Main Relationships
 
 - supports `Project Registry`
+- may propose mapping data consumed by `Project Adapter`
 - may use information from `Runtime Inspection` within approved boundaries
 - may surface information through `External Surfaces`
 - is governed by `Project Architecture` scope boundaries

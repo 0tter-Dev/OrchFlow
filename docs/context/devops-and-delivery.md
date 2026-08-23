@@ -16,6 +16,9 @@ Establish disciplined engineering workflows early so the codebase can evolve saf
 
 - Git workflow
 - GitHub collaboration
+- `uv`-managed Python environments and dependencies
+- versioned environment configuration examples
+- multi-client repository structure for interface implementations
 - pull request discipline
 - automated checks
 - semantic versioning

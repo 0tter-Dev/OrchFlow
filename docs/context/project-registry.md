@@ -28,11 +28,15 @@ The user selects a project folder, OrchFlow analyzes it through the `AI Agent Ad
 - each project must have a user-facing reference name
 - registration must persist ownership and permission metadata
 - the registry should normalize onboarding inputs into a common internal project definition
+- project connection details should be represented through a generic `Project Adapter` contract
+- project-specific lifecycle action mappings must be persistable when canonical labels are not used
 - AI-generated script proposals must not be persisted without user review
 
 ## Main Relationships
 
 - depends on `Access Control` for ownership and visibility
+- depends on `Lifecycle Script Template` for contract expectations
 - provides definitions to `Lifecycle Orchestration`
+- provides adapter-ready data to `Project Adapter`
 - may receive assistance from `AI Agent Adapter`
 - persists through `Persistence And Audit`

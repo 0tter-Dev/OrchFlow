@@ -22,6 +22,7 @@ Expose the same core application behavior through both CLI and API without dupli
 - CLI and API should mirror the same core use cases as closely as practical
 - business logic must stay in the core application, not in the delivery layer
 - authorization rules must be enforced consistently
+- the API should be the primary backend entry point for interface clients
 
 ## Main Relationships
 
