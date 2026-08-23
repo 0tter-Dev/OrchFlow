@@ -10,7 +10,7 @@ Expose the same core application behavior through both CLI and API without dupli
 
 ## Current Status
 
-`planned`
+`in_progress`
 
 ## Channels
 
@@ -20,9 +20,19 @@ Expose the same core application behavior through both CLI and API without dupli
 ## Key Rules
 
 - CLI and API should mirror the same core use cases as closely as practical
+- CLI and API bootstrap work should evolve together whenever a capability is intentionally exposed by one of them
+- authentication and authorization flows should be introduced in both surfaces together so access-control behavior remains consistent
+- lifecycle control actions should be introduced in both surfaces together so project operations remain consistent
+- runtime inspection flows should be introduced in both surfaces together so operational visibility remains consistent
 - business logic must stay in the core application, not in the delivery layer
 - authorization rules must be enforced consistently
 - the API should be the primary backend entry point for interface clients
+
+## Implemented Baseline
+
+- CLI and API both expose authentication, project registry, lifecycle execution, and runtime inspection
+- lifecycle responses now include a summarized runtime status when inspection is available
+- direct runtime inspection is available through `GET /projects/{project_id}/runtime` and the mirrored CLI command `runtime inspect`
 
 ## Main Relationships
 

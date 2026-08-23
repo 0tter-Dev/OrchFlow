@@ -2,7 +2,7 @@
 
 OrchFlow is a local-first project lifecycle orchestrator focused on registering, controlling, and inspecting software projects through a standardized operational contract.
 
-In `v0.1.0`, OrchFlow is designed around a concrete execution base: each managed project must expose a lifecycle control script, initially standardized as a Windows `.bat` file. OrchFlow may optionally use an `AI Agent Adapter` to analyze a selected project folder and help the user generate that `.bat` file, but AI assistance is never the primary source of truth for lifecycle control.
+In `v0.1.2`, OrchFlow is designed around a concrete execution base: each managed project must expose a lifecycle control script, initially standardized as a Windows `.bat` file. OrchFlow may optionally use an `AI Agent Adapter` to analyze a selected project folder and help the user generate that `.bat` file, but AI assistance is never the primary source of truth for lifecycle control.
 
 ## Selected Stack
 
@@ -14,6 +14,7 @@ In `v0.1.0`, OrchFlow is designed around a concrete execution base: each managed
 - ORM and migrations: `SQLAlchemy` and `Alembic`
 - Authentication: JWT with password hashing through `bcrypt`
 - Quality tooling: `pytest`, `ruff`, `mypy`
+- Frontend package manager: `pnpm`
 - Web interface: `React`, `TypeScript`, and `Vite`
 
 ## Documentation
@@ -54,9 +55,16 @@ uv sync --dev
 
 This project uses `uv` as the source of truth for Python dependency resolution and local environment management.
 
+For the web client, the selected JavaScript package manager is `pnpm`.
+
+```bash
+corepack enable
+pnpm --version
+```
+
 For local runtime configuration, copy `.env.example` into a local `.env` file and adjust the values for your machine.
 
-## Out Of Scope For v0.1.0
+## Out Of Scope For v0.1.2
 
 - Container orchestration
 - Multi-host orchestration
@@ -66,4 +74,4 @@ For local runtime configuration, copy `.env.example` into a local `.env` file an
 
 ## Status
 
-The repository is currently in the foundation stage. The architectural documentation is established, the Python project metadata exists, and the repository-level configuration is being prepared before application code is implemented.
+The repository is currently in the `v0.1.2` bootstrap implementation stage. The architectural documentation is established, the stack baseline is defined, and the initial backend application skeleton is the first active implementation milestone.

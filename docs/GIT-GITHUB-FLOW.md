@@ -30,7 +30,7 @@ This means:
 - no direct pushes should be allowed to `main`
 - branches should be deleted after merge
 
-This project should not adopt a heavy Git Flow model in `v0.1.0`.
+This project should not adopt a heavy Git Flow model in `v0.1.2`.
 
 The repository is still in an early product stage, so a simpler branch model reduces process weight and makes maintenance easier.
 
@@ -207,8 +207,8 @@ Use:
 
 Git tags should use the format:
 
-- `v0.1.0`
-- `v0.1.1`
+- `v0.1.2`
+- `v0.1.3`
 - `v0.2.0`
 
 The GitHub release title should match the tag version.
@@ -242,6 +242,16 @@ For the current backend baseline, the expected validation direction is:
 - `uv run pytest`
 
 When the frontend is introduced, this document should be extended with the corresponding validation commands for `interface/web`.
+
+The selected frontend package manager for `v0.1.2` is `pnpm`.
+
+The expected frontend validation direction is:
+
+- `corepack enable`
+- `pnpm install`
+- `pnpm lint`
+- `pnpm test`
+- `pnpm build`
 
 ## Documentation Gate
 

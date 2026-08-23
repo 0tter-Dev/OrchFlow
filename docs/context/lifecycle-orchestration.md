@@ -10,7 +10,7 @@ Provide a standardized lifecycle engine for local projects using an explicit `.b
 
 ## Current Status
 
-`planned`
+`implemented`
 
 ## Core Actions
 
@@ -27,6 +27,13 @@ Provide a standardized lifecycle engine for local projects using an explicit `.b
 - OrchFlow should resolve project-specific action mappings before attempting lifecycle execution
 - lifecycle transitions should be auditable
 - the system should validate whether lifecycle actions succeeded through runtime inspection when possible
+- the first practical execution flow may rely on command-dispatch by script argument while the project remains Windows-first
+
+## Implemented Baseline
+
+- lifecycle actions execute through the Windows batch adapter using canonical actions resolved per project
+- successful and failed executions are audited with command identifiers and exit status
+- runtime inspection is invoked after lifecycle execution when available so API and CLI receive an immediate runtime summary
 
 ## Main Relationships
 

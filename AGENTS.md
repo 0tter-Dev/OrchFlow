@@ -22,11 +22,14 @@ If two documents appear to conflict, the Project Architecture and Development Gu
 Agents must:
 
 - preserve the local-first purpose of the project
-- keep `.bat` lifecycle scripts as the concrete operational base for managed projects in `v0.1.0`
+- keep `.bat` lifecycle scripts as the concrete operational base for managed projects in `v0.1.2`
 - treat the `AI Agent Adapter` as optional assistance, not as the authoritative lifecycle controller
 - respect the documented scope, non-goals, and architectural boundaries
 - prefer small, explicit, reviewable changes
 - keep documentation and implementation aligned
+- update all relevant documentation when meaningful implementation work is performed, especially code changes
+- keep `docs/TO-DO.md` limited to upcoming planned steps instead of retaining items that are already implemented
+- avoid placeholder shared abstractions or generic kernel layers unless they serve a clear current purpose
 - avoid hidden architectural drift
 
 ## Scope Boundaries
@@ -49,6 +52,7 @@ Agents must request explicit approval before changing:
 - major dependency additions or removals
 - stack changes affecting the whole system
 - product scope in ways that introduce container orchestration, remote orchestration, or non-local-first behavior
+- established business rules, selected stack decisions, non-goals, or other core product-foundation rules already documented as part of the baseline
 
 ## Implementation Discipline
 
@@ -68,6 +72,7 @@ When introducing or changing features, agents should update:
 - the relevant file in `docs/context/`
 - `docs/INDEX.md` if cross-feature relationships changed
 - `docs/PROJECT-ARCHITECTURE.md` if business scope or policy changed
+- `docs/TO-DO.md` when the planned next steps changed or previously planned work was completed
 
 ## Naming Discipline
 

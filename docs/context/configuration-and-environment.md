@@ -10,7 +10,7 @@ Provide a clear, versioned, environment-based configuration contract for local d
 
 ## Current Status
 
-`planned`
+`in_progress`
 
 ## Direction
 
@@ -37,6 +37,7 @@ OrchFlow should adopt:
 - real `.env` files should stay local and unversioned
 - configuration loading should be explicit and testable
 - missing critical configuration should fail clearly
+- API and CLI should expose the same configuration-facing capabilities when those capabilities are intentionally surfaced to operators
 
 ## Main Relationships
 

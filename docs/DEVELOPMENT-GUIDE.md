@@ -28,6 +28,7 @@ This guide defines how OrchFlow should be developed, changed, and maintained.
 - Apply SOLID principles pragmatically
 - Prefer cohesive modules with clear responsibilities
 - Avoid dead code, commented-out code, and speculative abstractions
+- Avoid placeholder shared layers or generic kernels unless they have a clear present responsibility
 - Avoid tightly coupling business logic to framework-specific behavior
 - Keep side effects explicit and testable
 - Favor readability over cleverness
@@ -51,6 +52,8 @@ Changes require explicit review when they:
 - couple the core directly to a single AI provider instead of using an adapter boundary
 - materially reshape the project structure or strategic dependencies
 
+Future-oriented extensibility is acceptable when it does not add speculative implementation weight, but the project should not pre-build container support or shared-kernel abstractions without a concrete validated need.
+
 ## Documentation Rules
 
 - New features must be reflected in `docs/STATUS.md`
@@ -58,6 +61,9 @@ Changes require explicit review when they:
 - Scope or policy changes belong in `docs/PROJECT-ARCHITECTURE.md`
 - Cross-feature relationship changes belong in `docs/INDEX.md`
 - User-facing workflow changes should be reflected in `docs/USER-GUIDE.md`
+- Relevant documentation should be updated alongside meaningful implementation changes, especially code changes
+- `docs/TO-DO.md` should remain focused on the next planned steps and should not retain work that is already implemented
+- Changes to established foundations such as the selected stack, business rules, scope boundaries, or non-goals require explicit user approval before they are applied
 
 ## Naming Rules
 
@@ -124,11 +130,12 @@ The current implementation baseline is:
 - authentication: JWT and `bcrypt`
 - backend tests: `pytest`
 - quality tooling: `ruff` and `mypy`
+- frontend package manager: `pnpm`
 - initial web interface layer: `React`, `TypeScript`, and `Vite`
 
 ## Technology Decision Policy
 
-The core technology direction is now selected for `v0.1.0`.
+The core technology direction is now selected for `v0.1.2`.
 
 Future changes should still be evaluated according to:
 
