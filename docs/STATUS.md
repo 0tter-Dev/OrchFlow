@@ -47,5 +47,6 @@ OrchFlow is currently in the repository foundation stage as of `2026-08-23`.
 - The initial folder skeleton has been created without feature code files.
 - The Git and GitHub maintenance flow is now documented.
 - Pull request and issue templates plus an initial backend CI workflow have been added locally.
+- The initial CI workflow tolerates `pytest` exit code `5` while the repository still has no collected tests in the foundation stage.
 - Branch protection and remote GitHub enforcement still need to be configured manually in the remote repository.
 - Any implementation work should update this file as features move from `planned` to later states.

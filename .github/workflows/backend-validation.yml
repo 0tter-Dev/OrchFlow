@@ -40,4 +40,12 @@ jobs:
         run: uv run mypy src
 
       - name: Run pytest
-        run: uv run pytest
+        run: |
+          set +e
+          uv run pytest
+          status=$?
+          if [ "$status" -eq 5 ]; then
+            echo "No tests were collected yet. This is acceptable during the repository foundation stage."
+            exit 0
+          fi
+          exit "$status"
