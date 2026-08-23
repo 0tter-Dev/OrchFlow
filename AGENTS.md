@@ -69,6 +69,20 @@ When introducing or changing features, agents should update:
 - `docs/INDEX.md` if cross-feature relationships changed
 - `docs/PROJECT-ARCHITECTURE.md` if business scope or policy changed
 
+## Naming Discipline
+
+Agents should prefer `kebab-case` for new free-form file and directory names.
+
+Agents must preserve externally required names when a platform, framework, language, or repository convention depends on them.
+
+Examples include:
+
+- `.github/ISSUE_TEMPLATE/`
+- `.github/PULL_REQUEST_TEMPLATE.md`
+- `.github/ISSUE_TEMPLATE/config.yml`
+- Python dunder files such as `__init__.py`
+- standard dotfiles such as `.gitignore`
+
 ## Safety Rules
 
 Agents must not:
@@ -78,3 +92,6 @@ Agents must not:
 - introduce autonomous AI control over project lifecycle actions without explicit approval
 - treat generated analysis as verified runtime truth
 - erase or weaken the documentation-first workflow without authorization
+- run Git commands such as `git add`, `git commit`, `git pull`, `git push`, `git merge`, `git rebase`, or remote GitHub write operations unless the user explicitly requests that action
+
+When Git actions are needed but were not explicitly requested, agents should explain the required commands and let the user run them manually.

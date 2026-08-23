@@ -26,6 +26,9 @@ Tracks feature implementation state at a high level.
 - [User Guide](./USER-GUIDE.md)
 Shows how a user is expected to interact with OrchFlow through a realistic end-to-end workflow.
 
+- [Git And GitHub Flow](./GIT-GITHUB-FLOW.md)
+Defines the repository workflow, pull request discipline, versioning model, CI direction, and GitHub configuration standard.
+
 - `docs/context/`
 Contains feature-oriented context documents that describe purpose, scope, planned behavior, interactions, and implementation status.
 

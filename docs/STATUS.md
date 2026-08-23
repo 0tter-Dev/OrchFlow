@@ -38,11 +38,14 @@ OrchFlow is currently in the repository foundation stage as of `2026-08-23`.
 | API surface | Expose orchestration through HTTP endpoints | planned | Must mirror CLI capabilities |
 | Interface layer | Visualize and control projects across client platforms | planned | Interface clients must consume API contracts |
 | Persistence and audit | Store users, projects, permissions, events | planned | Initial direction points to SQLite |
-| DevOps and CI | Enforce repository quality and automation | planned | GitHub-oriented workflow expected |
+| DevOps and CI | Enforce repository quality and automation | in_progress | Git and GitHub flow documented; PR and issue templates plus initial CI workflow created |
 
 ## Implementation Notes
 
 - No application implementation has been created yet.
 - Documentation and repository standards currently define the intended baseline for `v0.1.0`.
 - The initial folder skeleton has been created without feature code files.
+- The Git and GitHub maintenance flow is now documented.
+- Pull request and issue templates plus an initial backend CI workflow have been added locally.
+- Branch protection and remote GitHub enforcement still need to be configured manually in the remote repository.
 - Any implementation work should update this file as features move from `planned` to later states.

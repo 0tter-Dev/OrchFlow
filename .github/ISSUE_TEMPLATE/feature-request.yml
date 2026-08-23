@@ -1,0 +1,56 @@
+name: Feature request
+description: Propose a new capability or meaningful enhancement for OrchFlow.
+title: "[Feature]: "
+labels:
+  - type:feature
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or need
+      description: Explain the need behind the feature.
+      placeholder: What problem are we trying to solve?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: Describe the capability you want to add.
+      placeholder: Describe the desired behavior or workflow.
+    validations:
+      required: true
+
+  - type: textarea
+    id: architecture
+    attributes:
+      label: Architectural impact
+      description: Note any expected impact on scope, boundaries, adapters, persistence, or delivery flow.
+      placeholder: Mention architecture concerns if they are already known.
+    validations:
+      required: false
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance signals
+      description: Describe how we will know this feature is complete.
+      placeholder: Clear expected outcomes, behaviors, or validations.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - core
+        - api
+        - cli
+        - web
+        - docs
+        - devops
+        - other
+    validations:
+      required: true

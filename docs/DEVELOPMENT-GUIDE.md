@@ -59,6 +59,21 @@ Changes require explicit review when they:
 - Cross-feature relationship changes belong in `docs/INDEX.md`
 - User-facing workflow changes should be reflected in `docs/USER-GUIDE.md`
 
+## Naming Rules
+
+- prefer kebab-case for new documentation files, non-Python source-adjacent files, branch names, and free-form repository artifact names
+- avoid spaces in file and directory names
+- use underscores only when a language, framework, platform, or external tool requires an exact name
+- keep standardized dotfiles and externally required repository names unchanged
+
+Examples of valid required exceptions:
+
+- `.github/ISSUE_TEMPLATE/`
+- `.github/PULL_REQUEST_TEMPLATE.md`
+- `.github/ISSUE_TEMPLATE/config.yml`
+- Python dunder files such as `__init__.py`
+- Git-standard files such as `.gitignore`
+
 ## Configuration Rules
 
 - Runtime configuration should be loaded from environment variables

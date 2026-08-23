@@ -1,0 +1,42 @@
+name: Task
+description: Track a focused implementation, documentation, CI, or refactor task.
+title: "[Task]: "
+labels:
+  - type:chore
+body:
+  - type: textarea
+    id: objective
+    attributes:
+      label: Objective
+      description: State the exact outcome this task should produce.
+      placeholder: What should be finished when this task is done?
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope boundaries
+      description: Clarify what is in scope and what is intentionally out of scope.
+      placeholder: Keep the task small and reviewable.
+    validations:
+      required: true
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Implementation notes
+      description: Add any relevant references, risks, or constraints.
+      placeholder: Docs, architecture notes, technical constraints, or dependencies.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Completion checklist
+      options:
+        - label: Documentation impact reviewed
+        - label: Tests or validation impact reviewed
+        - label: No architectural boundary is being changed without approval
+
