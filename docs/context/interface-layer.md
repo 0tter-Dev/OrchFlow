@@ -10,7 +10,7 @@ Provide a clean separation between the backend core and multiple user-facing cli
 
 ## Current Status
 
-`planned`
+`in_progress`
 
 ## Initial Clients
 
@@ -33,6 +33,13 @@ Provide a clean separation between the backend core and multiple user-facing cli
 - the `interface/` folder should act as a physical boundary between the backend core and client implementations
 - visual complexity should remain secondary to operational clarity in `v0.1.2`
 - the first concrete client direction is `web`, but the structure should allow future `mobile` and `desktop` clients
+
+## Implemented Baseline
+
+- `interface/web` now exists as the first concrete interface client
+- the web client is bootstrapped with `React`, `TypeScript`, `Vite`, and `pnpm`
+- the initial web surface validates API consumption through a shared client boundary and a backend health-check screen
+- frontend lint, test, and build scripts are established so later feature work can focus on real operator flows
 
 ## Main Relationships
 

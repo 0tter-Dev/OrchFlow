@@ -30,6 +30,7 @@ Agents must:
 - update all relevant documentation when meaningful implementation work is performed, especially code changes
 - keep `docs/TO-DO.md` limited to upcoming planned steps instead of retaining items that are already implemented
 - avoid placeholder shared abstractions or generic kernel layers unless they serve a clear current purpose
+- follow the documented repository workflow for human-driven and agent-driven pull request delivery
 - avoid hidden architectural drift
 
 ## Scope Boundaries
@@ -97,6 +98,14 @@ Agents must not:
 - introduce autonomous AI control over project lifecycle actions without explicit approval
 - treat generated analysis as verified runtime truth
 - erase or weaken the documentation-first workflow without authorization
-- run Git commands such as `git add`, `git commit`, `git pull`, `git push`, `git merge`, `git rebase`, or remote GitHub write operations unless the user explicitly requests that action
+- run Git commands such as `git add`, `git commit`, `git pull`, `git push`, `git merge`, `git rebase`, or remote GitHub write operations unless the user explicitly requests that action or has explicitly enabled the documented agent-driven Git workflow for the repository
+- use the machine-global Git identity when operating in an agent-driven Git workflow if a repository-specific identity has been documented or configured for OrchFlow
 
 When Git actions are needed but were not explicitly requested, agents should explain the required commands and let the user run them manually.
+
+When the documented agent-driven Git workflow is enabled, agents must:
+
+- use short-lived branches and pull requests exactly as defined in `docs/GIT-GITHUB-FLOW.md`
+- use the repository-specific Git identity configured for OrchFlow instead of the machine-global identity
+- avoid merging their own pull requests
+- leave final review and merge authority to a human maintainer with repository admin access

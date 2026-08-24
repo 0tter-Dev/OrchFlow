@@ -13,7 +13,7 @@ This document tracks the current implementation state of major OrchFlow capabili
 
 ## Current Project Stage
 
-OrchFlow is currently in the `v0.1.2` bootstrap implementation stage as of `2026-08-23`.
+OrchFlow is currently in the `v0.1.2` bootstrap implementation stage as of `2026-08-24`.
 
 ## Feature Table
 
@@ -37,9 +37,9 @@ OrchFlow is currently in the `v0.1.2` bootstrap implementation stage as of `2026
 | AI agent adapter | Analyze project folders and help generate `.bat` scripts | planned | Optional, mediated, review-driven, and mapping-aware |
 | CLI surface | Expose orchestration through terminal commands | in_progress | Authentication, project registry, lifecycle execution, and runtime inspection are mirrored in `v0.1.2`; broader operator workflows still pending |
 | API surface | Expose orchestration through HTTP endpoints | in_progress | Authentication, project registry, lifecycle execution, and runtime inspection are mirrored in `v0.1.2`; broader operator workflows still pending |
-| Interface layer | Visualize and control projects across client platforms | planned | Interface clients must consume API contracts |
+| Interface layer | Visualize and control projects across client platforms | in_progress | `interface/web` bootstrap added in `v0.1.2` with a minimal health-check surface and shared API client boundary |
 | Persistence and audit | Store users, projects, permissions, events | in_progress | SQLAlchemy engine/session bootstrap and Alembic migration base added in `v0.1.2` |
-| DevOps and CI | Enforce repository quality and automation | in_progress | Git and GitHub flow documented; PR and issue templates plus initial CI workflow created |
+| DevOps and CI | Enforce repository quality and automation | in_progress | Git and GitHub flow documented, including human-driven and agent-driven PR modes; PR and issue templates plus backend and frontend validation workflow created |
 
 ## Implementation Notes
 
@@ -53,9 +53,11 @@ OrchFlow is currently in the `v0.1.2` bootstrap implementation stage as of `2026
 - Project registry is now implemented for existing `.bat` onboarding, with ownership persistence and auditable lifecycle action mappings exposed in both API and CLI.
 - Lifecycle orchestration is now implemented with the first Windows batch execution flow using command-dispatch by argument and mirrored lifecycle actions in API and CLI.
 - Runtime inspection is now implemented with a first Windows-local baseline that extracts script hints, inspects listening ports and process metadata, and mirrors the capability in API and CLI.
+- The first web client bootstrap now exists in `interface/web`, with a minimal health-check screen and a feature-oriented structure ready for real operator workflows.
 - The Git and GitHub maintenance flow is now documented.
-- Pull request and issue templates plus an initial backend CI workflow have been added locally.
-- The backend CI workflow now expects collected tests because the bootstrap stage includes smoke coverage.
+- The Git and GitHub flow now documents both human-driven and agent-driven pull request authorship, while preserving human review and merge authority on protected branches.
+- Pull request and issue templates plus CI workflow coverage for backend and frontend validation have been added locally.
+- The backend CI workflow now expects collected tests because the bootstrap stage includes smoke coverage, and the repository now also validates the new frontend bootstrap.
 - The frontend package manager direction is now defined as `pnpm`.
 - Branch protection and remote GitHub enforcement still need to be configured manually in the remote repository.
 - Any implementation work should update this file as features move from `planned` to later states.

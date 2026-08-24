@@ -102,8 +102,11 @@ The project should adopt tests progressively in the following order:
 - Keep changes small and reviewable
 - Prefer short-lived branches
 - Require pull-request review for protected branches
+- Allow both human-driven and agent-driven pull request authorship as long as the documented review and identity rules are respected
 - Use semantic versioning
 - Treat documentation and tests as part of the expected change set
+
+When an AI agent is allowed to execute Git operations for this repository, it should do so only through the documented repository workflow, using a repository-specific Git identity and leaving review and merge authority to a human maintainer.
 
 ## CI/CD Direction
 

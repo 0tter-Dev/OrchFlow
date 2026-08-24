@@ -41,3 +41,36 @@ jobs:
 
       - name: Run pytest
         run: uv run pytest
+
+  frontend:
+    name: Frontend Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install frontend dependencies
+        working-directory: interface/web
+        run: pnpm install --frozen-lockfile
+
+      - name: Run frontend lint
+        working-directory: interface/web
+        run: pnpm lint
+
+      - name: Run frontend tests
+        working-directory: interface/web
+        run: pnpm test
+
+      - name: Run frontend build
+        working-directory: interface/web
+        run: pnpm build
