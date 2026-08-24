@@ -41,6 +41,7 @@ pip-wheel-metadata/
 *.pid
 *.pid.lock
 tmp/
+.tmp/
 temp/
 
 # Node / UI

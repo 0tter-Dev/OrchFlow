@@ -270,8 +270,6 @@ For the current backend baseline, the expected validation direction is:
 - `uv run mypy src`
 - `uv run pytest`
 
-When the frontend is introduced, this document should be extended with the corresponding validation commands for `interface/web`.
-
 The selected frontend package manager for `v0.1.2` is `pnpm`.
 
 The expected frontend validation direction is:
@@ -326,7 +324,7 @@ As backend code grows:
 
 ### Stage 3
 
-When the web client exists:
+Now that the web client exists:
 
 - frontend install
 - frontend lint
@@ -441,12 +439,10 @@ Recommended labels:
 
 ## Current Adoption State
 
-As of `2026-08-23`, this workflow is documented and should be treated as the intended standard for upcoming work.
+As of `2026-08-24`, this workflow is documented and already supports both maintainer-authored and agent-authored pull requests for upcoming work.
 
-The repository still needs:
+The repository should continue evolving with:
 
-- remote GitHub configuration
-- branch protection rules
 - release automation
-
-Those items should be implemented incrementally according to this document.
+- deeper CI quality gates as implementation scope grows
+- any future team-scaling rules that become necessary beyond the current maintainer plus agent model

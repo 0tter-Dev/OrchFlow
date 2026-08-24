@@ -1,5 +1,10 @@
 import "./App.css";
 
+import { LoginPanel } from "../features/auth/components/LoginPanel";
+import { useAuthSession } from "../features/auth/hooks/useAuthSession";
+import { ProjectDetailPanel } from "../features/projects/components/ProjectDetailPanel";
+import { ProjectListPanel } from "../features/projects/components/ProjectListPanel";
+import { useProjectWorkspace } from "../features/projects/hooks/useProjectWorkspace";
 import { HealthCheckCard } from "../features/system-health/components/HealthCheckCard";
 import { useHealthStatus } from "../features/system-health/hooks/useHealthStatus";
 import { getApiBaseUrl } from "../shared/config/env";
@@ -7,19 +12,27 @@ import { getApiBaseUrl } from "../shared/config/env";
 const apiBaseUrl = getApiBaseUrl();
 
 export function App() {
+  const authSession = useAuthSession();
+  const projectWorkspace = useProjectWorkspace(authSession.token);
   const { errorMessage, healthStatus, isLoading, lastUpdated, refresh } = useHealthStatus();
 
   return (
     <main className="app-shell">
       <div className="app-frame">
         <section className="hero">
-          <span className="hero__eyebrow">OrchFlow Web Bootstrap</span>
+          <div className="hero__topline">
+            <span className="hero__eyebrow">OrchFlow Web Operator Surface</span>
+            <span className="hero__status">
+              <span className="hero__status-dot" data-status={healthStatus?.status ?? "unknown"} />
+              API health: {healthStatus?.status ?? (isLoading ? "loading" : "unknown")}
+            </span>
+          </div>
           <div>
-            <h1 className="hero__title">A base visual para operar OrchFlow com clareza.</h1>
+            <h1 className="hero__title">Operate registered projects through the first real web flow.</h1>
             <p className="hero__copy">
-              Este primeiro bootstrap do cliente web valida a fronteira de consumo da API,
-              consolida o stack `React` + `TypeScript` + `Vite` + `pnpm` e deixa pronta a
-              fundação para o fluxo de autenticação, projetos e lifecycle do próximo PR.
+              The web client now consumes the same backend contracts already stabilized in API and
+              CLI. This stage introduces login, project visibility, runtime inspection, and the
+              first lifecycle controls in one operator-focused workspace.
             </p>
           </div>
 
@@ -30,36 +43,81 @@ export function App() {
             </article>
             <article className="meta-card">
               <span className="meta-card__label">Current Focus</span>
-              <strong className="meta-card__value">Health check + interface foundation</strong>
+              <strong className="meta-card__value">Auth, projects, runtime, and lifecycle</strong>
             </article>
           </div>
         </section>
 
-        <section className="canvas">
-          <HealthCheckCard
-            apiBaseUrl={apiBaseUrl}
-            errorMessage={errorMessage}
-            healthStatus={healthStatus}
-            isLoading={isLoading}
-            lastUpdated={lastUpdated}
-            onRefresh={refresh}
-          />
+        {authSession.currentUser === null ? (
+          <section className="guest-layout">
+            <HealthCheckCard
+              apiBaseUrl={apiBaseUrl}
+              errorMessage={errorMessage}
+              healthStatus={healthStatus}
+              isLoading={isLoading}
+              lastUpdated={lastUpdated}
+              onRefresh={refresh}
+            />
 
-          <aside className="panel">
-            <h2 className="panel__title">What this PR leaves ready</h2>
-            <p className="panel__copy">
-              The web boundary is now bootstrapped around the same backend contracts already
-              available in the project. The next step can focus on real operator flows instead
-              of setup churn.
-            </p>
-            <ul className="panel__list">
-              <li>API client boundary isolated in shared code</li>
-              <li>Feature-oriented folder structure for the web client</li>
-              <li>Frontend lint, test, and build scripts aligned with `pnpm`</li>
-              <li>Initial visual surface for validating local integration quickly</li>
-            </ul>
-          </aside>
-        </section>
+            <div className="support-panel">
+              <LoginPanel
+                errorMessage={authSession.errorMessage}
+                isLoading={authSession.isLoading}
+                onSubmit={authSession.login}
+              />
+              <aside className="support-panel__card">
+                <h2 className="support-panel__title">What this stage unlocks</h2>
+                <p className="support-panel__copy">
+                  Once authenticated, the web client moves beyond the bootstrap health-check and
+                  starts acting as a practical operator surface for already managed projects.
+                </p>
+                <ul className="support-panel__list">
+                  <li>Load the same authenticated project registry exposed by the API and CLI</li>
+                  <li>Inspect runtime state without leaving the browser</li>
+                  <li>Trigger `status`, `start`, `stop`, and `restart` from the same workspace</li>
+                  <li>Keep the frontend aligned with the documented local-first scope</li>
+                </ul>
+              </aside>
+            </div>
+          </section>
+        ) : (
+          <section className="workspace-layout">
+            <ProjectListPanel
+              currentUser={authSession.currentUser}
+              errorMessage={projectWorkspace.errorMessage}
+              isLoading={projectWorkspace.isLoadingProjects}
+              onRefresh={projectWorkspace.refresh}
+              onSearchQueryChange={projectWorkspace.setSearchQuery}
+              onSelectProject={projectWorkspace.selectProject}
+              projects={projectWorkspace.projects}
+              searchQuery={projectWorkspace.searchQuery}
+              selectedProjectId={projectWorkspace.selectedProjectId}
+            />
+
+            <div className="support-panel">
+              <ProjectDetailPanel
+                activeAction={projectWorkspace.activeAction}
+                currentUser={authSession.currentUser}
+                errorMessage={projectWorkspace.errorMessage}
+                isLoadingDetail={projectWorkspace.isLoadingDetail}
+                lifecycleResult={projectWorkspace.lifecycleResult}
+                onLogout={authSession.logout}
+                onRefreshProject={projectWorkspace.refresh}
+                onRunLifecycleAction={projectWorkspace.runLifecycleAction}
+                runtimeSnapshot={projectWorkspace.runtimeSnapshot}
+                selectedProject={projectWorkspace.selectedProject}
+              />
+              <HealthCheckCard
+                apiBaseUrl={apiBaseUrl}
+                errorMessage={errorMessage}
+                healthStatus={healthStatus}
+                isLoading={isLoading}
+                lastUpdated={lastUpdated}
+                onRefresh={refresh}
+              />
+            </div>
+          </section>
+        )}
       </div>
     </main>
   );
