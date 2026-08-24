@@ -60,6 +60,9 @@ For the web client, the selected JavaScript package manager is `pnpm`.
 ```bash
 corepack enable
 pnpm --version
+cd interface/web
+pnpm install
+pnpm dev
 ```
 
 For local runtime configuration, copy `.env.example` into a local `.env` file and adjust the values for your machine.
@@ -74,4 +77,4 @@ For local runtime configuration, copy `.env.example` into a local `.env` file an
 
 ## Status
 
-The repository is currently in the `v0.1.2` bootstrap implementation stage. The architectural documentation is established, the stack baseline is defined, and the initial backend application skeleton is the first active implementation milestone.
+The repository is currently in the `v0.1.2` bootstrap implementation stage. The architectural documentation is established, the stack baseline is defined, the backend foundation is active, and the first web bootstrap now exists in `interface/web`.

@@ -1,0 +1,131 @@
+.health-card {
+  display: grid;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-radius: 24px;
+  background:
+    linear-gradient(145deg, rgba(16, 30, 46, 0.92), rgba(7, 15, 24, 0.88)),
+    linear-gradient(90deg, rgba(234, 132, 72, 0.16), rgba(94, 182, 174, 0.16));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 22px 48px rgba(3, 8, 17, 0.28);
+}
+
+.health-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.health-card__eyebrow {
+  display: inline-flex;
+  margin-bottom: 0.35rem;
+  color: #ffbf93;
+  font-size: 0.76rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.health-card__title {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.health-card__button {
+  padding: 0.7rem 1.05rem;
+  border: 0;
+  border-radius: 999px;
+  background: #ea8448;
+  color: #08101b;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform 140ms ease,
+    box-shadow 140ms ease,
+    background 140ms ease;
+}
+
+.health-card__button:hover {
+  background: #f19863;
+  box-shadow: 0 10px 24px rgba(234, 132, 72, 0.24);
+  transform: translateY(-1px);
+}
+
+.health-card__surface {
+  display: grid;
+  gap: 1rem;
+}
+
+.health-card__summary {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.health-card__label {
+  display: block;
+  margin-bottom: 0.3rem;
+  color: rgba(245, 239, 226, 0.64);
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.health-card__message {
+  margin: 0;
+  padding: 0.95rem 1rem;
+  border-radius: 16px;
+  background: rgba(94, 182, 174, 0.12);
+  color: #b2fff7;
+}
+
+.health-card__error {
+  display: grid;
+  gap: 0.3rem;
+  padding: 1rem;
+  border-radius: 16px;
+  background: rgba(208, 72, 45, 0.16);
+  color: #ffd2c7;
+}
+
+.health-card__metrics {
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  margin: 0;
+}
+
+.health-card__metrics div {
+  padding: 1rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.health-card__metrics dt {
+  margin-bottom: 0.4rem;
+  color: rgba(245, 239, 226, 0.64);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.health-card__metrics dd {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.health-card__metrics dd[data-status="ok"] {
+  color: #99efe6;
+}
+
+@media (max-width: 640px) {
+  .health-card__header {
+    flex-direction: column;
+  }
+
+  .health-card__button {
+    width: 100%;
+  }
+}

@@ -43,10 +43,10 @@ temp/
 
 # Node / UI
 node_modules/
-interface/ui/dist/
-interface/ui/coverage/
-interface/ui/.vite/
-interface/ui/.cache/
+interface/web/dist/
+interface/web/coverage/
+interface/web/.vite/
+interface/web/.cache/
 *.tsbuildinfo
 
 # Test artifacts

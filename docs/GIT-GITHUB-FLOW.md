@@ -29,6 +29,7 @@ This means:
 - all changes return through pull requests
 - no direct pushes should be allowed to `main`
 - branches should be deleted after merge
+- work may be authored either by a human contributor or by an authorized AI agent using a dedicated repository identity
 
 This project should not adopt a heavy Git Flow model in `v0.1.2`.
 
@@ -127,6 +128,28 @@ The expected lifecycle for each change is:
 9. merge with squash merge
 10. delete the branch
 
+## Contributor Modes
+
+OrchFlow supports two compatible delivery modes:
+
+- human-driven pull requests, where the contributor authors the branch, commit, and pull request directly
+- agent-driven pull requests, where an authorized AI agent performs the Git work on behalf of the repository using a dedicated repository identity
+
+Both modes must follow the same protected-branch, validation, documentation, and review requirements.
+
+## Agent-Driven Pull Request Rules
+
+When agent-driven delivery is enabled for this repository:
+
+- the agent may create branches, commit changes, push branches, and open pull requests
+- the agent must not merge its own pull requests
+- final review and merge authority must remain with a human maintainer who has repository admin access
+- the agent should use a dedicated repository identity instead of the machine-global Git identity
+- the agent should prefer one dedicated identity for the repository so PR authorship remains clear and auditable
+- the repository should document that identity policy in `AGENTS.md`
+
+This model is especially useful when the repository owner is the only human reviewer but still wants agent-authored pull requests that can be reviewed from the maintainer account.
+
 ## Pull Request Rules
 
 Every pull request should:
@@ -141,6 +164,12 @@ Every pull request should:
 - mention follow-up work if relevant
 
 Pull requests should be considered incomplete if they change behavior without updating the relevant documentation.
+
+For agent-authored pull requests, the description should also make clear that:
+
+- the branch was prepared through the documented agent-driven workflow
+- validation was executed before the pull request was opened
+- merge is still reserved for a human maintainer review
 
 ## Merge Strategy
 
@@ -342,6 +371,37 @@ Required settings:
 - allow squash merge
 - disable merge commits
 
+### Review Model Notes
+
+GitHub does not allow a pull request author to satisfy the required approval with their own review.
+
+Because of that, repositories using agent-driven pull requests should treat the reviewer as a distinct human maintainer account from the PR author identity.
+
+For a solo-maintainer repository, the recommended practical setup is:
+
+- keep the primary maintainer account as the admin reviewer and merger
+- create one dedicated GitHub identity for agent-authored pull requests
+- grant that identity only the minimum repository access needed to create branches and pull requests
+- authenticate local agent tooling with that dedicated identity instead of the maintainer identity
+
+## Repository Identity Guidance
+
+The preferred identity model for agent-driven work is:
+
+- one dedicated GitHub user for repository automation and AI-authored pull requests
+- repository-local Git `user.name` and `user.email` configuration matching that identity
+- repository-scoped authentication for `git` and `gh`
+- no reliance on the machine-global Git identity for agent-authored work
+
+Recommended setup sequence:
+
+1. create a dedicated GitHub account for agent-authored work
+2. invite that account to the repository with write access
+3. generate repository-scoped credentials for that identity
+4. authenticate `git` and `gh` locally with that identity
+5. set repository-local `git config user.name` and `git config user.email`
+6. keep the maintainer account as the reviewer and merger on protected branches
+
 Recommended supporting artifacts:
 
 - pull request template
@@ -377,6 +437,7 @@ Recommended labels:
 - do not bundle unrelated work into a single branch
 - do not introduce release automation before basic CI is stable
 - do not treat a green CI run as a substitute for design review
+- do not let an agent use the maintainer's Git identity for authorship when a dedicated repository identity is expected
 
 ## Current Adoption State
 
