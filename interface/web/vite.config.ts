@@ -3,6 +3,14 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   plugins: [react()],
+  server: {
+    proxy: {
+      "/orchflow-api": {
+        rewrite: (path) => path.replace(/^\/orchflow-api/, ""),
+        target: "http://localhost:8000",
+      },
+    },
+  },
   test: {
     css: true,
     environment: "jsdom",

@@ -33,6 +33,7 @@ Expose the same core application behavior through both CLI and API without dupli
 - CLI and API both expose authentication, project registry, lifecycle execution, and runtime inspection
 - lifecycle responses now include a summarized runtime status when inspection is available
 - direct runtime inspection is available through `GET /projects/{project_id}/runtime` and the mirrored CLI command `runtime inspect`
+- the first `interface/web` operator flow now consumes these same contracts for sign-in, project visibility, runtime inspection, and lifecycle controls
 
 ## Main Relationships
 

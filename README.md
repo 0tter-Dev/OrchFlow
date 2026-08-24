@@ -65,7 +65,27 @@ pnpm install
 pnpm dev
 ```
 
+The current backend validation flow is:
+
+```bash
+uv run ruff check .
+uv run mypy src
+uv run pytest
+uv run alembic upgrade head
+```
+
+The current frontend validation flow is:
+
+```bash
+cd interface/web
+pnpm lint
+pnpm test
+pnpm build
+```
+
 For local runtime configuration, copy `.env.example` into a local `.env` file and adjust the values for your machine.
+
+The `interface/web` client now defaults to `VITE_API_BASE_URL=/orchflow-api` so local Vite development can proxy API traffic to the backend without changing backend contracts.
 
 ## Out Of Scope For v0.1.2
 
@@ -77,4 +97,6 @@ For local runtime configuration, copy `.env.example` into a local `.env` file an
 
 ## Status
 
-The repository is currently in the `v0.1.2` bootstrap implementation stage. The architectural documentation is established, the stack baseline is defined, the backend foundation is active, and the first web bootstrap now exists in `interface/web`.
+The repository is currently in the `v0.1.2` implementation stage with the backend foundation, mirrored API and CLI operational surfaces, runtime inspection baseline, and the first practical `interface/web` operator flow now implemented on top of those contracts.
+
+The current web baseline includes authenticated session loading, project listing, project details, runtime inspection visibility, and the first lifecycle controls wired directly through the API.

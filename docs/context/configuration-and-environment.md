@@ -25,6 +25,7 @@ OrchFlow should adopt:
 
 - application environment
 - API host and port
+- web API base URL
 - database file path
 - JWT secret and token settings
 - logging mode
@@ -45,3 +46,4 @@ OrchFlow should adopt:
 - supports `Persistence And Audit`
 - supports `AI Agent Adapter`
 - supports `External Surfaces`
+- supports `Interface Layer`

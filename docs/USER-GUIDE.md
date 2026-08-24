@@ -12,7 +12,15 @@ A user wants to bring a local project under OrchFlow control so they can start, 
 
 ### 1. Sign In
 
-The user signs in with an existing OrchFlow account.
+The user signs in with an existing OrchFlow account through one of the available operational surfaces.
+
+At the current implementation stage, the operational surfaces already implemented are:
+
+- `CLI`
+- `API`
+- `web`
+
+`CLI` and `API` remain the reference backend delivery surfaces, and the `web` interface now mirrors the first practical operator workflow on top of those same contracts.
 
 - `member` users work with their permitted projects
 - `admin` users can manage all projects and user permissions
@@ -64,6 +72,8 @@ After registration, the user can inspect:
 - uptime
 - CPU and memory usage
 
+At the current implementation stage, these inspection capabilities are already exposed through `CLI`, `API`, and the first authenticated `web` workspace.
+
 ### 4. Control The Lifecycle
 
 The user can request:
@@ -74,6 +84,8 @@ The user can request:
 - `restart`
 
 OrchFlow executes the action using the registered lifecycle `.bat` contract and records the event.
+
+At the current implementation stage, these lifecycle actions are already available through the mirrored `CLI` and `API` surfaces, and the first web workspace can already trigger them for authenticated users, with runtime status summaries returned when inspection is available.
 
 ### 5. Review History
 
