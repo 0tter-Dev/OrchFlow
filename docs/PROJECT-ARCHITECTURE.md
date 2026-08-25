@@ -20,7 +20,7 @@ The platform must centralize:
 
 ## Core Principle
 
-In `v0.1.2`, every managed project must have a concrete lifecycle control definition based on a Windows `.bat` script. This script is the authoritative operational contract used by OrchFlow to control the project lifecycle.
+In `v0.2.0`, every managed project must have a concrete lifecycle control definition based on a Windows `.bat` script. This script is the authoritative operational contract used by OrchFlow to control the project lifecycle.
 
 The `AI Agent Adapter` is optional and assistive. It may connect OrchFlow to a local AI provider, initially expected to support local `Ollama`, so a user can analyze a selected folder and generate or refine a `.bat` lifecycle script. It must not replace the explicit script contract.
 
@@ -35,7 +35,7 @@ The `AI Agent Adapter` is optional and assistive. It may connect OrchFlow to a l
 - Enforce authentication and authorization through application users and permissions
 - Establish a disciplined engineering foundation for Git, GitHub, testing, and CI
 
-## Non-Goals For v0.1.2
+## Non-Goals For v0.2.0
 
 - Container orchestration
 - Multi-host orchestration
@@ -112,7 +112,7 @@ OrchFlow should:
 - mediate optional AI-assisted project analysis and script generation
 - expose consistent operational capabilities through CLI, API, and interface adapters
 
-OrchFlow should not, in `v0.1.2`:
+OrchFlow should not, in `v0.2.0`:
 
 - behave as a container orchestrator
 - assume remote infrastructure control
@@ -168,7 +168,7 @@ These interface clients should consume the API rather than bypassing the backend
 
 `SQLite` is the initial persistence candidate because it supports a lightweight local-first workflow while still allowing robust enough storage for users, projects, permissions, lifecycle metadata, and audit events.
 
-For `v0.1.2`, the selected backend persistence stack is `SQLite` with `SQLAlchemy` and `Alembic`.
+For `v0.2.0`, the selected backend persistence stack is `SQLite` with `SQLAlchemy` and `Alembic`.
 
 ## Selected Technology Direction
 

@@ -18,6 +18,8 @@ Provide a normalized internal project definition regardless of how a project was
 
 The user selects an existing `.bat` file that already defines lifecycle control.
 
+For the current Windows batch adapter, registration validates that the selected script can be controlled through first-argument command dispatch, such as `control.bat STATUS`. Each canonical lifecycle action must resolve to a dispatch identifier either through the preferred default labels or through user-defined action mappings.
+
 ### AI-Assisted Script Creation
 
 The user selects a project folder, OrchFlow analyzes it through the `AI Agent Adapter`, and the user reviews a suggested `.bat` lifecycle script before registration.
@@ -30,6 +32,8 @@ The user selects a project folder, OrchFlow analyzes it through the `AI Agent Ad
 - the registry should normalize onboarding inputs into a common internal project definition
 - project connection details should be represented through a generic `Project Adapter` contract
 - project-specific lifecycle action mappings must be persistable when canonical labels are not used
+- existing `.bat` registration must validate first-argument dispatch compatibility before persisting the project definition
+- scripts that define labels or menus but do not dispatch from `%~1` or `%1` should be rejected with actionable operator-facing guidance
 - AI-generated script proposals must not be persisted without user review
 - the first concrete registration flow may focus on existing `.bat` files before AI-assisted onboarding is introduced
 

@@ -54,12 +54,24 @@ This mapping should be stored as part of the project integration definition and 
 
 Action mappings should be persisted per project and associated with the responsible user action so OrchFlow can consistently execute the correct script behavior later.
 
+## Current Dispatch Contract
+
+The current Windows batch adapter executes lifecycle actions by calling the registered script with one command identifier argument:
+
+```text
+control.bat ACTION_IDENTIFIER
+```
+
+By default, OrchFlow resolves canonical actions to uppercase identifiers such as `STATUS`, `START`, `STOP`, and `RESTART`. When a project uses different identifiers, user-defined mappings such as `start -> INICIAR` determine the identifier passed to the script.
+
+Project registration validates that every effective identifier is represented by a first-argument dispatch handler before the project is persisted.
+
 ## Key Rules
 
 - OrchFlow must not encode one-off project logic directly into the core
 - the adapter must remain project-agnostic and configuration-driven
 - the adapter should support different projects without changing the domain model
-- the adapter must treat the lifecycle `.bat` file as the operational authority in `v0.1.2`
+- the adapter must treat the lifecycle `.bat` file as the operational authority in `v0.2.0`
 - OrchFlow should always target canonical lifecycle actions internally, even when external scripts use different names
 - mapping flexibility must not weaken auditability or traceability
 - the first concrete adapter path may assume command-dispatch by argument for `.bat` execution, and this assumption should remain explicit until broader script compatibility is added

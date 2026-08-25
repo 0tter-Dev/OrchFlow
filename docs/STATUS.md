@@ -13,7 +13,7 @@ This document tracks the current implementation state of major OrchFlow capabili
 
 ## Current Project Stage
 
-OrchFlow is currently in the `v0.1.2` implementation stage as of `2026-08-24`.
+OrchFlow is currently in the `v0.2.0` implementation stage as of `2026-08-24`.
 
 ## Feature Table
 
@@ -27,30 +27,30 @@ OrchFlow is currently in the `v0.1.2` implementation stage as of `2026-08-24`.
 | Python project metadata | Define the backend package and toolchain baseline | implemented | `uv` and `pyproject.toml` initialized |
 | Frontend package manager decision | Define the JavaScript package manager baseline for the web client | implemented | `pnpm` selected for the `interface/web` direction |
 | Repository standards | Define ignore rules, line endings, editor behavior, and license | implemented | Git foundation files created |
-| Configuration contract | Define runtime configuration and `.env` direction | in_progress | Validated settings loading and path normalization added in `v0.1.2`; further feature-specific config still pending |
-| Access control | Authenticate users and enforce permissions | implemented | Bootstrap admin creation, JWT login, current-user resolution, admin listing, and audit logging added in `v0.1.2` |
-| Project registry | Register and persist project definitions | implemented | Existing `.bat` registration, ownership persistence, and normalized action mappings added in `v0.1.2` |
-| Project adapter | Connect OrchFlow to managed projects through a generic adapter boundary | implemented | Windows `.bat` command-dispatch adapter with canonical action mapping resolution added in `v0.1.2` |
+| Configuration contract | Define runtime configuration and `.env` direction | in_progress | Validated settings loading and path normalization are implemented; further feature-specific config still pending |
+| Access control | Authenticate users and enforce permissions | implemented | Bootstrap admin creation, JWT login, current-user resolution, admin listing, and audit logging are implemented |
+| Project registry | Register and persist project definitions | implemented | Existing `.bat` registration, ownership persistence, normalized action mappings, and first-argument dispatch validation are implemented |
+| Project adapter | Connect OrchFlow to managed projects through a generic adapter boundary | implemented | Windows `.bat` command-dispatch adapter with canonical action mapping resolution is implemented |
 | Lifecycle script template | Define the standard `.bat` contract used by managed projects | implemented | Includes minimum actions and a concrete reference-based example |
-| Lifecycle orchestration | Run `status`, `start`, `stop`, `restart` | implemented | First practical execution flow with auditable results exposed in API and CLI in `v0.1.2` |
-| Runtime inspection | Inspect ports, PID, CPU, memory, uptime | implemented | Windows-local inspection baseline added in `v0.1.2` with port, URL, PID, uptime, CPU, and memory summaries exposed in API and CLI |
+| Lifecycle orchestration | Run `status`, `start`, `stop`, `restart` | implemented | First practical execution flow with auditable results exposed in API and CLI is implemented |
+| Runtime inspection | Inspect ports, PID, CPU, memory, uptime | implemented | Windows-local inspection baseline with port, URL, PID, uptime, CPU, and memory summaries is exposed in API and CLI |
 | AI agent adapter | Analyze project folders and help generate `.bat` scripts | planned | Optional, mediated, review-driven, and mapping-aware |
-| CLI surface | Expose orchestration through terminal commands | in_progress | Authentication, project registry, lifecycle execution, and runtime inspection are mirrored in `v0.1.2`; broader operator workflows still pending |
-| API surface | Expose orchestration through HTTP endpoints | in_progress | Authentication, project registry, lifecycle execution, and runtime inspection are mirrored in `v0.1.2`; broader operator workflows still pending |
-| Interface layer | Visualize and control projects across client platforms | in_progress | `interface/web` now includes authenticated session loading, project visibility, runtime inspection, lifecycle controls, and a shared API client boundary in `v0.1.2` |
-| Persistence and audit | Store users, projects, permissions, events | in_progress | SQLAlchemy engine/session bootstrap and Alembic migration base added in `v0.1.2` |
+| CLI surface | Expose orchestration through terminal commands | in_progress | Authentication, project registry, lifecycle execution, and runtime inspection are mirrored; broader operator workflows still pending |
+| API surface | Expose orchestration through HTTP endpoints | in_progress | Authentication, project registry, lifecycle execution, and runtime inspection are mirrored; broader operator workflows still pending |
+| Interface layer | Visualize and control projects across client platforms | in_progress | `interface/web` includes authenticated session loading, project visibility, runtime inspection, lifecycle controls, and a shared API client boundary |
+| Persistence and audit | Store users, projects, permissions, events | in_progress | SQLAlchemy engine/session bootstrap, Alembic migrations, users, audit events, projects, ownership, and lifecycle action mappings are implemented |
 | DevOps and CI | Enforce repository quality and automation | in_progress | Git and GitHub flow documented, including human-driven and agent-driven PR modes; PR and issue templates plus backend and frontend validation workflow created |
 
 ## Implementation Notes
 
 - The initial project planning, documentation baseline, and repository skeleton were completed before the current implementation stage.
 - The consolidated documentation model and Git plus GitHub workflow foundation were completed before the current implementation stage.
-- The project is now operating in `v0.1.2`, which formalizes the stack decisions, clarifies architectural constraints, and carries the first real backend and web implementation milestones on `main`.
+- The project is now operating in `v0.2.0`, which consolidates the first real backend and web implementation milestones on `main`.
 - The initial backend bootstrap now exists with executable API and CLI entrypoints plus smoke tests.
-- Configuration loading, runtime path normalization, SQLAlchemy bootstrap, and Alembic base migration are now in progress as part of `v0.1.2`.
+- Configuration loading, runtime path normalization, SQLAlchemy bootstrap, and Alembic migrations are available as part of the current baseline.
 - API and CLI should keep evolving as mirrored external surfaces whenever a capability is intentionally exposed to operators.
 - Access control is now implemented at the foundation level with mirrored registration, login, current-user, and admin listing flows in API and CLI.
-- Project registry is now implemented for existing `.bat` onboarding, with ownership persistence and auditable lifecycle action mappings exposed in both API and CLI.
+- Project registry is now implemented for existing `.bat` onboarding, with ownership persistence, auditable lifecycle action mappings, and registration-time validation for first-argument dispatch compatibility exposed in both API and CLI.
 - Lifecycle orchestration is now implemented with the first Windows batch execution flow using command-dispatch by argument and mirrored lifecycle actions in API and CLI.
 - Runtime inspection is now implemented with a first Windows-local baseline that extracts script hints, inspects listening ports and process metadata, and mirrors the capability in API and CLI.
 - The first practical web client flow now exists in `interface/web`, covering sign-in, project listing, project details, runtime inspection visibility, and the first lifecycle controls against the stabilized API contracts.

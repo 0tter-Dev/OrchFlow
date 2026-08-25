@@ -15,7 +15,7 @@ def test_info_command_displays_bootstrap_metadata() -> None:
     result = runner.invoke(app, ["info"])
 
     assert result.exit_code == 0
-    assert "OrchFlow 0.1.2" in result.stdout
+    assert "OrchFlow 0.2.0" in result.stdout
     assert "stage: bootstrap" in result.stdout
 
 
@@ -91,7 +91,15 @@ def test_cli_project_registry_flow_is_available(
     project_dir = tmp_path / "cli-project"
     project_dir.mkdir()
     lifecycle_script = project_dir / "control.bat"
-    lifecycle_script.write_text("@echo off\r\necho CLI\r\n", encoding="utf-8")
+    lifecycle_script.write_text(
+        "@echo off\r\n"
+        "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
+        "if /I \"%~1\"==\"INICIAR\" echo start-ok & exit /b 0\r\n"
+        "if /I \"%~1\"==\"STOP\" echo stop-ok & exit /b 0\r\n"
+        "if /I \"%~1\"==\"RESTART\" echo restart-ok & exit /b 0\r\n"
+        "exit /b 1\r\n",
+        encoding="utf-8",
+    )
 
     register_result = runner.invoke(
         app,
@@ -205,6 +213,9 @@ def test_cli_runtime_inspection_flow_is_available(
         "set \"APP_PORT=49191\"\r\n"
         "set \"APP_URL=http://localhost:49191\"\r\n"
         "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
+        "if /I \"%~1\"==\"START\" echo start-ok & exit /b 0\r\n"
+        "if /I \"%~1\"==\"STOP\" echo stop-ok & exit /b 0\r\n"
+        "if /I \"%~1\"==\"RESTART\" echo restart-ok & exit /b 0\r\n"
         "exit /b 0\r\n",
         encoding="utf-8",
     )

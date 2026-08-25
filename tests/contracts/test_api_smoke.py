@@ -17,7 +17,7 @@ def test_root_returns_bootstrap_metadata() -> None:
     assert response.status_code == 200
     assert response.json() == {
         "name": "OrchFlow",
-        "version": "0.1.2",
+        "version": "0.2.0",
         "status": "ok",
         "stage": "bootstrap",
     }
@@ -126,7 +126,15 @@ def test_project_registry_flow_is_exposed_in_api(
     project_dir = tmp_path / "api-project"
     project_dir.mkdir()
     lifecycle_script = project_dir / "control.bat"
-    lifecycle_script.write_text("@echo off\r\necho API\r\n", encoding="utf-8")
+    lifecycle_script.write_text(
+        "@echo off\r\n"
+        "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
+        "if /I \"%~1\"==\"INICIAR\" echo start-ok & exit /b 0\r\n"
+        "if /I \"%~1\"==\"PARAR\" echo stop-ok & exit /b 0\r\n"
+        "if /I \"%~1\"==\"RESTART\" echo restart-ok & exit /b 0\r\n"
+        "exit /b 1\r\n",
+        encoding="utf-8",
+    )
 
     register_response = client.post(
         "/projects",
@@ -229,6 +237,9 @@ def test_runtime_inspection_is_exposed_in_api(
         "set \"APP_PORT=49190\"\r\n"
         "set \"APP_URL=http://localhost:49190\"\r\n"
         "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
+        "if /I \"%~1\"==\"START\" echo start-ok & exit /b 0\r\n"
+        "if /I \"%~1\"==\"STOP\" echo stop-ok & exit /b 0\r\n"
+        "if /I \"%~1\"==\"RESTART\" echo restart-ok & exit /b 0\r\n"
         "exit /b 0\r\n",
         encoding="utf-8",
     )

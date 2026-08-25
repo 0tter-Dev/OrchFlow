@@ -45,6 +45,9 @@ def _write_runtime_batch(path: Path, port: int) -> None:
         f'set "APP_PORT={port}"\r\n'
         f'set "APP_URL=http://localhost:{port}"\r\n'
         "if /I \"%~1\"==\"STATUS\" goto STATUS\r\n"
+        "if /I \"%~1\"==\"START\" echo start-ok & exit /b 0\r\n"
+        "if /I \"%~1\"==\"STOP\" echo stop-ok & exit /b 0\r\n"
+        "if /I \"%~1\"==\"RESTART\" echo restart-ok & exit /b 0\r\n"
         "exit /b 1\r\n"
         ":STATUS\r\n"
         "for /f \"tokens=5\" %%P in ('netstat -ano "
