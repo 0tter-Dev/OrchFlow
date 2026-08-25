@@ -32,7 +32,8 @@ The script may also expose:
 The first template version should define:
 
 - a clear configuration block at the top of the file
-- a stable menu or command-dispatch structure
+- a first-argument command-dispatch structure compatible with `control.bat ACTION`
+- an optional interactive menu for human use after command dispatch is handled
 - explicit labels for lifecycle actions or a documented mapping to them
 - explicit variables for project title, project label, root path, start directory, start command, known port, application URL, and startup wait
 - predictable labels and control flow
@@ -45,10 +46,11 @@ The recommended structure is:
 
 1. environment setup and delayed expansion
 2. configuration block
-3. menu or command dispatcher
+3. command dispatcher
 4. public lifecycle labels
-5. helper labels
-6. exit path
+5. optional menu
+6. helper labels
+7. exit path
 
 ## Label Direction
 
@@ -87,6 +89,15 @@ set "APP_WINDOW_TITLE=%APP_LABEL%-App"
 set "STARTUP_WAIT_SECONDS=3"
 
 title %APP_TITLE%
+
+if /I "%~1"=="STATUS" goto STATUS
+if /I "%~1"=="START" goto START
+if /I "%~1"=="STOP" goto STOP
+if /I "%~1"=="RESTART" goto RESTART
+if not "%~1"=="" (
+  echo Unsupported action: %~1
+  exit /b 1
+)
 
 :MENU
 cls
@@ -196,7 +207,7 @@ For those cases, OrchFlow should rely on project-specific action mappings manage
 ## Key Rules
 
 - the template should be generic enough to support different projects
-- the template should remain Windows-first for `v0.1.2`
+- the template should remain Windows-first for `v0.2.0`
 - the template should be easy for a human to review and adjust
 - the template should be easy for the `AI Agent Adapter` to generate or update
 - the template should avoid hidden behavior and implicit side effects

@@ -33,6 +33,8 @@ The user chooses one of the supported registration paths.
 
 The user selects a project lifecycle `.bat` file that already defines how the project should be controlled.
 
+At the current implementation stage, the selected script must support first-argument command dispatch for the effective lifecycle identifiers. For example, OrchFlow may execute `control.bat STATUS`, `control.bat START`, `control.bat STOP`, and `control.bat RESTART`, or mapped equivalents such as `control.bat INICIAR`.
+
 The user then provides or confirms:
 
 - a project reference name
@@ -40,6 +42,8 @@ The user then provides or confirms:
 - optional descriptive metadata
 - any project-specific settings required by the lifecycle script
 - any lifecycle action mappings needed when the script uses non-canonical labels
+
+If the selected script only exposes an interactive menu or labels without first-argument dispatch, OrchFlow rejects the registration with guidance so the script can be adjusted before becoming an operational project definition.
 
 #### Option B: Analyze A Folder With An AI Agent Adapter
 

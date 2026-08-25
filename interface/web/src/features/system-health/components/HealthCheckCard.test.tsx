@@ -8,7 +8,7 @@ const snapshot: SystemHealthSnapshot = {
   name: "OrchFlow",
   stage: "bootstrap",
   status: "ok",
-  version: "0.1.2",
+  version: "0.2.0",
 };
 
 describe("HealthCheckCard", () => {
@@ -27,7 +27,7 @@ describe("HealthCheckCard", () => {
     expect(screen.getByText("Backend status")).toBeInTheDocument();
     expect(screen.getByText("ok")).toBeInTheDocument();
     expect(screen.getByText("bootstrap")).toBeInTheDocument();
-    expect(screen.getByText("0.1.2")).toBeInTheDocument();
+    expect(screen.getByText("0.2.0")).toBeInTheDocument();
   });
 
   it("renders an error state when the API is unavailable", () => {

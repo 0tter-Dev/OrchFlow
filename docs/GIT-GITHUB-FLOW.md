@@ -31,7 +31,7 @@ This means:
 - branches should be deleted after merge
 - work may be authored either by a human contributor or by an authorized AI agent using a dedicated repository identity
 
-This project should not adopt a heavy Git Flow model in `v0.1.2`.
+This project should not adopt a heavy Git Flow model in `v0.2.0`.
 
 The repository is still in an early product stage, so a simpler branch model reduces process weight and makes maintenance easier.
 
@@ -128,6 +128,8 @@ The expected lifecycle for each change is:
 9. merge with squash merge
 10. delete the branch
 
+For agent-driven code changes, the agent must complete the local implementation, documentation alignment, validation, diff review, branch creation, commit, push, and pull request creation itself when the user has explicitly enabled or requested that delivery mode. The pull request remains the handoff point for human review and merge.
+
 ## Contributor Modes
 
 OrchFlow supports two compatible delivery modes:
@@ -142,6 +144,8 @@ Both modes must follow the same protected-branch, validation, documentation, and
 When agent-driven delivery is enabled for this repository:
 
 - the agent may create branches, commit changes, push branches, and open pull requests
+- the agent must use only `git` and `gh` through the CLI for branch, commit, push, and pull request operations
+- the agent must not use GitHub web UI automation, remote GitHub write connectors, or hidden repository operations for this workflow
 - the agent must not merge its own pull requests
 - final review and merge authority must remain with a human maintainer who has repository admin access
 - the agent should use a dedicated repository identity instead of the machine-global Git identity
@@ -270,7 +274,7 @@ For the current backend baseline, the expected validation direction is:
 - `uv run mypy src`
 - `uv run pytest`
 
-The selected frontend package manager for `v0.1.2` is `pnpm`.
+The selected frontend package manager for `v0.2.0` is `pnpm`.
 
 The expected frontend validation direction is:
 
@@ -290,11 +294,13 @@ Changes should update documentation whenever they alter:
 - module behavior
 - implementation status
 
+Before making changes, AI agents must read the applicable root-level documentation under `docs/`. They must not consult `docs/context/` unless the requesting user explicitly authorizes the specific feature context and the file is within the scope of the task.
+
 At minimum, contributors should evaluate whether the change requires updates to:
 
 - `docs/STATUS.md`
 - `docs/INDEX.md`
-- the relevant file in `docs/context/`
+- the relevant file in `docs/context/` for human contributors, or for AI agents only after explicit user authorization
 - `docs/USER-GUIDE.md`
 - this document
 

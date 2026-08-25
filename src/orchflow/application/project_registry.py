@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol
@@ -25,6 +26,11 @@ class ProjectConflictError(ProjectRegistryError):
 
 class ProjectValidationError(ProjectRegistryError):
     """Raised when a project registration request is invalid."""
+
+
+FIRST_ARGUMENT_TOKENS = ("%~1", "%1")
+BATCH_LABEL_PREFIX_PATTERN = re.compile(r"^:+")
+CANONICAL_ACTIONS = tuple(CanonicalLifecycleAction)
 
 
 @dataclass(frozen=True, slots=True)
@@ -111,8 +117,8 @@ class ProjectRegistryService:
 
         project_root_path = self._normalize_directory_path(command.project_root_path)
         lifecycle_script_path = self._normalize_file_path(command.lifecycle_script_path)
-        self._validate_lifecycle_script(project_root_path, lifecycle_script_path)
         mappings = self._normalize_mappings(command.mappings)
+        self._validate_lifecycle_script(project_root_path, lifecycle_script_path, mappings)
 
         project = self._repository.create_project(
             reference_name=reference_name,
@@ -171,7 +177,11 @@ class ProjectRegistryService:
         return str(path.resolve())
 
     @staticmethod
-    def _validate_lifecycle_script(project_root_path: str, lifecycle_script_path: str) -> None:
+    def _validate_lifecycle_script(
+        project_root_path: str,
+        lifecycle_script_path: str,
+        mappings: tuple[ProjectMappingInput, ...],
+    ) -> None:
         project_root = Path(project_root_path)
         lifecycle_script = Path(lifecycle_script_path)
         if not project_root.exists() or not project_root.is_dir():
@@ -181,6 +191,75 @@ class ProjectRegistryService:
         if lifecycle_script.suffix.lower() != ".bat":
             raise ProjectValidationError("Lifecycle script path must reference a '.bat' file.")
 
+        script_content = lifecycle_script.read_text(encoding="utf-8", errors="ignore")
+        ProjectRegistryService._validate_command_dispatch_contract(
+            script_content,
+            ProjectRegistryService._resolve_action_identifiers(mappings),
+        )
+
+    @staticmethod
+    def _resolve_action_identifiers(
+        mappings: tuple[ProjectMappingInput, ...],
+    ) -> dict[CanonicalLifecycleAction, str]:
+        mapping_by_action = {
+            mapping.canonical_action: mapping.script_label
+            for mapping in mappings
+        }
+        return {
+            action: mapping_by_action.get(action, action.value.upper())
+            for action in CANONICAL_ACTIONS
+        }
+
+    @staticmethod
+    def _validate_command_dispatch_contract(
+        script_content: str,
+        action_identifiers: dict[CanonicalLifecycleAction, str],
+    ) -> None:
+        normalized_content = script_content.upper()
+        if not any(token in normalized_content for token in FIRST_ARGUMENT_TOKENS):
+            raise ProjectValidationError(
+                "Lifecycle script must dispatch lifecycle actions from the first command "
+                "argument (%~1 or %1). OrchFlow currently executes scripts as "
+                "'control.bat ACTION'."
+            )
+
+        missing_actions = [
+            f"{action.value} -> {identifier}"
+            for action, identifier in action_identifiers.items()
+            if not ProjectRegistryService._has_dispatch_handler(script_content, identifier)
+        ]
+        if missing_actions:
+            raise ProjectValidationError(
+                "Lifecycle script does not expose command-dispatch handlers for: "
+                f"{', '.join(missing_actions)}. Add first-argument dispatch lines such as "
+                "'if /I \"%~1\"==\"STATUS\" goto STATUS' or provide action mappings matching "
+                "the script identifiers."
+            )
+
+    @staticmethod
+    def _has_dispatch_handler(script_content: str, identifier: str) -> bool:
+        normalized_identifier = ProjectRegistryService._normalize_script_identifier(identifier)
+        for raw_line in script_content.splitlines():
+            line = raw_line.strip().upper()
+            if normalized_identifier not in line:
+                continue
+            if any(token in line for token in FIRST_ARGUMENT_TOKENS):
+                return True
+            if "==" in line:
+                return True
+            if (
+                f"GOTO {normalized_identifier}" in line
+                or f"GOTO :{normalized_identifier}" in line
+            ):
+                return True
+            if f"CALL :{normalized_identifier}" in line:
+                return True
+        return False
+
+    @staticmethod
+    def _normalize_script_identifier(identifier: str) -> str:
+        return BATCH_LABEL_PREFIX_PATTERN.sub("", identifier.strip()).upper()
+
     @staticmethod
     def _normalize_mappings(
         mappings: tuple[ProjectMappingInput, ...],
@@ -188,7 +267,9 @@ class ProjectRegistryService:
         seen_actions: set[CanonicalLifecycleAction] = set()
         normalized: list[ProjectMappingInput] = []
         for mapping in mappings:
-            script_label = mapping.script_label.strip()
+            script_label = ProjectRegistryService._normalize_script_identifier(
+                mapping.script_label
+            )
             if not script_label:
                 raise ProjectValidationError(
                     "Lifecycle action mappings must include a script label."

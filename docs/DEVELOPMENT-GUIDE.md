@@ -65,6 +65,10 @@ Future-oriented extensibility is acceptable when it does not add speculative imp
 - `docs/TO-DO.md` should remain focused on the next planned steps and should not retain work that is already implemented
 - Changes to established foundations such as the selected stack, business rules, scope boundaries, or non-goals require explicit user approval before they are applied
 
+For AI agents, root-level documentation under `docs/` is the required baseline before any alteration. AI agents must not consult `docs/context/` by default; they may read or update context documents only when the requesting user explicitly authorizes that scope.
+
+After any relevant code change, AI agents must re-evaluate the related documentation and update the documents affected by the change. If a context document appears relevant but has not been authorized, the agent must ask for authorization before consulting it.
+
 ## Naming Rules
 
 - prefer kebab-case for new documentation files, non-Python source-adjacent files, branch names, and free-form repository artifact names
@@ -106,7 +110,9 @@ The project should adopt tests progressively in the following order:
 - Use semantic versioning
 - Treat documentation and tests as part of the expected change set
 
-When an AI agent is allowed to execute Git operations for this repository, it should do so only through the documented repository workflow, using a repository-specific Git identity and leaving review and merge authority to a human maintainer.
+When an AI agent is allowed to execute Git operations for this repository, it should do so only through the documented repository workflow, using `git` and `gh` through the CLI, a repository-specific Git identity, and leaving review and merge authority to a human maintainer.
+
+For code-changing agent work, the expected delivery path is: implement the focused change, update the relevant documentation, run the relevant backend and/or frontend validations, inspect the diff, create a specific short-lived branch, commit, push, and open a pull request into `main`.
 
 ## CI/CD Direction
 
@@ -138,7 +144,7 @@ The current implementation baseline is:
 
 ## Technology Decision Policy
 
-The core technology direction is now selected for `v0.1.2`.
+The core technology direction is now selected for `v0.2.0`.
 
 Future changes should still be evaluated according to:
 
