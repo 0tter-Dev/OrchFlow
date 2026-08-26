@@ -6,11 +6,25 @@ from collections.abc import Iterator
 from contextlib import contextmanager
 from datetime import UTC, datetime
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session, sessionmaker
 
 from orchflow.application.access_control import UserRepository
-from orchflow.domain.access_control import User, UserRole
+from orchflow.application.audit_history import AuditHistoryRepository
+from orchflow.domain.access_control import AuditEvent, User, UserRole
 from orchflow.infrastructure.persistence.models import AuditEventModel, UserModel
+
+
+def _to_audit_event(model: AuditEventModel) -> AuditEvent:
+    return AuditEvent(
+        id=model.id,
+        actor_user_id=model.actor_user_id,
+        action=model.action,
+        target_type=model.target_type,
+        target_id=model.target_id,
+        details=model.details,
+        created_at=model.created_at,
+    )
 
 
 def _to_user(model: UserModel) -> User:
@@ -22,7 +36,59 @@ def _to_user(model: UserModel) -> User:
         created_at=model.created_at,
         updated_at=model.updated_at,
         last_login_at=model.last_login_at,
-    )
+            )
+
+
+class SqlAlchemyAuditHistoryRepository(AuditHistoryRepository):
+    """SQLAlchemy-backed repository for recent audit history visibility."""
+
+    def __init__(self, session_factory: sessionmaker[Session]) -> None:
+        self._session_factory = session_factory
+
+    @contextmanager
+    def _session_scope(self) -> Iterator[Session]:
+        session = self._session_factory()
+        try:
+            yield session
+            session.commit()
+        except Exception:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
+    def list_recent_audit_events(self, limit: int) -> list[AuditEvent]:
+        with self._session_scope() as session:
+            models = (
+                session.execute(
+                    select(AuditEventModel)
+                    .order_by(AuditEventModel.id.desc())
+                    .limit(limit)
+                )
+                .scalars()
+                .all()
+            )
+            return [_to_audit_event(model) for model in models]
+
+    def record_audit_event(
+        self,
+        *,
+        actor_user_id: int | None,
+        action: str,
+        target_type: str,
+        target_id: str | None,
+        details: str | None,
+    ) -> None:
+        with self._session_scope() as session:
+            session.add(
+                AuditEventModel(
+                    actor_user_id=actor_user_id,
+                    action=action,
+                    target_type=target_type,
+                    target_id=target_id,
+                    details=details,
+                )
+            )
 
 
 class SqlAlchemyUserRepository(UserRepository):

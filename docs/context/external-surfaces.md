@@ -24,16 +24,17 @@ Expose the same core application behavior through both CLI and API without dupli
 - authentication and authorization flows should be introduced in both surfaces together so access-control behavior remains consistent
 - lifecycle control actions should be introduced in both surfaces together so project operations remain consistent
 - runtime inspection flows should be introduced in both surfaces together so operational visibility remains consistent
+- audit history visibility should be introduced in both surfaces together so operational review remains consistent
 - business logic must stay in the core application, not in the delivery layer
 - authorization rules must be enforced consistently
 - the API should be the primary backend entry point for interface clients
 
 ## Implemented Baseline
 
-- CLI and API both expose authentication, project registry, lifecycle execution, and runtime inspection
+- CLI and API both expose authentication, project registry, lifecycle execution, runtime inspection, and admin audit history visibility
 - lifecycle responses now include a summarized runtime status when inspection is available
 - direct runtime inspection is available through `GET /projects/{project_id}/runtime` and the mirrored CLI command `runtime inspect`
-- the first `interface/web` operator flow now consumes these same contracts for sign-in, project visibility, runtime inspection, and lifecycle controls
+- the first `interface/web` operator flow now consumes these same contracts for sign-in, project visibility, runtime inspection, lifecycle controls, project registration, and admin audit history
 
 ## Main Relationships
 

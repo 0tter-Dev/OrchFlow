@@ -10,7 +10,7 @@ Provide lightweight but reliable persistence for a local-first orchestration wor
 
 ## Current Status
 
-`in_progress`
+`implemented`
 
 ## Initial Direction
 
@@ -27,10 +27,19 @@ The preferred initial persistence direction is `SQLite`.
 - runtime-related snapshots when appropriate
 - lifecycle and audit events
 
+## Implemented Baseline
+
+- audit events are persisted in local `SQLite` storage
+- access-control operations record user registration, login, and admin user listing events
+- project registry operations record project registration, list, and read events
+- lifecycle operations record action, command identifier, exit status, success state, and runtime status when available
+- recent audit history is exposed to authenticated admins through `CLI`, `API`, and the web operator workspace
+
 ## Key Rules
 
 - persistence concerns must remain outside the core domain logic
 - lifecycle actions should leave an audit trail
+- recent audit history visibility must stay permissioned to admins until finer-grained operational history rules are intentionally designed
 - AI-assisted inspection and script generation authorizations should be auditable
 - lifecycle action mapping changes should be auditable with user attribution
 - the system should prioritize practical local reliability over premature complexity

@@ -83,6 +83,55 @@ def test_auth_flow_registers_bootstrap_admin_and_lists_users(
     assert len(users_response.json()) == 1
 
 
+def test_audit_history_flow_is_exposed_in_api(isolated_environment: None) -> None:
+    client = TestClient(create_app())
+
+    client.post(
+        "/auth/register",
+        json={"username": "audit-admin", "password": "password123"},
+    )
+    login_response = client.post(
+        "/auth/login",
+        json={"username": "audit-admin", "password": "password123"},
+    )
+    token = login_response.json()["access_token"]
+
+    events_response = client.get(
+        "/audit/events?limit=10",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    assert events_response.status_code == 200
+    events = events_response.json()
+    assert events[0]["action"] == "admin.audit_events.list"
+    assert any(event["action"] == "user.login" for event in events)
+
+
+def test_audit_history_api_requires_admin(isolated_environment: None) -> None:
+    client = TestClient(create_app())
+
+    client.post(
+        "/auth/register",
+        json={"username": "audit-admin", "password": "password123"},
+    )
+    client.post(
+        "/auth/register",
+        json={"username": "audit-member", "password": "password123"},
+    )
+    login_response = client.post(
+        "/auth/login",
+        json={"username": "audit-member", "password": "password123"},
+    )
+    token = login_response.json()["access_token"]
+
+    events_response = client.get(
+        "/audit/events",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    assert events_response.status_code == 403
+
+
 def test_registering_admin_after_bootstrap_requires_admin_token(
     isolated_environment: None,
 ) -> None:
