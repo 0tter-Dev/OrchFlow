@@ -275,6 +275,7 @@ For the current backend baseline, the expected validation direction is:
 - `uv sync --dev`
 - `uv run ruff check .`
 - `uv run mypy src`
+- `uv run alembic upgrade head`
 - `uv run pytest`
 
 The selected frontend package manager for `v0.2.0` is `pnpm`.
@@ -307,13 +308,11 @@ At minimum, contributors should evaluate whether the change requires updates to:
 - `docs/USER-GUIDE.md`
 - this document
 
-## CI Direction
+## Current CI Baseline
 
-CI should be introduced in stages.
+The repository validation workflow should run the current backend and frontend gates on pull requests and direct updates to `main`.
 
-### Stage 1
-
-Repository quality gates:
+Backend gates:
 
 - checkout
 - Python setup
@@ -321,26 +320,38 @@ Repository quality gates:
 - dependency sync
 - `ruff`
 - `mypy`
+- Alembic migration validation
 - `pytest`
+- OpenAPI contract coverage through the backend test suite
 
-### Stage 2
+Frontend gates:
 
-As backend code grows:
-
-- stricter unit and integration test separation
-- migration validation
-- API contract validation
-
-### Stage 3
-
-Now that the web client exists:
-
-- frontend install
+- checkout
+- Node.js setup
+- `pnpm` installation
+- frontend dependency install
 - frontend lint
 - frontend tests
 - frontend build verification
 
-### Stage 4
+## CI Direction
+
+CI should continue evolving in stages.
+
+### Stage 1
+
+The repository now has the backend and frontend quality baseline needed for `v0.2.0`.
+
+### Stage 2
+
+As product workflows grow:
+
+- stricter unit, integration, and contract test separation when the suite becomes large enough to justify it
+- more focused API contract assertions for newly exposed operator routes
+- critical web-flow tests for new workflows before they become release expectations
+- migration downgrade or drift checks if the migration model starts requiring them
+
+### Stage 3
 
 Release automation:
 

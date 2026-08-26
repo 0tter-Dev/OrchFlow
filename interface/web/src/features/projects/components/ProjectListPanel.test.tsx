@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import type { UserSummary } from "../../../shared/types/auth";
+import type { ProjectSummary } from "../../../shared/types/project";
 import { ProjectListPanel } from "./ProjectListPanel";
 
 const currentUser: UserSummary = {
@@ -10,6 +11,19 @@ const currentUser: UserSummary = {
   role: "admin",
   username: "operator-admin",
 };
+
+const managedProjects: ProjectSummary[] = [
+  {
+    action_mappings: [],
+    created_by_user_id: 1,
+    description: "Local API controlled by an existing script",
+    id: 7,
+    lifecycle_script_path: "E:\\Projects\\local-api\\control.bat",
+    owner_user_ids: [1, 2],
+    project_root_path: "E:\\Projects\\local-api",
+    reference_name: "local-api",
+  },
+];
 
 function renderProjectListPanel(
   overrides: Partial<Parameters<typeof ProjectListPanel>[0]> = {},
@@ -87,5 +101,22 @@ describe("ProjectListPanel", () => {
     });
 
     expect(screen.getByText("local-api registered successfully.")).toBeInTheDocument();
+  });
+
+  it("selects a visible registered project from the operator list", () => {
+    const onSelectProject = vi.fn();
+    renderProjectListPanel({
+      onSelectProject,
+      projects: managedProjects,
+      selectedProjectId: 7,
+    });
+
+    expect(screen.getByText("1 project(s) visible")).toBeInTheDocument();
+    expect(screen.getByText("Local API controlled by an existing script")).toBeInTheDocument();
+    expect(screen.getByText("Owners: 1, 2")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /local-api/ }));
+
+    expect(onSelectProject).toHaveBeenCalledWith(7);
   });
 });

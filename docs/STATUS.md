@@ -39,7 +39,7 @@ OrchFlow is currently in the `v0.2.0` implementation stage as of `2026-08-24`.
 | API surface | Expose orchestration through HTTP endpoints | in_progress | Authentication, project registry, lifecycle execution, runtime inspection, admin audit history, user management, and owner management are mirrored; broader operator workflows still pending |
 | Interface layer | Visualize and control projects across client platforms | in_progress | `interface/web` includes authenticated session loading, project registration, project visibility, runtime inspection, lifecycle controls, admin audit history, user management, owner management, and a shared API client boundary |
 | Persistence and audit | Store users, projects, permissions, events | implemented | SQLAlchemy engine/session bootstrap, Alembic migrations, users, audit events, projects, ownership, lifecycle action mappings, and admin history visibility are implemented |
-| DevOps and CI | Enforce repository quality and automation | in_progress | Git and GitHub flow documented, including human-driven and agent-driven PR modes; PR and issue templates plus backend and frontend validation workflow created |
+| DevOps and CI | Enforce repository quality and automation | implemented | Git and GitHub flow documented, including human-driven and agent-driven PR modes; PR and issue templates, migration validation, API contract coverage, critical web-flow tests, and backend plus frontend CI checks are in place |
 
 ## Implementation Notes
 
@@ -61,7 +61,9 @@ OrchFlow is currently in the `v0.2.0` implementation stage as of `2026-08-24`.
 - The Git and GitHub flow now documents both human-driven and agent-driven pull request authorship, while preserving human review and merge authority on protected branches.
 - Pull request descriptions now explicitly use `.github/PULL_REQUEST_TEMPLATE.md` as the standard structure for reviewer-facing summaries, validation notes, and documentation checklists.
 - Pull request and issue templates plus CI workflow coverage for backend and frontend validation have been added locally.
-- The backend CI workflow now expects collected tests because the bootstrap stage includes smoke coverage, and the repository now also validates the new frontend bootstrap.
+- The repository validation workflow now runs backend quality checks, Alembic migration validation, backend API contract tests through the test suite, frontend lint, frontend tests, and frontend build verification.
+- API contract coverage now locks the currently exposed authenticated operator routes and key response fields for runtime diagnostics and project ownership metadata.
+- Critical web-flow coverage now includes existing `.bat` project registration behavior and selecting visible registered projects from the operator list.
 - The frontend package manager direction is now defined as `pnpm`.
 - The repository workflow now supports both maintainer-authored and agent-authored pull requests with a dedicated repository identity and human-controlled review on `main`.
 - Any implementation work should update this file as features move from `planned` to later states.

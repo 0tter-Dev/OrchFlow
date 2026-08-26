@@ -42,13 +42,17 @@ The repository now also includes:
 
 - a pull request template
 - issue templates for bugs, features, and focused tasks
-- a GitHub Actions workflow that now validates both backend and frontend bootstrap checks
+- a GitHub Actions workflow that validates backend quality, Alembic migrations, backend tests, frontend lint, frontend tests, and frontend build
+- backend OpenAPI contract coverage for authenticated operator routes and key response fields
+- frontend critical-flow coverage for registering and selecting managed projects from the web operator surface
 
 ## Key Rules
 
 - changes should be reviewable and traceable
 - documentation, tests, and implementation should evolve together
 - CI quality gates should be added early, even before full CD automation exists
+- migration validation and API contract checks should remain part of the backend validation baseline once persistence and HTTP routes exist
+- frontend lint, tests, and build should remain part of the validation baseline once web operator flows exist
 - GitHub configuration should enforce the documented review flow instead of relying on convention alone
 - agent-authored pull requests are acceptable when they remain reviewable, traceable, and constrained by a human merge authority
 

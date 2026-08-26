@@ -1,4 +1,4 @@
-name: Backend Validation
+name: Project Validation
 
 on:
   pull_request:
@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   quality:
-    name: Quality Checks
+    name: Backend Quality And Contracts
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -39,11 +39,18 @@ jobs:
       - name: Run MyPy
         run: uv run mypy src
 
+      - name: Validate Alembic migrations
+        env:
+          ORCHFLOW_DATABASE_URL: sqlite:///./runtime/ci-alembic.db
+          ORCHFLOW_DATA_DIR: ./runtime/ci-data
+          ORCHFLOW_RUNTIME_DIR: ./runtime/ci-runtime
+        run: uv run alembic upgrade head
+
       - name: Run pytest
         run: uv run pytest
 
   frontend:
-    name: Frontend Validation
+    name: Frontend Quality And Build
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
