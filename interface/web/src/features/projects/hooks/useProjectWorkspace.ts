@@ -5,10 +5,12 @@ import {
   getProject,
   getRuntimeSnapshot,
   listProjects,
+  registerProject,
 } from "../../../shared/api/projects";
 import type {
   CanonicalLifecycleAction,
   LifecycleExecutionSnapshot,
+  ProjectRegistrationInput,
   ProjectSummary,
   RuntimeInspectionSnapshot,
 } from "../../../shared/types/project";
@@ -18,8 +20,10 @@ type ProjectWorkspaceState = {
   errorMessage: string | null;
   isLoadingDetail: boolean;
   isLoadingProjects: boolean;
+  isRegisteringProject: boolean;
   lifecycleResult: LifecycleExecutionSnapshot | null;
   projects: ProjectSummary[];
+  registrationMessage: string | null;
   runtimeSnapshot: RuntimeInspectionSnapshot | null;
   searchQuery: string;
   selectedProject: ProjectSummary | null;
@@ -31,8 +35,10 @@ const initialState: ProjectWorkspaceState = {
   errorMessage: null,
   isLoadingDetail: false,
   isLoadingProjects: false,
+  isRegisteringProject: false,
   lifecycleResult: null,
   projects: [],
+  registrationMessage: null,
   runtimeSnapshot: null,
   searchQuery: "",
   selectedProject: null,
@@ -148,6 +154,50 @@ export function useProjectWorkspace(token: string | null) {
     }));
   }
 
+  const submitProjectRegistration = useEffectEvent(
+    async (registrationInput: ProjectRegistrationInput) => {
+      if (token === null) {
+        return;
+      }
+
+      setState((currentState) => ({
+        ...currentState,
+        errorMessage: null,
+        isRegisteringProject: true,
+        registrationMessage: null,
+      }));
+
+      try {
+        const registeredProject = await registerProject(token, registrationInput);
+        const [projects, runtimeSnapshot] = await Promise.all([
+          listProjects(token),
+          getRuntimeSnapshot(token, registeredProject.id),
+        ]);
+        const selectedProject =
+          projects.find((project) => project.id === registeredProject.id) ?? registeredProject;
+
+        setState((currentState) => ({
+          ...currentState,
+          errorMessage: null,
+          isRegisteringProject: false,
+          lifecycleResult: null,
+          projects,
+          registrationMessage: `${registeredProject.reference_name} registered successfully.`,
+          runtimeSnapshot,
+          selectedProject,
+          selectedProjectId: registeredProject.id,
+        }));
+      } catch (error) {
+        setState((currentState) => ({
+          ...currentState,
+          errorMessage: buildErrorMessage(error, "Unable to register the project."),
+          isRegisteringProject: false,
+          registrationMessage: null,
+        }));
+      }
+    },
+  );
+
   const runLifecycleAction = useEffectEvent(async (action: CanonicalLifecycleAction) => {
     if (token === null || state.selectedProjectId === null) {
       return;
@@ -206,8 +256,10 @@ export function useProjectWorkspace(token: string | null) {
     errorMessage: state.errorMessage,
     isLoadingDetail: state.isLoadingDetail,
     isLoadingProjects: state.isLoadingProjects,
+    isRegisteringProject: state.isRegisteringProject,
     lifecycleResult: state.lifecycleResult,
     projects: visibleProjects,
+    registrationMessage: state.registrationMessage,
     refresh,
     runLifecycleAction,
     runtimeSnapshot: state.runtimeSnapshot,
@@ -216,5 +268,6 @@ export function useProjectWorkspace(token: string | null) {
     selectedProject: state.selectedProject,
     selectedProjectId: state.selectedProjectId,
     setSearchQuery,
+    submitProjectRegistration,
   };
 }

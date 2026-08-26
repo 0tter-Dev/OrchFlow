@@ -34,6 +34,7 @@ List the checks you ran locally.
 
 - [ ] `docs/STATUS.md` reviewed
 - [ ] `docs/INDEX.md` reviewed
+- [ ] `docs/TO-DO.md` updated
 - [ ] Relevant file in `docs/context/` reviewed
 - [ ] `docs/GIT-GITHUB-FLOW.md` reviewed when workflow or delivery rules changed
 - [ ] `docs/USER-GUIDE.md` reviewed when user-facing behavior changed

@@ -2,12 +2,24 @@ import { requestJson } from "./client";
 import type {
   CanonicalLifecycleAction,
   LifecycleExecutionSnapshot,
+  ProjectRegistrationInput,
   ProjectSummary,
   RuntimeInspectionSnapshot,
 } from "../types/project";
 
 export function listProjects(token: string): Promise<ProjectSummary[]> {
   return requestJson<ProjectSummary[]>("/projects", { token });
+}
+
+export function registerProject(
+  token: string,
+  payload: ProjectRegistrationInput,
+): Promise<ProjectSummary> {
+  return requestJson<ProjectSummary>("/projects", {
+    body: payload,
+    method: "POST",
+    token,
+  });
 }
 
 export function getProject(token: string, projectId: number): Promise<ProjectSummary> {

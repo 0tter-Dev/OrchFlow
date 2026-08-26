@@ -28,11 +28,11 @@ export function App() {
             </span>
           </div>
           <div>
-            <h1 className="hero__title">Operate registered projects through the first real web flow.</h1>
+            <h1 className="hero__title">Register and operate projects through the web flow.</h1>
             <p className="hero__copy">
               The web client now consumes the same backend contracts already stabilized in API and
-              CLI. This stage introduces login, project visibility, runtime inspection, and the
-              first lifecycle controls in one operator-focused workspace.
+              CLI. This stage brings existing-project registration, project visibility, runtime
+              inspection, and lifecycle controls into one operator-focused workspace.
             </p>
           </div>
 
@@ -86,10 +86,13 @@ export function App() {
               currentUser={authSession.currentUser}
               errorMessage={projectWorkspace.errorMessage}
               isLoading={projectWorkspace.isLoadingProjects}
+              isRegisteringProject={projectWorkspace.isRegisteringProject}
               onRefresh={projectWorkspace.refresh}
+              onRegisterProject={projectWorkspace.submitProjectRegistration}
               onSearchQueryChange={projectWorkspace.setSearchQuery}
               onSelectProject={projectWorkspace.selectProject}
               projects={projectWorkspace.projects}
+              registrationMessage={projectWorkspace.registrationMessage}
               searchQuery={projectWorkspace.searchQuery}
               selectedProjectId={projectWorkspace.selectedProjectId}
             />

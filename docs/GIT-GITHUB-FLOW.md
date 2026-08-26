@@ -160,6 +160,7 @@ Every pull request should:
 
 - target `main`
 - solve one coherent objective
+- use `.github/PULL_REQUEST_TEMPLATE.md` as the standard description template
 - explain why the change exists
 - list the main technical decisions
 - describe any architecture impact
@@ -174,6 +175,8 @@ For agent-authored pull requests, the description should also make clear that:
 - the branch was prepared through the documented agent-driven workflow
 - validation was executed before the pull request was opened
 - merge is still reserved for a human maintainer review
+
+When using `gh pr create`, agents should build the pull request body from `.github/PULL_REQUEST_TEMPLATE.md`, fill the relevant sections, and keep the validation and documentation checklist visible for reviewer audit.
 
 ## Merge Strategy
 

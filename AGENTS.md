@@ -101,6 +101,8 @@ The expected agent-driven delivery sequence is:
 
 Agent-driven branch, commit, push, and pull request operations must use only `git` and `gh` through the CLI. Agents must not use GitHub web UI automation, remote GitHub write connectors, or hidden repository operations for this workflow.
 
+Pull request descriptions must be created from the repository standard template at `.github/PULL_REQUEST_TEMPLATE.md`. When opening a pull request through `gh pr create`, agents must use that template as the description structure, fill the applicable sections, and preserve any checklist items that remain relevant to the change.
+
 ## Naming Discipline
 
 Agents should prefer `kebab-case` for new free-form file and directory names.
