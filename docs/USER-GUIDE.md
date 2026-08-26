@@ -117,7 +117,18 @@ The first history view covers already recorded user registration, login, admin l
 An `admin` can additionally:
 
 - view platform users
+- update user role and activation state
 - review recent audit history
-- manage user permissions
+- add or remove project owners while keeping at least one owner per project
 - inspect projects across the system
 - troubleshoot access and operational issues
+
+The mirrored admin commands now include:
+
+- `CLI`: `orchflow auth update-user --token <TOKEN> --user-id <ID> --role admin`
+- `CLI`: `orchflow project add-owner --token <TOKEN> --project-id <ID> --user-id <ID>`
+- `CLI`: `orchflow project remove-owner --token <TOKEN> --project-id <ID> --user-id <ID>`
+- `API`: `PATCH /auth/users/{user_id}`
+- `API`: `POST /projects/{project_id}/owners/{user_id}`
+- `API`: `DELETE /projects/{project_id}/owners/{user_id}`
+- `web`: the admin management panel in the authenticated operator workspace

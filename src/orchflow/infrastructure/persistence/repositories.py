@@ -157,6 +157,26 @@ class SqlAlchemyUserRepository(UserRepository):
             models = session.query(UserModel).order_by(UserModel.id.asc()).all()
             return [_to_user(model) for model in models]
 
+    def update_user(
+        self,
+        *,
+        user_id: int,
+        role: UserRole | None,
+        is_active: bool | None,
+    ) -> User | None:
+        with self._session_scope() as session:
+            model = session.get(UserModel, user_id)
+            if model is None:
+                return None
+            if role is not None:
+                model.role = role.value
+            if is_active is not None:
+                model.is_active = is_active
+            session.add(model)
+            session.flush()
+            session.refresh(model)
+            return _to_user(model)
+
     def record_audit_event(
         self,
         *,

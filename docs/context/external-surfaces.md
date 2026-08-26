@@ -31,7 +31,7 @@ Expose the same core application behavior through both CLI and API without dupli
 
 ## Implemented Baseline
 
-- CLI and API both expose authentication, project registry, lifecycle execution, runtime inspection, and admin audit history visibility
+- CLI and API both expose authentication, project registry, lifecycle execution, runtime inspection, admin audit history visibility, admin user updates, and project owner management
 - lifecycle responses now include a summarized runtime status when inspection is available
 - direct runtime inspection is available through `GET /projects/{project_id}/runtime` and the mirrored CLI command `runtime inspect`
 - the first `interface/web` operator flow now consumes these same contracts for sign-in, project visibility, runtime inspection, lifecycle controls, project registration, and admin audit history

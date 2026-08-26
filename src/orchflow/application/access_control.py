@@ -24,6 +24,10 @@ class UserConflictError(AccessControlError):
     """Raised when a user creation request conflicts with existing state."""
 
 
+class UserNotFoundError(AccessControlError):
+    """Raised when a user management request targets a missing user."""
+
+
 @dataclass(frozen=True, slots=True)
 class RegisterUserCommand:
     """Input required to create a new OrchFlow user."""
@@ -42,6 +46,16 @@ class LoginCommand:
     password: str
 
 
+@dataclass(frozen=True, slots=True)
+class UpdateUserCommand:
+    """Input required to update an OrchFlow user as an admin."""
+
+    token: str
+    user_id: int
+    role: UserRole | None = None
+    is_active: bool | None = None
+
+
 class UserRepository(Protocol):
     """Repository boundary used by the access control application service."""
 
@@ -58,6 +72,14 @@ class UserRepository(Protocol):
     def update_last_login(self, user_id: int) -> User: ...
 
     def list_users(self) -> list[User]: ...
+
+    def update_user(
+        self,
+        *,
+        user_id: int,
+        role: UserRole | None,
+        is_active: bool | None,
+    ) -> User | None: ...
 
     def record_audit_event(
         self,
@@ -184,6 +206,46 @@ class AccessControlService:
         )
         return users
 
+    def update_user(self, command: UpdateUserCommand) -> User:
+        """Update a user's role or activation state as an authenticated admin."""
+        actor = self.get_current_user(command.token)
+        self._ensure_admin(actor)
+        target = self._repository.get_user_by_id(command.user_id)
+        if target is None:
+            raise UserNotFoundError(f"User id '{command.user_id}' does not exist.")
+
+        resolved_role = command.role if command.role is not None else target.role
+        resolved_is_active = (
+            command.is_active if command.is_active is not None else target.is_active
+        )
+        self._ensure_admin_remains_available(target, resolved_role, resolved_is_active)
+
+        updated_user = self._repository.update_user(
+            user_id=target.id,
+            role=command.role,
+            is_active=command.is_active,
+        )
+        if updated_user is None:
+            raise UserNotFoundError(f"User id '{command.user_id}' does not exist.")
+
+        details = (
+            f"role:{target.role.value}->{updated_user.role.value};"
+            f"is_active:{str(target.is_active).lower()}->"
+            f"{str(updated_user.is_active).lower()}"
+        )
+        self._repository.record_audit_event(
+            actor_user_id=actor.id,
+            action="admin.user.update",
+            target_type="user",
+            target_id=str(updated_user.id),
+            details=details,
+        )
+        return updated_user
+
+    def resolve_user(self, user_id: int) -> User | None:
+        """Resolve a user for other application services."""
+        return self._repository.get_user_by_id(user_id)
+
     def _resolve_actor(self, token: str) -> User:
         return self.get_current_user(token)
 
@@ -191,6 +253,25 @@ class AccessControlService:
     def _ensure_admin(user: User | None) -> None:
         if user is None or user.role is not UserRole.ADMIN:
             raise AuthorizationError("Admin privileges are required for this action.")
+
+    def _ensure_admin_remains_available(
+        self,
+        target: User,
+        resolved_role: UserRole,
+        resolved_is_active: bool,
+    ) -> None:
+        if target.role is not UserRole.ADMIN:
+            return
+        if resolved_role is UserRole.ADMIN and resolved_is_active:
+            return
+
+        active_admins = [
+            user
+            for user in self._repository.list_users()
+            if user.role is UserRole.ADMIN and user.is_active
+        ]
+        if len(active_admins) <= 1 and target.is_active:
+            raise AuthorizationError("At least one active admin user must remain available.")
 
     @staticmethod
     def _validate_username(username: str) -> None:

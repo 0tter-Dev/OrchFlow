@@ -146,6 +146,44 @@ class SqlAlchemyProjectRegistryRepository(ProjectRegistryRepository):
                 return project
             return None
 
+    def add_project_owner(self, *, project_id: int, user_id: int) -> Project | None:
+        with self._session_scope() as session:
+            model = session.get(ProjectModel, project_id)
+            if model is None:
+                return None
+            existing_owner = (
+                session.execute(
+                    select(ProjectOwnerModel)
+                    .where(ProjectOwnerModel.project_id == project_id)
+                    .where(ProjectOwnerModel.user_id == user_id)
+                )
+                .scalars()
+                .one_or_none()
+            )
+            if existing_owner is None:
+                session.add(ProjectOwnerModel(project_id=project_id, user_id=user_id))
+                session.flush()
+            return self._inflate_project(session, model)
+
+    def remove_project_owner(self, *, project_id: int, user_id: int) -> Project | None:
+        with self._session_scope() as session:
+            model = session.get(ProjectModel, project_id)
+            if model is None:
+                return None
+            owner = (
+                session.execute(
+                    select(ProjectOwnerModel)
+                    .where(ProjectOwnerModel.project_id == project_id)
+                    .where(ProjectOwnerModel.user_id == user_id)
+                )
+                .scalars()
+                .one_or_none()
+            )
+            if owner is not None:
+                session.delete(owner)
+                session.flush()
+            return self._inflate_project(session, model)
+
     def record_audit_event(
         self,
         *,

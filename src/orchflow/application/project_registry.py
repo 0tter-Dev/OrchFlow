@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Protocol
 
 from orchflow.application.access_control import AuthorizationError
-from orchflow.domain.access_control import User
+from orchflow.domain.access_control import User, UserRole
 from orchflow.domain.project_registry import (
     CanonicalLifecycleAction,
     MappingSource,
@@ -26,6 +26,10 @@ class ProjectConflictError(ProjectRegistryError):
 
 class ProjectValidationError(ProjectRegistryError):
     """Raised when a project registration request is invalid."""
+
+
+class ProjectOwnershipError(ProjectRegistryError):
+    """Raised when project ownership management would violate rules."""
 
 
 FIRST_ARGUMENT_TOKENS = ("%~1", "%1")
@@ -54,6 +58,15 @@ class RegisterProjectCommand:
     mappings: tuple[ProjectMappingInput, ...] = ()
 
 
+@dataclass(frozen=True, slots=True)
+class UpdateProjectOwnerCommand:
+    """Input required to add or remove a project owner."""
+
+    token: str
+    project_id: int
+    user_id: int
+
+
 class ProjectRegistryRepository(Protocol):
     """Repository boundary for project registry use cases."""
 
@@ -75,6 +88,10 @@ class ProjectRegistryRepository(Protocol):
 
     def get_project_for_user(self, project_id: int, user: User) -> Project | None: ...
 
+    def add_project_owner(self, *, project_id: int, user_id: int) -> Project | None: ...
+
+    def remove_project_owner(self, *, project_id: int, user_id: int) -> Project | None: ...
+
     def record_audit_event(
         self,
         *,
@@ -90,6 +107,8 @@ class CurrentUserResolver(Protocol):
     """Boundary used to resolve the current authenticated user."""
 
     def get_current_user(self, token: str) -> User: ...
+
+    def resolve_user(self, user_id: int) -> User | None: ...
 
 
 class ProjectRegistryService:
@@ -165,6 +184,70 @@ class ProjectRegistryService:
             details=f"reference_name:{project.reference_name}",
         )
         return project
+
+    def add_project_owner(self, command: UpdateProjectOwnerCommand) -> Project:
+        """Add a project owner as an authenticated admin."""
+        actor = self._current_user_resolver.get_current_user(command.token)
+        self._ensure_admin(actor)
+        target_user = self._current_user_resolver.resolve_user(command.user_id)
+        if target_user is None:
+            raise ProjectOwnershipError(f"User id '{command.user_id}' does not exist.")
+        if not target_user.is_active:
+            raise ProjectOwnershipError("Inactive users cannot be assigned as project owners.")
+
+        project = self._repository.get_project_for_user(command.project_id, actor)
+        if project is None:
+            raise AuthorizationError("Project is not visible to the current user.")
+        updated_project = self._repository.add_project_owner(
+            project_id=project.id,
+            user_id=target_user.id,
+        )
+        if updated_project is None:
+            raise AuthorizationError("Project is not visible to the current user.")
+
+        self._repository.record_audit_event(
+            actor_user_id=actor.id,
+            action="project.owner.add",
+            target_type="project",
+            target_id=str(project.id),
+            details=f"user_id:{target_user.id}",
+        )
+        return updated_project
+
+    def remove_project_owner(self, command: UpdateProjectOwnerCommand) -> Project:
+        """Remove a project owner as an authenticated admin."""
+        actor = self._current_user_resolver.get_current_user(command.token)
+        self._ensure_admin(actor)
+        project = self._repository.get_project_for_user(command.project_id, actor)
+        if project is None:
+            raise AuthorizationError("Project is not visible to the current user.")
+        if command.user_id not in project.owner_user_ids:
+            raise ProjectOwnershipError(
+                f"User id '{command.user_id}' is not an owner of project '{project.id}'."
+            )
+        if len(project.owner_user_ids) <= 1:
+            raise ProjectOwnershipError("A project must keep at least one owner.")
+
+        updated_project = self._repository.remove_project_owner(
+            project_id=project.id,
+            user_id=command.user_id,
+        )
+        if updated_project is None:
+            raise AuthorizationError("Project is not visible to the current user.")
+
+        self._repository.record_audit_event(
+            actor_user_id=actor.id,
+            action="project.owner.remove",
+            target_type="project",
+            target_id=str(project.id),
+            details=f"user_id:{command.user_id}",
+        )
+        return updated_project
+
+    @staticmethod
+    def _ensure_admin(user: User) -> None:
+        if user.role is not UserRole.ADMIN:
+            raise AuthorizationError("Admin privileges are required for this action.")
 
     @staticmethod
     def _normalize_directory_path(raw_path: str) -> str:

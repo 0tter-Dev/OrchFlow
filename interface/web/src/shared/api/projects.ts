@@ -26,6 +26,28 @@ export function getProject(token: string, projectId: number): Promise<ProjectSum
   return requestJson<ProjectSummary>(`/projects/${projectId}`, { token });
 }
 
+export function addProjectOwner(
+  token: string,
+  projectId: number,
+  userId: number,
+): Promise<ProjectSummary> {
+  return requestJson<ProjectSummary>(`/projects/${projectId}/owners/${userId}`, {
+    method: "POST",
+    token,
+  });
+}
+
+export function removeProjectOwner(
+  token: string,
+  projectId: number,
+  userId: number,
+): Promise<ProjectSummary> {
+  return requestJson<ProjectSummary>(`/projects/${projectId}/owners/${userId}`, {
+    method: "DELETE",
+    token,
+  });
+}
+
 export function getRuntimeSnapshot(
   token: string,
   projectId: number,

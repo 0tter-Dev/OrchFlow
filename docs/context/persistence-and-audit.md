@@ -34,6 +34,7 @@ The preferred initial persistence direction is `SQLite`.
 - project registry operations record project registration, list, and read events
 - lifecycle operations record action, command identifier, exit status, success state, and runtime status when available
 - recent audit history is exposed to authenticated admins through `CLI`, `API`, and the web operator workspace
+- admin user updates and project ownership changes are audited
 
 ## Key Rules
 

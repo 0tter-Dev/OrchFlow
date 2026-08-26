@@ -35,10 +35,10 @@ Contains feature-oriented context documents that describe purpose, scope, planne
 ## Context Connections
 
 - [Access Control](./context/access-control.md)
-Defines users, roles, permissions, and how access decisions affect project visibility and actions.
+Defines users, roles, activation, permissions, and how access decisions affect project visibility and actions.
 
 - [Project Registry](./context/project-registry.md)
-Defines how projects are registered, identified, owned, and persisted.
+Defines how projects are registered, identified, owned, assigned, and persisted.
 
 - [Project Adapter](./context/project-adapter.md)
 Defines the generic adapter layer used to connect OrchFlow to different managed projects.
@@ -72,9 +72,9 @@ Defines source-control, validation, and CI/CD expectations.
 
 ## Relationship Overview
 
-`Access Control` governs who can see and control a `Project`.
+`Access Control` governs who can see and control a `Project`, including admin user-management rules.
 
-`Project Registry` stores and normalizes the metadata needed for a project to exist inside OrchFlow.
+`Project Registry` stores and normalizes the metadata needed for a project to exist inside OrchFlow, including project ownership assignments.
 
 `Project Adapter` gives `Lifecycle Orchestration` a generic boundary for project-specific execution behavior.
 

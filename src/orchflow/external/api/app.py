@@ -11,7 +11,9 @@ from orchflow.application.access_control import (
     AuthorizationError,
     LoginCommand,
     RegisterUserCommand,
+    UpdateUserCommand,
     UserConflictError,
+    UserNotFoundError,
 )
 from orchflow.application.audit_history import (
     AuditHistoryError,
@@ -22,9 +24,11 @@ from orchflow.application.lifecycle import ExecuteLifecycleCommand, LifecycleExe
 from orchflow.application.project_registry import (
     ProjectConflictError,
     ProjectMappingInput,
+    ProjectOwnershipError,
     ProjectRegistryError,
     ProjectValidationError,
     RegisterProjectCommand,
+    UpdateProjectOwnerCommand,
 )
 from orchflow.application.runtime_inspection import InspectRuntimeCommand
 from orchflow.application.services import (
@@ -86,6 +90,11 @@ class RegisterUserRequest(BaseModel):
     username: str
     password: str
     role: Literal["admin", "member"] | None = None
+
+
+class UpdateUserRequest(BaseModel):
+    role: Literal["admin", "member"] | None = None
+    is_active: bool | None = None
 
 
 class LoginRequest(BaseModel):
@@ -253,6 +262,8 @@ def _extract_bearer_token(authorization: str | None) -> str | None:
 def _map_access_control_error(error: AccessControlError) -> HTTPException:
     if isinstance(error, UserConflictError):
         return HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(error))
+    if isinstance(error, UserNotFoundError):
+        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(error))
     if isinstance(error, AuthorizationError):
         return HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(error))
     if isinstance(error, AuthenticationError):
@@ -273,6 +284,8 @@ def _map_project_registry_error(
 ) -> HTTPException:
     if isinstance(error, ProjectConflictError):
         return HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(error))
+    if isinstance(error, ProjectOwnershipError):
+        return HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(error))
     if isinstance(error, ProjectValidationError):
         return HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(error))
     if isinstance(error, AuthorizationError):
@@ -390,6 +403,31 @@ def create_app() -> FastAPI:
             raise _map_access_control_error(error) from error
         return [_to_user_response(user) for user in users]
 
+    @app.patch("/auth/users/{user_id}", response_model=UserResponse, tags=["auth"])
+    def update_user(
+        user_id: int,
+        payload: UpdateUserRequest,
+        authorization: str | None = Header(default=None),
+    ) -> UserResponse:
+        token = _extract_bearer_token(authorization)
+        if token is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Missing bearer token.",
+            )
+        try:
+            user = access_control_service.update_user(
+                UpdateUserCommand(
+                    token=token,
+                    user_id=user_id,
+                    role=UserRole(payload.role) if payload.role is not None else None,
+                    is_active=payload.is_active,
+                )
+            )
+        except AccessControlError as error:
+            raise _map_access_control_error(error) from error
+        return _to_user_response(user)
+
     @app.get("/audit/events", response_model=list[AuditEventResponse], tags=["audit"])
     def list_audit_events(
         authorization: str | None = Header(default=None),
@@ -474,6 +512,54 @@ def create_app() -> FastAPI:
             )
         try:
             project = project_registry_service.get_project(token, project_id)
+        except (ProjectRegistryError, AuthorizationError) as error:
+            raise _map_project_registry_error(error) from error
+        return _to_project_response(project)
+
+    @app.post(
+        "/projects/{project_id}/owners/{user_id}",
+        response_model=ProjectResponse,
+        tags=["projects"],
+    )
+    def add_project_owner(
+        project_id: int,
+        user_id: int,
+        authorization: str | None = Header(default=None),
+    ) -> ProjectResponse:
+        token = _extract_bearer_token(authorization)
+        if token is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Missing bearer token.",
+            )
+        try:
+            project = project_registry_service.add_project_owner(
+                UpdateProjectOwnerCommand(token=token, project_id=project_id, user_id=user_id)
+            )
+        except (ProjectRegistryError, AuthorizationError) as error:
+            raise _map_project_registry_error(error) from error
+        return _to_project_response(project)
+
+    @app.delete(
+        "/projects/{project_id}/owners/{user_id}",
+        response_model=ProjectResponse,
+        tags=["projects"],
+    )
+    def remove_project_owner(
+        project_id: int,
+        user_id: int,
+        authorization: str | None = Header(default=None),
+    ) -> ProjectResponse:
+        token = _extract_bearer_token(authorization)
+        if token is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Missing bearer token.",
+            )
+        try:
+            project = project_registry_service.remove_project_owner(
+                UpdateProjectOwnerCommand(token=token, project_id=project_id, user_id=user_id)
+            )
         except (ProjectRegistryError, AuthorizationError) as error:
             raise _map_project_registry_error(error) from error
         return _to_project_response(project)

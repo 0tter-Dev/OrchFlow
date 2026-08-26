@@ -29,6 +29,9 @@ The user selects a project folder, OrchFlow analyzes it through the `AI Agent Ad
 - every project must end with a concrete `.bat` lifecycle script
 - each project must have a user-facing reference name
 - registration must persist ownership and permission metadata
+- admins may assign or remove project owners
+- project ownership changes must be auditable
+- a project must retain at least one owner
 - the registry should normalize onboarding inputs into a common internal project definition
 - project connection details should be represented through a generic `Project Adapter` contract
 - project-specific lifecycle action mappings must be persistable when canonical labels are not used
