@@ -9,8 +9,10 @@ import pytest
 from orchflow.application.access_control import LoginCommand, RegisterUserCommand
 from orchflow.application.project_registry import (
     ProjectMappingInput,
+    ProjectOwnershipError,
     ProjectValidationError,
     RegisterProjectCommand,
+    UpdateProjectOwnerCommand,
 )
 from orchflow.application.services import (
     create_access_control_service,
@@ -140,4 +142,76 @@ def test_registration_rejects_missing_mapped_dispatch_handler(
                     ),
                 ),
             )
+        )
+
+
+def test_admin_can_add_and_remove_project_owner(
+    isolated_environment: None,
+    tmp_path: Path,
+) -> None:
+    access_control_service = create_access_control_service()
+    project_registry_service = create_project_registry_service()
+    admin = access_control_service.register_user(
+        RegisterUserCommand(username="admin-user", password="password123")
+    )
+    member = access_control_service.register_user(
+        RegisterUserCommand(username="member-user", password="password123")
+    )
+    token = access_control_service.login(
+        LoginCommand(username="admin-user", password="password123")
+    ).access_token
+
+    project_dir = tmp_path / "owned-project"
+    project_dir.mkdir()
+    lifecycle_script = project_dir / "control.bat"
+    _write_dispatch_batch(lifecycle_script)
+    project = project_registry_service.register_project(
+        RegisterProjectCommand(
+            token=token,
+            reference_name="owned-project",
+            project_root_path=str(project_dir),
+            lifecycle_script_path=str(lifecycle_script),
+        )
+    )
+
+    with_member = project_registry_service.add_project_owner(
+        UpdateProjectOwnerCommand(token=token, project_id=project.id, user_id=member.id)
+    )
+    assert with_member.owner_user_ids == (admin.id, member.id)
+
+    without_member = project_registry_service.remove_project_owner(
+        UpdateProjectOwnerCommand(token=token, project_id=project.id, user_id=member.id)
+    )
+    assert without_member.owner_user_ids == (admin.id,)
+
+
+def test_project_must_keep_at_least_one_owner(
+    isolated_environment: None,
+    tmp_path: Path,
+) -> None:
+    access_control_service = create_access_control_service()
+    project_registry_service = create_project_registry_service()
+    admin = access_control_service.register_user(
+        RegisterUserCommand(username="admin-user", password="password123")
+    )
+    token = access_control_service.login(
+        LoginCommand(username="admin-user", password="password123")
+    ).access_token
+
+    project_dir = tmp_path / "single-owner-project"
+    project_dir.mkdir()
+    lifecycle_script = project_dir / "control.bat"
+    _write_dispatch_batch(lifecycle_script)
+    project = project_registry_service.register_project(
+        RegisterProjectCommand(
+            token=token,
+            reference_name="single-owner-project",
+            project_root_path=str(project_dir),
+            lifecycle_script_path=str(lifecycle_script),
+        )
+    )
+
+    with pytest.raises(ProjectOwnershipError, match="at least one owner"):
+        project_registry_service.remove_project_owner(
+            UpdateProjectOwnerCommand(token=token, project_id=project.id, user_id=admin.id)
         )

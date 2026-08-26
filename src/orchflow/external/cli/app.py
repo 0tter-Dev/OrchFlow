@@ -6,6 +6,7 @@ from orchflow.application.access_control import (
     AccessControlError,
     LoginCommand,
     RegisterUserCommand,
+    UpdateUserCommand,
 )
 from orchflow.application.audit_history import (
     AuditHistoryError,
@@ -15,8 +16,10 @@ from orchflow.application.bootstrap import BootstrapStatusService
 from orchflow.application.lifecycle import ExecuteLifecycleCommand, LifecycleExecutionError
 from orchflow.application.project_registry import (
     ProjectMappingInput,
+    ProjectOwnershipError,
     ProjectRegistryError,
     RegisterProjectCommand,
+    UpdateProjectOwnerCommand,
 )
 from orchflow.application.runtime_inspection import InspectRuntimeCommand
 from orchflow.application.services import (
@@ -228,6 +231,30 @@ def users(token: str = typer.Option(...)) -> None:
         typer.echo("")
 
 
+@auth_app.command("update-user")
+def update_user(
+    token: str = typer.Option(...),
+    user_id: int = typer.Option(...),
+    role: str | None = typer.Option(default=None),
+    is_active: bool | None = typer.Option(default=None),
+) -> None:
+    """Update a user's role or activation state as an authenticated admin."""
+    service = create_access_control_service()
+    requested_role = UserRole(role) if role is not None else None
+    try:
+        user = service.update_user(
+            UpdateUserCommand(
+                token=token,
+                user_id=user_id,
+                role=requested_role,
+                is_active=is_active,
+            )
+        )
+    except AccessControlError as error:
+        _exit_with_error(error)
+    typer.echo(render_user(user))
+
+
 @project_app.command("register")
 def register_project(
     token: str = typer.Option(...),
@@ -279,6 +306,40 @@ def show_project(token: str = typer.Option(...), project_id: int = typer.Option(
     try:
         project = service.get_project(token, project_id)
     except (ProjectRegistryError, AccessControlError) as error:
+        _exit_with_error(error)
+    typer.echo(render_project(project))
+
+
+@project_app.command("add-owner")
+def add_project_owner(
+    token: str = typer.Option(...),
+    project_id: int = typer.Option(...),
+    user_id: int = typer.Option(...),
+) -> None:
+    """Add a project owner as an authenticated admin."""
+    service = create_project_registry_service()
+    try:
+        project = service.add_project_owner(
+            UpdateProjectOwnerCommand(token=token, project_id=project_id, user_id=user_id)
+        )
+    except (ProjectOwnershipError, ProjectRegistryError, AccessControlError) as error:
+        _exit_with_error(error)
+    typer.echo(render_project(project))
+
+
+@project_app.command("remove-owner")
+def remove_project_owner(
+    token: str = typer.Option(...),
+    project_id: int = typer.Option(...),
+    user_id: int = typer.Option(...),
+) -> None:
+    """Remove a project owner as an authenticated admin."""
+    service = create_project_registry_service()
+    try:
+        project = service.remove_project_owner(
+            UpdateProjectOwnerCommand(token=token, project_id=project_id, user_id=user_id)
+        )
+    except (ProjectOwnershipError, ProjectRegistryError, AccessControlError) as error:
         _exit_with_error(error)
     typer.echo(render_project(project))
 

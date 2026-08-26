@@ -1,0 +1,128 @@
+.admin-panel {
+  display: grid;
+  gap: 1rem;
+  padding: 1.35rem;
+  border-radius: 24px;
+  background: rgba(7, 14, 24, 0.68);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.admin-panel__header,
+.admin-panel__user,
+.admin-panel__owner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.admin-panel__eyebrow {
+  color: #99efe6;
+  font-size: 0.76rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.admin-panel__title {
+  margin: 0.2rem 0 0;
+  font-size: 1.15rem;
+}
+
+.admin-panel__subtitle {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.admin-panel__button,
+.admin-panel__actions select {
+  min-height: 2.5rem;
+  padding: 0.62rem 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #f5efe2;
+  font: inherit;
+}
+
+.admin-panel__button {
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.admin-panel__button:disabled,
+.admin-panel__actions select:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.admin-panel__empty,
+.admin-panel__error,
+.admin-panel__success {
+  padding: 0.95rem 1rem;
+  border-radius: 16px;
+  line-height: 1.7;
+}
+
+.admin-panel__empty {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(245, 239, 226, 0.74);
+}
+
+.admin-panel__error {
+  background: rgba(208, 72, 45, 0.14);
+  color: #ffd2c7;
+}
+
+.admin-panel__success {
+  background: rgba(66, 168, 132, 0.14);
+  color: #bcffe4;
+}
+
+.admin-panel__users,
+.admin-panel__ownership,
+.admin-panel__owner-list,
+.admin-panel__owner-actions {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.admin-panel__user,
+.admin-panel__owner {
+  padding: 0.85rem 0.95rem;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.admin-panel__user div:first-child {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.admin-panel__user span,
+.admin-panel__owner span {
+  color: rgba(245, 239, 226, 0.66);
+  font-size: 0.84rem;
+}
+
+.admin-panel__actions,
+.admin-panel__owner-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  justify-content: flex-end;
+}
+
+@media (max-width: 680px) {
+  .admin-panel__header,
+  .admin-panel__user,
+  .admin-panel__owner {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .admin-panel__actions,
+  .admin-panel__owner-actions {
+    justify-content: stretch;
+  }
+}

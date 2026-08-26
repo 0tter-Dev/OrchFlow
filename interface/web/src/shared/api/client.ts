@@ -13,7 +13,7 @@ export class ApiRequestError extends Error {
 
 type RequestJsonOptions = {
   body?: unknown;
-  method?: "GET" | "POST";
+  method?: "DELETE" | "GET" | "PATCH" | "POST";
   signal?: AbortSignal;
   token?: string | null;
 };

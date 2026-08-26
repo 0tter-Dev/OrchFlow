@@ -11,6 +11,15 @@ from orchflow.external.cli.app import app
 runner = CliRunner()
 
 
+def _extract_user_id_from_cli_output(output: str, username: str) -> str:
+    for block in output.strip().split("\n\n"):
+        lines = block.splitlines()
+        if f"username: {username}" not in lines:
+            continue
+        return next(line.removeprefix("id: ") for line in lines if line.startswith("id: "))
+    raise AssertionError(f"User '{username}' was not found in CLI output.")
+
+
 def test_info_command_displays_bootstrap_metadata() -> None:
     result = runner.invoke(app, ["info"])
 
@@ -92,6 +101,46 @@ def test_cli_audit_history_flow_is_available(isolated_environment: None) -> None
     assert "action: user.login" in audit_result.stdout
 
 
+def test_cli_admin_user_management_flow_is_available(isolated_environment: None) -> None:
+    runner.invoke(
+        app,
+        ["auth", "register", "--username", "admin-user", "--password", "password123"],
+    )
+    runner.invoke(
+        app,
+        ["auth", "register", "--username", "member-user", "--password", "password123"],
+    )
+    login_result = runner.invoke(
+        app,
+        ["auth", "login", "--username", "admin-user", "--password", "password123"],
+    )
+    token_line = next(
+        line for line in login_result.stdout.splitlines() if line.startswith("access_token: ")
+    )
+    token = token_line.removeprefix("access_token: ")
+    users_result = runner.invoke(app, ["auth", "users", "--token", token])
+    member_id = _extract_user_id_from_cli_output(users_result.stdout, "member-user")
+
+    update_result = runner.invoke(
+        app,
+        [
+            "auth",
+            "update-user",
+            "--token",
+            token,
+            "--user-id",
+            member_id,
+            "--role",
+            "admin",
+            "--no-is-active",
+        ],
+    )
+
+    assert update_result.exit_code == 0
+    assert "role: admin" in update_result.stdout
+    assert "is_active: false" in update_result.stdout
+
+
 def test_cli_project_registry_flow_is_available(
     isolated_environment: None,
     tmp_path: Path,
@@ -145,6 +194,95 @@ def test_cli_project_registry_flow_is_available(
     list_result = runner.invoke(app, ["project", "list", "--token", token])
     assert list_result.exit_code == 0
     assert "reference_name: cli-project" in list_result.stdout
+
+
+def test_cli_project_owner_management_flow_is_available(
+    isolated_environment: None,
+    tmp_path: Path,
+) -> None:
+    runner.invoke(
+        app,
+        ["auth", "register", "--username", "owner-admin", "--password", "password123"],
+    )
+    runner.invoke(
+        app,
+        ["auth", "register", "--username", "owner-member", "--password", "password123"],
+    )
+    login_result = runner.invoke(
+        app,
+        ["auth", "login", "--username", "owner-admin", "--password", "password123"],
+    )
+    token_line = next(
+        line for line in login_result.stdout.splitlines() if line.startswith("access_token: ")
+    )
+    token = token_line.removeprefix("access_token: ")
+    users_result = runner.invoke(app, ["auth", "users", "--token", token])
+    member_id = _extract_user_id_from_cli_output(users_result.stdout, "owner-member")
+
+    project_dir = tmp_path / "cli-owned-project"
+    project_dir.mkdir()
+    lifecycle_script = project_dir / "control.bat"
+    lifecycle_script.write_text(
+        "@echo off\r\n"
+        "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
+        "if /I \"%~1\"==\"START\" echo start-ok & exit /b 0\r\n"
+        "if /I \"%~1\"==\"STOP\" echo stop-ok & exit /b 0\r\n"
+        "if /I \"%~1\"==\"RESTART\" echo restart-ok & exit /b 0\r\n"
+        "exit /b 1\r\n",
+        encoding="utf-8",
+    )
+    register_result = runner.invoke(
+        app,
+        [
+            "project",
+            "register",
+            "--token",
+            token,
+            "--reference-name",
+            "cli-owned-project",
+            "--project-root-path",
+            str(project_dir),
+            "--lifecycle-script-path",
+            str(lifecycle_script),
+        ],
+    )
+    project_id = next(
+        line.removeprefix("id: ")
+        for line in register_result.stdout.splitlines()
+        if line.startswith("id: ")
+    )
+
+    add_result = runner.invoke(
+        app,
+        [
+            "project",
+            "add-owner",
+            "--token",
+            token,
+            "--project-id",
+            project_id,
+            "--user-id",
+            member_id,
+        ],
+    )
+    assert add_result.exit_code == 0
+    assert f"owner_user_ids: 1, {member_id}" in add_result.stdout
+
+    remove_result = runner.invoke(
+        app,
+        [
+            "project",
+            "remove-owner",
+            "--token",
+            token,
+            "--project-id",
+            project_id,
+            "--user-id",
+            member_id,
+        ],
+    )
+    assert remove_result.exit_code == 0
+    assert f"owner_user_ids: 1, {member_id}" not in remove_result.stdout
 
 
 @pytest.mark.skipif(sys.platform != "win32", reason="Windows-only batch execution")

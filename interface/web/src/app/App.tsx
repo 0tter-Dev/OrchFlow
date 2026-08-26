@@ -1,5 +1,7 @@
 import "./App.css";
 
+import { AdminManagementPanel } from "../features/admin/components/AdminManagementPanel";
+import { useAdminManagement } from "../features/admin/hooks/useAdminManagement";
 import { AuditEventsPanel } from "../features/audit/components/AuditEventsPanel";
 import { useAuditEvents } from "../features/audit/hooks/useAuditEvents";
 import { LoginPanel } from "../features/auth/components/LoginPanel";
@@ -15,6 +17,7 @@ const apiBaseUrl = getApiBaseUrl();
 
 export function App() {
   const authSession = useAuthSession();
+  const adminManagement = useAdminManagement(authSession.token, authSession.currentUser);
   const auditEvents = useAuditEvents(authSession.token, authSession.currentUser);
   const projectWorkspace = useProjectWorkspace(authSession.token);
   const { errorMessage, healthStatus, isLoading, lastUpdated, refresh } = useHealthStatus();
@@ -120,6 +123,22 @@ export function App() {
                 isLoading={isLoading}
                 lastUpdated={lastUpdated}
                 onRefresh={refresh}
+              />
+              <AdminManagementPanel
+                canManage={adminManagement.canManage}
+                currentUser={authSession.currentUser}
+                errorMessage={adminManagement.errorMessage}
+                isLoading={adminManagement.isLoading}
+                isMutating={adminManagement.isMutating}
+                onAddOwner={adminManagement.addOwner}
+                onChangeUserActivation={adminManagement.changeUserActivation}
+                onChangeUserRole={adminManagement.changeUserRole}
+                onRefreshProject={projectWorkspace.refresh}
+                onRefreshUsers={adminManagement.refreshUsers}
+                onRemoveOwner={adminManagement.removeOwner}
+                selectedProject={projectWorkspace.selectedProject}
+                successMessage={adminManagement.successMessage}
+                users={adminManagement.users}
               />
               <AuditEventsPanel
                 canLoadAuditEvents={auditEvents.canLoadAuditEvents}

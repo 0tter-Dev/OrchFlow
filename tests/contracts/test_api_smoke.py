@@ -157,6 +157,38 @@ def test_registering_admin_after_bootstrap_requires_admin_token(
     assert forbidden_response.status_code == 403
 
 
+def test_admin_user_management_flow_is_exposed_in_api(isolated_environment: None) -> None:
+    client = TestClient(create_app())
+
+    client.post(
+        "/auth/register",
+        json={"username": "admin-user", "password": "password123"},
+    )
+    client.post(
+        "/auth/register",
+        json={"username": "member-user", "password": "password123"},
+    )
+    login_response = client.post(
+        "/auth/login",
+        json={"username": "admin-user", "password": "password123"},
+    )
+    token = login_response.json()["access_token"]
+    users_response = client.get("/auth/users", headers={"Authorization": f"Bearer {token}"})
+    member_id = next(
+        user["id"] for user in users_response.json() if user["username"] == "member-user"
+    )
+
+    update_response = client.patch(
+        f"/auth/users/{member_id}",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"role": "admin", "is_active": False},
+    )
+
+    assert update_response.status_code == 200
+    assert update_response.json()["role"] == "admin"
+    assert update_response.json()["is_active"] is False
+
+
 def test_project_registry_flow_is_exposed_in_api(
     isolated_environment: None,
     tmp_path: Path,
@@ -211,6 +243,67 @@ def test_project_registry_flow_is_exposed_in_api(
     )
     assert get_response.status_code == 200
     assert get_response.json()["reference_name"] == "api-project"
+
+
+def test_project_owner_management_flow_is_exposed_in_api(
+    isolated_environment: None,
+    tmp_path: Path,
+) -> None:
+    client = TestClient(create_app())
+    client.post(
+        "/auth/register",
+        json={"username": "owner-admin", "password": "password123"},
+    )
+    client.post(
+        "/auth/register",
+        json={"username": "owner-member", "password": "password123"},
+    )
+    login_response = client.post(
+        "/auth/login",
+        json={"username": "owner-admin", "password": "password123"},
+    )
+    token = login_response.json()["access_token"]
+    users_response = client.get("/auth/users", headers={"Authorization": f"Bearer {token}"})
+    member_id = next(
+        user["id"] for user in users_response.json() if user["username"] == "owner-member"
+    )
+
+    project_dir = tmp_path / "api-owned-project"
+    project_dir.mkdir()
+    lifecycle_script = project_dir / "control.bat"
+    lifecycle_script.write_text(
+        "@echo off\r\n"
+        "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
+        "if /I \"%~1\"==\"START\" echo start-ok & exit /b 0\r\n"
+        "if /I \"%~1\"==\"STOP\" echo stop-ok & exit /b 0\r\n"
+        "if /I \"%~1\"==\"RESTART\" echo restart-ok & exit /b 0\r\n"
+        "exit /b 1\r\n",
+        encoding="utf-8",
+    )
+    register_response = client.post(
+        "/projects",
+        headers={"Authorization": f"Bearer {token}"},
+        json={
+            "reference_name": "api-owned-project",
+            "project_root_path": str(project_dir),
+            "lifecycle_script_path": str(lifecycle_script),
+        },
+    )
+    project_id = register_response.json()["id"]
+
+    add_response = client.post(
+        f"/projects/{project_id}/owners/{member_id}",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert add_response.status_code == 200
+    assert member_id in add_response.json()["owner_user_ids"]
+
+    remove_response = client.delete(
+        f"/projects/{project_id}/owners/{member_id}",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert remove_response.status_code == 200
+    assert member_id not in remove_response.json()["owner_user_ids"]
 
 
 @pytest.mark.skipif(sys.platform != "win32", reason="Windows-only batch execution")

@@ -25,7 +25,7 @@ Provide a clean separation between the backend core and multiple user-facing cli
 - runtime metrics display
 - lifecycle controls
 - audit history visibility
-- admin user and permission visibility
+- admin user and ownership management
 
 ## Key Rules
 
@@ -40,7 +40,7 @@ Provide a clean separation between the backend core and multiple user-facing cli
 - `interface/web` now exists as the first concrete interface client
 - the web client is bootstrapped with `React`, `TypeScript`, `Vite`, and `pnpm`
 - the web client now consumes authenticated API flows through a shared client boundary
-- the current web baseline includes session loading, login, project registration for existing `.bat` scripts, project listing, project details, runtime visibility, lifecycle controls, and recent audit history visibility for admins
+- the current web baseline includes session loading, login, project registration for existing `.bat` scripts, project listing, project details, runtime visibility, lifecycle controls, recent audit history visibility for admins, user role/activation management, and project owner management
 - the web client keeps the backend contract stable during local development by using a proxy-friendly API base URL convention
 - frontend lint, test, and build scripts are established so later feature work can focus on real operator flows
 
