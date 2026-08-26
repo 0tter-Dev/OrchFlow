@@ -7,6 +7,10 @@ from orchflow.application.access_control import (
     LoginCommand,
     RegisterUserCommand,
 )
+from orchflow.application.audit_history import (
+    AuditHistoryError,
+    ListAuditEventsCommand,
+)
 from orchflow.application.bootstrap import BootstrapStatusService
 from orchflow.application.lifecycle import ExecuteLifecycleCommand, LifecycleExecutionError
 from orchflow.application.project_registry import (
@@ -17,6 +21,7 @@ from orchflow.application.project_registry import (
 from orchflow.application.runtime_inspection import InspectRuntimeCommand
 from orchflow.application.services import (
     create_access_control_service,
+    create_audit_history_service,
     create_bootstrap_service,
     create_lifecycle_orchestration_service,
     create_project_registry_service,
@@ -25,6 +30,7 @@ from orchflow.application.services import (
 from orchflow.domain.access_control import AccessToken, UserRole
 from orchflow.domain.project_registry import CanonicalLifecycleAction, MappingSource
 from orchflow.external.presenters import (
+    render_audit_event,
     render_lifecycle_result,
     render_project,
     render_runtime_snapshot,
@@ -44,6 +50,8 @@ app.add_typer(project_app, name="project")
 app.add_typer(lifecycle_app, name="lifecycle")
 runtime_app = typer.Typer(help="Runtime inspection commands.")
 app.add_typer(runtime_app, name="runtime")
+audit_app = typer.Typer(help="Operational audit history commands.")
+app.add_typer(audit_app, name="audit")
 
 
 def _render_status(service: BootstrapStatusService) -> str:
@@ -326,6 +334,19 @@ def inspect_runtime(token: str = typer.Option(...), project_id: int = typer.Opti
     except (ProjectRegistryError, AccessControlError) as error:
         _exit_with_error(error)
     typer.echo(render_runtime_snapshot(snapshot))
+
+
+@audit_app.command("events")
+def audit_events(token: str = typer.Option(...), limit: int = typer.Option(default=25)) -> None:
+    """List recent audit events as an authenticated admin."""
+    service = create_audit_history_service()
+    try:
+        events = service.list_recent_events(ListAuditEventsCommand(token=token, limit=limit))
+    except (AuditHistoryError, AccessControlError) as error:
+        _exit_with_error(error)
+    for event in events:
+        typer.echo(render_audit_event(event))
+        typer.echo("")
 
 
 def run() -> None:

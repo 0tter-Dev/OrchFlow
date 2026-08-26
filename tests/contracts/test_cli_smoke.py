@@ -71,6 +71,27 @@ def test_cli_auth_flow_registers_bootstrap_admin_and_lists_users(
     assert "role: admin" in users_result.stdout
 
 
+def test_cli_audit_history_flow_is_available(isolated_environment: None) -> None:
+    runner.invoke(
+        app,
+        ["auth", "register", "--username", "audit-admin", "--password", "password123"],
+    )
+    login_result = runner.invoke(
+        app,
+        ["auth", "login", "--username", "audit-admin", "--password", "password123"],
+    )
+    token_line = next(
+        line for line in login_result.stdout.splitlines() if line.startswith("access_token: ")
+    )
+    token = token_line.removeprefix("access_token: ")
+
+    audit_result = runner.invoke(app, ["audit", "events", "--token", token, "--limit", "10"])
+
+    assert audit_result.exit_code == 0
+    assert "action: admin.audit_events.list" in audit_result.stdout
+    assert "action: user.login" in audit_result.stdout
+
+
 def test_cli_project_registry_flow_is_available(
     isolated_environment: None,
     tmp_path: Path,

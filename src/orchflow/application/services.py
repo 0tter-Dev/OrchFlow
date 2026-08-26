@@ -1,6 +1,7 @@
 """Application service factory helpers."""
 
 from orchflow.application.access_control import AccessControlService
+from orchflow.application.audit_history import AuditHistoryService
 from orchflow.application.bootstrap import BootstrapStatusService
 from orchflow.application.lifecycle import LifecycleOrchestrationService
 from orchflow.application.project_registry import ProjectRegistryService
@@ -9,7 +10,10 @@ from orchflow.infrastructure.config.settings import AppSettings, get_settings
 from orchflow.infrastructure.persistence.project_registry_repository import (
     SqlAlchemyProjectRegistryRepository,
 )
-from orchflow.infrastructure.persistence.repositories import SqlAlchemyUserRepository
+from orchflow.infrastructure.persistence.repositories import (
+    SqlAlchemyAuditHistoryRepository,
+    SqlAlchemyUserRepository,
+)
 from orchflow.infrastructure.persistence.session import (
     create_session_factory,
     initialize_database,
@@ -84,3 +88,13 @@ def create_runtime_inspection_service(
         current_user_resolver=access_control_service,
         inspector=inspector,
     )
+
+
+def create_audit_history_service(settings: AppSettings | None = None) -> AuditHistoryService:
+    """Create the audit history application service."""
+    current_settings = settings or get_settings()
+    initialize_database(current_settings)
+    session_factory = create_session_factory(current_settings)
+    repository = SqlAlchemyAuditHistoryRepository(session_factory)
+    access_control_service = create_access_control_service(current_settings)
+    return AuditHistoryService(repository, access_control_service)

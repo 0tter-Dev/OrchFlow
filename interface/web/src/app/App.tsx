@@ -1,5 +1,7 @@
 import "./App.css";
 
+import { AuditEventsPanel } from "../features/audit/components/AuditEventsPanel";
+import { useAuditEvents } from "../features/audit/hooks/useAuditEvents";
 import { LoginPanel } from "../features/auth/components/LoginPanel";
 import { useAuthSession } from "../features/auth/hooks/useAuthSession";
 import { ProjectDetailPanel } from "../features/projects/components/ProjectDetailPanel";
@@ -13,6 +15,7 @@ const apiBaseUrl = getApiBaseUrl();
 
 export function App() {
   const authSession = useAuthSession();
+  const auditEvents = useAuditEvents(authSession.token, authSession.currentUser);
   const projectWorkspace = useProjectWorkspace(authSession.token);
   const { errorMessage, healthStatus, isLoading, lastUpdated, refresh } = useHealthStatus();
 
@@ -117,6 +120,13 @@ export function App() {
                 isLoading={isLoading}
                 lastUpdated={lastUpdated}
                 onRefresh={refresh}
+              />
+              <AuditEventsPanel
+                canLoadAuditEvents={auditEvents.canLoadAuditEvents}
+                errorMessage={auditEvents.errorMessage}
+                events={auditEvents.events}
+                isLoading={auditEvents.isLoading}
+                onRefresh={auditEvents.refresh}
               />
             </div>
           </section>

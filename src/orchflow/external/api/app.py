@@ -2,7 +2,7 @@
 
 from typing import Literal
 
-from fastapi import FastAPI, Header, HTTPException, status
+from fastapi import FastAPI, Header, HTTPException, Query, status
 from pydantic import BaseModel
 
 from orchflow.application.access_control import (
@@ -12,6 +12,11 @@ from orchflow.application.access_control import (
     LoginCommand,
     RegisterUserCommand,
     UserConflictError,
+)
+from orchflow.application.audit_history import (
+    AuditHistoryError,
+    AuditHistoryValidationError,
+    ListAuditEventsCommand,
 )
 from orchflow.application.lifecycle import ExecuteLifecycleCommand, LifecycleExecutionError
 from orchflow.application.project_registry import (
@@ -24,12 +29,13 @@ from orchflow.application.project_registry import (
 from orchflow.application.runtime_inspection import InspectRuntimeCommand
 from orchflow.application.services import (
     create_access_control_service,
+    create_audit_history_service,
     create_bootstrap_service,
     create_lifecycle_orchestration_service,
     create_project_registry_service,
     create_runtime_inspection_service,
 )
-from orchflow.domain.access_control import User, UserRole
+from orchflow.domain.access_control import AuditEvent, User, UserRole
 from orchflow.domain.lifecycle import LifecycleExecutionResult
 from orchflow.domain.project_registry import CanonicalLifecycleAction, MappingSource, Project
 from orchflow.domain.runtime_inspection import RuntimeInspectionSnapshot
@@ -64,6 +70,16 @@ class UserResponse(BaseModel):
     username: str
     role: Literal["admin", "member"]
     is_active: bool
+
+
+class AuditEventResponse(BaseModel):
+    id: int
+    actor_user_id: int | None
+    action: str
+    target_type: str
+    target_id: str | None
+    details: str | None
+    created_at: str
 
 
 class RegisterUserRequest(BaseModel):
@@ -152,6 +168,18 @@ def _to_user_response(user: User) -> UserResponse:
     )
 
 
+def _to_audit_event_response(event: AuditEvent) -> AuditEventResponse:
+    return AuditEventResponse(
+        id=event.id,
+        actor_user_id=event.actor_user_id,
+        action=event.action,
+        target_type=event.target_type,
+        target_id=event.target_id,
+        details=event.details,
+        created_at=event.created_at.isoformat(),
+    )
+
+
 def _to_project_response(project: Project) -> ProjectResponse:
     return ProjectResponse(
         id=project.id,
@@ -232,6 +260,14 @@ def _map_access_control_error(error: AccessControlError) -> HTTPException:
     return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(error))
 
 
+def _map_audit_history_error(error: AuditHistoryError | AuthorizationError) -> HTTPException:
+    if isinstance(error, AuthorizationError):
+        return HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(error))
+    if isinstance(error, AuditHistoryValidationError):
+        return HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(error))
+    return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(error))
+
+
 def _map_project_registry_error(
     error: ProjectRegistryError | AuthorizationError,
 ) -> HTTPException:
@@ -258,6 +294,7 @@ def _map_lifecycle_error(
 def create_app() -> FastAPI:
     bootstrap_service = create_bootstrap_service()
     access_control_service = create_access_control_service()
+    audit_history_service = create_audit_history_service()
     project_registry_service = create_project_registry_service()
     lifecycle_service = create_lifecycle_orchestration_service()
     runtime_service = create_runtime_inspection_service()
@@ -352,6 +389,25 @@ def create_app() -> FastAPI:
         except AccessControlError as error:
             raise _map_access_control_error(error) from error
         return [_to_user_response(user) for user in users]
+
+    @app.get("/audit/events", response_model=list[AuditEventResponse], tags=["audit"])
+    def list_audit_events(
+        authorization: str | None = Header(default=None),
+        limit: int = Query(default=25, ge=1, le=100),
+    ) -> list[AuditEventResponse]:
+        token = _extract_bearer_token(authorization)
+        if token is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Missing bearer token.",
+            )
+        try:
+            events = audit_history_service.list_recent_events(
+                ListAuditEventsCommand(token=token, limit=limit)
+            )
+        except (AuditHistoryError, AuthorizationError) as error:
+            raise _map_audit_history_error(error) from error
+        return [_to_audit_event_response(event) for event in events]
 
     @app.post(
         "/projects",

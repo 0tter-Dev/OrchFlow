@@ -97,6 +97,14 @@ At the current implementation stage, these lifecycle actions are already availab
 
 The user can review recent lifecycle activity and operational outcomes to understand what happened and when.
 
+At the current implementation stage, recent audit history is available to authenticated admins through:
+
+- `CLI`: `orchflow audit events --token <TOKEN> --limit 25`
+- `API`: `GET /audit/events?limit=25`
+- `web`: the audit history panel in the authenticated operator workspace
+
+The first history view covers already recorded user registration, login, admin listing, project registration, project listing, project reads, and lifecycle action events.
+
 ## Operating Expectations
 
 - A project should not be treated as fully managed unless it has a reviewable lifecycle `.bat` definition
@@ -109,6 +117,7 @@ The user can review recent lifecycle activity and operational outcomes to unders
 An `admin` can additionally:
 
 - view platform users
+- review recent audit history
 - manage user permissions
 - inspect projects across the system
 - troubleshoot access and operational issues

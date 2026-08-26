@@ -1,6 +1,6 @@
 """Shared presentation helpers for OrchFlow external adapters."""
 
-from orchflow.domain.access_control import User
+from orchflow.domain.access_control import AuditEvent, User
 from orchflow.domain.lifecycle import LifecycleExecutionResult
 from orchflow.domain.project_registry import Project
 from orchflow.domain.runtime_inspection import RuntimeInspectionSnapshot
@@ -13,6 +13,19 @@ def render_user(user: User) -> str:
         f"username: {user.username}\n"
         f"role: {user.role.value}\n"
         f"is_active: {str(user.is_active).lower()}"
+    )
+
+
+def render_audit_event(event: AuditEvent) -> str:
+    """Render an audit event for CLI output."""
+    return (
+        f"id: {event.id}\n"
+        f"actor_user_id: {event.actor_user_id}\n"
+        f"action: {event.action}\n"
+        f"target_type: {event.target_type}\n"
+        f"target_id: {event.target_id}\n"
+        f"details: {event.details or ''}\n"
+        f"created_at: {event.created_at.isoformat()}"
     )
 
 

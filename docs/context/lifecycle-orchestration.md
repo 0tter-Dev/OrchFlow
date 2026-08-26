@@ -32,7 +32,7 @@ Provide a standardized lifecycle engine for local projects using an explicit `.b
 ## Implemented Baseline
 
 - lifecycle actions execute through the Windows batch adapter using canonical actions resolved per project
-- successful and failed executions are audited with command identifiers and exit status
+- successful and failed executions are audited with command identifiers, exit status, success state, and runtime status when inspection is available
 - runtime inspection is invoked after lifecycle execution when available so API and CLI receive an immediate runtime summary
 
 ## Main Relationships

@@ -65,7 +65,7 @@ Defines how CLI and API mirror the same application capabilities.
 Defines the API-consuming interface boundary for web, mobile, and desktop clients.
 
 - [Persistence And Audit](./context/persistence-and-audit.md)
-Defines local storage direction and lifecycle event history.
+Defines local storage direction, lifecycle event history, and admin audit visibility.
 
 - [DevOps And Delivery](./context/devops-and-delivery.md)
 Defines source-control, validation, and CI/CD expectations.
@@ -92,6 +92,6 @@ Defines source-control, validation, and CI/CD expectations.
 
 `Interface Layer` depends on the API-facing surface for data presentation and control actions across different client implementations.
 
-`Persistence And Audit` supports all core modules by storing users, permissions, projects, and lifecycle events.
+`Persistence And Audit` supports all core modules by storing users, permissions, projects, lifecycle events, and recent audit history for admin review.
 
 `DevOps And Delivery` governs how the project itself is built, reviewed, tested, and released.
