@@ -50,7 +50,7 @@ Defines lifecycle actions, state transitions, and operational control behavior.
 Defines the standard `.bat` contract shape used by managed projects.
 
 - [Runtime Inspection](./context/runtime-inspection.md)
-Defines how OrchFlow inspects ports, processes, uptime, and resource usage.
+Defines how OrchFlow inspects ports, processes, uptime, resource usage, status explanations, and URL reachability.
 
 - [AI Agent Adapter](./context/ai-agent-adapter.md)
 Defines the optional AI adapter layer for analyzing a folder and helping produce a lifecycle `.bat` script.
@@ -82,7 +82,7 @@ Defines source-control, validation, and CI/CD expectations.
 
 `Lifecycle Script Template` defines the standardized `.bat` shape expected by `Project Registry`, `Project Adapter`, and `AI Agent Adapter`.
 
-`Runtime Inspection` supports `Lifecycle Orchestration` by validating whether actions succeeded and by producing runtime facts for operators.
+`Runtime Inspection` supports `Lifecycle Orchestration` by validating whether actions succeeded and by producing runtime facts and diagnostic explanations for operators.
 
 `AI Agent Adapter` supports `Project Registry` by helping a user transform a project folder into a reviewable `.bat` lifecycle script and, when needed, suggest action mappings.
 

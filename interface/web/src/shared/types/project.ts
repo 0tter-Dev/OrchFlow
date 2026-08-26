@@ -41,11 +41,14 @@ export type RuntimeProcessSnapshot = {
 };
 
 export type RuntimeInspectionSnapshot = {
+  application_reachable: boolean | null;
   application_url: string | null;
+  inspected_at: string;
   known_port: number | null;
   process_snapshots: RuntimeProcessSnapshot[];
   project_id: number;
   status: string;
+  status_reason: string;
   uptime_seconds: number | null;
 };
 

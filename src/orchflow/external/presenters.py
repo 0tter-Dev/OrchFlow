@@ -90,8 +90,11 @@ def render_runtime_snapshot(snapshot: RuntimeInspectionSnapshot) -> str:
     return (
         f"project_id: {snapshot.project_id}\n"
         f"status: {snapshot.status}\n"
+        f"status_reason: {snapshot.status_reason}\n"
         f"known_port: {snapshot.known_port}\n"
         f"application_url: {snapshot.application_url}\n"
+        f"application_reachable: {snapshot.application_reachable}\n"
         f"uptime_seconds: {snapshot.uptime_seconds}\n"
+        f"inspected_at: {snapshot.inspected_at.isoformat()}\n"
         f"processes:\n{process_lines}"
     )

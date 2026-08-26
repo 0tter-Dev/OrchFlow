@@ -23,8 +23,10 @@ class RuntimeInspectionSnapshot:
 
     project_id: int
     status: str
+    status_reason: str
     known_port: int | None
     application_url: str | None
+    application_reachable: bool | None
     uptime_seconds: float | None
     process_snapshots: tuple[RuntimeProcessSnapshot, ...]
     inspected_at: datetime

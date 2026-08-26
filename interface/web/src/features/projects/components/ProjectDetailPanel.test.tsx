@@ -31,7 +31,9 @@ const selectedProject: ProjectSummary = {
 };
 
 const runtimeSnapshot: RuntimeInspectionSnapshot = {
+  application_reachable: true,
   application_url: "http://localhost:4010",
+  inspected_at: "2026-08-24T13:11:00+00:00",
   known_port: 4010,
   process_snapshots: [
     {
@@ -44,6 +46,7 @@ const runtimeSnapshot: RuntimeInspectionSnapshot = {
   ],
   project_id: 7,
   status: "running",
+  status_reason: "Found 1 process(es) listening on APP_PORT 4010.",
   uptime_seconds: 123,
 };
 
@@ -66,6 +69,10 @@ describe("ProjectDetailPanel", () => {
 
     expect(screen.getByText("demo-project")).toBeInTheDocument();
     expect(screen.getByText("http://localhost:4010")).toBeInTheDocument();
+    expect(screen.getByText("Reachable")).toBeInTheDocument();
+    expect(
+      screen.getByText("Found 1 process(es) listening on APP_PORT 4010."),
+    ).toBeInTheDocument();
     expect(screen.getByText(/python \(PID 4242\)/)).toBeInTheDocument();
   });
 

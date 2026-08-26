@@ -104,6 +104,8 @@ def test_runtime_inspection_reports_running_process_and_port(
         assert snapshot.status == "running"
         assert snapshot.known_port == port
         assert snapshot.application_url == f"http://localhost:{port}"
+        assert snapshot.application_reachable is True
+        assert f"APP_PORT {port}" in snapshot.status_reason
         assert len(snapshot.process_snapshots) >= 1
     finally:
         server_process.terminate()

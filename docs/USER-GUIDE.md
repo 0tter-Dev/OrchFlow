@@ -73,10 +73,13 @@ If the project script uses different action names such as `iniciar`, `parar`, or
 After registration, the user can inspect:
 
 - current lifecycle state
+- status explanation
 - known ports
+- application URL reachability when `APP_URL` is present
 - active processes
 - uptime
 - CPU and memory usage
+- inspection timestamp
 
 At the current implementation stage, these inspection capabilities are already exposed through `CLI`, `API`, and the authenticated `web` workspace.
 

@@ -162,9 +162,12 @@ class RuntimeProcessResponse(BaseModel):
 class RuntimeInspectionResponse(BaseModel):
     project_id: int
     status: str
+    status_reason: str
     known_port: int | None
     application_url: str | None
+    application_reachable: bool | None
     uptime_seconds: float | None
+    inspected_at: str
     process_snapshots: list[RuntimeProcessResponse]
 
 
@@ -231,9 +234,12 @@ def _to_runtime_response(snapshot: RuntimeInspectionSnapshot) -> RuntimeInspecti
     return RuntimeInspectionResponse(
         project_id=snapshot.project_id,
         status=snapshot.status,
+        status_reason=snapshot.status_reason,
         known_port=snapshot.known_port,
         application_url=snapshot.application_url,
+        application_reachable=snapshot.application_reachable,
         uptime_seconds=snapshot.uptime_seconds,
+        inspected_at=snapshot.inspected_at.isoformat(),
         process_snapshots=[
             RuntimeProcessResponse(
                 pid=process.pid,
