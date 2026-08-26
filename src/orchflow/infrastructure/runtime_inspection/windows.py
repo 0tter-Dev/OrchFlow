@@ -9,6 +9,8 @@ import sys
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
 
 from orchflow.application.runtime_inspection import RuntimeInspectionError, RuntimeInspector
 from orchflow.domain.project_registry import Project
@@ -24,18 +26,22 @@ class WindowsRuntimeInspector(RuntimeInspector):
     """Inspects ports and process metadata for Windows-first managed projects."""
 
     powershell_executable: str = "powershell"
+    reachability_timeout_seconds: float = 1.5
 
     def inspect(self, project: Project) -> RuntimeInspectionSnapshot:
         inspected_at = datetime.now(UTC)
         known_port, application_url = self._extract_script_runtime_hints(
             project.lifecycle_script_path
         )
+        application_reachable = self._check_application_reachability(application_url)
         if sys.platform != "win32":
             return RuntimeInspectionSnapshot(
                 project_id=project.id,
                 status="unsupported",
+                status_reason="Runtime inspection is currently implemented for Windows only.",
                 known_port=known_port,
                 application_url=application_url,
+                application_reachable=application_reachable,
                 uptime_seconds=None,
                 process_snapshots=(),
                 inspected_at=inspected_at,
@@ -54,11 +60,20 @@ class WindowsRuntimeInspector(RuntimeInspector):
                 oldest_start = min(started_values)
                 uptime_seconds = (inspected_at - oldest_start).total_seconds()
         status = "running" if processes else "stopped"
-        return RuntimeInspectionSnapshot(
-            project_id=project.id,
+        status_reason = self._build_status_reason(
             status=status,
             known_port=known_port,
             application_url=application_url,
+            application_reachable=application_reachable,
+            process_count=len(processes),
+        )
+        return RuntimeInspectionSnapshot(
+            project_id=project.id,
+            status=status,
+            status_reason=status_reason,
+            known_port=known_port,
+            application_url=application_url,
+            application_reachable=application_reachable,
             uptime_seconds=uptime_seconds,
             process_snapshots=tuple(processes),
             inspected_at=inspected_at,
@@ -99,6 +114,53 @@ class WindowsRuntimeInspector(RuntimeInspector):
             if pid not in pids:
                 pids.append(pid)
         return pids
+
+    def _check_application_reachability(self, application_url: str | None) -> bool | None:
+        if application_url is None:
+            return None
+
+        request = Request(application_url, method="GET")
+        try:
+            with urlopen(request, timeout=self.reachability_timeout_seconds):
+                return True
+        except HTTPError:
+            return True
+        except (OSError, URLError, ValueError):
+            return False
+
+    @staticmethod
+    def _build_status_reason(
+        *,
+        status: str,
+        known_port: int | None,
+        application_url: str | None,
+        application_reachable: bool | None,
+        process_count: int,
+    ) -> str:
+        if known_port is None:
+            return (
+                "No APP_PORT hint was found in the lifecycle script, so OrchFlow could not "
+                "associate the project with a listening process."
+            )
+        if status == "running":
+            reason = f"Found {process_count} process(es) listening on APP_PORT {known_port}."
+            if application_url is not None:
+                reachability = (
+                    "reachable" if application_reachable else "not reachable"
+                )
+                return f"{reason} APP_URL {application_url} is {reachability}."
+            return reason
+        if application_url is not None and application_reachable:
+            return (
+                f"No listening process was found for APP_PORT {known_port}, but APP_URL "
+                f"{application_url} responded to a reachability check."
+            )
+        if application_url is not None:
+            return (
+                f"No listening process was found for APP_PORT {known_port}, and APP_URL "
+                f"{application_url} did not respond to a reachability check."
+            )
+        return f"No listening process was found for APP_PORT {known_port}."
 
     def _load_process_snapshots(self, pids: list[int]) -> list[RuntimeProcessSnapshot]:
         if not pids:

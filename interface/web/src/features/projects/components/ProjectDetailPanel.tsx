@@ -42,6 +42,24 @@ function formatMemory(memoryBytes: number | null): string {
   return `${megabytes.toFixed(1)} MB`;
 }
 
+function formatReachability(applicationReachable: boolean | null | undefined): string {
+  if (applicationReachable === undefined || applicationReachable === null) {
+    return "Not checked";
+  }
+  return applicationReachable ? "Reachable" : "Not reachable";
+}
+
+function formatTimestamp(value: string | null | undefined): string {
+  if (value === undefined || value === null) {
+    return "Unavailable";
+  }
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+  return date.toLocaleString();
+}
+
 export function ProjectDetailPanel({
   activeAction,
   currentUser,
@@ -128,8 +146,20 @@ export function ProjectDetailPanel({
             <strong>{runtimeSnapshot?.application_url ?? "Unavailable"}</strong>
           </article>
           <article className="project-detail__runtime-card">
+            <span className="project-detail__label">URL reachability</span>
+            <strong>{formatReachability(runtimeSnapshot?.application_reachable)}</strong>
+          </article>
+          <article className="project-detail__runtime-card">
             <span className="project-detail__label">Uptime</span>
             <strong>{formatUptime(runtimeSnapshot?.uptime_seconds ?? null)}</strong>
+          </article>
+          <article className="project-detail__runtime-card">
+            <span className="project-detail__label">Inspected at</span>
+            <strong>{formatTimestamp(runtimeSnapshot?.inspected_at)}</strong>
+          </article>
+          <article className="project-detail__runtime-card project-detail__runtime-card--wide">
+            <span className="project-detail__label">Runtime explanation</span>
+            <strong>{runtimeSnapshot?.status_reason ?? "Waiting for runtime inspection."}</strong>
           </article>
         </div>
       </section>

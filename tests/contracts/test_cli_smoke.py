@@ -405,3 +405,6 @@ def test_cli_runtime_inspection_flow_is_available(
     )
     assert runtime_result.exit_code == 0
     assert "known_port: 49191" in runtime_result.stdout
+    assert "application_reachable:" in runtime_result.stdout
+    assert "status_reason:" in runtime_result.stdout
+    assert "inspected_at:" in runtime_result.stdout

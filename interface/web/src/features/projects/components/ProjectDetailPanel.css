@@ -89,10 +89,16 @@
   background: rgba(255, 255, 255, 0.04);
 }
 
+.project-detail__runtime-card--wide {
+  grid-column: 1 / -1;
+}
+
 .project-detail__runtime-card strong {
   display: block;
   margin-top: 0.3rem;
   font-size: 1.05rem;
+  line-height: 1.45;
+  word-break: break-word;
 }
 
 .project-detail__runtime-card strong[data-status="running"] {

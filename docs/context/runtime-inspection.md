@@ -35,7 +35,11 @@ Expose practical operational facts for local project control and troubleshooting
 - inspects Windows listening ports and associates them with process identifiers when possible
 - captures lightweight process snapshots including PID, process name, CPU, memory, and start time
 - derives a practical `running`, `stopped`, or `unsupported` runtime state for operator consumption
+- includes an operator-facing status explanation so `stopped` and `unsupported` states are clearer
+- checks basic `APP_URL` reachability when an application URL is available
+- exposes the inspection timestamp with the runtime snapshot
 - is available as a direct inspection use case and as a post-lifecycle validation step
+- does not persist runtime snapshots yet; current snapshot persistence remains deferred until there is a concrete review or history need beyond audit events
 
 ## Main Relationships
 

@@ -402,5 +402,9 @@ def test_runtime_inspection_is_exposed_in_api(
         headers={"Authorization": f"Bearer {token}"},
     )
     assert runtime_response.status_code == 200
-    assert runtime_response.json()["known_port"] == 49190
-    assert runtime_response.json()["status"] in {"running", "stopped"}
+    payload = runtime_response.json()
+    assert payload["known_port"] == 49190
+    assert isinstance(payload["application_reachable"], bool)
+    assert payload["inspected_at"]
+    assert "APP_PORT 49190" in payload["status_reason"]
+    assert payload["status"] in {"running", "stopped"}
