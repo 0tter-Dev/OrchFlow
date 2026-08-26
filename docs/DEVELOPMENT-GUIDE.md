@@ -114,6 +114,8 @@ When an AI agent is allowed to execute Git operations for this repository, it sh
 
 For code-changing agent work, the expected delivery path is: implement the focused change, update the relevant documentation, run the relevant backend and/or frontend validations, inspect the diff, create a specific short-lived branch, commit, push, and open a pull request into `main`.
 
+Pull request descriptions should use `.github/PULL_REQUEST_TEMPLATE.md` as the standard repository template. Contributors and AI agents should fill that structure when creating PRs, including the summary, decision notes, validation checklist, documentation checklist, and review notes that apply to the change.
+
 ## CI/CD Direction
 
 At minimum, the project should prepare for:

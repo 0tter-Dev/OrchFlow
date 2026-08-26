@@ -18,6 +18,20 @@ export type ProjectSummary = {
   reference_name: string;
 };
 
+export type ProjectRegistrationMappingInput = {
+  canonical_action: CanonicalLifecycleAction;
+  script_label: string;
+  source?: "user_defined" | "imported" | "ai_approved";
+};
+
+export type ProjectRegistrationInput = {
+  description?: string | null;
+  lifecycle_script_path: string;
+  mappings: ProjectRegistrationMappingInput[];
+  project_root_path: string;
+  reference_name: string;
+};
+
 export type RuntimeProcessSnapshot = {
   cpu_seconds: number | null;
   memory_bytes: number | null;

@@ -38,6 +38,13 @@
   background: rgba(255, 255, 255, 0.04);
   color: #f5efe2;
   cursor: pointer;
+  min-height: 2.75rem;
+  white-space: nowrap;
+}
+
+.project-list__button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .project-list__search {
@@ -92,7 +99,8 @@
 }
 
 .project-list__empty,
-.project-list__error {
+.project-list__error,
+.project-list__success {
   padding: 0.95rem 1rem;
   border-radius: 16px;
   line-height: 1.7;
@@ -106,4 +114,70 @@
 .project-list__error {
   background: rgba(208, 72, 45, 0.14);
   color: #ffd2c7;
+}
+
+.project-list__success {
+  background: rgba(66, 168, 132, 0.14);
+  color: #bcffe4;
+}
+
+.project-list__registration {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.project-list__registration-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.project-list__registration-title {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.project-list__field {
+  display: grid;
+  gap: 0.35rem;
+  color: rgba(245, 239, 226, 0.72);
+  font-size: 0.84rem;
+}
+
+.project-list__field input,
+.project-list__field textarea {
+  width: 100%;
+  padding: 0.74rem 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #f5efe2;
+  font: inherit;
+}
+
+.project-list__field textarea {
+  resize: vertical;
+  min-height: 5rem;
+}
+
+.project-list__mapping-grid {
+  display: grid;
+  gap: 0.65rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 560px) {
+  .project-list__registration-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .project-list__mapping-grid {
+    grid-template-columns: 1fr;
+  }
 }

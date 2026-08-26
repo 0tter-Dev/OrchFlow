@@ -37,7 +37,7 @@ OrchFlow is currently in the `v0.2.0` implementation stage as of `2026-08-24`.
 | AI agent adapter | Analyze project folders and help generate `.bat` scripts | planned | Optional, mediated, review-driven, and mapping-aware |
 | CLI surface | Expose orchestration through terminal commands | in_progress | Authentication, project registry, lifecycle execution, and runtime inspection are mirrored; broader operator workflows still pending |
 | API surface | Expose orchestration through HTTP endpoints | in_progress | Authentication, project registry, lifecycle execution, and runtime inspection are mirrored; broader operator workflows still pending |
-| Interface layer | Visualize and control projects across client platforms | in_progress | `interface/web` includes authenticated session loading, project visibility, runtime inspection, lifecycle controls, and a shared API client boundary |
+| Interface layer | Visualize and control projects across client platforms | in_progress | `interface/web` includes authenticated session loading, project registration, project visibility, runtime inspection, lifecycle controls, and a shared API client boundary |
 | Persistence and audit | Store users, projects, permissions, events | in_progress | SQLAlchemy engine/session bootstrap, Alembic migrations, users, audit events, projects, ownership, and lifecycle action mappings are implemented |
 | DevOps and CI | Enforce repository quality and automation | in_progress | Git and GitHub flow documented, including human-driven and agent-driven PR modes; PR and issue templates plus backend and frontend validation workflow created |
 
@@ -53,10 +53,11 @@ OrchFlow is currently in the `v0.2.0` implementation stage as of `2026-08-24`.
 - Project registry is now implemented for existing `.bat` onboarding, with ownership persistence, auditable lifecycle action mappings, and registration-time validation for first-argument dispatch compatibility exposed in both API and CLI.
 - Lifecycle orchestration is now implemented with the first Windows batch execution flow using command-dispatch by argument and mirrored lifecycle actions in API and CLI.
 - Runtime inspection is now implemented with a first Windows-local baseline that extracts script hints, inspects listening ports and process metadata, and mirrors the capability in API and CLI.
-- The first practical web client flow now exists in `interface/web`, covering sign-in, project listing, project details, runtime inspection visibility, and the first lifecycle controls against the stabilized API contracts.
+- The first practical web client flow now exists in `interface/web`, covering sign-in, existing `.bat` project registration, project listing, project details, runtime inspection visibility, and lifecycle controls against the stabilized API contracts.
 - The web client now uses a local proxy-friendly API base URL contract so frontend development can stay aligned with the backend surface without introducing special backend-only web behavior.
 - The Git and GitHub maintenance flow is now documented.
 - The Git and GitHub flow now documents both human-driven and agent-driven pull request authorship, while preserving human review and merge authority on protected branches.
+- Pull request descriptions now explicitly use `.github/PULL_REQUEST_TEMPLATE.md` as the standard structure for reviewer-facing summaries, validation notes, and documentation checklists.
 - Pull request and issue templates plus CI workflow coverage for backend and frontend validation have been added locally.
 - The backend CI workflow now expects collected tests because the bootstrap stage includes smoke coverage, and the repository now also validates the new frontend bootstrap.
 - The frontend package manager direction is now defined as `pnpm`.

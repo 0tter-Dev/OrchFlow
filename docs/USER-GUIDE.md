@@ -20,7 +20,7 @@ At the current implementation stage, the operational surfaces already implemente
 - `API`
 - `web`
 
-`CLI` and `API` remain the reference backend delivery surfaces, and the `web` interface now mirrors the first practical operator workflow on top of those same contracts.
+`CLI` and `API` remain the reference backend delivery surfaces, and the `web` interface now mirrors the first practical operator workflow on top of those same contracts, including registration of existing projects with compatible `.bat` lifecycle scripts.
 
 - `member` users work with their permitted projects
 - `admin` users can manage all projects and user permissions
@@ -44,6 +44,8 @@ The user then provides or confirms:
 - any lifecycle action mappings needed when the script uses non-canonical labels
 
 If the selected script only exposes an interactive menu or labels without first-argument dispatch, OrchFlow rejects the registration with guidance so the script can be adjusted before becoming an operational project definition.
+
+The authenticated web workspace now exposes this existing-script registration flow directly. The form collects project reference name, optional description, project root path, lifecycle script path, and optional lifecycle action mappings for scripts that use identifiers different from `STATUS`, `START`, `STOP`, or `RESTART`.
 
 #### Option B: Analyze A Folder With An AI Agent Adapter
 
@@ -76,7 +78,7 @@ After registration, the user can inspect:
 - uptime
 - CPU and memory usage
 
-At the current implementation stage, these inspection capabilities are already exposed through `CLI`, `API`, and the first authenticated `web` workspace.
+At the current implementation stage, these inspection capabilities are already exposed through `CLI`, `API`, and the authenticated `web` workspace.
 
 ### 4. Control The Lifecycle
 
@@ -89,7 +91,7 @@ The user can request:
 
 OrchFlow executes the action using the registered lifecycle `.bat` contract and records the event.
 
-At the current implementation stage, these lifecycle actions are already available through the mirrored `CLI` and `API` surfaces, and the first web workspace can already trigger them for authenticated users, with runtime status summaries returned when inspection is available.
+At the current implementation stage, these lifecycle actions are already available through the mirrored `CLI` and `API` surfaces, and the web workspace can trigger them for authenticated users, with runtime status summaries returned when inspection is available.
 
 ### 5. Review History
 
