@@ -17,6 +17,7 @@ This guide defines how OrchFlow should be developed, changed, and maintained.
 - Follow clean architecture or an equivalent layered model
 - Keep domain and application rules independent from CLI, API, and UI delivery concerns
 - Keep project-specific execution behavior behind explicit adapter contracts
+- Keep AI/model connectivity behind the OrchFlow AI assistance adapter; do not call `LiteLLM` directly from domain rules, CLI, API, UI, or unrelated application services
 - Keep infrastructure dependencies outside the core business layer
 - Avoid leaking persistence or transport details into domain rules
 - Avoid leaking environment-loading concerns into domain rules
@@ -50,6 +51,7 @@ Changes require explicit review when they:
 - add container orchestration as a first-class concern
 - replace human-reviewed configuration with autonomous AI decisions
 - couple the core directly to a single AI provider instead of using an adapter boundary
+- bypass the LiteLLM gateway and OrchFlow adapter boundary when implementing AI-assisted behavior
 - materially reshape the project structure or strategic dependencies
 
 Future-oriented extensibility is acceptable when it does not add speculative implementation weight, but the project should not pre-build container support or shared-kernel abstractions without a concrete validated need.
@@ -62,6 +64,7 @@ Future-oriented extensibility is acceptable when it does not add speculative imp
 - Cross-feature relationship changes belong in `docs/INDEX.md`
 - User-facing workflow changes should be reflected in `docs/USER-GUIDE.md`
 - Relevant documentation should be updated alongside meaningful implementation changes, especially code changes
+- Pull requests must include a semantic version decision and must update all version-bearing files when the change requires a version bump
 - `docs/TO-DO.md` should remain focused on the next planned steps and should not retain work that is already implemented
 - Changes to established foundations such as the selected stack, business rules, scope boundaries, or non-goals require explicit user approval before they are applied
 
@@ -116,6 +119,8 @@ For code-changing agent work, the expected delivery path is: implement the focus
 
 Pull request descriptions should use `.github/PULL_REQUEST_TEMPLATE.md` as the standard repository template. Contributors and AI agents should fill that structure when creating PRs, including the summary, decision notes, validation checklist, documentation checklist, and review notes that apply to the change.
 
+Every pull request should explicitly state the version bump decision. If the change updates behavior, dependencies, public contracts, operational workflow, or documentation-defined scope, the project version should be advanced according to semantic versioning and kept synchronized across package metadata, runtime version reporting, tests, lockfiles, README, status documentation, and any other version-bearing documentation. If no version bump is made, the pull request should explain why.
+
 ## CI/CD Direction
 
 At minimum, the project should prepare for:
@@ -143,10 +148,11 @@ The current implementation baseline is:
 - quality tooling: `ruff` and `mypy`
 - frontend package manager: `pnpm`
 - initial web interface layer: `React`, `TypeScript`, and `Vite`
+- AI/model gateway: `LiteLLM`, isolated behind the OrchFlow AI assistance adapter
 
 ## Technology Decision Policy
 
-The core technology direction is now selected for `v0.2.0`.
+The core technology direction is now selected for `v0.2.9`.
 
 Future changes should still be evaluated according to:
 

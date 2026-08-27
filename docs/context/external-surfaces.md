@@ -25,9 +25,11 @@ Expose the same core application behavior through both CLI and API without dupli
 - lifecycle control actions should be introduced in both surfaces together so project operations remain consistent
 - runtime inspection flows should be introduced in both surfaces together so operational visibility remains consistent
 - audit history visibility should be introduced in both surfaces together so operational review remains consistent
+- AI assistance workflows should be introduced in CLI and API together when intentionally exposed, with the API remaining the boundary consumed by web
 - business logic must stay in the core application, not in the delivery layer
 - authorization rules must be enforced consistently
 - the API should be the primary backend entry point for interface clients
+- CLI and API must not call LiteLLM directly; they should call OrchFlow application services that enforce context scope, authorization, validation, and review
 
 ## Implemented Baseline
 
@@ -42,4 +44,5 @@ Expose the same core application behavior through both CLI and API without dupli
 - depends on `Project Registry`
 - depends on `Lifecycle Orchestration`
 - depends on `Runtime Inspection`
-- may expose `AI Agent Adapter` workflows
+- may expose `AI Assistance Adapter` workflows
+- may expose LiteLLM-backed AI assistance workflows only through the OrchFlow adapter boundary

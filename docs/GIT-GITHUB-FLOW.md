@@ -31,7 +31,7 @@ This means:
 - branches should be deleted after merge
 - work may be authored either by a human contributor or by an authorized AI agent using a dedicated repository identity
 
-This project should not adopt a heavy Git Flow model in `v0.2.0`.
+This project should not adopt a heavy Git Flow model in `v0.2.9`.
 
 The repository is still in an early product stage, so a simpler branch model reduces process weight and makes maintenance easier.
 
@@ -166,9 +166,10 @@ Every pull request should:
 - describe any architecture impact
 - state the validation performed
 - mention documentation updates
+- state the version bump decision and list the files updated when the version changes
 - mention follow-up work if relevant
 
-Pull requests should be considered incomplete if they change behavior without updating the relevant documentation.
+Pull requests should be considered incomplete if they change behavior without updating the relevant documentation or without documenting the version bump decision.
 
 For agent-authored pull requests, the description should also make clear that:
 
@@ -239,13 +240,15 @@ Use:
 - minor version when adding meaningful capability or crossing an important delivery milestone
 - major version only after the project reaches `1.0.0`
 
+Every pull request must evaluate whether the project version should change. When a bump is required, update all relevant version-bearing files in the same change set, including package metadata, runtime version constants, lockfiles, tests that assert version output, README/status documentation, and any workflow or roadmap documents that name the current version. If no bump is required, the pull request should explicitly say so.
+
 ### Release Tag Format
 
 Git tags should use the format:
 
 - `v0.1.2`
 - `v0.1.3`
-- `v0.2.0`
+- `v0.2.9`
 
 The GitHub release title should match the tag version.
 
@@ -278,7 +281,7 @@ For the current backend baseline, the expected validation direction is:
 - `uv run alembic upgrade head`
 - `uv run pytest`
 
-The selected frontend package manager for `v0.2.0` is `pnpm`.
+The selected frontend package manager for `v0.2.9` is `pnpm`.
 
 The expected frontend validation direction is:
 
@@ -307,6 +310,7 @@ At minimum, contributors should evaluate whether the change requires updates to:
 - the relevant file in `docs/context/` for human contributors, or for AI agents only after explicit user authorization
 - `docs/USER-GUIDE.md`
 - this document
+- project version references and metadata according to the versioning model
 
 ## Current CI Baseline
 
@@ -340,7 +344,7 @@ CI should continue evolving in stages.
 
 ### Stage 1
 
-The repository now has the backend and frontend quality baseline needed for `v0.2.0`.
+The repository now has the backend and frontend quality baseline needed for `v0.2.9`.
 
 ### Stage 2
 

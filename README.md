@@ -2,7 +2,7 @@
 
 OrchFlow is a local-first project lifecycle orchestrator focused on registering, controlling, and inspecting software projects through a standardized operational contract.
 
-In `v0.2.0`, OrchFlow is designed around a concrete execution base: each managed project must expose a lifecycle control script, initially standardized as a Windows `.bat` file. OrchFlow may optionally use an `AI Agent Adapter` to analyze a selected project folder and help the user generate that `.bat` file, but AI assistance is never the primary source of truth for lifecycle control.
+In `v0.2.9`, OrchFlow is designed around a concrete execution base: each managed project must expose a lifecycle control script, initially standardized as a Windows `.bat` file. OrchFlow may optionally use a LiteLLM-backed AI assistance adapter to analyze an explicitly authorized project context and help the user generate a reviewable `.bat` proposal, but AI assistance is never the primary source of truth for lifecycle control.
 
 ## Selected Stack
 
@@ -16,6 +16,7 @@ In `v0.2.0`, OrchFlow is designed around a concrete execution base: each managed
 - Quality tooling: `pytest`, `ruff`, `mypy`
 - Frontend package manager: `pnpm`
 - Web interface: `React`, `TypeScript`, and `Vite`
+- AI/model gateway: `LiteLLM`, isolated behind the OrchFlow AI assistance adapter
 
 ## Documentation
 
@@ -31,7 +32,7 @@ In `v0.2.0`, OrchFlow is designed around a concrete execution base: each managed
 
 - Local-first project orchestration
 - Project registration through `.bat` lifecycle scripts
-- Optional project analysis through an `AI Agent Adapter`
+- Optional project analysis through a review-driven AI assistance adapter using LiteLLM as the planned model gateway
 - Lifecycle operations: status, start, stop, restart
 - Basic runtime inspection: ports, processes, uptime, CPU, memory
 - User authentication and authorization with `admin` and `member`
@@ -87,7 +88,7 @@ For local runtime configuration, copy `.env.example` into a local `.env` file an
 
 The `interface/web` client now defaults to `VITE_API_BASE_URL=/orchflow-api` so local Vite development can proxy API traffic to the backend without changing backend contracts.
 
-## Out Of Scope For v0.2.0
+## Out Of Scope For v0.2.9
 
 - Container orchestration
 - Multi-host orchestration
@@ -97,6 +98,6 @@ The `interface/web` client now defaults to `VITE_API_BASE_URL=/orchflow-api` so 
 
 ## Status
 
-The repository is currently in the `v0.2.0` implementation stage with the backend foundation, mirrored API and CLI operational surfaces, runtime inspection baseline, and the first practical `interface/web` operator flow now implemented on top of those contracts.
+The repository is currently in the `v0.2.9` implementation stage with the backend foundation, mirrored API and CLI operational surfaces, runtime inspection refinement, CI and API contract hardening, LiteLLM dependency baseline, and the first practical `interface/web` operator flow now implemented on top of those contracts.
 
 The current web baseline includes authenticated session loading, project listing, project details, runtime inspection visibility, and the first lifecycle controls wired directly through the API.

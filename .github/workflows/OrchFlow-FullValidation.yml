@@ -1,4 +1,4 @@
-name: Project Validation
+name: OrchFlow - Full Validation
 
 on:
   pull_request:

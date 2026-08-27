@@ -24,7 +24,7 @@ def test_info_command_displays_bootstrap_metadata() -> None:
     result = runner.invoke(app, ["info"])
 
     assert result.exit_code == 0
-    assert "OrchFlow 0.2.0" in result.stdout
+    assert "OrchFlow 0.2.9" in result.stdout
     assert "stage: bootstrap" in result.stdout
 
 

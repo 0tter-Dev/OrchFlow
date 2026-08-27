@@ -32,6 +32,16 @@ def test_settings_normalize_local_paths(tmp_path: Path) -> None:
     assert settings.normalized_database_url.startswith("sqlite:///")
 
 
+def test_ai_assistance_settings_default_to_disabled() -> None:
+    settings = AppSettings()
+
+    assert settings.ai_enabled is False
+    assert settings.litellm_mode == "sdk"
+    assert settings.litellm_base_url == "http://localhost:4000"
+    assert settings.litellm_default_model == "ollama/llama2"
+    assert settings.litellm_timeout_seconds == 60
+
+
 def test_database_connection_check_succeeds_for_local_sqlite(tmp_path: Path) -> None:
     settings = AppSettings(
         data_dir=tmp_path / "data",

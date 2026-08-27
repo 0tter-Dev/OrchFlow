@@ -13,7 +13,7 @@ This document tracks the current implementation state of major OrchFlow capabili
 
 ## Current Project Stage
 
-OrchFlow is currently in the `v0.2.0` implementation stage as of `2026-08-24`.
+OrchFlow is currently in the `v0.2.9` implementation stage as of `2026-08-27`.
 
 ## Feature Table
 
@@ -24,44 +24,45 @@ OrchFlow is currently in the `v0.2.0` implementation stage as of `2026-08-24`.
 | User guide | Explain the intended usage flow | implemented | First example workflow documented |
 | To-do roadmap | Track next planned project steps | implemented | Current implementation roadmap documented and kept focused on upcoming work |
 | Agent rules | Constrain AI-assisted project changes | implemented | `AGENTS.md` created |
-| Python project metadata | Define the backend package and toolchain baseline | implemented | `uv` and `pyproject.toml` initialized |
+| Python project metadata | Define the backend package and toolchain baseline | implemented | `uv`, `pyproject.toml`, and the LiteLLM dependency baseline are initialized |
 | Frontend package manager decision | Define the JavaScript package manager baseline for the web client | implemented | `pnpm` selected for the `interface/web` direction |
 | Repository standards | Define ignore rules, line endings, editor behavior, and license | implemented | Git foundation files created |
-| Configuration contract | Define runtime configuration and `.env` direction | in_progress | Validated settings loading and path normalization are implemented; further feature-specific config still pending |
+| Configuration contract | Define runtime configuration and `.env` direction | in_progress | Validated settings loading, path normalization, and disabled-by-default LiteLLM AI settings are implemented; further feature-specific config still pending |
 | Access control | Authenticate users and enforce permissions | implemented | Bootstrap admin creation, JWT login, current-user resolution, admin listing, user role/activation updates, last-active-admin protection, and audit logging are implemented |
 | Project registry | Register and persist project definitions | implemented | Existing `.bat` registration, ownership persistence and management, normalized action mappings, and first-argument dispatch validation are implemented |
 | Project adapter | Connect OrchFlow to managed projects through a generic adapter boundary | implemented | Windows `.bat` command-dispatch adapter with canonical action mapping resolution is implemented |
 | Lifecycle script template | Define the standard `.bat` contract used by managed projects | implemented | Includes minimum actions and a concrete reference-based example |
 | Lifecycle orchestration | Run `status`, `start`, `stop`, `restart` | implemented | First practical execution flow with auditable results exposed in API and CLI is implemented |
 | Runtime inspection | Inspect ports, PID, CPU, memory, uptime | implemented | Windows-local inspection with port, URL, URL reachability, status explanation, inspection timestamp, PID, uptime, CPU, and memory summaries is exposed in API, CLI, and web |
-| AI agent adapter | Analyze project folders and help generate `.bat` scripts | planned | Optional, mediated, review-driven, and mapping-aware |
+| AI assistance adapter with LiteLLM gateway | Analyze project folders and help generate `.bat` scripts | planned | LiteLLM is planned as the central model gateway; OrchFlow still owns context control, authorization, validation, review, and final approval |
 | CLI surface | Expose orchestration through terminal commands | in_progress | Authentication, project registry, lifecycle execution, runtime inspection, admin audit history, user management, and owner management are mirrored; broader operator workflows still pending |
 | API surface | Expose orchestration through HTTP endpoints | in_progress | Authentication, project registry, lifecycle execution, runtime inspection, admin audit history, user management, and owner management are mirrored; broader operator workflows still pending |
 | Interface layer | Visualize and control projects across client platforms | in_progress | `interface/web` includes authenticated session loading, project registration, project visibility, runtime inspection, lifecycle controls, admin audit history, user management, owner management, and a shared API client boundary |
 | Persistence and audit | Store users, projects, permissions, events | implemented | SQLAlchemy engine/session bootstrap, Alembic migrations, users, audit events, projects, ownership, lifecycle action mappings, and admin history visibility are implemented |
-| DevOps and CI | Enforce repository quality and automation | implemented | Git and GitHub flow documented, including human-driven and agent-driven PR modes; PR and issue templates, migration validation, API contract coverage, critical web-flow tests, and backend plus frontend CI checks are in place |
+| DevOps and CI | Enforce repository quality and automation | implemented | Git and GitHub flow documented, including PR version decisions, human-driven and agent-driven PR modes; PR and issue templates, migration validation, API contract coverage, critical web-flow tests, and full project validation checks are in place |
 
 ## Implementation Notes
 
 - The initial project planning, documentation baseline, and repository skeleton were completed before the current implementation stage.
 - The consolidated documentation model and Git plus GitHub workflow foundation were completed before the current implementation stage.
-- The project is now operating in `v0.2.0`, which consolidates the first real backend and web implementation milestones on `main`.
+- The project is now operating in `v0.2.9`, which consolidates the first real backend and web implementation milestones, runtime inspection refinement, admin and ownership management, LiteLLM dependency onboarding, documentation/versioning governance, and CI plus contract hardening on `main`.
 - The initial backend bootstrap now exists with executable API and CLI entrypoints plus smoke tests.
-- Configuration loading, runtime path normalization, SQLAlchemy bootstrap, and Alembic migrations are available as part of the current baseline.
+- Configuration loading, runtime path normalization, disabled-by-default LiteLLM AI settings, SQLAlchemy bootstrap, and Alembic migrations are available as part of the current baseline.
 - API and CLI should keep evolving as mirrored external surfaces whenever a capability is intentionally exposed to operators.
 - Access control is now implemented at the foundation level with mirrored registration, login, current-user, admin listing, and admin user update flows in API and CLI.
 - Project registry is now implemented for existing `.bat` onboarding, with ownership persistence and management, auditable lifecycle action mappings, and registration-time validation for first-argument dispatch compatibility exposed in both API and CLI.
 - Lifecycle orchestration is now implemented with the first Windows batch execution flow using command-dispatch by argument and mirrored lifecycle actions in API and CLI.
 - Runtime inspection is now implemented with a Windows-local baseline that extracts script hints, inspects listening ports and process metadata, checks `APP_URL` reachability when available, explains `running`, `stopped`, and `unsupported` states, and mirrors the capability in API, CLI, and web.
+- AI-assisted onboarding is now planned around a LiteLLM-backed gateway rather than direct provider-specific integration. The OrchFlow adapter remains responsible for allowed project context, explicit authorization, proposal validation, review-driven file generation, and approved mapping persistence.
 - Admin audit history visibility is now implemented through a shared application service and exposed as `GET /audit/events`, `orchflow audit events`, and the web audit panel for recent operational events.
 - Admin and ownership management is now implemented through user role/activation updates, last-active-admin protection, project owner add/remove operations, and the first web admin management panel.
 - The first practical web client flow now exists in `interface/web`, covering sign-in, existing `.bat` project registration, project listing, project details, runtime inspection visibility, lifecycle controls, admin audit history, user management, and owner management against the stabilized API contracts.
 - The web client now uses a local proxy-friendly API base URL contract so frontend development can stay aligned with the backend surface without introducing special backend-only web behavior.
 - The Git and GitHub maintenance flow is now documented.
 - The Git and GitHub flow now documents both human-driven and agent-driven pull request authorship, while preserving human review and merge authority on protected branches.
-- Pull request descriptions now explicitly use `.github/PULL_REQUEST_TEMPLATE.md` as the standard structure for reviewer-facing summaries, validation notes, and documentation checklists.
+- Pull request descriptions now explicitly use `.github/PULL_REQUEST_TEMPLATE.md` as the standard structure for reviewer-facing summaries, validation notes, version decisions, and documentation checklists.
 - Pull request and issue templates plus CI workflow coverage for backend and frontend validation have been added locally.
-- The repository validation workflow now runs backend quality checks, Alembic migration validation, backend API contract tests through the test suite, frontend lint, frontend tests, and frontend build verification.
+- The `OrchFlow - Full Validation` workflow now runs backend quality checks, Alembic migration validation, backend API contract tests through the test suite, frontend lint, frontend tests, and frontend build verification.
 - API contract coverage now locks the currently exposed authenticated operator routes and key response fields for runtime diagnostics and project ownership metadata.
 - Critical web-flow coverage now includes existing `.bat` project registration behavior and selecting visible registered projects from the operator list.
 - The frontend package manager direction is now defined as `pnpm`.

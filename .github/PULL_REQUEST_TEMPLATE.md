@@ -20,6 +20,12 @@ Explain why this change is necessary now.
 
 Describe any important architectural, workflow, or behavior decisions.
 
+## Version Decision
+
+- Version bump:
+- Reason:
+- Version-bearing files updated:
+
 ## Validation
 
 List the checks you ran locally.
@@ -32,6 +38,8 @@ List the checks you ran locally.
 
 ## Documentation Checklist
 
+- [ ] Version decision documented above
+- [ ] Version-bearing files updated, or no version bump required
 - [ ] `docs/STATUS.md` reviewed
 - [ ] `docs/INDEX.md` reviewed
 - [ ] `docs/TO-DO.md` updated

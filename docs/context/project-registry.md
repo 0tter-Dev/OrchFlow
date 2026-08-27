@@ -22,7 +22,7 @@ For the current Windows batch adapter, registration validates that the selected 
 
 ### AI-Assisted Script Creation
 
-The user selects a project folder, OrchFlow analyzes it through the `AI Agent Adapter`, and the user reviews a suggested `.bat` lifecycle script before registration.
+The user selects a project folder, OrchFlow analyzes it through the LiteLLM-backed `AI Assistance Adapter`, and the user reviews a suggested `.bat` lifecycle script before registration.
 
 ## Key Rules
 
@@ -46,5 +46,5 @@ The user selects a project folder, OrchFlow analyzes it through the `AI Agent Ad
 - depends on `Lifecycle Script Template` for contract expectations
 - provides definitions to `Lifecycle Orchestration`
 - provides adapter-ready data to `Project Adapter`
-- may receive assistance from `AI Agent Adapter`
+- may receive assistance from `AI Assistance Adapter`
 - persists through `Persistence And Audit`

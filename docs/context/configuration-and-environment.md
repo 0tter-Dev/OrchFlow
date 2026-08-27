@@ -29,7 +29,8 @@ OrchFlow should adopt:
 - database file path
 - JWT secret and token settings
 - logging mode
-- local AI provider settings
+- AI assistance enablement
+- LiteLLM gateway mode, base URL, API key reference, model name, timeout, and local provider settings
 - runtime artifact directories
 
 ## Key Rules
@@ -38,12 +39,14 @@ OrchFlow should adopt:
 - real `.env` files should stay local and unversioned
 - configuration loading should be explicit and testable
 - missing critical configuration should fail clearly
+- AI assistance must default to disabled until the LiteLLM gateway configuration is explicitly provided
+- LiteLLM credentials and provider secrets must stay in local environment configuration, not source files
 - API and CLI should expose the same configuration-facing capabilities when those capabilities are intentionally surfaced to operators
 
 ## Main Relationships
 
 - supports `Access Control`
 - supports `Persistence And Audit`
-- supports `AI Agent Adapter`
+- supports `AI Assistance Adapter`
 - supports `External Surfaces`
 - supports `Interface Layer`

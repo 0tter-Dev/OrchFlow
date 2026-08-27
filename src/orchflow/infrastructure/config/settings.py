@@ -45,8 +45,13 @@ class AppSettings(BaseSettings):
     jwt_secret: str = "change-this-in-local-env"
     jwt_algorithm: str = "HS256"
     jwt_access_token_expire_minutes: int = 60
-    ai_provider: str = "ollama"
-    ai_provider_url: str = "http://localhost:11434"
+    ai_enabled: bool = False
+    litellm_mode: str = "sdk"
+    litellm_base_url: str = "http://localhost:4000"
+    litellm_api_key: str = ""
+    litellm_default_model: str = "ollama/llama2"
+    litellm_timeout_seconds: int = 60
+    local_ai_provider_url: str = "http://localhost:11434"
     runtime_dir: Path = Path("./runtime")
     data_dir: Path = Path("./data")
     log_level: str = "INFO"
