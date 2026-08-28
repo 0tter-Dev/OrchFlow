@@ -43,7 +43,13 @@ The user then provides or confirms:
 - any project-specific settings required by the lifecycle script
 - any lifecycle action mappings needed when the script uses non-canonical labels
 
-If the selected script only exposes an interactive menu or labels without first-argument dispatch, OrchFlow rejects the registration with guidance so the script can be adjusted before becoming an operational project definition.
+The target workflow is for OrchFlow to compare the script against an ideal lifecycle function model. The initial ideal model includes `status`, `start`, `stop`, and `restart`, each with a clear operational purpose. When a `.bat` script is connected or reloaded, OrchFlow should attempt to detect matching functions automatically. Functions it can match become configured. Functions it cannot match start as undefined until the user manually maps them or explicitly marks them as unconfigured.
+
+If every ideal lifecycle function remains undefined or unconfigured, OrchFlow should block the project from operational use because it has no executable lifecycle control path. If at least one function is configured, the project remains usable for its configured actions. Missing functions should appear as warnings rather than hard blockers, with a path to manual mapping and a path to AI-assisted `.bat` improvement.
+
+If all ideal lifecycle functions are configured, OrchFlow should communicate that the project has complete lifecycle configuration.
+
+If the selected script only exposes an interactive menu or labels without a usable dispatch path, OrchFlow should guide the user to map available functions manually or improve the script before it can become operationally controllable.
 
 The authenticated web workspace now exposes this existing-script registration flow directly. The form collects project reference name, optional description, project root path, lifecycle script path, and optional lifecycle action mappings for scripts that use identifiers different from `STATUS`, `START`, `STOP`, or `RESTART`.
 
@@ -68,6 +74,12 @@ OrchFlow then asks for explicit authorization before creating or overwriting the
 The user reviews the generated suggestion and confirms or edits it before saving the project definition. AI output is treated as a proposal, not as verified operational truth.
 
 If the project script uses different action names such as `iniciar`, `parar`, or `reiniciar`, the user can explicitly map them to OrchFlow canonical actions before finishing the registration.
+
+### 2.1. Reload Project Configuration
+
+When a user changes a project's `.bat` script or updates the project structure, the target workflow should let the user explicitly reload one project or a selected group of projects.
+
+Reloading should reread the lifecycle script, refresh automatic detection against the ideal lifecycle model, preserve user decisions where appropriate, and show whether the project is fully configured, partially configured with warnings, or blocked because no lifecycle function is configured.
 
 ### 3. Inspect Project Status
 
@@ -112,6 +124,8 @@ The first history view covers already recorded user registration, login, admin l
 ## Operating Expectations
 
 - A project should not be treated as fully managed unless it has a reviewable lifecycle `.bat` definition
+- A project should expose at least one configured lifecycle function before it can be operated through OrchFlow
+- Partially configured projects can remain usable, but the interface should warn users about missing ideal lifecycle functions
 - AI-assisted analysis is optional and does not bypass user review
 - AI-assisted analysis must pass through explicit user authorization for inspection and file generation
 - LiteLLM may provide model connectivity, but OrchFlow controls which data and files are shared with the selected model

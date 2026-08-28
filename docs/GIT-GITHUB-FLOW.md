@@ -31,7 +31,7 @@ This means:
 - branches should be deleted after merge
 - work may be authored either by a human contributor or by an authorized AI agent using a dedicated repository identity
 
-This project should not adopt a heavy Git Flow model in `v0.2.9`.
+This project should not adopt a heavy Git Flow model in `v0.2.10`.
 
 The repository is still in an early product stage, so a simpler branch model reduces process weight and makes maintenance easier.
 
@@ -248,7 +248,7 @@ Git tags should use the format:
 
 - `v0.1.2`
 - `v0.1.3`
-- `v0.2.9`
+- `v0.2.10`
 
 The GitHub release title should match the tag version.
 
@@ -281,7 +281,7 @@ For the current backend baseline, the expected validation direction is:
 - `uv run alembic upgrade head`
 - `uv run pytest`
 
-The selected frontend package manager for `v0.2.9` is `pnpm`.
+The selected frontend package manager for `v0.2.10` is `pnpm`.
 
 The expected frontend validation direction is:
 
@@ -344,7 +344,7 @@ CI should continue evolving in stages.
 
 ### Stage 1
 
-The repository now has the backend and frontend quality baseline needed for `v0.2.9`.
+The repository now has the backend and frontend quality baseline needed for `v0.2.10`.
 
 ### Stage 2
 

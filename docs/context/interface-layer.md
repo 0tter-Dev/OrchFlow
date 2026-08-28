@@ -24,6 +24,7 @@ Provide a clean separation between the backend core and multiple user-facing cli
 - project details
 - runtime metrics display
 - lifecycle controls
+- lifecycle function configuration indicators
 - audit history visibility
 - admin user and ownership management
 
@@ -32,8 +33,21 @@ Provide a clean separation between the backend core and multiple user-facing cli
 - interface clients should remain consumers of platform capabilities, not their owners
 - interface clients should rely on the API-facing surface rather than bypassing application boundaries
 - the `interface/` folder should act as a physical boundary between the backend core and client implementations
-- visual complexity should remain secondary to operational clarity in `v0.2.9`
+- visual complexity should remain secondary to operational clarity in `v0.2.10`
+- interface clients should communicate lifecycle configuration health without blocking partially configured projects
 - the first concrete client direction is `web`, but the structure should allow future `mobile` and `desktop` clients
+
+## Planned Configuration Experience
+
+Interface clients should display lifecycle configuration health derived from the ideal lifecycle model:
+
+- `complete`: all ideal lifecycle functions are configured
+- `partial`: at least one function is configured, but one or more functions are undefined or unconfigured
+- `blocked`: no function is configured
+
+Partial projects should remain usable and should display a warning with access to function mapping details, manual configuration, and AI-assisted `.bat` improvement. Blocked projects should display an error state explaining that at least one lifecycle function must be configured before OrchFlow can operate the project.
+
+The exact visual component is not fixed. A warning indicator, details popover, modal, or dedicated configuration panel are acceptable as long as the interface remains clear and operator-focused.
 
 ## Implemented Baseline
 

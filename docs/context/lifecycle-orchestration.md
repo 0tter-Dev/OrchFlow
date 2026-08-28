@@ -25,6 +25,8 @@ Provide a standardized lifecycle engine for local projects using an explicit `.b
 - actions must run against normalized project definitions
 - lifecycle execution must go through a project-agnostic adapter boundary
 - OrchFlow should resolve project-specific action mappings before attempting lifecycle execution
+- lifecycle execution should be available only for functions that are configured for the project
+- undefined or explicitly unconfigured lifecycle functions should produce clear operator-facing feedback instead of attempting script execution
 - lifecycle transitions should be auditable
 - the system should validate whether lifecycle actions succeeded through runtime inspection when possible
 - the first practical execution flow may rely on command-dispatch by script argument while the project remains Windows-first
@@ -34,6 +36,10 @@ Provide a standardized lifecycle engine for local projects using an explicit `.b
 - lifecycle actions execute through the Windows batch adapter using canonical actions resolved per project
 - successful and failed executions are audited with command identifiers, exit status, success state, and runtime status when inspection is available
 - runtime inspection is invoked after lifecycle execution when available so API and CLI receive an immediate runtime summary
+
+## Planned Lifecycle Configuration Refinement
+
+The orchestration layer should consume project configuration health from the registry and adapter boundary. Projects with partial configuration should execute only configured lifecycle actions. Projects with no configured lifecycle function should be blocked from operational lifecycle execution until the user maps at least one function.
 
 ## Main Relationships
 

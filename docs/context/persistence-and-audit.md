@@ -24,6 +24,7 @@ The preferred initial persistence direction is `SQLite`.
 - project ownership metadata
 - lifecycle definitions
 - project-specific lifecycle action mappings
+- lifecycle function configuration states
 - runtime-related snapshots when appropriate
 - AI analysis sessions and allowed-context manifests when implemented
 - AI-generated proposals, review decisions, and approved file or mapping changes when implemented
@@ -34,6 +35,7 @@ The preferred initial persistence direction is `SQLite`.
 - audit events are persisted in local `SQLite` storage
 - access-control operations record user registration, login, and admin user listing events
 - project registry operations record project registration, list, and read events
+- planned registry refinements should record reload operations, automatic mapping refreshes, manual mapping decisions, and explicit unconfigured-function decisions
 - lifecycle operations record action, command identifier, exit status, success state, and runtime status when available
 - recent audit history is exposed to authenticated admins through `CLI`, `API`, and the web operator workspace
 - admin user updates and project ownership changes are audited
@@ -47,6 +49,7 @@ The preferred initial persistence direction is `SQLite`.
 - LiteLLM-backed model invocation metadata should be auditable without storing secrets or unnecessary prompt contents
 - AI proposal approval and rejection decisions should be auditable
 - lifecycle action mapping changes should be auditable with user attribution
+- project reload and lifecycle configuration health changes should be auditable when they affect controllability or operator guidance
 - the system should prioritize practical local reliability over premature complexity
 - the initial persistence bootstrap should provide a real migration path early, even before the first business entities are fully implemented
 

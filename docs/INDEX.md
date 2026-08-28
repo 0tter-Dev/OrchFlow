@@ -47,7 +47,7 @@ Defines the generic adapter layer used to connect OrchFlow to different managed 
 Defines lifecycle actions, state transitions, and operational control behavior.
 
 - [Lifecycle Script Template](./context/lifecycle-script-template.md)
-Defines the standard `.bat` contract shape used by managed projects.
+Defines the standard `.bat` contract shape and ideal lifecycle function model used by managed projects.
 
 - [Runtime Inspection](./context/runtime-inspection.md)
 Defines how OrchFlow inspects ports, processes, uptime, resource usage, status explanations, and URL reachability.
@@ -74,17 +74,19 @@ Defines source-control, validation, and CI/CD expectations.
 
 `Access Control` governs who can see and control a `Project`, including admin user-management rules.
 
-`Project Registry` stores and normalizes the metadata needed for a project to exist inside OrchFlow, including project ownership assignments.
+`Project Registry` stores and normalizes the metadata needed for a project to exist inside OrchFlow, including project ownership assignments, lifecycle action mappings, and lifecycle function configuration state.
 
 `Project Adapter` gives `Lifecycle Orchestration` a generic boundary for project-specific execution behavior.
 
 `Lifecycle Orchestration` depends on `Project Registry` to retrieve the lifecycle script definition and project metadata.
 
-`Lifecycle Script Template` defines the standardized `.bat` shape expected by `Project Registry`, `Project Adapter`, and `AI Assistance Adapter`.
+`Lifecycle Script Template` defines the standardized `.bat` shape and ideal lifecycle function model expected by `Project Registry`, `Project Adapter`, and `AI Assistance Adapter`.
 
 `Runtime Inspection` supports `Lifecycle Orchestration` by validating whether actions succeeded and by producing runtime facts and diagnostic explanations for operators.
 
 `AI Assistance Adapter` supports `Project Registry` by helping a user transform a project folder into a reviewable `.bat` lifecycle script and, when needed, suggest action mappings. LiteLLM is planned as the provider/model gateway inside that adapter, while OrchFlow remains responsible for authorization, allowed context, validation, and final approval.
+
+Project reload workflows should let users explicitly reread one or more lifecycle scripts, refresh automatic function detection, compare the project against the ideal lifecycle model, and decide whether to update mappings manually or ask AI assistance for improvements.
 
 `Configuration And Environment` provides validated runtime settings to infrastructure services and external adapters without leaking config rules into the domain.
 
