@@ -17,6 +17,7 @@ This guide defines how OrchFlow should be developed, changed, and maintained.
 - Follow clean architecture or an equivalent layered model
 - Keep domain and application rules independent from CLI, API, and UI delivery concerns
 - Keep project-specific execution behavior behind explicit adapter contracts
+- Keep lifecycle function matching and configuration-state evaluation in application/domain code, not only in UI warnings
 - Keep AI/model connectivity behind the OrchFlow AI assistance adapter; do not call `LiteLLM` directly from domain rules, CLI, API, UI, or unrelated application services
 - Keep infrastructure dependencies outside the core business layer
 - Avoid leaking persistence or transport details into domain rules
@@ -41,6 +42,7 @@ Changes are acceptable when they:
 - strengthen the documented architecture
 - improve maintainability without changing project intent
 - clarify lifecycle control behavior
+- improve lifecycle function detection, reload, mapping validation, or operator guidance without weakening the `.bat` contract
 - improve security, validation, or testability
 
 Changes require explicit review when they:
@@ -152,7 +154,7 @@ The current implementation baseline is:
 
 ## Technology Decision Policy
 
-The core technology direction is now selected for `v0.2.9`.
+The core technology direction is now selected for `v0.2.10`.
 
 Future changes should still be evaluated according to:
 

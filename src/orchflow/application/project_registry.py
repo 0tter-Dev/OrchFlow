@@ -9,6 +9,7 @@ from typing import Protocol
 
 from orchflow.application.access_control import AuthorizationError
 from orchflow.domain.access_control import User, UserRole
+from orchflow.domain.lifecycle_function_model import IDEAL_LIFECYCLE_FUNCTIONS
 from orchflow.domain.project_registry import (
     CanonicalLifecycleAction,
     MappingSource,
@@ -34,7 +35,7 @@ class ProjectOwnershipError(ProjectRegistryError):
 
 FIRST_ARGUMENT_TOKENS = ("%~1", "%1")
 BATCH_LABEL_PREFIX_PATTERN = re.compile(r"^:+")
-CANONICAL_ACTIONS = tuple(CanonicalLifecycleAction)
+CANONICAL_ACTIONS = tuple(function.action for function in IDEAL_LIFECYCLE_FUNCTIONS)
 
 
 @dataclass(frozen=True, slots=True)
@@ -289,8 +290,11 @@ class ProjectRegistryService:
             for mapping in mappings
         }
         return {
-            action: mapping_by_action.get(action, action.value.upper())
-            for action in CANONICAL_ACTIONS
+            function.action: mapping_by_action.get(
+                function.action,
+                function.preferred_script_identifier,
+            )
+            for function in IDEAL_LIFECYCLE_FUNCTIONS
         }
 
     @staticmethod

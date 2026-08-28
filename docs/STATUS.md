@@ -13,7 +13,7 @@ This document tracks the current implementation state of major OrchFlow capabili
 
 ## Current Project Stage
 
-OrchFlow is currently in the `v0.2.9` implementation stage as of `2026-08-27`.
+OrchFlow is currently in the `v0.2.10` implementation stage as of `2026-08-28`.
 
 ## Feature Table
 
@@ -30,6 +30,7 @@ OrchFlow is currently in the `v0.2.9` implementation stage as of `2026-08-27`.
 | Configuration contract | Define runtime configuration and `.env` direction | in_progress | Validated settings loading, path normalization, and disabled-by-default LiteLLM AI settings are implemented; further feature-specific config still pending |
 | Access control | Authenticate users and enforce permissions | implemented | Bootstrap admin creation, JWT login, current-user resolution, admin listing, user role/activation updates, last-active-admin protection, and audit logging are implemented |
 | Project registry | Register and persist project definitions | implemented | Existing `.bat` registration, ownership persistence and management, normalized action mappings, and first-argument dispatch validation are implemented |
+| Ideal lifecycle function model | Define expected `.bat` functions and project configuration health | in_progress | Fixed ideal functions and function configuration states are implemented in the domain; automatic detection, persisted health, warnings, blocking rules, reload workflow, and AI-assisted improvement remain upcoming |
 | Project adapter | Connect OrchFlow to managed projects through a generic adapter boundary | implemented | Windows `.bat` command-dispatch adapter with canonical action mapping resolution is implemented |
 | Lifecycle script template | Define the standard `.bat` contract used by managed projects | implemented | Includes minimum actions and a concrete reference-based example |
 | Lifecycle orchestration | Run `status`, `start`, `stop`, `restart` | implemented | First practical execution flow with auditable results exposed in API and CLI is implemented |
@@ -45,12 +46,13 @@ OrchFlow is currently in the `v0.2.9` implementation stage as of `2026-08-27`.
 
 - The initial project planning, documentation baseline, and repository skeleton were completed before the current implementation stage.
 - The consolidated documentation model and Git plus GitHub workflow foundation were completed before the current implementation stage.
-- The project is now operating in `v0.2.9`, which consolidates the first real backend and web implementation milestones, runtime inspection refinement, admin and ownership management, LiteLLM dependency onboarding, documentation/versioning governance, and CI plus contract hardening on `main`.
+- The project is now operating in `v0.2.10`, which consolidates the first real backend and web implementation milestones, runtime inspection refinement, admin and ownership management, LiteLLM dependency onboarding, documentation/versioning governance, CI plus contract hardening, and the first ideal lifecycle function domain model on `main`.
 - The initial backend bootstrap now exists with executable API and CLI entrypoints plus smoke tests.
 - Configuration loading, runtime path normalization, disabled-by-default LiteLLM AI settings, SQLAlchemy bootstrap, and Alembic migrations are available as part of the current baseline.
 - API and CLI should keep evolving as mirrored external surfaces whenever a capability is intentionally exposed to operators.
 - Access control is now implemented at the foundation level with mirrored registration, login, current-user, admin listing, and admin user update flows in API and CLI.
 - Project registry is now implemented for existing `.bat` onboarding, with ownership persistence and management, auditable lifecycle action mappings, and registration-time validation for first-argument dispatch compatibility exposed in both API and CLI.
+- The ideal lifecycle function model now defines the initial fixed expected functions, preferred script identifiers, and function configuration states in code. The next registry and adapter refinements should use it for automatic detection, persisted health, partial-configuration warnings, blocking rules, and explicit reload of project scripts.
 - Lifecycle orchestration is now implemented with the first Windows batch execution flow using command-dispatch by argument and mirrored lifecycle actions in API and CLI.
 - Runtime inspection is now implemented with a Windows-local baseline that extracts script hints, inspects listening ports and process metadata, checks `APP_URL` reachability when available, explains `running`, `stopped`, and `unsupported` states, and mirrors the capability in API, CLI, and web.
 - AI-assisted onboarding is now planned around a LiteLLM-backed gateway rather than direct provider-specific integration. The OrchFlow adapter remains responsible for allowed project context, explicit authorization, proposal validation, review-driven file generation, and approved mapping persistence.

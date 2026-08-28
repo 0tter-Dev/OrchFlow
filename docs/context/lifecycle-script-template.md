@@ -21,6 +21,33 @@ Every managed project should expose, directly or indirectly, the following canon
 - `stop`
 - `restart`
 
+## Ideal Lifecycle Function Model
+
+The ideal lifecycle model is the fixed reference OrchFlow uses to describe the expected lifecycle functions for a managed project.
+
+The initial model is:
+
+| Function | Purpose | Preferred script identifier |
+| --- | --- | --- |
+| `status` | Report whether the project appears to be running and expose useful runtime hints | `STATUS` |
+| `start` | Start the project using the configured local command and working directory | `START` |
+| `stop` | Stop the project using a clear local process or port-based strategy | `STOP` |
+| `restart` | Stop and start the project again through predictable control flow | `RESTART` |
+
+The model is a reference for validation, user guidance, and AI-assisted improvement. It does not require every existing project script to use the preferred identifiers, but every executable lifecycle operation in OrchFlow should resolve back to one of these ideal functions.
+
+## Function Configuration States
+
+Each ideal lifecycle function should have a configuration state for each registered project:
+
+- `configured`: OrchFlow has an automatic or manual mapping from the ideal function to a concrete script identifier.
+- `undefined`: OrchFlow did not detect a mapping and the user has not made an explicit decision.
+- `unconfigured`: the user explicitly chose not to configure that function for the project.
+
+Automatic script analysis should only produce `configured` or `undefined` states. The `unconfigured` state is a deliberate user decision.
+
+Projects with partial configuration should remain usable for configured actions and should show warnings with improvement paths. Projects where every ideal lifecycle function is either `undefined` or `unconfigured` should be blocked from operational use because OrchFlow has no configured lifecycle action to execute.
+
 The script may also expose:
 
 - `exit`
@@ -68,7 +95,7 @@ Helper labels may include:
 - `:SHOW_PID_DETAILS`
 - `:STOP_SILENT`
 
-Projects may use different label names, but those differences must be normalized through the `Project Adapter` action mapping configuration.
+Projects may use different label names, but those differences must be normalized through the `Project Adapter` action mapping configuration. Matching preferred identifiers can be automatic; non-preferred identifiers should be reviewable and manually configurable unless AI assistance proposes mappings that the user later approves.
 
 ## Example Template
 
@@ -204,15 +231,18 @@ OrchFlow should prefer canonical lifecycle action names, but some existing scrip
 
 For those cases, OrchFlow should rely on project-specific action mappings managed through the `Project Adapter`.
 
+When a script is connected or reloaded, OrchFlow should inspect the available dispatch identifiers and compare them with the ideal lifecycle model. Detected preferred identifiers should be mapped automatically. Missing functions should begin as `undefined` and become `configured` or `unconfigured` only through user review.
+
 ## Key Rules
 
 - the template should be generic enough to support different projects
-- the template should remain Windows-first for `v0.2.9`
+- the template should remain Windows-first for `v0.2.10`
 - the template should be easy for a human to review and adjust
 - the template should be easy for the `AI Assistance Adapter` to generate or update
 - the template should avoid hidden behavior and implicit side effects
 - the template should make its lifecycle labels discoverable
 - the template should support audit-friendly and operator-friendly messages
+- the template should provide the ideal lifecycle model used for automatic mapping, manual mapping, AI-assisted improvement, and project reload validation
 
 ## Main Relationships
 

@@ -20,6 +20,10 @@ The user selects an existing `.bat` file that already defines lifecycle control.
 
 For the current Windows batch adapter, registration validates that the selected script can be controlled through first-argument command dispatch, such as `control.bat STATUS`. Each canonical lifecycle action must resolve to a dispatch identifier either through the preferred default labels or through user-defined action mappings.
 
+The planned registry refinement should compare every connected or reloaded `.bat` script against the ideal lifecycle function model. Preferred identifiers should be mapped automatically. Missing functions should start as `undefined`, and users should be able to map them manually or explicitly mark them as `unconfigured`.
+
+Projects with at least one `configured` lifecycle function should remain registered and usable for configured actions. Projects where every ideal lifecycle function is `undefined` or `unconfigured` should be treated as not operationally controllable until at least one function is configured.
+
 ### AI-Assisted Script Creation
 
 The user selects a project folder, OrchFlow analyzes it through the LiteLLM-backed `AI Assistance Adapter`, and the user reviews a suggested `.bat` lifecycle script before registration.
@@ -35,6 +39,11 @@ The user selects a project folder, OrchFlow analyzes it through the LiteLLM-back
 - the registry should normalize onboarding inputs into a common internal project definition
 - project connection details should be represented through a generic `Project Adapter` contract
 - project-specific lifecycle action mappings must be persistable when canonical labels are not used
+- lifecycle function configuration state must be persistable so OrchFlow can distinguish automatic detection, missing information, and explicit user decisions
+- automatic script analysis may mark functions as `configured` or `undefined`, but only a user action may mark a function as `unconfigured`
+- partially configured projects should remain usable and should present warnings plus manual and AI-assisted improvement paths
+- projects with no configured lifecycle function should be blocked from operational use until at least one function is mapped
+- users should be able to explicitly reload one project or multiple projects to refresh script analysis and mapping guidance after local `.bat` or project changes
 - existing `.bat` registration must validate first-argument dispatch compatibility before persisting the project definition
 - scripts that define labels or menus but do not dispatch from `%~1` or `%1` should be rejected with actionable operator-facing guidance
 - AI-generated script proposals must not be persisted without user review

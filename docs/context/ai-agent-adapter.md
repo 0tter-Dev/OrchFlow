@@ -42,9 +42,11 @@ The first implementation should prefer a minimal integration path:
 - let the user choose a model or agent
 - analyze only explicitly authorized files and metadata from a selected project folder
 - suggest a lifecycle `.bat` script for user review
+- suggest improvements that move a project closer to the ideal lifecycle function model
 - follow the documented lifecycle script template when generating or updating scripts
 - suggest canonical lifecycle labels when possible
 - detect non-canonical labels in existing scripts and suggest action mappings for user approval
+- explain missing, undefined, or explicitly unconfigured lifecycle functions in operator-friendly language
 - validate model responses into structured, reviewable proposals before any persistence or file write
 
 ## Adapter Responsibilities
@@ -53,6 +55,7 @@ The first implementation should prefer a minimal integration path:
 - exclude secrets, ignored files, generated artifacts, large binary files, and unauthorized paths from model context
 - keep prompt construction in application-level services rather than CLI, API, or UI components
 - normalize model output into explicit proposal objects
+- include the ideal lifecycle model and the project's current function configuration state when requesting improvement proposals
 - validate proposed `.bat` scripts against the lifecycle script template and first-argument dispatch expectations
 - require user approval before writing or overwriting files
 - require user approval before persisting AI-suggested mappings
@@ -84,6 +87,7 @@ LiteLLM must not decide which project files are allowed, approve generated scrip
 - the adapter boundary must isolate LiteLLM and future provider/gateway changes from core business rules
 - no delivery adapter should call LiteLLM directly
 - AI should prefer standard label conventions, but must tolerate project-specific variations through the `Project Adapter`
+- AI assistance should be able to propose mappings or script changes for partially configured projects, but the user remains the final approver
 - AI-generated claims about runtime behavior must be treated as suggestions until validated by OrchFlow rules and, where practical, runtime inspection
 
 ## Main Relationships
