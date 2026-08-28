@@ -20,9 +20,9 @@ The platform must centralize:
 
 ## Core Principle
 
-In `v0.2.0`, every managed project must have a concrete lifecycle control definition based on a Windows `.bat` script. This script is the authoritative operational contract used by OrchFlow to control the project lifecycle.
+In `v0.2.9`, every managed project must have a concrete lifecycle control definition based on a Windows `.bat` script. This script is the authoritative operational contract used by OrchFlow to control the project lifecycle.
 
-The `AI Agent Adapter` is optional and assistive. It may connect OrchFlow to a local AI provider, initially expected to support local `Ollama`, so a user can analyze a selected folder and generate or refine a `.bat` lifecycle script. It must not replace the explicit script contract.
+The AI assistance layer is optional and assistive. Its planned integration model uses `LiteLLM` as the central gateway for connecting to local or configured AI models and agents, while OrchFlow keeps a dedicated adapter boundary responsible for context selection, file access control, authorization, validation, review workflow, and final user approval. LiteLLM may connect to providers such as local `Ollama` or other explicitly configured model backends, but it must not replace the explicit `.bat` script contract or OrchFlow's business rules.
 
 ## Goals
 
@@ -35,7 +35,7 @@ The `AI Agent Adapter` is optional and assistive. It may connect OrchFlow to a l
 - Enforce authentication and authorization through application users and permissions
 - Establish a disciplined engineering foundation for Git, GitHub, testing, and CI
 
-## Non-Goals For v0.2.0
+## Non-Goals For v0.2.9
 
 - Container orchestration
 - Multi-host orchestration
@@ -73,15 +73,18 @@ These non-goals should not be treated as a reason to hard-couple the codebase ag
 ### AI Agent Assistance
 
 - AI analysis is optional
-- OrchFlow must mediate all AI interactions through an `AI Agent Adapter`
-- the initial provider direction may include local `Ollama`, but the architecture must remain provider-agnostic
+- OrchFlow must mediate all AI interactions through an AI assistance adapter owned by the application layer
+- `LiteLLM` is the planned central LLM gateway for provider and model connectivity
+- OrchFlow must not call `LiteLLM` directly from delivery adapters or domain rules
+- local `Ollama` should be supported through the LiteLLM integration path when enabled, but the architecture must remain provider-agnostic
 - AI assistance must operate only against resources already available and authorized on the machine
-- OrchFlow may start a local provider process if needed
+- OrchFlow may start or verify a local provider process only through explicit configuration and user-authorized workflows
 - OrchFlow must not download new models automatically
 - the user must explicitly authorize project inspection before AI analysis starts
 - the user must explicitly authorize creation or overwrite of a lifecycle `.bat` file
 - the user must explicitly authorize persistence of AI-suggested action mappings
 - AI suggestions and generated files must be reviewable by the user before becoming part of a project definition
+- LiteLLM output must be treated as a proposal, not verified runtime truth
 
 ### Configuration And Environment
 
@@ -112,7 +115,7 @@ OrchFlow should:
 - mediate optional AI-assisted project analysis and script generation
 - expose consistent operational capabilities through CLI, API, and interface adapters
 
-OrchFlow should not, in `v0.2.0`:
+OrchFlow should not, in `v0.2.9`:
 
 - behave as a container orchestrator
 - assume remote infrastructure control
@@ -134,7 +137,8 @@ The implementation should avoid speculative abstractions for possible future con
 - `Runtime Snapshot`
 - `Metric Snapshot`
 - `Lifecycle Event`
-- `AI Agent Adapter`
+- `AI Assistance Adapter`
+- `LiteLLM Gateway`
 - `AI Analysis Session`
 
 ## Architectural Direction
@@ -144,7 +148,7 @@ The project should follow a clean architecture or equivalent layered architectur
 - business rules remain independent from delivery mechanisms
 - CLI, API, and interface layers act as adapters
 - project-specific runtime integrations are accessed through `Project Adapter` contracts
-- AI providers are accessed through adapters instead of core-domain coupling
+- AI providers are accessed through the OrchFlow AI assistance adapter, with LiteLLM isolated as an infrastructure gateway rather than coupled to core-domain rules
 - infrastructure concerns remain outside core domain logic
 - persistence and external integrations can evolve without rewriting the domain model
 
@@ -168,7 +172,7 @@ These interface clients should consume the API rather than bypassing the backend
 
 `SQLite` is the initial persistence candidate because it supports a lightweight local-first workflow while still allowing robust enough storage for users, projects, permissions, lifecycle metadata, and audit events.
 
-For `v0.2.0`, the selected backend persistence stack is `SQLite` with `SQLAlchemy` and `Alembic`.
+For `v0.2.9`, the selected backend persistence stack is `SQLite` with `SQLAlchemy` and `Alembic`.
 
 ## Selected Technology Direction
 
@@ -184,6 +188,7 @@ The project currently adopts the following implementation direction:
 - backend quality tooling: `pytest`, `ruff`, and `mypy`
 - frontend package manager: `pnpm`
 - web interface layer: `React`, `TypeScript`, and `Vite`
+- AI/model gateway: `LiteLLM`, isolated behind the OrchFlow AI assistance adapter
 
 ## Delivery Expectation
 

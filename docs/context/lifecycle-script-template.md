@@ -207,9 +207,9 @@ For those cases, OrchFlow should rely on project-specific action mappings manage
 ## Key Rules
 
 - the template should be generic enough to support different projects
-- the template should remain Windows-first for `v0.2.0`
+- the template should remain Windows-first for `v0.2.9`
 - the template should be easy for a human to review and adjust
-- the template should be easy for the `AI Agent Adapter` to generate or update
+- the template should be easy for the `AI Assistance Adapter` to generate or update
 - the template should avoid hidden behavior and implicit side effects
 - the template should make its lifecycle labels discoverable
 - the template should support audit-friendly and operator-friendly messages
@@ -218,5 +218,5 @@ For those cases, OrchFlow should rely on project-specific action mappings manage
 
 - guides `Project Registry` during project onboarding
 - guides `Project Adapter` during lifecycle execution expectations
-- guides `AI Agent Adapter` when generating or updating scripts
+- guides `AI Assistance Adapter` when generating or updating scripts
 - supports `User Guide` examples and future setup documentation

@@ -23,6 +23,7 @@ Establish disciplined engineering workflows early so the codebase can evolve saf
 - automated checks
 - semantic versioning
 - release hygiene
+- pull-request version bump discipline
 
 ## Current Documentation Baseline
 
@@ -34,6 +35,7 @@ This baseline defines:
 - merge policy
 - human-driven and agent-driven contribution modes
 - versioning and release discipline
+- required version bump decision for each pull request
 - staged CI direction
 - future CD and DevOps sequencing
 - expected GitHub repository settings
@@ -50,6 +52,8 @@ The repository now also includes:
 
 - changes should be reviewable and traceable
 - documentation, tests, and implementation should evolve together
+- every pull request should evaluate and document the semantic version impact
+- version-bearing files should be updated in the same pull request when the change advances the system version
 - CI quality gates should be added early, even before full CD automation exists
 - migration validation and API contract checks should remain part of the backend validation baseline once persistence and HTTP routes exist
 - frontend lint, tests, and build should remain part of the validation baseline once web operator flows exist

@@ -25,6 +25,8 @@ The preferred initial persistence direction is `SQLite`.
 - lifecycle definitions
 - project-specific lifecycle action mappings
 - runtime-related snapshots when appropriate
+- AI analysis sessions and allowed-context manifests when implemented
+- AI-generated proposals, review decisions, and approved file or mapping changes when implemented
 - lifecycle and audit events
 
 ## Implemented Baseline
@@ -42,6 +44,8 @@ The preferred initial persistence direction is `SQLite`.
 - lifecycle actions should leave an audit trail
 - recent audit history visibility must stay permissioned to admins until finer-grained operational history rules are intentionally designed
 - AI-assisted inspection and script generation authorizations should be auditable
+- LiteLLM-backed model invocation metadata should be auditable without storing secrets or unnecessary prompt contents
+- AI proposal approval and rejection decisions should be auditable
 - lifecycle action mapping changes should be auditable with user attribution
 - the system should prioritize practical local reliability over premature complexity
 - the initial persistence bootstrap should provide a real migration path early, even before the first business entities are fully implemented

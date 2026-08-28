@@ -27,8 +27,9 @@ Before any alteration, AI agents must ground their understanding in the applicab
 Agents must:
 
 - preserve the local-first purpose of the project
-- keep `.bat` lifecycle scripts as the concrete operational base for managed projects in `v0.2.0`
-- treat the `AI Agent Adapter` as optional assistance, not as the authoritative lifecycle controller
+- keep `.bat` lifecycle scripts as the concrete operational base for managed projects in `v0.2.9`
+- treat the AI assistance layer as optional assistance mediated by OrchFlow, not as the authoritative lifecycle controller
+- treat `LiteLLM` as the planned central LLM/model gateway, while keeping OrchFlow responsible for allowed context, file access, review-driven flow, validation, and final user approval
 - respect the documented scope, non-goals, and architectural boundaries
 - prefer small, explicit, reviewable changes
 - keep documentation and implementation aligned
@@ -83,6 +84,8 @@ When introducing or changing features, agents should update:
 
 AI agents must not treat documentation updates as optional cleanup. If code behavior changes, the agent must actively verify whether the related documentation needs to change and either update it or state why no documentation update was required.
 
+Every pull request must also evaluate and update the system version according to the change being proposed. Version updates must keep project metadata, runtime version exposure, tests, lockfiles, and documentation aligned with the semantic versioning guidance in `docs/GIT-GITHUB-FLOW.md` and `docs/DEVELOPMENT-GUIDE.md`.
+
 ## Code Delivery Workflow
 
 For code-changing work such as a fix, chore, refactor, test change, or feature, AI agents must follow the documented Git and GitHub workflow in `docs/GIT-GITHUB-FLOW.md` when agent-driven delivery is enabled or explicitly requested.
@@ -102,6 +105,8 @@ The expected agent-driven delivery sequence is:
 Agent-driven branch, commit, push, and pull request operations must use only `git` and `gh` through the CLI. Agents must not use GitHub web UI automation, remote GitHub write connectors, or hidden repository operations for this workflow.
 
 Pull request descriptions must be created from the repository standard template at `.github/PULL_REQUEST_TEMPLATE.md`. When opening a pull request through `gh pr create`, agents must use that template as the description structure, fill the applicable sections, and preserve any checklist items that remain relevant to the change.
+
+Every agent-authored pull request must explicitly mention the version bump decision in its description, including whether the PR changes the version and why that bump level is appropriate.
 
 ## Naming Discipline
 
@@ -124,6 +129,7 @@ Agents must not:
 - silently redefine the project mission
 - bypass documented permissions rules
 - introduce autonomous AI control over project lifecycle actions without explicit approval
+- bypass the OrchFlow AI assistance adapter by calling `LiteLLM` directly from CLI, API, UI, domain, or unrelated application services
 - treat generated analysis as verified runtime truth
 - erase or weaken the documentation-first workflow without authorization
 - run Git commands such as `git add`, `git commit`, `git pull`, `git push`, `git merge`, `git rebase`, or remote GitHub write operations unless the user explicitly requests that action or has explicitly enabled the documented agent-driven Git workflow for the repository

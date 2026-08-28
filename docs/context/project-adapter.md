@@ -71,7 +71,7 @@ Project registration validates that every effective identifier is represented by
 - OrchFlow must not encode one-off project logic directly into the core
 - the adapter must remain project-agnostic and configuration-driven
 - the adapter should support different projects without changing the domain model
-- the adapter must treat the lifecycle `.bat` file as the operational authority in `v0.2.0`
+- the adapter must treat the lifecycle `.bat` file as the operational authority in `v0.2.9`
 - OrchFlow should always target canonical lifecycle actions internally, even when external scripts use different names
 - mapping flexibility must not weaken auditability or traceability
 - the first concrete adapter path may assume command-dispatch by argument for `.bat` execution, and this assumption should remain explicit until broader script compatibility is added

@@ -52,8 +52,8 @@ Defines the standard `.bat` contract shape used by managed projects.
 - [Runtime Inspection](./context/runtime-inspection.md)
 Defines how OrchFlow inspects ports, processes, uptime, resource usage, status explanations, and URL reachability.
 
-- [AI Agent Adapter](./context/ai-agent-adapter.md)
-Defines the optional AI adapter layer for analyzing a folder and helping produce a lifecycle `.bat` script.
+- [AI Assistance Adapter](./context/ai-agent-adapter.md)
+Defines the optional AI assistance adapter layer, including the planned LiteLLM gateway integration, for analyzing a folder and helping produce a reviewable lifecycle `.bat` script.
 
 - [Configuration And Environment](./context/configuration-and-environment.md)
 Defines the environment-based configuration contract and `.env` direction.
@@ -80,11 +80,11 @@ Defines source-control, validation, and CI/CD expectations.
 
 `Lifecycle Orchestration` depends on `Project Registry` to retrieve the lifecycle script definition and project metadata.
 
-`Lifecycle Script Template` defines the standardized `.bat` shape expected by `Project Registry`, `Project Adapter`, and `AI Agent Adapter`.
+`Lifecycle Script Template` defines the standardized `.bat` shape expected by `Project Registry`, `Project Adapter`, and `AI Assistance Adapter`.
 
 `Runtime Inspection` supports `Lifecycle Orchestration` by validating whether actions succeeded and by producing runtime facts and diagnostic explanations for operators.
 
-`AI Agent Adapter` supports `Project Registry` by helping a user transform a project folder into a reviewable `.bat` lifecycle script and, when needed, suggest action mappings.
+`AI Assistance Adapter` supports `Project Registry` by helping a user transform a project folder into a reviewable `.bat` lifecycle script and, when needed, suggest action mappings. LiteLLM is planned as the provider/model gateway inside that adapter, while OrchFlow remains responsible for authorization, allowed context, validation, and final approval.
 
 `Configuration And Environment` provides validated runtime settings to infrastructure services and external adapters without leaking config rules into the domain.
 

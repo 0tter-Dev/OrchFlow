@@ -6,9 +6,9 @@ This document tracks the next planned steps for OrchFlow after the initial docum
 
 ## Current Implementation Sequence
 
-The completed implementation sequence now covers the backend bootstrap foundation, configuration plus persistence bootstrap, access-control foundation, project-registry foundation, lifecycle-orchestration foundation, runtime-inspection milestone, web-bootstrap milestone, the first practical web integration flow, real project onboarding hardening for existing `.bat` scripts, the first web project registration flow, lifecycle history plus audit visibility, admin plus project ownership management, runtime inspection refinement, and CI plus contract hardening.
+The completed implementation sequence now covers the backend bootstrap foundation, configuration plus persistence bootstrap, access-control foundation, project-registry foundation, lifecycle-orchestration foundation, runtime-inspection milestone, web-bootstrap milestone, the first practical web integration flow, real project onboarding hardening for existing `.bat` scripts, the first web project registration flow, lifecycle history plus audit visibility, admin plus project ownership management, runtime inspection refinement, CI plus contract hardening, documentation/versioning governance for pull requests, and the LiteLLM dependency plus disabled-by-default AI configuration baseline.
 
-`v0.2.0` consolidates the first usable backend, `CLI`, `API`, and `web` baseline for authenticated operation of already registered projects, including project visibility, basic lifecycle execution, runtime inspection, and lifecycle controls backed by Windows `.bat` scripts.
+`v0.2.9` consolidates the first usable backend, `CLI`, `API`, and `web` baseline for authenticated operation of already registered projects, including project visibility, lifecycle execution, refined runtime inspection, admin audit visibility, user and ownership management, CI validation, and lifecycle controls backed by Windows `.bat` scripts.
 
 The current frontend package manager decision is `pnpm`.
 
@@ -16,15 +16,45 @@ Implemented planning items should be removed from this document as work progress
 
 ## Next Implementation Roadmap
 
-The next implementation sequence should prioritize real local project operation with existing `.bat` lifecycle scripts before starting the optional `AI Agent Adapter` flow.
+The next implementation sequence should introduce LiteLLM-backed AI assistance without weakening the existing `.bat` lifecycle contract or bypassing user review. LiteLLM should be treated as the model/provider gateway, while OrchFlow remains responsible for context control, authorization, validation, auditability, and final approval.
 
-1. **AI Agent Adapter Foundation**
-   Start the optional AI-assisted onboarding foundation only after the non-AI project workflow is stable. The first AI milestone should define the provider-agnostic boundary, local provider configuration, detection of available `Ollama` or compatible local models, and authorized project analysis without automatic file writes.
+1. **AI Assistance Boundary And LiteLLM Gateway Client**
+   Define an OrchFlow-owned AI assistance application boundary and a LiteLLM gateway infrastructure client behind it. Validate the boundary through tests before exposing project analysis.
+
+2. **LiteLLM Gateway Health And Model Discovery**
+   Add backend use cases to verify the configured LiteLLM gateway and list configured models or agents when supported. Mirror this through `CLI` and `API`, and expose read-only status in `web` only after API contracts are stable. This milestone must not send project files to any model.
+
+3. **Authorized Project Context Manifest**
+   Implement an allowed-context manifest for AI analysis sessions. The manifest should identify the selected project folder, included files, excluded paths, ignored/generated artifacts, secret filtering rules, size limits, selected model, requesting user, and intended operation. Persist and audit authorization metadata without storing secrets.
+
+4. **Analysis Proposal Without File Writes**
+   Implement the first review-driven analysis flow. The model may receive only approved context and should return structured proposals describing lifecycle strategy, expected runtime hints, candidate `.bat` content, and possible action mappings. Store proposal metadata and audit the request, but do not write files or persist mappings yet.
+
+5. **Review, Validation, And Approval Workflow**
+   Add proposal review operations through `API`, `CLI`, and then `web`. Validate proposed scripts against the lifecycle script template, first-argument dispatch expectations, required canonical actions, and mapping consistency. Rejections and approvals must be audited.
+
+6. **Approved `.bat` File Generation And Mapping Persistence**
+   After review is implemented, allow approved proposals to create or overwrite lifecycle `.bat` files and persist approved action mappings. File writes must require explicit confirmation, preserve audit details, and reuse the existing project registry validation path before the project becomes operational.
+
+7. **Project Registry And Mapping Management Completion**
+   Add non-AI project update workflows for editing project metadata, lifecycle script path, action mappings, and owners while preserving auditability and access rules. This closes the remaining registry gap toward a complete managed-project lifecycle.
+
+8. **Runtime Inspection And History Maturity**
+   Improve runtime inspection for projects without `APP_PORT`, add clearer diagnostics for timeout and unsupported states, and evaluate whether runtime snapshots should be persisted for project history. Keep deep observability out of scope unless a later product decision changes it.
+
+9. **Admin, Audit, And Permission Refinement**
+    Add audit filtering by project, actor, action, and time window; refine permission semantics beyond role plus ownership when needed; and improve admin troubleshooting workflows across `CLI`, `API`, and `web`.
+
+10. **Web Operator Experience Completion**
+    Expand the web workspace with project editing, AI proposal review, richer error states, guided onboarding, audit filtering, and clearer runtime diagnostics after the backend contracts are stable.
+
+11. **CI, Contracts, And Release Discipline**
+    Add contract tests for AI assistance routes, tests for version bump discipline where practical, deeper migration checks when justified, and eventual release automation for tag validation and release notes.
 
 ## Cross-Cutting Rules
 
 - expand the mirrored operator workflow in `CLI`, `API`, and `web` together whenever a new user-facing capability is intentionally introduced
-- keep Windows `.bat` lifecycle scripts as the authoritative operational contract for managed projects in `v0.2.0`
+- keep Windows `.bat` lifecycle scripts as the authoritative operational contract for managed projects in `v0.2.9`
 - avoid container orchestration, remote orchestration, and speculative support layers unless a later approved requirement changes the product scope
 - update `docs/STATUS.md`, `docs/USER-GUIDE.md`, and authorized scope-relevant context documentation whenever a roadmap milestone changes implemented behavior
 - revisit future `mobile` and `desktop` planning only after the API and web flows are stable

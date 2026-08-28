@@ -47,24 +47,25 @@ If the selected script only exposes an interactive menu or labels without first-
 
 The authenticated web workspace now exposes this existing-script registration flow directly. The form collects project reference name, optional description, project root path, lifecycle script path, and optional lifecycle action mappings for scripts that use identifiers different from `STATUS`, `START`, `STOP`, or `RESTART`.
 
-#### Option B: Analyze A Folder With An AI Agent Adapter
+#### Option B: Analyze A Folder With AI Assistance
 
 The user selects a project folder and asks OrchFlow to assist with lifecycle setup.
 
 OrchFlow then:
 
 - asks for explicit authorization to inspect the selected project
-- verifies that an enabled local AI provider is available through the adapter layer
-- starts the provider process if necessary
-- lists already available models or agents when the provider supports that capability
+- verifies that AI assistance is enabled and configured through the OrchFlow adapter
+- uses LiteLLM as the planned gateway for the selected local or configured model provider
+- starts or verifies a local provider process only when that behavior is explicitly configured
+- lists available configured models or agents when the gateway supports that capability
 - lets the user choose a model or agent
-- analyzes the project folder
+- analyzes only the project files and metadata explicitly allowed for the session
 - suggests a `.bat` lifecycle script
 - follows the documented lifecycle script template
 
 OrchFlow then asks for explicit authorization before creating or overwriting the lifecycle `.bat` file.
 
-The user reviews the generated suggestion and confirms or edits it before saving the project definition.
+The user reviews the generated suggestion and confirms or edits it before saving the project definition. AI output is treated as a proposal, not as verified operational truth.
 
 If the project script uses different action names such as `iniciar`, `parar`, or `reiniciar`, the user can explicitly map them to OrchFlow canonical actions before finishing the registration.
 
@@ -113,6 +114,7 @@ The first history view covers already recorded user registration, login, admin l
 - A project should not be treated as fully managed unless it has a reviewable lifecycle `.bat` definition
 - AI-assisted analysis is optional and does not bypass user review
 - AI-assisted analysis must pass through explicit user authorization for inspection and file generation
+- LiteLLM may provide model connectivity, but OrchFlow controls which data and files are shared with the selected model
 - Permissions determine which users can view and control each project
 
 ## Admin Workflow
