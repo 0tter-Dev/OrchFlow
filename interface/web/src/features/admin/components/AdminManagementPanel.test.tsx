@@ -24,6 +24,8 @@ const selectedProject: ProjectSummary = {
   created_by_user_id: 1,
   description: "Managed project",
   id: 7,
+  lifecycle_configuration_health: "partial",
+  lifecycle_function_configurations: [],
   lifecycle_script_path: "E:/Projects/demo/control.bat",
   owner_user_ids: [1],
   project_root_path: "E:/Projects/demo",

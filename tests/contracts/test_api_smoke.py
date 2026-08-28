@@ -17,7 +17,7 @@ def test_root_returns_bootstrap_metadata() -> None:
     assert response.status_code == 200
     assert response.json() == {
         "name": "OrchFlow",
-        "version": "0.2.10",
+        "version": "0.2.11",
         "status": "ok",
         "stage": "bootstrap",
     }
@@ -243,6 +243,64 @@ def test_project_registry_flow_is_exposed_in_api(
     )
     assert get_response.status_code == 200
     assert get_response.json()["reference_name"] == "api-project"
+    assert get_response.json()["lifecycle_configuration_health"] == "complete"
+
+
+def test_project_registry_api_exposes_partial_lifecycle_configuration(
+    isolated_environment: None,
+    tmp_path: Path,
+) -> None:
+    client = TestClient(create_app())
+    client.post(
+        "/auth/register",
+        json={"username": "partial-project-admin", "password": "password123"},
+    )
+    login_response = client.post(
+        "/auth/login",
+        json={"username": "partial-project-admin", "password": "password123"},
+    )
+    token = login_response.json()["access_token"]
+
+    project_dir = tmp_path / "api-partial-project"
+    project_dir.mkdir()
+    lifecycle_script = project_dir / "control.bat"
+    lifecycle_script.write_text(
+        "@echo off\r\n"
+        "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
+        "exit /b 1\r\n",
+        encoding="utf-8",
+    )
+
+    register_response = client.post(
+        "/projects",
+        headers={"Authorization": f"Bearer {token}"},
+        json={
+            "reference_name": "api-partial-project",
+            "project_root_path": str(project_dir),
+            "lifecycle_script_path": str(lifecycle_script),
+        },
+    )
+
+    assert register_response.status_code == 201
+    payload = register_response.json()
+    assert payload["lifecycle_configuration_health"] == "partial"
+    assert payload["action_mappings"] == [
+        {
+            "canonical_action": "status",
+            "script_label": "STATUS",
+            "source": "imported",
+            "configured_by_user_id": 1,
+        }
+    ]
+    assert {
+        configuration["canonical_action"]: configuration["state"]
+        for configuration in payload["lifecycle_function_configurations"]
+    } == {
+        "status": "configured",
+        "start": "undefined",
+        "stop": "undefined",
+        "restart": "undefined",
+    }
 
 
 def test_project_owner_management_flow_is_exposed_in_api(

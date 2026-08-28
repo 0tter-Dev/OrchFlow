@@ -20,9 +20,9 @@ The user selects an existing `.bat` file that already defines lifecycle control.
 
 For the current Windows batch adapter, registration validates that the selected script can be controlled through first-argument command dispatch, such as `control.bat STATUS`. Each canonical lifecycle action must resolve to a dispatch identifier either through the preferred default labels or through user-defined action mappings.
 
-The planned registry refinement should compare every connected or reloaded `.bat` script against the ideal lifecycle function model. Preferred identifiers should be mapped automatically. Missing functions should start as `undefined`, and users should be able to map them manually or explicitly mark them as `unconfigured`.
+The registry now compares every newly connected `.bat` script against the ideal lifecycle function model. Preferred identifiers are mapped automatically during registration. Missing functions are represented as `undefined` in derived project responses, and users should later be able to map them manually or explicitly mark them as `unconfigured`.
 
-Projects with at least one `configured` lifecycle function should remain registered and usable for configured actions. Projects where every ideal lifecycle function is `undefined` or `unconfigured` should be treated as not operationally controllable until at least one function is configured.
+Projects with at least one `configured` lifecycle function can be registered. Projects where every ideal lifecycle function is `undefined` or `unconfigured` are treated as not operationally controllable until at least one function is configured.
 
 ### AI-Assisted Script Creation
 

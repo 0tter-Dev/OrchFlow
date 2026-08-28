@@ -24,6 +24,16 @@ const selectedProject: ProjectSummary = {
   created_by_user_id: 1,
   description: "Primary managed project",
   id: 7,
+  lifecycle_configuration_health: "partial",
+  lifecycle_function_configurations: [
+    {
+      canonical_action: "status",
+      description: "Report whether the project appears to be running.",
+      preferred_script_identifier: "STATUS",
+      script_label: "STATUS",
+      state: "configured",
+    },
+  ],
   lifecycle_script_path: "E:/Projects/demo/control.bat",
   owner_user_ids: [1],
   project_root_path: "E:/Projects/demo",
