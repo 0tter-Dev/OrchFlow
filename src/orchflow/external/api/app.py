@@ -20,7 +20,7 @@ from orchflow.application.audit_history import (
     AuditHistoryValidationError,
     ListAuditEventsCommand,
 )
-from orchflow.application.lifecycle import ExecuteLifecycleCommand, LifecycleExecutionError
+from orchflow.application.lifecycle import ExecuteLifecycleCommand, LifecycleOrchestrationError
 from orchflow.application.project_registry import (
     ProjectConflictError,
     ProjectMappingInput,
@@ -366,7 +366,7 @@ def _map_project_registry_error(
 
 
 def _map_lifecycle_error(
-    error: LifecycleExecutionError | AuthorizationError,
+    error: LifecycleOrchestrationError | AuthorizationError,
 ) -> HTTPException:
     if isinstance(error, AuthorizationError):
         return HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(error))
@@ -748,7 +748,7 @@ def create_app() -> FastAPI:
                     action=CanonicalLifecycleAction(action),
                 )
             )
-        except (LifecycleExecutionError, AuthorizationError) as error:
+        except (LifecycleOrchestrationError, AuthorizationError) as error:
             raise _map_lifecycle_error(error) from error
         return _to_lifecycle_response(result)
 

@@ -15,7 +15,10 @@ from orchflow.application.audit_history import (
     ListAuditEventsCommand,
 )
 from orchflow.application.bootstrap import BootstrapStatusService
-from orchflow.application.lifecycle import ExecuteLifecycleCommand, LifecycleExecutionError
+from orchflow.application.lifecycle import (
+    ExecuteLifecycleCommand,
+    LifecycleOrchestrationError,
+)
 from orchflow.application.project_registry import (
     ProjectMappingInput,
     ProjectOwnershipError,
@@ -165,7 +168,7 @@ def _execute_lifecycle_action(
                 action=action,
             )
         )
-    except (LifecycleExecutionError, ProjectRegistryError, AccessControlError) as error:
+    except (LifecycleOrchestrationError, ProjectRegistryError, AccessControlError) as error:
         _exit_with_error(error)
     typer.echo(render_lifecycle_result(result))
 

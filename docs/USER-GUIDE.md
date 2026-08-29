@@ -116,7 +116,9 @@ The user can request:
 
 OrchFlow executes the action using the registered lifecycle `.bat` contract and records the event.
 
-At the current implementation stage, these lifecycle actions are already available through the mirrored `CLI` and `API` surfaces, and the web workspace can trigger them for authenticated users, with runtime status summaries returned when inspection is available.
+Only configured lifecycle actions can be executed. If the user requests an undefined action, an explicitly unconfigured action, or any action on a project with no configured lifecycle functions, OrchFlow rejects the request before calling the `.bat` adapter and records an audit event explaining why the action was blocked.
+
+At the current implementation stage, configured lifecycle actions are available through the mirrored `CLI` and `API` surfaces, and the web workspace can trigger them for authenticated users, with runtime status summaries returned when inspection is available.
 
 ### 5. Review History
 

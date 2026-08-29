@@ -17,7 +17,7 @@ def test_root_returns_bootstrap_metadata() -> None:
     assert response.status_code == 200
     assert response.json() == {
         "name": "OrchFlow",
-        "version": "0.2.13",
+        "version": "0.2.14",
         "status": "ok",
         "stage": "bootstrap",
     }
@@ -433,6 +433,50 @@ def test_project_reload_flow_is_exposed_in_api(
     assert payload["project"]["lifecycle_configuration_health"] == "complete"
     assert reload_many_response.status_code == 200
     assert reload_many_response.json()[0]["project"]["id"] == project_id
+
+
+def test_lifecycle_api_rejects_unconfigured_actions(
+    isolated_environment: None,
+    tmp_path: Path,
+) -> None:
+    client = TestClient(create_app())
+    client.post(
+        "/auth/register",
+        json={"username": "gated-lifecycle-admin", "password": "password123"},
+    )
+    login_response = client.post(
+        "/auth/login",
+        json={"username": "gated-lifecycle-admin", "password": "password123"},
+    )
+    token = login_response.json()["access_token"]
+
+    project_dir = tmp_path / "api-gated-lifecycle-project"
+    project_dir.mkdir()
+    lifecycle_script = project_dir / "control.bat"
+    lifecycle_script.write_text(
+        "@echo off\r\n"
+        "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
+        "exit /b 1\r\n",
+        encoding="utf-8",
+    )
+    register_response = client.post(
+        "/projects",
+        headers={"Authorization": f"Bearer {token}"},
+        json={
+            "reference_name": "api-gated-lifecycle-project",
+            "project_root_path": str(project_dir),
+            "lifecycle_script_path": str(lifecycle_script),
+        },
+    )
+    project_id = register_response.json()["id"]
+
+    lifecycle_response = client.post(
+        f"/projects/{project_id}/lifecycle/start",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    assert lifecycle_response.status_code == 400
+    assert "undefined for this project" in lifecycle_response.json()["detail"]
 
 
 def test_project_owner_management_flow_is_exposed_in_api(
