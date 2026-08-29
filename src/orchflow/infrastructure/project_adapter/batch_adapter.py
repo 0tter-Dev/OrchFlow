@@ -63,4 +63,6 @@ class WindowsBatchProjectAdapter(ProjectLifecycleAdapter):
         for mapping in project.action_mappings:
             if mapping.canonical_action is action:
                 return mapping.script_label
-        return action.value.upper()
+        raise LifecycleOrchestrationError(
+            f"Lifecycle action '{action.value}' is not configured for project '{project.id}'."
+        )

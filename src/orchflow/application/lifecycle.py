@@ -5,7 +5,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Protocol
 
-from orchflow.application.project_registry import CurrentUserResolver, ProjectRegistryService
+from orchflow.application.project_registry import (
+    CurrentUserResolver,
+    ProjectRegistryService,
+    unconfigured_actions_for_project,
+)
 from orchflow.domain.lifecycle import LifecycleExecutionResult
 from orchflow.domain.project_registry import CanonicalLifecycleAction, Project
 from orchflow.domain.runtime_inspection import RuntimeInspectionSnapshot
@@ -24,6 +28,10 @@ class LifecycleExecutionError(LifecycleOrchestrationError):
             f"{result.exit_code}."
         )
         self.result = result
+
+
+class LifecycleActionConfigurationError(LifecycleOrchestrationError):
+    """Raised when a lifecycle action is not configured for execution."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -86,6 +94,22 @@ class LifecycleOrchestrationService:
         """Execute a lifecycle action against a visible project."""
         actor = self._current_user_resolver.get_current_user(command.token)
         project = self._project_registry_service.get_project(command.token, command.project_id)
+        if self._resolve_configured_command_identifier(
+            project,
+            command.action,
+        ) is None:
+            reason = self._unconfigured_action_reason(project, command.action)
+            self._audit_recorder.record_audit_event(
+                actor_user_id=actor.id,
+                action=f"lifecycle.{command.action.value}.blocked",
+                target_type="project",
+                target_id=str(project.id),
+                details=f"reason:{reason}",
+            )
+            raise LifecycleActionConfigurationError(
+                f"Lifecycle action '{command.action.value}' cannot be executed because "
+                f"{reason}."
+            )
 
         base_result = self._adapter.execute(project, command.action)
         runtime_snapshot = (
@@ -122,3 +146,21 @@ class LifecycleOrchestrationService:
         if not result.succeeded:
             raise LifecycleExecutionError(result)
         return result
+
+    @staticmethod
+    def _resolve_configured_command_identifier(
+        project: Project,
+        action: CanonicalLifecycleAction,
+    ) -> str | None:
+        for mapping in project.action_mappings:
+            if mapping.canonical_action is action:
+                return mapping.script_label
+        return None
+
+    @staticmethod
+    def _unconfigured_action_reason(project: Project, action: CanonicalLifecycleAction) -> str:
+        if not project.action_mappings:
+            return "the project has no configured lifecycle functions"
+        if action in unconfigured_actions_for_project(project):
+            return "the action is explicitly marked as unconfigured"
+        return "the action is undefined for this project"

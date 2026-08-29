@@ -24,7 +24,7 @@ def test_info_command_displays_bootstrap_metadata() -> None:
     result = runner.invoke(app, ["info"])
 
     assert result.exit_code == 0
-    assert "OrchFlow 0.2.13" in result.stdout
+    assert "OrchFlow 0.2.14" in result.stdout
     assert "stage: bootstrap" in result.stdout
 
 
@@ -435,6 +435,62 @@ def test_cli_project_owner_management_flow_is_available(
     )
     assert remove_result.exit_code == 0
     assert f"owner_user_ids: 1, {member_id}" not in remove_result.stdout
+
+
+def test_cli_lifecycle_rejects_unconfigured_actions(
+    isolated_environment: None,
+    tmp_path: Path,
+) -> None:
+    runner.invoke(
+        app,
+        ["auth", "register", "--username", "gated-cli-admin", "--password", "password123"],
+    )
+    login_result = runner.invoke(
+        app,
+        ["auth", "login", "--username", "gated-cli-admin", "--password", "password123"],
+    )
+    token_line = next(
+        line for line in login_result.stdout.splitlines() if line.startswith("access_token: ")
+    )
+    token = token_line.removeprefix("access_token: ")
+
+    project_dir = tmp_path / "cli-gated-lifecycle-project"
+    project_dir.mkdir()
+    lifecycle_script = project_dir / "control.bat"
+    lifecycle_script.write_text(
+        "@echo off\r\n"
+        "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
+        "exit /b 1\r\n",
+        encoding="utf-8",
+    )
+    register_result = runner.invoke(
+        app,
+        [
+            "project",
+            "register",
+            "--token",
+            token,
+            "--reference-name",
+            "cli-gated-lifecycle-project",
+            "--project-root-path",
+            str(project_dir),
+            "--lifecycle-script-path",
+            str(lifecycle_script),
+        ],
+    )
+    project_id = next(
+        line.removeprefix("id: ")
+        for line in register_result.stdout.splitlines()
+        if line.startswith("id: ")
+    )
+
+    lifecycle_result = runner.invoke(
+        app,
+        ["lifecycle", "start", "--token", token, "--project-id", project_id],
+    )
+
+    assert lifecycle_result.exit_code == 1
+    assert "undefined for this project" in lifecycle_result.stderr
 
 
 @pytest.mark.skipif(sys.platform != "win32", reason="Windows-only batch execution")

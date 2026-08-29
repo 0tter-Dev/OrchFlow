@@ -37,9 +37,9 @@ Provide a standardized lifecycle engine for local projects using an explicit `.b
 - successful and failed executions are audited with command identifiers, exit status, success state, and runtime status when inspection is available
 - runtime inspection is invoked after lifecycle execution when available so API and CLI receive an immediate runtime summary
 
-## Planned Lifecycle Configuration Refinement
+## Lifecycle Configuration Enforcement
 
-The orchestration layer should consume project configuration health from the registry and adapter boundary. Projects with partial configuration should execute only configured lifecycle actions. Projects with no configured lifecycle function should be blocked from operational lifecycle execution until the user maps at least one function.
+The orchestration layer now consumes project lifecycle mappings from the registry before adapter execution. Projects with partial configuration execute only configured lifecycle actions. Undefined actions, explicitly unconfigured actions, and projects with no configured lifecycle function are blocked from operational lifecycle execution until the user maps at least one function.
 
 ## Main Relationships
 
