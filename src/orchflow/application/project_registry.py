@@ -59,6 +59,16 @@ class RegisterProjectCommand:
 
 
 @dataclass(frozen=True, slots=True)
+class UpdateLifecycleFunctionConfigurationCommand:
+    """Input required to replace lifecycle function configuration for a project."""
+
+    token: str
+    project_id: int
+    mappings: tuple[ProjectMappingInput, ...] = ()
+    unconfigured_actions: tuple[CanonicalLifecycleAction, ...] = ()
+
+
+@dataclass(frozen=True, slots=True)
 class UpdateProjectOwnerCommand:
     """Input required to add or remove a project owner."""
 
@@ -83,6 +93,15 @@ class ProjectRegistryRepository(Protocol):
         owner_user_ids: tuple[int, ...],
         mappings: tuple[ProjectMappingInput, ...],
     ) -> Project: ...
+
+    def replace_lifecycle_function_configuration(
+        self,
+        *,
+        project_id: int,
+        mappings: tuple[ProjectMappingInput, ...],
+        unconfigured_actions: tuple[CanonicalLifecycleAction, ...],
+        decided_by_user_id: int,
+    ) -> Project | None: ...
 
     def list_projects_for_user(self, user: User) -> list[Project]: ...
 
@@ -248,6 +267,53 @@ class ProjectRegistryService:
         )
         return updated_project
 
+    def update_lifecycle_function_configuration(
+        self,
+        command: UpdateLifecycleFunctionConfigurationCommand,
+    ) -> Project:
+        """Replace manual lifecycle function configuration for a visible project."""
+        actor = self._current_user_resolver.get_current_user(command.token)
+        project = self._repository.get_project_for_user(command.project_id, actor)
+        if project is None:
+            raise AuthorizationError("Project is not visible to the current user.")
+
+        mappings = self._normalize_mappings(command.mappings)
+        unconfigured_actions = self._normalize_unconfigured_actions(
+            command.unconfigured_actions,
+            mappings,
+        )
+        script_content = self._validate_lifecycle_script_paths(
+            project.project_root_path,
+            project.lifecycle_script_path,
+        )
+        configured_mappings = self._resolve_manual_mappings(script_content, mappings)
+        if not configured_mappings:
+            raise ProjectValidationError(
+                "At least one lifecycle function must remain configured before a project "
+                "can be operated by OrchFlow."
+            )
+
+        updated_project = self._repository.replace_lifecycle_function_configuration(
+            project_id=project.id,
+            mappings=configured_mappings,
+            unconfigured_actions=unconfigured_actions,
+            decided_by_user_id=actor.id,
+        )
+        if updated_project is None:
+            raise AuthorizationError("Project is not visible to the current user.")
+
+        self._repository.record_audit_event(
+            actor_user_id=actor.id,
+            action="project.lifecycle_configuration.update",
+            target_type="project",
+            target_id=str(project.id),
+            details=(
+                f"configured:{len(configured_mappings)};"
+                f"unconfigured:{len(unconfigured_actions)}"
+            ),
+        )
+        return updated_project
+
     @staticmethod
     def _ensure_admin(user: User) -> None:
         if user.role is not UserRole.ADMIN:
@@ -343,6 +409,35 @@ class ProjectRegistryService:
         return tuple(configured_mappings)
 
     @staticmethod
+    def _resolve_manual_mappings(
+        script_content: str,
+        mappings: tuple[ProjectMappingInput, ...],
+    ) -> tuple[ProjectMappingInput, ...]:
+        missing_mapped_actions = [
+            f"{mapping.canonical_action.value} -> {mapping.script_label}"
+            for mapping in mappings
+            if not ProjectRegistryService._has_dispatch_handler(
+                script_content,
+                mapping.script_label,
+            )
+        ]
+        if missing_mapped_actions:
+            raise ProjectValidationError(
+                "Lifecycle script does not expose command-dispatch handlers for: "
+                f"{', '.join(missing_mapped_actions)}. Add first-argument dispatch lines such as "
+                "'if /I \"%~1\"==\"STATUS\" goto STATUS' or provide action mappings matching "
+                "the script identifiers."
+            )
+        return tuple(
+            ProjectMappingInput(
+                canonical_action=mapping.canonical_action,
+                script_label=mapping.script_label,
+                source=MappingSource.USER_DEFINED,
+            )
+            for mapping in mappings
+        )
+
+    @staticmethod
     def _has_first_argument_dispatch(script_content: str) -> bool:
         normalized_content = script_content.upper()
         return any(token in normalized_content for token in FIRST_ARGUMENT_TOKENS)
@@ -414,3 +509,33 @@ class ProjectRegistryService:
                 )
             )
         return tuple(normalized)
+
+    @staticmethod
+    def _normalize_unconfigured_actions(
+        unconfigured_actions: tuple[CanonicalLifecycleAction, ...],
+        mappings: tuple[ProjectMappingInput, ...],
+    ) -> tuple[CanonicalLifecycleAction, ...]:
+        mapped_actions = {mapping.canonical_action for mapping in mappings}
+        seen_actions: set[CanonicalLifecycleAction] = set()
+        normalized: list[CanonicalLifecycleAction] = []
+        for action in unconfigured_actions:
+            if action in seen_actions:
+                raise ProjectValidationError(
+                    f"Duplicate unconfigured decision for canonical action '{action.value}'."
+                )
+            if action in mapped_actions:
+                raise ProjectValidationError(
+                    f"Canonical action '{action.value}' cannot be both mapped and unconfigured."
+                )
+            seen_actions.add(action)
+            normalized.append(action)
+        return tuple(normalized)
+
+
+def unconfigured_actions_for_project(project: Project) -> tuple[CanonicalLifecycleAction, ...]:
+    """Return explicit unconfigured decisions for a project."""
+    return tuple(
+        decision.canonical_action
+        for decision in project.lifecycle_function_decisions
+        if decision.state == "unconfigured"
+    )

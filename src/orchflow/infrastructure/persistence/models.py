@@ -121,3 +121,32 @@ class LifecycleActionMappingModel(Base):
         server_default=func.now(),
         nullable=False,
     )
+
+
+class LifecycleFunctionDecisionModel(Base):
+    """Persisted explicit lifecycle function configuration decision."""
+
+    __tablename__ = "lifecycle_function_decisions"
+    __table_args__ = (
+        UniqueConstraint(
+            "project_id",
+            "canonical_action",
+            name="uq_lifecycle_function_decisions_project_action",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    project_id: Mapped[int] = mapped_column(ForeignKey("projects.id"), nullable=False)
+    canonical_action: Mapped[str] = mapped_column(String(16), nullable=False)
+    state: Mapped[str] = mapped_column(String(32), nullable=False)
+    decided_by_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+    )

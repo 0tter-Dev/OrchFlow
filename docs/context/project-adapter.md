@@ -66,7 +66,7 @@ This mapping should be stored as part of the project integration definition and 
 
 Action mappings should be persisted per project and associated with the responsible user action so OrchFlow can consistently execute the correct script behavior later.
 
-Configuration state should be persisted alongside mappings so the system can distinguish automatic mappings, user-defined mappings, AI-approved mappings, undefined functions, and functions the user intentionally left unconfigured.
+Configuration state is now persisted alongside mappings for explicit unconfigured decisions so the system can distinguish automatic mappings, user-defined mappings, AI-approved mappings, undefined functions, and functions the user intentionally left unconfigured.
 
 ## Current Dispatch Contract
 
@@ -78,14 +78,14 @@ control.bat ACTION_IDENTIFIER
 
 By default, OrchFlow resolves canonical actions to uppercase identifiers such as `STATUS`, `START`, `STOP`, and `RESTART`. When a project uses different identifiers, user-defined mappings such as `start -> INICIAR` determine the identifier passed to the script.
 
-The ideal-model refinement now relaxes registration-time compatibility into explicit function-level configuration. Each configured action must still resolve to a first-argument dispatch handler before it can be registered or executed. Missing functions are represented as undefined in derived project responses until manual configuration workflows are added.
+The ideal-model refinement now relaxes registration-time compatibility into explicit function-level configuration. Each configured action must still resolve to a first-argument dispatch handler before it can be registered or manually mapped. Missing functions are represented as undefined in derived project responses until users configure or explicitly leave them unconfigured.
 
 ## Key Rules
 
 - OrchFlow must not encode one-off project logic directly into the core
 - the adapter must remain project-agnostic and configuration-driven
 - the adapter should support different projects without changing the domain model
-- the adapter must treat the lifecycle `.bat` file as the operational authority in `v0.2.11`
+- the adapter must treat the lifecycle `.bat` file as the operational authority in `v0.2.12`
 - OrchFlow should always target canonical lifecycle actions internally, even when external scripts use different names
 - OrchFlow should expose configuration health and function-level mapping status so users understand whether a project is complete, partial, or blocked
 - mapping flexibility must not weaken auditability or traceability

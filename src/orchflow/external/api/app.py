@@ -28,7 +28,9 @@ from orchflow.application.project_registry import (
     ProjectRegistryError,
     ProjectValidationError,
     RegisterProjectCommand,
+    UpdateLifecycleFunctionConfigurationCommand,
     UpdateProjectOwnerCommand,
+    unconfigured_actions_for_project,
 )
 from orchflow.application.runtime_inspection import InspectRuntimeCommand
 from orchflow.application.services import (
@@ -126,6 +128,11 @@ class RegisterProjectRequest(BaseModel):
     mappings: list[ProjectMappingRequest] = []
 
 
+class UpdateLifecycleFunctionConfigurationRequest(BaseModel):
+    mappings: list[ProjectMappingRequest] = []
+    unconfigured_actions: list[Literal["status", "start", "stop", "restart"]] = []
+
+
 class ProjectMappingResponse(BaseModel):
     canonical_action: Literal["status", "start", "stop", "restart"]
     script_label: str
@@ -212,7 +219,8 @@ def _to_project_response(project: Project) -> ProjectResponse:
         for mapping in project.action_mappings
     }
     lifecycle_function_configurations = build_lifecycle_function_configurations(
-        configured_script_labels
+        configured_script_labels,
+        unconfigured_actions_for_project(project),
     )
     lifecycle_configuration_health = derive_project_configuration_health(
         lifecycle_function_configurations
@@ -553,6 +561,45 @@ def create_app() -> FastAPI:
             )
         try:
             project = project_registry_service.get_project(token, project_id)
+        except (ProjectRegistryError, AuthorizationError) as error:
+            raise _map_project_registry_error(error) from error
+        return _to_project_response(project)
+
+    @app.patch(
+        "/projects/{project_id}/lifecycle-configuration",
+        response_model=ProjectResponse,
+        tags=["projects"],
+    )
+    def update_lifecycle_function_configuration(
+        project_id: int,
+        payload: UpdateLifecycleFunctionConfigurationRequest,
+        authorization: str | None = Header(default=None),
+    ) -> ProjectResponse:
+        token = _extract_bearer_token(authorization)
+        if token is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Missing bearer token.",
+            )
+        try:
+            project = project_registry_service.update_lifecycle_function_configuration(
+                UpdateLifecycleFunctionConfigurationCommand(
+                    token=token,
+                    project_id=project_id,
+                    mappings=tuple(
+                        ProjectMappingInput(
+                            canonical_action=CanonicalLifecycleAction(mapping.canonical_action),
+                            script_label=mapping.script_label,
+                            source=MappingSource.USER_DEFINED,
+                        )
+                        for mapping in payload.mappings
+                    ),
+                    unconfigured_actions=tuple(
+                        CanonicalLifecycleAction(action)
+                        for action in payload.unconfigured_actions
+                    ),
+                )
+            )
         except (ProjectRegistryError, AuthorizationError) as error:
             raise _map_project_registry_error(error) from error
         return _to_project_response(project)

@@ -19,6 +19,7 @@ from orchflow.application.project_registry import (
     ProjectOwnershipError,
     ProjectRegistryError,
     RegisterProjectCommand,
+    UpdateLifecycleFunctionConfigurationCommand,
     UpdateProjectOwnerCommand,
 )
 from orchflow.application.runtime_inspection import InspectRuntimeCommand
@@ -117,6 +118,25 @@ def _build_mapping_inputs(
         )
         for canonical_action, script_label in mapping_values
         if script_label is not None
+    )
+
+
+def _build_unconfigured_actions(
+    status_unconfigured: bool,
+    start_unconfigured: bool,
+    stop_unconfigured: bool,
+    restart_unconfigured: bool,
+) -> tuple[CanonicalLifecycleAction, ...]:
+    unconfigured_values = (
+        (CanonicalLifecycleAction.STATUS, status_unconfigured),
+        (CanonicalLifecycleAction.START, start_unconfigured),
+        (CanonicalLifecycleAction.STOP, stop_unconfigured),
+        (CanonicalLifecycleAction.RESTART, restart_unconfigured),
+    )
+    return tuple(
+        canonical_action
+        for canonical_action, is_unconfigured in unconfigured_values
+        if is_unconfigured
     )
 
 
@@ -305,6 +325,42 @@ def show_project(token: str = typer.Option(...), project_id: int = typer.Option(
     service = create_project_registry_service()
     try:
         project = service.get_project(token, project_id)
+    except (ProjectRegistryError, AccessControlError) as error:
+        _exit_with_error(error)
+    typer.echo(render_project(project))
+
+
+@project_app.command("configure-lifecycle")
+def configure_lifecycle(
+    token: str = typer.Option(...),
+    project_id: int = typer.Option(...),
+    map_status: str | None = typer.Option(default=None),
+    map_start: str | None = typer.Option(default=None),
+    map_stop: str | None = typer.Option(default=None),
+    map_restart: str | None = typer.Option(default=None),
+    status_unconfigured: bool = typer.Option(default=False),
+    start_unconfigured: bool = typer.Option(default=False),
+    stop_unconfigured: bool = typer.Option(default=False),
+    restart_unconfigured: bool = typer.Option(default=False),
+) -> None:
+    """Replace lifecycle function mappings and explicit unconfigured decisions."""
+    service = create_project_registry_service()
+    mappings = _build_mapping_inputs(map_status, map_start, map_stop, map_restart)
+    unconfigured_actions = _build_unconfigured_actions(
+        status_unconfigured,
+        start_unconfigured,
+        stop_unconfigured,
+        restart_unconfigured,
+    )
+    try:
+        project = service.update_lifecycle_function_configuration(
+            UpdateLifecycleFunctionConfigurationCommand(
+                token=token,
+                project_id=project_id,
+                mappings=mappings,
+                unconfigured_actions=unconfigured_actions,
+            )
+        )
     except (ProjectRegistryError, AccessControlError) as error:
         _exit_with_error(error)
     typer.echo(render_project(project))

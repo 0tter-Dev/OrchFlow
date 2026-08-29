@@ -35,8 +35,9 @@ The preferred initial persistence direction is `SQLite`.
 - audit events are persisted in local `SQLite` storage
 - access-control operations record user registration, login, and admin user listing events
 - project registry operations record project registration, list, and read events
-- planned registry refinements should record reload operations, automatic mapping refreshes, manual mapping decisions, and explicit unconfigured-function decisions
+- planned registry refinements should record reload operations and automatic mapping refreshes
 - current registration persists automatically detected preferred mappings as imported lifecycle action mappings
+- manual mapping decisions and explicit unconfigured-function decisions are persisted with actor metadata and audited through project lifecycle configuration update events
 - lifecycle operations record action, command identifier, exit status, success state, and runtime status when available
 - recent audit history is exposed to authenticated admins through `CLI`, `API`, and the web operator workspace
 - admin user updates and project ownership changes are audited

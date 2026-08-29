@@ -44,6 +44,11 @@ export type ProjectRegistrationInput = {
   reference_name: string;
 };
 
+export type ProjectLifecycleConfigurationInput = {
+  mappings: ProjectRegistrationMappingInput[];
+  unconfigured_actions: CanonicalLifecycleAction[];
+};
+
 export type RuntimeProcessSnapshot = {
   cpu_seconds: number | null;
   memory_bytes: number | null;
