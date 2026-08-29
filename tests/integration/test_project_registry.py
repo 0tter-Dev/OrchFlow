@@ -12,6 +12,8 @@ from orchflow.application.project_registry import (
     ProjectOwnershipError,
     ProjectValidationError,
     RegisterProjectCommand,
+    ReloadProjectCommand,
+    ReloadProjectsCommand,
     UpdateLifecycleFunctionConfigurationCommand,
     UpdateProjectOwnerCommand,
 )
@@ -296,6 +298,165 @@ def test_lifecycle_configuration_update_rejects_all_unconfigured_actions(
                 ),
             )
         )
+
+
+def test_project_reload_refreshes_detection_and_preserves_valid_user_decisions(
+    isolated_environment: None,
+    tmp_path: Path,
+) -> None:
+    access_control_service = create_access_control_service()
+    project_registry_service = create_project_registry_service()
+
+    access_control_service.register_user(
+        RegisterUserCommand(username="reload-user", password="password123")
+    )
+    token = access_control_service.login(
+        LoginCommand(username="reload-user", password="password123")
+    ).access_token
+
+    project_dir = tmp_path / "reload-project"
+    project_dir.mkdir()
+    lifecycle_script = project_dir / "control.bat"
+    _write_dispatch_batch(lifecycle_script, include_restart=False, start_identifier="INICIAR")
+    project = project_registry_service.register_project(
+        RegisterProjectCommand(
+            token=token,
+            reference_name="reload-project",
+            project_root_path=str(project_dir),
+            lifecycle_script_path=str(lifecycle_script),
+            mappings=(
+                ProjectMappingInput(
+                    canonical_action=CanonicalLifecycleAction.START,
+                    script_label="INICIAR",
+                ),
+            ),
+        )
+    )
+    project_registry_service.update_lifecycle_function_configuration(
+        UpdateLifecycleFunctionConfigurationCommand(
+            token=token,
+            project_id=project.id,
+            mappings=(
+                ProjectMappingInput(
+                    canonical_action=CanonicalLifecycleAction.START,
+                    script_label="INICIAR",
+                ),
+            ),
+            unconfigured_actions=(CanonicalLifecycleAction.STOP,),
+        )
+    )
+    _write_dispatch_batch(lifecycle_script, include_stop=True, start_identifier="START")
+
+    result = project_registry_service.reload_project(
+        ReloadProjectCommand(token=token, project_id=project.id)
+    )
+
+    mappings = {
+        mapping.canonical_action: (mapping.script_label, mapping.source)
+        for mapping in result.project.action_mappings
+    }
+    assert result.previous_health.value == "partial"
+    assert result.current_health.value == "partial"
+    assert result.changed_actions == (
+        CanonicalLifecycleAction.STATUS,
+        CanonicalLifecycleAction.START,
+        CanonicalLifecycleAction.RESTART,
+    )
+    assert mappings == {
+        CanonicalLifecycleAction.STATUS: ("STATUS", MappingSource.IMPORTED),
+        CanonicalLifecycleAction.START: ("START", MappingSource.IMPORTED),
+        CanonicalLifecycleAction.RESTART: ("RESTART", MappingSource.IMPORTED),
+    }
+    assert tuple(
+        decision.canonical_action
+        for decision in result.project.lifecycle_function_decisions
+    ) == (CanonicalLifecycleAction.STOP,)
+
+
+def test_project_reload_can_mark_project_as_blocked_after_script_changes(
+    isolated_environment: None,
+    tmp_path: Path,
+) -> None:
+    access_control_service = create_access_control_service()
+    project_registry_service = create_project_registry_service()
+
+    access_control_service.register_user(
+        RegisterUserCommand(username="blocked-reload-user", password="password123")
+    )
+    token = access_control_service.login(
+        LoginCommand(username="blocked-reload-user", password="password123")
+    ).access_token
+
+    project_dir = tmp_path / "blocked-reload-project"
+    project_dir.mkdir()
+    lifecycle_script = project_dir / "control.bat"
+    _write_dispatch_batch(lifecycle_script, include_restart=False, include_stop=False)
+    project = project_registry_service.register_project(
+        RegisterProjectCommand(
+            token=token,
+            reference_name="blocked-reload-project",
+            project_root_path=str(project_dir),
+            lifecycle_script_path=str(lifecycle_script),
+        )
+    )
+    lifecycle_script.write_text(
+        "@echo off\r\n"
+        "if /I \"%~1\"==\"VERIFY\" echo custom-status & exit /b 0\r\n"
+        "exit /b 1\r\n",
+        encoding="utf-8",
+    )
+
+    result = project_registry_service.reload_project(
+        ReloadProjectCommand(token=token, project_id=project.id)
+    )
+
+    assert result.previous_health.value == "partial"
+    assert result.current_health.value == "blocked"
+    assert result.project.action_mappings == ()
+    assert result.changed_actions == (
+        CanonicalLifecycleAction.STATUS,
+        CanonicalLifecycleAction.START,
+    )
+
+
+def test_project_reload_many_runs_visible_projects_in_sequence(
+    isolated_environment: None,
+    tmp_path: Path,
+) -> None:
+    access_control_service = create_access_control_service()
+    project_registry_service = create_project_registry_service()
+
+    access_control_service.register_user(
+        RegisterUserCommand(username="reload-many-user", password="password123")
+    )
+    token = access_control_service.login(
+        LoginCommand(username="reload-many-user", password="password123")
+    ).access_token
+
+    project_ids: list[int] = []
+    for index in range(2):
+        project_dir = tmp_path / f"reload-many-project-{index}"
+        project_dir.mkdir()
+        lifecycle_script = project_dir / "control.bat"
+        _write_dispatch_batch(lifecycle_script, include_restart=False)
+        project = project_registry_service.register_project(
+            RegisterProjectCommand(
+                token=token,
+                reference_name=f"reload-many-project-{index}",
+                project_root_path=str(project_dir),
+                lifecycle_script_path=str(lifecycle_script),
+            )
+        )
+        project_ids.append(project.id)
+        _write_dispatch_batch(lifecycle_script)
+
+    results = project_registry_service.reload_projects(
+        ReloadProjectsCommand(token=token, project_ids=tuple(project_ids))
+    )
+
+    assert [result.project.id for result in results] == project_ids
+    assert all(result.current_health.value == "complete" for result in results)
+    assert all(result.changed_actions == (CanonicalLifecycleAction.RESTART,) for result in results)
 
 
 def test_registration_rejects_scripts_without_first_argument_dispatch(

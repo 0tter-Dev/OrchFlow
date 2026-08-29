@@ -9,9 +9,16 @@ from typing import Protocol
 
 from orchflow.application.access_control import AuthorizationError
 from orchflow.domain.access_control import User, UserRole
-from orchflow.domain.lifecycle_function_model import IDEAL_LIFECYCLE_FUNCTIONS
+from orchflow.domain.lifecycle_function_model import (
+    IDEAL_LIFECYCLE_FUNCTIONS,
+    LifecycleFunctionConfiguration,
+    ProjectConfigurationHealth,
+    build_lifecycle_function_configurations,
+    derive_project_configuration_health,
+)
 from orchflow.domain.project_registry import (
     CanonicalLifecycleAction,
+    LifecycleActionMapping,
     MappingSource,
     Project,
 )
@@ -66,6 +73,32 @@ class UpdateLifecycleFunctionConfigurationCommand:
     project_id: int
     mappings: tuple[ProjectMappingInput, ...] = ()
     unconfigured_actions: tuple[CanonicalLifecycleAction, ...] = ()
+
+
+@dataclass(frozen=True, slots=True)
+class ReloadProjectCommand:
+    """Input required to reload lifecycle function detection for one project."""
+
+    token: str
+    project_id: int
+
+
+@dataclass(frozen=True, slots=True)
+class ReloadProjectsCommand:
+    """Input required to reload lifecycle function detection for many projects."""
+
+    token: str
+    project_ids: tuple[int, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class ProjectReloadResult:
+    """Result of refreshing a project's lifecycle function configuration."""
+
+    project: Project
+    previous_health: ProjectConfigurationHealth
+    current_health: ProjectConfigurationHealth
+    changed_actions: tuple[CanonicalLifecycleAction, ...]
 
 
 @dataclass(frozen=True, slots=True)
@@ -314,10 +347,95 @@ class ProjectRegistryService:
         )
         return updated_project
 
+    def reload_project(self, command: ReloadProjectCommand) -> ProjectReloadResult:
+        """Reload lifecycle script detection for one visible project."""
+        actor = self._current_user_resolver.get_current_user(command.token)
+        project = self._repository.get_project_for_user(command.project_id, actor)
+        if project is None:
+            raise AuthorizationError("Project is not visible to the current user.")
+        return self._reload_visible_project(project, actor)
+
+    def reload_projects(self, command: ReloadProjectsCommand) -> tuple[ProjectReloadResult, ...]:
+        """Reload lifecycle script detection for many visible projects in sequence."""
+        actor = self._current_user_resolver.get_current_user(command.token)
+        if not command.project_ids:
+            raise ProjectValidationError("At least one project id must be provided for reload.")
+
+        seen_project_ids: set[int] = set()
+        results: list[ProjectReloadResult] = []
+        for project_id in command.project_ids:
+            if project_id in seen_project_ids:
+                raise ProjectValidationError(
+                    f"Duplicate project id '{project_id}' provided for reload."
+                )
+            seen_project_ids.add(project_id)
+            project = self._repository.get_project_for_user(project_id, actor)
+            if project is None:
+                raise AuthorizationError("Project is not visible to the current user.")
+            results.append(self._reload_visible_project(project, actor))
+        return tuple(results)
+
     @staticmethod
     def _ensure_admin(user: User) -> None:
         if user.role is not UserRole.ADMIN:
             raise AuthorizationError("Admin privileges are required for this action.")
+
+    def _reload_visible_project(self, project: Project, actor: User) -> ProjectReloadResult:
+        previous_unconfigured_actions = unconfigured_actions_for_project(project)
+        previous_configurations = self._lifecycle_configurations(
+            project.action_mappings,
+            previous_unconfigured_actions,
+        )
+        previous_health = derive_project_configuration_health(previous_configurations)
+
+        script_content = self._validate_lifecycle_script_paths(
+            project.project_root_path,
+            project.lifecycle_script_path,
+        )
+        reloaded_mappings = self._resolve_reloaded_mappings(
+            script_content,
+            project.action_mappings,
+            previous_unconfigured_actions,
+        )
+
+        updated_project = self._repository.replace_lifecycle_function_configuration(
+            project_id=project.id,
+            mappings=reloaded_mappings,
+            unconfigured_actions=previous_unconfigured_actions,
+            decided_by_user_id=actor.id,
+        )
+        if updated_project is None:
+            raise AuthorizationError("Project is not visible to the current user.")
+
+        current_unconfigured_actions = unconfigured_actions_for_project(updated_project)
+        current_configurations = self._lifecycle_configurations(
+            updated_project.action_mappings,
+            current_unconfigured_actions,
+        )
+        current_health = derive_project_configuration_health(current_configurations)
+        changed_actions = self._changed_configuration_actions(
+            previous_configurations,
+            current_configurations,
+        )
+
+        self._repository.record_audit_event(
+            actor_user_id=actor.id,
+            action="project.lifecycle_configuration.reload",
+            target_type="project",
+            target_id=str(project.id),
+            details=(
+                f"previous_health:{previous_health.value};"
+                f"current_health:{current_health.value};"
+                f"changed_actions:{','.join(action.value for action in changed_actions) or 'none'};"
+                f"configured:{len(updated_project.action_mappings)}"
+            ),
+        )
+        return ProjectReloadResult(
+            project=updated_project,
+            previous_health=previous_health,
+            current_health=current_health,
+            changed_actions=changed_actions,
+        )
 
     @staticmethod
     def _normalize_directory_path(raw_path: str) -> str:
@@ -436,6 +554,87 @@ class ProjectRegistryService:
             )
             for mapping in mappings
         )
+
+    @staticmethod
+    def _resolve_reloaded_mappings(
+        script_content: str,
+        current_mappings: tuple[LifecycleActionMapping, ...],
+        unconfigured_actions: tuple[CanonicalLifecycleAction, ...],
+    ) -> tuple[ProjectMappingInput, ...]:
+        current_mapping_by_action = {
+            mapping.canonical_action: mapping
+            for mapping in current_mappings
+        }
+        explicitly_unconfigured_actions = set(unconfigured_actions)
+        reloaded_mappings: list[ProjectMappingInput] = []
+
+        for function in IDEAL_LIFECYCLE_FUNCTIONS:
+            if function.action in explicitly_unconfigured_actions:
+                continue
+
+            current_mapping = current_mapping_by_action.get(function.action)
+            if (
+                current_mapping is not None
+                and current_mapping.source is not MappingSource.IMPORTED
+                and ProjectRegistryService._has_dispatch_handler(
+                    script_content,
+                    current_mapping.script_label,
+                )
+            ):
+                reloaded_mappings.append(
+                    ProjectMappingInput(
+                        canonical_action=function.action,
+                        script_label=current_mapping.script_label,
+                        source=current_mapping.source,
+                    )
+                )
+                continue
+
+            if ProjectRegistryService._has_dispatch_handler(
+                script_content,
+                function.preferred_script_identifier,
+            ):
+                reloaded_mappings.append(
+                    ProjectMappingInput(
+                        canonical_action=function.action,
+                        script_label=function.preferred_script_identifier,
+                        source=MappingSource.IMPORTED,
+                    )
+                )
+
+        return tuple(reloaded_mappings)
+
+    @staticmethod
+    def _lifecycle_configurations(
+        mappings: tuple[LifecycleActionMapping, ...],
+        unconfigured_actions: tuple[CanonicalLifecycleAction, ...],
+    ) -> tuple[LifecycleFunctionConfiguration, ...]:
+        return build_lifecycle_function_configurations(
+            {
+                mapping.canonical_action: mapping.script_label
+                for mapping in mappings
+            },
+            unconfigured_actions,
+        )
+
+    @staticmethod
+    def _changed_configuration_actions(
+        previous_configurations: tuple[LifecycleFunctionConfiguration, ...],
+        current_configurations: tuple[LifecycleFunctionConfiguration, ...],
+    ) -> tuple[CanonicalLifecycleAction, ...]:
+        current_by_action = {
+            configuration.action: configuration
+            for configuration in current_configurations
+        }
+        changed_actions: list[CanonicalLifecycleAction] = []
+        for previous_configuration in previous_configurations:
+            current_configuration = current_by_action[previous_configuration.action]
+            if (
+                previous_configuration.state != current_configuration.state
+                or previous_configuration.script_label != current_configuration.script_label
+            ):
+                changed_actions.append(previous_configuration.action)
+        return tuple(changed_actions)
 
     @staticmethod
     def _has_first_argument_dispatch(script_content: str) -> bool:

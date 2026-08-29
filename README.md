@@ -2,7 +2,7 @@
 
 OrchFlow is a local-first project lifecycle orchestrator focused on registering, controlling, and inspecting software projects through a standardized operational contract.
 
-In `v0.2.12`, OrchFlow is designed around a concrete execution base: each managed project must expose a lifecycle control script, initially standardized as a Windows `.bat` file. OrchFlow should compare those scripts against an ideal lifecycle function model so projects can be classified as completely configured, partially configured with warnings, or blocked when no lifecycle function is configured. OrchFlow may optionally use a LiteLLM-backed AI assistance adapter to analyze an explicitly authorized project context and help the user generate a reviewable `.bat` proposal, but AI assistance is never the primary source of truth for lifecycle control.
+In `v0.2.13`, OrchFlow is designed around a concrete execution base: each managed project must expose a lifecycle control script, initially standardized as a Windows `.bat` file. OrchFlow compares those scripts against an ideal lifecycle function model so projects can be classified as completely configured, partially configured with warnings, or blocked when no lifecycle function is configured. Users can explicitly reload one project or multiple projects after local `.bat` changes so OrchFlow refreshes detection, preserves valid user decisions, and audits the before/after configuration health. OrchFlow may optionally use a LiteLLM-backed AI assistance adapter to analyze an explicitly authorized project context and help the user generate a reviewable `.bat` proposal, but AI assistance is never the primary source of truth for lifecycle control.
 
 ## Selected Stack
 
@@ -90,7 +90,7 @@ For local runtime configuration, copy `.env.example` into a local `.env` file an
 
 The `interface/web` client now defaults to `VITE_API_BASE_URL=/orchflow-api` so local Vite development can proxy API traffic to the backend without changing backend contracts.
 
-## Out Of Scope For v0.2.12
+## Out Of Scope For v0.2.13
 
 - Container orchestration
 - Multi-host orchestration
@@ -100,6 +100,6 @@ The `interface/web` client now defaults to `VITE_API_BASE_URL=/orchflow-api` so 
 
 ## Status
 
-The repository is currently in the `v0.2.12` implementation stage with the backend foundation, mirrored API and CLI operational surfaces, runtime inspection refinement, CI and API contract hardening, LiteLLM dependency baseline, and the first practical `interface/web` operator flow now implemented on top of those contracts.
+The repository is currently in the `v0.2.13` implementation stage with the backend foundation, mirrored API and CLI operational surfaces, runtime inspection refinement, CI and API contract hardening, LiteLLM dependency baseline, explicit project reload, and the first practical `interface/web` operator flow now implemented on top of those contracts.
 
 The current web baseline includes authenticated session loading, project listing, project details, runtime inspection visibility, and the first lifecycle controls wired directly through the API.

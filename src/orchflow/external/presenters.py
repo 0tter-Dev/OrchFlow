@@ -1,6 +1,9 @@
 """Shared presentation helpers for OrchFlow external adapters."""
 
-from orchflow.application.project_registry import unconfigured_actions_for_project
+from orchflow.application.project_registry import (
+    ProjectReloadResult,
+    unconfigured_actions_for_project,
+)
 from orchflow.domain.access_control import AuditEvent, User
 from orchflow.domain.lifecycle import LifecycleExecutionResult
 from orchflow.domain.lifecycle_function_model import (
@@ -73,6 +76,21 @@ def render_project(project: Project) -> str:
         f"lifecycle_configuration_health: {lifecycle_configuration_health.value}\n"
         f"action_mappings:\n{mapping_lines}\n"
         f"lifecycle_function_configurations:\n{function_configuration_lines}"
+    )
+
+
+def render_project_reload_result(result: ProjectReloadResult) -> str:
+    """Render a lifecycle configuration reload result for CLI output."""
+    changed_actions = (
+        ", ".join(action.value for action in result.changed_actions)
+        if result.changed_actions
+        else "none"
+    )
+    return (
+        f"previous_lifecycle_configuration_health: {result.previous_health.value}\n"
+        f"current_lifecycle_configuration_health: {result.current_health.value}\n"
+        f"changed_actions: {changed_actions}\n"
+        f"{render_project(result.project)}"
     )
 
 

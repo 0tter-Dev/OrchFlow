@@ -33,7 +33,7 @@ Provide a clean separation between the backend core and multiple user-facing cli
 - interface clients should remain consumers of platform capabilities, not their owners
 - interface clients should rely on the API-facing surface rather than bypassing application boundaries
 - the `interface/` folder should act as a physical boundary between the backend core and client implementations
-- visual complexity should remain secondary to operational clarity in `v0.2.12`
+- visual complexity should remain secondary to operational clarity in `v0.2.13`
 - interface clients should communicate lifecycle configuration health without blocking partially configured projects
 - the first concrete client direction is `web`, but the structure should allow future `mobile` and `desktop` clients
 

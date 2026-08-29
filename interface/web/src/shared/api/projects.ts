@@ -4,6 +4,7 @@ import type {
   LifecycleExecutionSnapshot,
   ProjectLifecycleConfigurationInput,
   ProjectRegistrationInput,
+  ProjectReloadResult,
   ProjectSummary,
   RuntimeInspectionSnapshot,
 } from "../types/project";
@@ -35,6 +36,24 @@ export function updateProjectLifecycleConfiguration(
   return requestJson<ProjectSummary>(`/projects/${projectId}/lifecycle-configuration`, {
     body: payload,
     method: "PATCH",
+    token,
+  });
+}
+
+export function reloadProject(token: string, projectId: number): Promise<ProjectReloadResult> {
+  return requestJson<ProjectReloadResult>(`/projects/${projectId}/reload`, {
+    method: "POST",
+    token,
+  });
+}
+
+export function reloadProjects(
+  token: string,
+  projectIds: number[],
+): Promise<ProjectReloadResult[]> {
+  return requestJson<ProjectReloadResult[]>("/projects/reload", {
+    body: { project_ids: projectIds },
+    method: "POST",
     token,
   });
 }

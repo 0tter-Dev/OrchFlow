@@ -1,5 +1,7 @@
 """Typer application for the OrchFlow backend bootstrap."""
 
+from typing import Annotated
+
 import typer
 
 from orchflow.application.access_control import (
@@ -19,6 +21,8 @@ from orchflow.application.project_registry import (
     ProjectOwnershipError,
     ProjectRegistryError,
     RegisterProjectCommand,
+    ReloadProjectCommand,
+    ReloadProjectsCommand,
     UpdateLifecycleFunctionConfigurationCommand,
     UpdateProjectOwnerCommand,
 )
@@ -37,6 +41,7 @@ from orchflow.external.presenters import (
     render_audit_event,
     render_lifecycle_result,
     render_project,
+    render_project_reload_result,
     render_runtime_snapshot,
     render_user,
 )
@@ -364,6 +369,37 @@ def configure_lifecycle(
     except (ProjectRegistryError, AccessControlError) as error:
         _exit_with_error(error)
     typer.echo(render_project(project))
+
+
+@project_app.command("reload")
+def reload_project(token: str = typer.Option(...), project_id: int = typer.Option(...)) -> None:
+    """Reload lifecycle function detection for one visible project."""
+    service = create_project_registry_service()
+    try:
+        result = service.reload_project(
+            ReloadProjectCommand(token=token, project_id=project_id)
+        )
+    except (ProjectRegistryError, AccessControlError) as error:
+        _exit_with_error(error)
+    typer.echo(render_project_reload_result(result))
+
+
+@project_app.command("reload-many")
+def reload_projects(
+    token: Annotated[str, typer.Option()],
+    project_id: Annotated[list[int], typer.Option()],
+) -> None:
+    """Reload lifecycle function detection for many visible projects in sequence."""
+    service = create_project_registry_service()
+    try:
+        results = service.reload_projects(
+            ReloadProjectsCommand(token=token, project_ids=tuple(project_id))
+        )
+    except (ProjectRegistryError, AccessControlError) as error:
+        _exit_with_error(error)
+    for result in results:
+        typer.echo(render_project_reload_result(result))
+        typer.echo("")
 
 
 @project_app.command("add-owner")

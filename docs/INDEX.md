@@ -86,7 +86,7 @@ Defines source-control, validation, and CI/CD expectations.
 
 `AI Assistance Adapter` supports `Project Registry` by helping a user transform a project folder into a reviewable `.bat` lifecycle script and, when needed, suggest action mappings. LiteLLM is planned as the provider/model gateway inside that adapter, while OrchFlow remains responsible for authorization, allowed context, validation, and final approval.
 
-Project reload workflows should let users explicitly reread one or more lifecycle scripts, refresh automatic function detection, compare the project against the ideal lifecycle model, and decide whether to update mappings manually or ask AI assistance for improvements.
+Project reload workflows now let users explicitly reread one or more lifecycle scripts through API and CLI, refresh automatic function detection, compare the project against the ideal lifecycle model, and decide whether to update mappings manually or ask AI assistance for improvements.
 
 `Configuration And Environment` provides validated runtime settings to infrastructure services and external adapters without leaking config rules into the domain.
 

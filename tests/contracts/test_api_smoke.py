@@ -17,7 +17,7 @@ def test_root_returns_bootstrap_metadata() -> None:
     assert response.status_code == 200
     assert response.json() == {
         "name": "OrchFlow",
-        "version": "0.2.12",
+        "version": "0.2.13",
         "status": "ok",
         "stage": "bootstrap",
     }
@@ -369,6 +369,70 @@ def test_project_lifecycle_configuration_update_is_exposed_in_api(
         "stop": "unconfigured",
         "restart": "unconfigured",
     }
+
+
+def test_project_reload_flow_is_exposed_in_api(
+    isolated_environment: None,
+    tmp_path: Path,
+) -> None:
+    client = TestClient(create_app())
+    client.post(
+        "/auth/register",
+        json={"username": "reload-project-admin", "password": "password123"},
+    )
+    login_response = client.post(
+        "/auth/login",
+        json={"username": "reload-project-admin", "password": "password123"},
+    )
+    token = login_response.json()["access_token"]
+
+    project_dir = tmp_path / "api-reload-project"
+    project_dir.mkdir()
+    lifecycle_script = project_dir / "control.bat"
+    lifecycle_script.write_text(
+        "@echo off\r\n"
+        "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
+        "exit /b 1\r\n",
+        encoding="utf-8",
+    )
+    register_response = client.post(
+        "/projects",
+        headers={"Authorization": f"Bearer {token}"},
+        json={
+            "reference_name": "api-reload-project",
+            "project_root_path": str(project_dir),
+            "lifecycle_script_path": str(lifecycle_script),
+        },
+    )
+    project_id = register_response.json()["id"]
+    lifecycle_script.write_text(
+        "@echo off\r\n"
+        "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
+        "if /I \"%~1\"==\"START\" echo start-ok & exit /b 0\r\n"
+        "if /I \"%~1\"==\"STOP\" echo stop-ok & exit /b 0\r\n"
+        "if /I \"%~1\"==\"RESTART\" echo restart-ok & exit /b 0\r\n"
+        "exit /b 1\r\n",
+        encoding="utf-8",
+    )
+
+    reload_response = client.post(
+        f"/projects/{project_id}/reload",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    reload_many_response = client.post(
+        "/projects/reload",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"project_ids": [project_id]},
+    )
+
+    assert reload_response.status_code == 200
+    payload = reload_response.json()
+    assert payload["previous_lifecycle_configuration_health"] == "partial"
+    assert payload["current_lifecycle_configuration_health"] == "complete"
+    assert payload["changed_actions"] == ["start", "stop", "restart"]
+    assert payload["project"]["lifecycle_configuration_health"] == "complete"
+    assert reload_many_response.status_code == 200
+    assert reload_many_response.json()[0]["project"]["id"] == project_id
 
 
 def test_project_owner_management_flow_is_exposed_in_api(
