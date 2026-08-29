@@ -106,13 +106,22 @@ export function App() {
             <div className="support-panel">
               <ProjectDetailPanel
                 activeAction={projectWorkspace.activeAction}
+                configurationMessage={projectWorkspace.configurationMessage}
                 currentUser={authSession.currentUser}
                 errorMessage={projectWorkspace.errorMessage}
                 isLoadingDetail={projectWorkspace.isLoadingDetail}
+                isReloadingProject={projectWorkspace.isReloadingProject}
+                isUpdatingLifecycleConfiguration={
+                  projectWorkspace.isUpdatingLifecycleConfiguration
+                }
                 lifecycleResult={projectWorkspace.lifecycleResult}
                 onLogout={authSession.logout}
                 onRefreshProject={projectWorkspace.refresh}
+                onReloadProject={projectWorkspace.reloadSelectedProject}
                 onRunLifecycleAction={projectWorkspace.runLifecycleAction}
+                onUpdateLifecycleConfiguration={
+                  projectWorkspace.updateLifecycleConfiguration
+                }
                 runtimeSnapshot={projectWorkspace.runtimeSnapshot}
                 selectedProject={projectWorkspace.selectedProject}
               />

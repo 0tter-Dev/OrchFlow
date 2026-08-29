@@ -33,6 +33,27 @@ const selectedProject: ProjectSummary = {
       script_label: "STATUS",
       state: "configured",
     },
+    {
+      canonical_action: "start",
+      description: "Start the project runtime.",
+      preferred_script_identifier: "START",
+      script_label: null,
+      state: "undefined",
+    },
+    {
+      canonical_action: "stop",
+      description: "Stop the project runtime.",
+      preferred_script_identifier: "STOP",
+      script_label: null,
+      state: "unconfigured",
+    },
+    {
+      canonical_action: "restart",
+      description: "Restart the project runtime.",
+      preferred_script_identifier: "RESTART",
+      script_label: null,
+      state: "undefined",
+    },
   ],
   lifecycle_script_path: "E:/Projects/demo/control.bat",
   owner_user_ids: [1],
@@ -65,13 +86,18 @@ describe("ProjectDetailPanel", () => {
     render(
       <ProjectDetailPanel
         activeAction={null}
+        configurationMessage={null}
         currentUser={currentUser}
         errorMessage={null}
         isLoadingDetail={false}
+        isReloadingProject={false}
+        isUpdatingLifecycleConfiguration={false}
         lifecycleResult={null}
         onLogout={vi.fn()}
         onRefreshProject={vi.fn()}
+        onReloadProject={vi.fn()}
         onRunLifecycleAction={vi.fn()}
+        onUpdateLifecycleConfiguration={vi.fn()}
         runtimeSnapshot={runtimeSnapshot}
         selectedProject={selectedProject}
       />,
@@ -84,28 +110,88 @@ describe("ProjectDetailPanel", () => {
       screen.getByText("Found 1 process(es) listening on APP_PORT 4010."),
     ).toBeInTheDocument();
     expect(screen.getByText(/python \(PID 4242\)/)).toBeInTheDocument();
+    expect(screen.getByText("partial")).toBeInTheDocument();
+    const startButton = screen
+      .getAllByRole("button")
+      .find((button) => button.textContent === "startundefined");
+    expect(startButton).toBeDefined();
+    expect(startButton).toBeDisabled();
   });
 
-  it("triggers lifecycle actions from the operator controls", () => {
+  it("triggers configured lifecycle actions from the operator controls", () => {
     const onRunLifecycleAction = vi.fn();
 
     render(
       <ProjectDetailPanel
         activeAction={null}
+        configurationMessage={null}
         currentUser={currentUser}
         errorMessage={null}
         isLoadingDetail={false}
+        isReloadingProject={false}
+        isUpdatingLifecycleConfiguration={false}
         lifecycleResult={null}
         onLogout={vi.fn()}
         onRefreshProject={vi.fn()}
+        onReloadProject={vi.fn()}
         onRunLifecycleAction={onRunLifecycleAction}
+        onUpdateLifecycleConfiguration={vi.fn()}
         runtimeSnapshot={runtimeSnapshot}
         selectedProject={selectedProject}
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "start" }));
+    fireEvent.click(screen.getByRole("button", { name: /status configured/ }));
 
-    expect(onRunLifecycleAction).toHaveBeenCalledWith("start");
+    expect(onRunLifecycleAction).toHaveBeenCalledWith("status");
+  });
+
+  it("submits manual lifecycle configuration from the mapping dialog", () => {
+    const onUpdateLifecycleConfiguration = vi.fn();
+
+    render(
+      <ProjectDetailPanel
+        activeAction={null}
+        configurationMessage={null}
+        currentUser={currentUser}
+        errorMessage={null}
+        isLoadingDetail={false}
+        isReloadingProject={false}
+        isUpdatingLifecycleConfiguration={false}
+        lifecycleResult={null}
+        onLogout={vi.fn()}
+        onRefreshProject={vi.fn()}
+        onReloadProject={vi.fn()}
+        onRunLifecycleAction={vi.fn()}
+        onUpdateLifecycleConfiguration={onUpdateLifecycleConfiguration}
+        runtimeSnapshot={runtimeSnapshot}
+        selectedProject={selectedProject}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Configure mappings" }));
+    fireEvent.change(screen.getAllByLabelText("Script label", { selector: "input" })[0], {
+      target: { value: "STATUS" },
+    });
+    fireEvent.change(screen.getByPlaceholderText("START"), {
+      target: { value: "INICIAR" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save configuration" }));
+
+    expect(onUpdateLifecycleConfiguration).toHaveBeenCalledWith({
+      mappings: [
+        {
+          canonical_action: "status",
+          script_label: "STATUS",
+          source: "user_defined",
+        },
+        {
+          canonical_action: "start",
+          script_label: "INICIAR",
+          source: "user_defined",
+        },
+      ],
+      unconfigured_actions: ["stop"],
+    });
   });
 });
