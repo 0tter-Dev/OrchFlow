@@ -24,7 +24,7 @@ def test_info_command_displays_bootstrap_metadata() -> None:
     result = runner.invoke(app, ["info"])
 
     assert result.exit_code == 0
-    assert "OrchFlow 0.2.11" in result.stdout
+    assert "OrchFlow 0.2.12" in result.stdout
     assert "stage: bootstrap" in result.stdout
 
 
@@ -194,6 +194,78 @@ def test_cli_project_registry_flow_is_available(
     list_result = runner.invoke(app, ["project", "list", "--token", token])
     assert list_result.exit_code == 0
     assert "reference_name: cli-project" in list_result.stdout
+
+
+def test_cli_project_lifecycle_configuration_flow_is_available(
+    isolated_environment: None,
+    tmp_path: Path,
+) -> None:
+    runner.invoke(
+        app,
+        ["auth", "register", "--username", "manual-cli-admin", "--password", "password123"],
+    )
+    login_result = runner.invoke(
+        app,
+        ["auth", "login", "--username", "manual-cli-admin", "--password", "password123"],
+    )
+    token_line = next(
+        line for line in login_result.stdout.splitlines() if line.startswith("access_token: ")
+    )
+    token = token_line.removeprefix("access_token: ")
+
+    project_dir = tmp_path / "cli-manual-project"
+    project_dir.mkdir()
+    lifecycle_script = project_dir / "control.bat"
+    lifecycle_script.write_text(
+        "@echo off\r\n"
+        "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
+        "if /I \"%~1\"==\"INICIAR\" echo start-ok & exit /b 0\r\n"
+        "if /I \"%~1\"==\"STOP\" echo stop-ok & exit /b 0\r\n"
+        "exit /b 1\r\n",
+        encoding="utf-8",
+    )
+    register_result = runner.invoke(
+        app,
+        [
+            "project",
+            "register",
+            "--token",
+            token,
+            "--reference-name",
+            "cli-manual-project",
+            "--project-root-path",
+            str(project_dir),
+            "--lifecycle-script-path",
+            str(lifecycle_script),
+        ],
+    )
+    project_id = next(
+        line.removeprefix("id: ")
+        for line in register_result.stdout.splitlines()
+        if line.startswith("id: ")
+    )
+
+    configure_result = runner.invoke(
+        app,
+        [
+            "project",
+            "configure-lifecycle",
+            "--token",
+            token,
+            "--project-id",
+            project_id,
+            "--map-start",
+            "INICIAR",
+            "--stop-unconfigured",
+            "--restart-unconfigured",
+        ],
+    )
+
+    assert configure_result.exit_code == 0
+    assert "lifecycle_configuration_health: partial" in configure_result.stdout
+    assert "start: INICIAR (user_defined)" in configure_result.stdout
+    assert "stop: unconfigured" in configure_result.stdout
+    assert "restart: unconfigured" in configure_result.stdout
 
 
 def test_cli_project_owner_management_flow_is_available(

@@ -2,6 +2,7 @@ import { requestJson } from "./client";
 import type {
   CanonicalLifecycleAction,
   LifecycleExecutionSnapshot,
+  ProjectLifecycleConfigurationInput,
   ProjectRegistrationInput,
   ProjectSummary,
   RuntimeInspectionSnapshot,
@@ -24,6 +25,18 @@ export function registerProject(
 
 export function getProject(token: string, projectId: number): Promise<ProjectSummary> {
   return requestJson<ProjectSummary>(`/projects/${projectId}`, { token });
+}
+
+export function updateProjectLifecycleConfiguration(
+  token: string,
+  projectId: number,
+  payload: ProjectLifecycleConfigurationInput,
+): Promise<ProjectSummary> {
+  return requestJson<ProjectSummary>(`/projects/${projectId}/lifecycle-configuration`, {
+    body: payload,
+    method: "PATCH",
+    token,
+  });
 }
 
 export function addProjectOwner(

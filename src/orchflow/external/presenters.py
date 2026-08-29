@@ -1,5 +1,6 @@
 """Shared presentation helpers for OrchFlow external adapters."""
 
+from orchflow.application.project_registry import unconfigured_actions_for_project
 from orchflow.domain.access_control import AuditEvent, User
 from orchflow.domain.lifecycle import LifecycleExecutionResult
 from orchflow.domain.lifecycle_function_model import (
@@ -39,7 +40,8 @@ def render_project(project: Project) -> str:
         {
             mapping.canonical_action: mapping.script_label
             for mapping in project.action_mappings
-        }
+        },
+        unconfigured_actions_for_project(project),
     )
     lifecycle_configuration_health = derive_project_configuration_health(
         lifecycle_function_configurations
@@ -52,6 +54,13 @@ def render_project(project: Project) -> str:
         if project.action_mappings
         else "none"
     )
+    function_configuration_lines = "\n".join(
+        (
+            f"{configuration.action.value}: {configuration.state.value}"
+            f"{f' -> {configuration.script_label}' if configuration.script_label else ''}"
+        )
+        for configuration in lifecycle_function_configurations
+    )
     owners = ", ".join(str(owner_user_id) for owner_user_id in project.owner_user_ids)
     return (
         f"id: {project.id}\n"
@@ -62,7 +71,8 @@ def render_project(project: Project) -> str:
         f"created_by_user_id: {project.created_by_user_id}\n"
         f"owner_user_ids: {owners}\n"
         f"lifecycle_configuration_health: {lifecycle_configuration_health.value}\n"
-        f"action_mappings:\n{mapping_lines}"
+        f"action_mappings:\n{mapping_lines}\n"
+        f"lifecycle_function_configurations:\n{function_configuration_lines}"
     )
 
 

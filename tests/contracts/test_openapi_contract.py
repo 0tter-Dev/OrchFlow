@@ -16,6 +16,7 @@ def test_openapi_contract_exposes_current_operator_routes() -> None:
         ("/projects", "get"),
         ("/projects", "post"),
         ("/projects/{project_id}", "get"),
+        ("/projects/{project_id}/lifecycle-configuration", "patch"),
         ("/projects/{project_id}/lifecycle/{action}", "post"),
         ("/projects/{project_id}/owners/{user_id}", "post"),
         ("/projects/{project_id}/owners/{user_id}", "delete"),
@@ -43,3 +44,12 @@ def test_project_openapi_contract_includes_ownership_metadata() -> None:
 
     assert "owner_user_ids" in project_properties
     assert "created_by_user_id" in project_properties
+
+
+def test_project_openapi_contract_includes_lifecycle_configuration_metadata() -> None:
+    schema = create_app().openapi()
+    project_schema = schema["components"]["schemas"]["ProjectResponse"]
+    project_properties = project_schema["properties"]
+
+    assert "lifecycle_configuration_health" in project_properties
+    assert "lifecycle_function_configurations" in project_properties

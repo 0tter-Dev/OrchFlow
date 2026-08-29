@@ -20,9 +20,9 @@ The user selects an existing `.bat` file that already defines lifecycle control.
 
 For the current Windows batch adapter, registration validates that the selected script can be controlled through first-argument command dispatch, such as `control.bat STATUS`. Each canonical lifecycle action must resolve to a dispatch identifier either through the preferred default labels or through user-defined action mappings.
 
-The registry now compares every newly connected `.bat` script against the ideal lifecycle function model. Preferred identifiers are mapped automatically during registration. Missing functions are represented as `undefined` in derived project responses, and users should later be able to map them manually or explicitly mark them as `unconfigured`.
+The registry now compares every newly connected `.bat` script against the ideal lifecycle function model. Preferred identifiers are mapped automatically during registration. Missing functions are represented as `undefined` in derived project responses, and users can map them manually or explicitly mark them as `unconfigured` through API and CLI workflows.
 
-Projects with at least one `configured` lifecycle function can be registered. Projects where every ideal lifecycle function is `undefined` or `unconfigured` are treated as not operationally controllable until at least one function is configured.
+Projects with at least one `configured` lifecycle function can be registered or manually reconfigured. Projects where every ideal lifecycle function is `undefined` or `unconfigured` are treated as not operationally controllable until at least one function is configured.
 
 ### AI-Assisted Script Creation
 
@@ -39,7 +39,7 @@ The user selects a project folder, OrchFlow analyzes it through the LiteLLM-back
 - the registry should normalize onboarding inputs into a common internal project definition
 - project connection details should be represented through a generic `Project Adapter` contract
 - project-specific lifecycle action mappings must be persistable when canonical labels are not used
-- lifecycle function configuration state must be persistable so OrchFlow can distinguish automatic detection, missing information, and explicit user decisions
+- lifecycle function configuration state is now partially persisted so OrchFlow can distinguish automatic detection, missing information, and explicit unconfigured user decisions
 - automatic script analysis may mark functions as `configured` or `undefined`, but only a user action may mark a function as `unconfigured`
 - partially configured projects should remain usable and should present warnings plus manual and AI-assisted improvement paths
 - projects with no configured lifecycle function should be blocked from operational use until at least one function is mapped

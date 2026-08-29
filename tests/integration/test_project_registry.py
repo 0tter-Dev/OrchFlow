@@ -12,6 +12,7 @@ from orchflow.application.project_registry import (
     ProjectOwnershipError,
     ProjectValidationError,
     RegisterProjectCommand,
+    UpdateLifecycleFunctionConfigurationCommand,
     UpdateProjectOwnerCommand,
 )
 from orchflow.application.services import (
@@ -199,6 +200,100 @@ def test_registration_rejects_lifecycle_scripts_without_configurable_actions(
                 reference_name="blocked-config-project",
                 project_root_path=str(project_dir),
                 lifecycle_script_path=str(lifecycle_script),
+            )
+        )
+
+
+def test_user_can_replace_lifecycle_configuration_with_unconfigured_decision(
+    isolated_environment: None,
+    tmp_path: Path,
+) -> None:
+    access_control_service = create_access_control_service()
+    project_registry_service = create_project_registry_service()
+
+    access_control_service.register_user(
+        RegisterUserCommand(username="manual-config-user", password="password123")
+    )
+    token = access_control_service.login(
+        LoginCommand(username="manual-config-user", password="password123")
+    ).access_token
+
+    project_dir = tmp_path / "manual-config-project"
+    project_dir.mkdir()
+    lifecycle_script = project_dir / "control.bat"
+    _write_dispatch_batch(lifecycle_script, start_identifier="INICIAR")
+    project = project_registry_service.register_project(
+        RegisterProjectCommand(
+            token=token,
+            reference_name="manual-config-project",
+            project_root_path=str(project_dir),
+            lifecycle_script_path=str(lifecycle_script),
+        )
+    )
+
+    updated_project = project_registry_service.update_lifecycle_function_configuration(
+        UpdateLifecycleFunctionConfigurationCommand(
+            token=token,
+            project_id=project.id,
+            mappings=(
+                ProjectMappingInput(
+                    canonical_action=CanonicalLifecycleAction.START,
+                    script_label="INICIAR",
+                ),
+            ),
+            unconfigured_actions=(CanonicalLifecycleAction.STOP,),
+        )
+    )
+
+    assert {
+        mapping.canonical_action: mapping.script_label
+        for mapping in updated_project.action_mappings
+    } == {CanonicalLifecycleAction.START: "INICIAR"}
+    assert tuple(
+        decision.canonical_action
+        for decision in updated_project.lifecycle_function_decisions
+    ) == (CanonicalLifecycleAction.STOP,)
+    assert updated_project.lifecycle_function_decisions[0].state == "unconfigured"
+
+
+def test_lifecycle_configuration_update_rejects_all_unconfigured_actions(
+    isolated_environment: None,
+    tmp_path: Path,
+) -> None:
+    access_control_service = create_access_control_service()
+    project_registry_service = create_project_registry_service()
+
+    access_control_service.register_user(
+        RegisterUserCommand(username="all-unconfigured-user", password="password123")
+    )
+    token = access_control_service.login(
+        LoginCommand(username="all-unconfigured-user", password="password123")
+    ).access_token
+
+    project_dir = tmp_path / "all-unconfigured-project"
+    project_dir.mkdir()
+    lifecycle_script = project_dir / "control.bat"
+    _write_dispatch_batch(lifecycle_script)
+    project = project_registry_service.register_project(
+        RegisterProjectCommand(
+            token=token,
+            reference_name="all-unconfigured-project",
+            project_root_path=str(project_dir),
+            lifecycle_script_path=str(lifecycle_script),
+        )
+    )
+
+    with pytest.raises(ProjectValidationError, match="At least one lifecycle function"):
+        project_registry_service.update_lifecycle_function_configuration(
+            UpdateLifecycleFunctionConfigurationCommand(
+                token=token,
+                project_id=project.id,
+                unconfigured_actions=(
+                    CanonicalLifecycleAction.STATUS,
+                    CanonicalLifecycleAction.START,
+                    CanonicalLifecycleAction.STOP,
+                    CanonicalLifecycleAction.RESTART,
+                ),
             )
         )
 

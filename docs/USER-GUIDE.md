@@ -43,11 +43,13 @@ The user then provides or confirms:
 - any project-specific settings required by the lifecycle script
 - any lifecycle action mappings needed when the script uses non-canonical labels
 
-The target workflow is for OrchFlow to compare the script against an ideal lifecycle function model. The initial ideal model includes `status`, `start`, `stop`, and `restart`, each with a clear operational purpose. When a `.bat` script is connected or reloaded, OrchFlow should attempt to detect matching functions automatically. Functions it can match become configured. Functions it cannot match start as undefined until the user manually maps them or explicitly marks them as unconfigured.
+The target workflow is for OrchFlow to compare the script against an ideal lifecycle function model. The initial ideal model includes `status`, `start`, `stop`, and `restart`, each with a clear operational purpose. When a `.bat` script is connected, OrchFlow attempts to detect matching functions automatically. Functions it can match become configured. Functions it cannot match start as undefined until the user manually maps them or explicitly marks them as unconfigured through the API or CLI.
 
 If every ideal lifecycle function remains undefined or unconfigured, OrchFlow should block the project from operational use because it has no executable lifecycle control path. If at least one function is configured, the project remains usable for its configured actions. Missing functions should appear as warnings rather than hard blockers, with a path to manual mapping and a path to AI-assisted `.bat` improvement.
 
-If all ideal lifecycle functions are configured, OrchFlow should communicate that the project has complete lifecycle configuration.
+If all ideal lifecycle functions are configured, OrchFlow communicates that the project has complete lifecycle configuration.
+
+Manual lifecycle configuration currently replaces the function configuration set for a project. The user can map one or more ideal functions to concrete script identifiers, or mark one or more functions as explicitly unconfigured. At least one function must remain configured.
 
 If the selected script only exposes an interactive menu or labels without a usable dispatch path, OrchFlow should guide the user to map available functions manually or improve the script before it can become operationally controllable.
 

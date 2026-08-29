@@ -39,6 +39,19 @@ class LifecycleActionMapping:
 
 
 @dataclass(frozen=True, slots=True)
+class LifecycleFunctionDecision:
+    """Persisted explicit lifecycle function configuration decision."""
+
+    id: int
+    project_id: int
+    canonical_action: CanonicalLifecycleAction
+    state: str
+    decided_by_user_id: int
+    created_at: datetime
+    updated_at: datetime
+
+
+@dataclass(frozen=True, slots=True)
 class Project:
     """Persisted OrchFlow project definition."""
 
@@ -52,3 +65,4 @@ class Project:
     updated_at: datetime
     owner_user_ids: tuple[int, ...]
     action_mappings: tuple[LifecycleActionMapping, ...]
+    lifecycle_function_decisions: tuple[LifecycleFunctionDecision, ...]

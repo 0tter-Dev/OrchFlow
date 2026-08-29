@@ -13,12 +13,14 @@ from orchflow.domain.access_control import User, UserRole
 from orchflow.domain.project_registry import (
     CanonicalLifecycleAction,
     LifecycleActionMapping,
+    LifecycleFunctionDecision,
     MappingSource,
     Project,
 )
 from orchflow.infrastructure.persistence.models import (
     AuditEventModel,
     LifecycleActionMappingModel,
+    LifecycleFunctionDecisionModel,
     ProjectModel,
     ProjectOwnerModel,
 )
@@ -37,10 +39,23 @@ def _to_mapping(model: LifecycleActionMappingModel) -> LifecycleActionMapping:
     )
 
 
+def _to_function_decision(model: LifecycleFunctionDecisionModel) -> LifecycleFunctionDecision:
+    return LifecycleFunctionDecision(
+        id=model.id,
+        project_id=model.project_id,
+        canonical_action=CanonicalLifecycleAction(model.canonical_action),
+        state=model.state,
+        decided_by_user_id=model.decided_by_user_id,
+        created_at=model.created_at,
+        updated_at=model.updated_at,
+    )
+
+
 def _to_project(
     model: ProjectModel,
     owner_user_ids: tuple[int, ...],
     mappings: tuple[LifecycleActionMapping, ...],
+    function_decisions: tuple[LifecycleFunctionDecision, ...],
 ) -> Project:
     return Project(
         id=model.id,
@@ -53,6 +68,7 @@ def _to_project(
         updated_at=model.updated_at,
         owner_user_ids=owner_user_ids,
         action_mappings=mappings,
+        lifecycle_function_decisions=function_decisions,
     )
 
 
@@ -135,6 +151,68 @@ class SqlAlchemyProjectRegistryRepository(ProjectRegistryRepository):
                 )
             models = session.execute(query).scalars().all()
             return [self._inflate_project(session, model) for model in models]
+
+    def replace_lifecycle_function_configuration(
+        self,
+        *,
+        project_id: int,
+        mappings: tuple[ProjectMappingInput, ...],
+        unconfigured_actions: tuple[CanonicalLifecycleAction, ...],
+        decided_by_user_id: int,
+    ) -> Project | None:
+        with self._session_scope() as session:
+            model = session.get(ProjectModel, project_id)
+            if model is None:
+                return None
+            existing_mappings = (
+                session.execute(
+                    select(LifecycleActionMappingModel).where(
+                        LifecycleActionMappingModel.project_id == project_id
+                    )
+                )
+                .scalars()
+                .all()
+            )
+            for existing_mapping in existing_mappings:
+                session.delete(existing_mapping)
+
+            existing_decisions = (
+                session.execute(
+                    select(LifecycleFunctionDecisionModel).where(
+                        LifecycleFunctionDecisionModel.project_id == project_id
+                    )
+                )
+                .scalars()
+                .all()
+            )
+            for existing_decision in existing_decisions:
+                session.delete(existing_decision)
+
+            session.flush()
+
+            for mapping in mappings:
+                session.add(
+                    LifecycleActionMappingModel(
+                        project_id=project_id,
+                        canonical_action=mapping.canonical_action.value,
+                        script_label=mapping.script_label,
+                        source=mapping.source.value,
+                        configured_by_user_id=decided_by_user_id,
+                    )
+                )
+
+            for action in unconfigured_actions:
+                session.add(
+                    LifecycleFunctionDecisionModel(
+                        project_id=project_id,
+                        canonical_action=action.value,
+                        state="unconfigured",
+                        decided_by_user_id=decided_by_user_id,
+                    )
+                )
+
+            session.flush()
+            return self._inflate_project(session, model)
 
     def get_project_for_user(self, project_id: int, user: User) -> Project | None:
         with self._session_scope() as session:
@@ -222,4 +300,17 @@ class SqlAlchemyProjectRegistryRepository(ProjectRegistryRepository):
             .all()
         )
         mappings = tuple(_to_mapping(mapping_model) for mapping_model in mapping_models)
-        return _to_project(model, owner_ids, mappings)
+        function_decision_models = (
+            session.execute(
+                select(LifecycleFunctionDecisionModel)
+                .where(LifecycleFunctionDecisionModel.project_id == model.id)
+                .order_by(LifecycleFunctionDecisionModel.id.asc())
+            )
+            .scalars()
+            .all()
+        )
+        function_decisions = tuple(
+            _to_function_decision(function_decision_model)
+            for function_decision_model in function_decision_models
+        )
+        return _to_project(model, owner_ids, mappings, function_decisions)
