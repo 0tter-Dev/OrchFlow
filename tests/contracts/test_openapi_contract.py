@@ -15,11 +15,13 @@ def test_openapi_contract_exposes_current_operator_routes() -> None:
         ("/audit/events", "get"),
         ("/projects", "get"),
         ("/projects", "post"),
+        ("/projects/reload", "post"),
         ("/projects/{project_id}", "get"),
         ("/projects/{project_id}/lifecycle-configuration", "patch"),
         ("/projects/{project_id}/lifecycle/{action}", "post"),
         ("/projects/{project_id}/owners/{user_id}", "post"),
         ("/projects/{project_id}/owners/{user_id}", "delete"),
+        ("/projects/{project_id}/reload", "post"),
         ("/projects/{project_id}/runtime", "get"),
     ]
 
@@ -53,3 +55,14 @@ def test_project_openapi_contract_includes_lifecycle_configuration_metadata() ->
 
     assert "lifecycle_configuration_health" in project_properties
     assert "lifecycle_function_configurations" in project_properties
+
+
+def test_project_reload_openapi_contract_includes_change_metadata() -> None:
+    schema = create_app().openapi()
+    reload_schema = schema["components"]["schemas"]["ProjectReloadResponse"]
+    reload_properties = reload_schema["properties"]
+
+    assert "project" in reload_properties
+    assert "previous_lifecycle_configuration_health" in reload_properties
+    assert "current_lifecycle_configuration_health" in reload_properties
+    assert "changed_actions" in reload_properties

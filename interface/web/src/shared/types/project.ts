@@ -30,6 +30,13 @@ export type ProjectSummary = {
   reference_name: string;
 };
 
+export type ProjectReloadResult = {
+  changed_actions: CanonicalLifecycleAction[];
+  current_lifecycle_configuration_health: LifecycleConfigurationHealth;
+  previous_lifecycle_configuration_health: LifecycleConfigurationHealth;
+  project: ProjectSummary;
+};
+
 export type ProjectRegistrationMappingInput = {
   canonical_action: CanonicalLifecycleAction;
   script_label: string;

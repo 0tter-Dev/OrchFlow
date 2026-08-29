@@ -26,8 +26,11 @@ from orchflow.application.project_registry import (
     ProjectMappingInput,
     ProjectOwnershipError,
     ProjectRegistryError,
+    ProjectReloadResult,
     ProjectValidationError,
     RegisterProjectCommand,
+    ReloadProjectCommand,
+    ReloadProjectsCommand,
     UpdateLifecycleFunctionConfigurationCommand,
     UpdateProjectOwnerCommand,
     unconfigured_actions_for_project,
@@ -133,6 +136,10 @@ class UpdateLifecycleFunctionConfigurationRequest(BaseModel):
     unconfigured_actions: list[Literal["status", "start", "stop", "restart"]] = []
 
 
+class ReloadProjectsRequest(BaseModel):
+    project_ids: list[int]
+
+
 class ProjectMappingResponse(BaseModel):
     canonical_action: Literal["status", "start", "stop", "restart"]
     script_label: str
@@ -159,6 +166,13 @@ class ProjectResponse(BaseModel):
     action_mappings: list[ProjectMappingResponse]
     lifecycle_configuration_health: Literal["complete", "partial", "blocked"]
     lifecycle_function_configurations: list[LifecycleFunctionConfigurationResponse]
+
+
+class ProjectReloadResponse(BaseModel):
+    project: ProjectResponse
+    previous_lifecycle_configuration_health: Literal["complete", "partial", "blocked"]
+    current_lifecycle_configuration_health: Literal["complete", "partial", "blocked"]
+    changed_actions: list[Literal["status", "start", "stop", "restart"]]
 
 
 class LifecycleExecutionResponse(BaseModel):
@@ -270,6 +284,15 @@ def _to_lifecycle_response(result: LifecycleExecutionResult) -> LifecycleExecuti
             if result.runtime_snapshot is not None
             else None
         ),
+    )
+
+
+def _to_project_reload_response(result: ProjectReloadResult) -> ProjectReloadResponse:
+    return ProjectReloadResponse(
+        project=_to_project_response(result.project),
+        previous_lifecycle_configuration_health=result.previous_health.value,
+        current_lifecycle_configuration_health=result.current_health.value,
+        changed_actions=[action.value for action in result.changed_actions],
     )
 
 
@@ -603,6 +626,55 @@ def create_app() -> FastAPI:
         except (ProjectRegistryError, AuthorizationError) as error:
             raise _map_project_registry_error(error) from error
         return _to_project_response(project)
+
+    @app.post(
+        "/projects/{project_id}/reload",
+        response_model=ProjectReloadResponse,
+        tags=["projects"],
+    )
+    def reload_project(
+        project_id: int,
+        authorization: str | None = Header(default=None),
+    ) -> ProjectReloadResponse:
+        token = _extract_bearer_token(authorization)
+        if token is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Missing bearer token.",
+            )
+        try:
+            result = project_registry_service.reload_project(
+                ReloadProjectCommand(token=token, project_id=project_id)
+            )
+        except (ProjectRegistryError, AuthorizationError) as error:
+            raise _map_project_registry_error(error) from error
+        return _to_project_reload_response(result)
+
+    @app.post(
+        "/projects/reload",
+        response_model=list[ProjectReloadResponse],
+        tags=["projects"],
+    )
+    def reload_projects(
+        payload: ReloadProjectsRequest,
+        authorization: str | None = Header(default=None),
+    ) -> list[ProjectReloadResponse]:
+        token = _extract_bearer_token(authorization)
+        if token is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Missing bearer token.",
+            )
+        try:
+            results = project_registry_service.reload_projects(
+                ReloadProjectsCommand(
+                    token=token,
+                    project_ids=tuple(payload.project_ids),
+                )
+            )
+        except (ProjectRegistryError, AuthorizationError) as error:
+            raise _map_project_registry_error(error) from error
+        return [_to_project_reload_response(result) for result in results]
 
     @app.post(
         "/projects/{project_id}/owners/{user_id}",

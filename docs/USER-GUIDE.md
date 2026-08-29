@@ -79,9 +79,16 @@ If the project script uses different action names such as `iniciar`, `parar`, or
 
 ### 2.1. Reload Project Configuration
 
-When a user changes a project's `.bat` script or updates the project structure, the target workflow should let the user explicitly reload one project or a selected group of projects.
+When a user changes a project's `.bat` script or updates the project structure, the implemented workflow lets the user explicitly reload one project or a selected group of projects through `API` and `CLI`.
 
-Reloading should reread the lifecycle script, refresh automatic detection against the ideal lifecycle model, preserve user decisions where appropriate, and show whether the project is fully configured, partially configured with warnings, or blocked because no lifecycle function is configured.
+Reloading rereads the lifecycle script, refreshes automatic detection against the ideal lifecycle model, preserves valid user-defined or AI-approved decisions where the referenced script handler still exists, keeps explicit `unconfigured` decisions, and shows whether the project is fully configured, partially configured with warnings, or blocked because no lifecycle function is configured.
+
+Available backend commands include:
+
+- `CLI`: `orchflow project reload --token <TOKEN> --project-id <ID>`
+- `CLI`: `orchflow project reload-many --token <TOKEN> --project-id <ID> --project-id <ID>`
+- `API`: `POST /projects/{project_id}/reload`
+- `API`: `POST /projects/reload`
 
 ### 3. Inspect Project Status
 

@@ -22,6 +22,8 @@ For the current Windows batch adapter, registration validates that the selected 
 
 The registry now compares every newly connected `.bat` script against the ideal lifecycle function model. Preferred identifiers are mapped automatically during registration. Missing functions are represented as `undefined` in derived project responses, and users can map them manually or explicitly mark them as `unconfigured` through API and CLI workflows.
 
+Users can explicitly reload one project or multiple projects in sequence after local `.bat` or project changes. Reload rereads the lifecycle script, refreshes imported preferred-identifier mappings, preserves valid user-defined or AI-approved mappings when the script still exposes their handlers, keeps explicit `unconfigured` decisions, returns the previous and current configuration health, reports changed actions, and writes an audit event.
+
 Projects with at least one `configured` lifecycle function can be registered or manually reconfigured. Projects where every ideal lifecycle function is `undefined` or `unconfigured` are treated as not operationally controllable until at least one function is configured.
 
 ### AI-Assisted Script Creation
