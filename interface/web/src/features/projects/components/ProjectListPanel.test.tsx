@@ -18,6 +18,8 @@ const managedProjects: ProjectSummary[] = [
     created_by_user_id: 1,
     description: "Local API controlled by an existing script",
     id: 7,
+    lifecycle_configuration_health: "partial",
+    lifecycle_function_configurations: [],
     lifecycle_script_path: "E:\\Projects\\local-api\\control.bat",
     owner_user_ids: [1, 2],
     project_root_path: "E:\\Projects\\local-api",

@@ -2,6 +2,10 @@
 
 from orchflow.domain.access_control import AuditEvent, User
 from orchflow.domain.lifecycle import LifecycleExecutionResult
+from orchflow.domain.lifecycle_function_model import (
+    build_lifecycle_function_configurations,
+    derive_project_configuration_health,
+)
 from orchflow.domain.project_registry import Project
 from orchflow.domain.runtime_inspection import RuntimeInspectionSnapshot
 
@@ -31,6 +35,15 @@ def render_audit_event(event: AuditEvent) -> str:
 
 def render_project(project: Project) -> str:
     """Render a project into a simple CLI-friendly representation."""
+    lifecycle_function_configurations = build_lifecycle_function_configurations(
+        {
+            mapping.canonical_action: mapping.script_label
+            for mapping in project.action_mappings
+        }
+    )
+    lifecycle_configuration_health = derive_project_configuration_health(
+        lifecycle_function_configurations
+    )
     mapping_lines = (
         "\n".join(
             f"{mapping.canonical_action.value}: {mapping.script_label} ({mapping.source.value})"
@@ -48,6 +61,7 @@ def render_project(project: Project) -> str:
         f"lifecycle_script_path: {project.lifecycle_script_path}\n"
         f"created_by_user_id: {project.created_by_user_id}\n"
         f"owner_user_ids: {owners}\n"
+        f"lifecycle_configuration_health: {lifecycle_configuration_health.value}\n"
         f"action_mappings:\n{mapping_lines}"
     )
 

@@ -7,11 +7,23 @@ export type ProjectActionMapping = {
   source: "user_defined" | "imported" | "ai_approved";
 };
 
+export type LifecycleConfigurationHealth = "complete" | "partial" | "blocked";
+
+export type LifecycleFunctionConfiguration = {
+  canonical_action: CanonicalLifecycleAction;
+  description: string;
+  preferred_script_identifier: string;
+  script_label: string | null;
+  state: "configured" | "undefined" | "unconfigured";
+};
+
 export type ProjectSummary = {
   action_mappings: ProjectActionMapping[];
   created_by_user_id: number;
   description: string | null;
   id: number;
+  lifecycle_configuration_health: LifecycleConfigurationHealth;
+  lifecycle_function_configurations: LifecycleFunctionConfiguration[];
   lifecycle_script_path: string;
   owner_user_ids: number[];
   project_root_path: string;

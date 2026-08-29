@@ -231,12 +231,14 @@ OrchFlow should prefer canonical lifecycle action names, but some existing scrip
 
 For those cases, OrchFlow should rely on project-specific action mappings managed through the `Project Adapter`.
 
-When a script is connected or reloaded, OrchFlow should inspect the available dispatch identifiers and compare them with the ideal lifecycle model. Detected preferred identifiers should be mapped automatically. Missing functions should begin as `undefined` and become `configured` or `unconfigured` only through user review.
+When a script is connected, OrchFlow now inspects the available dispatch identifiers and compares them with the ideal lifecycle model. Detected preferred identifiers are mapped automatically. Missing functions begin as `undefined` and should become `configured` or `unconfigured` only through user review in later manual mapping workflows.
+
+When a project is reloaded in a later workflow, OrchFlow should reuse the same inspection rules while preserving user decisions where appropriate.
 
 ## Key Rules
 
 - the template should be generic enough to support different projects
-- the template should remain Windows-first for `v0.2.10`
+- the template should remain Windows-first for `v0.2.11`
 - the template should be easy for a human to review and adjust
 - the template should be easy for the `AI Assistance Adapter` to generate or update
 - the template should avoid hidden behavior and implicit side effects

@@ -78,14 +78,14 @@ control.bat ACTION_IDENTIFIER
 
 By default, OrchFlow resolves canonical actions to uppercase identifiers such as `STATUS`, `START`, `STOP`, and `RESTART`. When a project uses different identifiers, user-defined mappings such as `start -> INICIAR` determine the identifier passed to the script.
 
-The planned ideal-model refinement should relax binary all-or-nothing compatibility into explicit function-level configuration. Each configured action must still resolve to a first-argument dispatch handler before it can be executed. Missing functions should be represented as undefined or unconfigured rather than hidden.
+The ideal-model refinement now relaxes registration-time compatibility into explicit function-level configuration. Each configured action must still resolve to a first-argument dispatch handler before it can be registered or executed. Missing functions are represented as undefined in derived project responses until manual configuration workflows are added.
 
 ## Key Rules
 
 - OrchFlow must not encode one-off project logic directly into the core
 - the adapter must remain project-agnostic and configuration-driven
 - the adapter should support different projects without changing the domain model
-- the adapter must treat the lifecycle `.bat` file as the operational authority in `v0.2.10`
+- the adapter must treat the lifecycle `.bat` file as the operational authority in `v0.2.11`
 - OrchFlow should always target canonical lifecycle actions internally, even when external scripts use different names
 - OrchFlow should expose configuration health and function-level mapping status so users understand whether a project is complete, partial, or blocked
 - mapping flexibility must not weaken auditability or traceability

@@ -41,6 +41,10 @@ from orchflow.application.services import (
 )
 from orchflow.domain.access_control import AuditEvent, User, UserRole
 from orchflow.domain.lifecycle import LifecycleExecutionResult
+from orchflow.domain.lifecycle_function_model import (
+    build_lifecycle_function_configurations,
+    derive_project_configuration_health,
+)
 from orchflow.domain.project_registry import CanonicalLifecycleAction, MappingSource, Project
 from orchflow.domain.runtime_inspection import RuntimeInspectionSnapshot
 
@@ -129,6 +133,14 @@ class ProjectMappingResponse(BaseModel):
     configured_by_user_id: int
 
 
+class LifecycleFunctionConfigurationResponse(BaseModel):
+    canonical_action: Literal["status", "start", "stop", "restart"]
+    description: str
+    preferred_script_identifier: str
+    state: Literal["configured", "undefined", "unconfigured"]
+    script_label: str | None
+
+
 class ProjectResponse(BaseModel):
     id: int
     reference_name: str
@@ -138,6 +150,8 @@ class ProjectResponse(BaseModel):
     created_by_user_id: int
     owner_user_ids: list[int]
     action_mappings: list[ProjectMappingResponse]
+    lifecycle_configuration_health: Literal["complete", "partial", "blocked"]
+    lifecycle_function_configurations: list[LifecycleFunctionConfigurationResponse]
 
 
 class LifecycleExecutionResponse(BaseModel):
@@ -193,6 +207,16 @@ def _to_audit_event_response(event: AuditEvent) -> AuditEventResponse:
 
 
 def _to_project_response(project: Project) -> ProjectResponse:
+    configured_script_labels = {
+        mapping.canonical_action: mapping.script_label
+        for mapping in project.action_mappings
+    }
+    lifecycle_function_configurations = build_lifecycle_function_configurations(
+        configured_script_labels
+    )
+    lifecycle_configuration_health = derive_project_configuration_health(
+        lifecycle_function_configurations
+    )
     return ProjectResponse(
         id=project.id,
         reference_name=project.reference_name,
@@ -209,6 +233,17 @@ def _to_project_response(project: Project) -> ProjectResponse:
                 configured_by_user_id=mapping.configured_by_user_id,
             )
             for mapping in project.action_mappings
+        ],
+        lifecycle_configuration_health=lifecycle_configuration_health.value,
+        lifecycle_function_configurations=[
+            LifecycleFunctionConfigurationResponse(
+                canonical_action=configuration.action.value,
+                description=configuration.description,
+                preferred_script_identifier=configuration.preferred_script_identifier,
+                state=configuration.state.value,
+                script_label=configuration.script_label,
+            )
+            for configuration in lifecycle_function_configurations
         ],
     )
 

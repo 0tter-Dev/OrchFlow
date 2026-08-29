@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from enum import StrEnum
 
@@ -16,6 +17,14 @@ class LifecycleFunctionConfigurationState(StrEnum):
     UNCONFIGURED = "unconfigured"
 
 
+class ProjectConfigurationHealth(StrEnum):
+    """Derived lifecycle configuration health for one project."""
+
+    COMPLETE = "complete"
+    PARTIAL = "partial"
+    BLOCKED = "blocked"
+
+
 @dataclass(frozen=True, slots=True)
 class IdealLifecycleFunction:
     """Reference definition for one expected project lifecycle function."""
@@ -23,6 +32,17 @@ class IdealLifecycleFunction:
     action: CanonicalLifecycleAction
     description: str
     preferred_script_identifier: str
+
+
+@dataclass(frozen=True, slots=True)
+class LifecycleFunctionConfiguration:
+    """Project-specific configuration state for one ideal lifecycle function."""
+
+    action: CanonicalLifecycleAction
+    description: str
+    preferred_script_identifier: str
+    state: LifecycleFunctionConfigurationState
+    script_label: str | None
 
 
 IDEAL_LIFECYCLE_FUNCTIONS: tuple[IdealLifecycleFunction, ...] = (
@@ -64,3 +84,46 @@ IDEAL_LIFECYCLE_FUNCTION_BY_ACTION: dict[
     CanonicalLifecycleAction,
     IdealLifecycleFunction,
 ] = {function.action: function for function in IDEAL_LIFECYCLE_FUNCTIONS}
+
+
+def build_lifecycle_function_configurations(
+    configured_script_labels: Mapping[CanonicalLifecycleAction, str],
+    unconfigured_actions: Iterable[CanonicalLifecycleAction] = (),
+) -> tuple[LifecycleFunctionConfiguration, ...]:
+    """Build function-level configuration state from configured mappings."""
+    unconfigured_action_set = set(unconfigured_actions)
+    configurations: list[LifecycleFunctionConfiguration] = []
+    for function in IDEAL_LIFECYCLE_FUNCTIONS:
+        script_label = configured_script_labels.get(function.action)
+        if script_label is not None:
+            state = LifecycleFunctionConfigurationState.CONFIGURED
+        elif function.action in unconfigured_action_set:
+            state = LifecycleFunctionConfigurationState.UNCONFIGURED
+        else:
+            state = LifecycleFunctionConfigurationState.UNDEFINED
+        configurations.append(
+            LifecycleFunctionConfiguration(
+                action=function.action,
+                description=function.description,
+                preferred_script_identifier=function.preferred_script_identifier,
+                state=state,
+                script_label=script_label,
+            )
+        )
+    return tuple(configurations)
+
+
+def derive_project_configuration_health(
+    configurations: tuple[LifecycleFunctionConfiguration, ...],
+) -> ProjectConfigurationHealth:
+    """Derive project-level lifecycle configuration health."""
+    configured_count = sum(
+        1
+        for configuration in configurations
+        if configuration.state is LifecycleFunctionConfigurationState.CONFIGURED
+    )
+    if configured_count == len(configurations):
+        return ProjectConfigurationHealth.COMPLETE
+    if configured_count > 0:
+        return ProjectConfigurationHealth.PARTIAL
+    return ProjectConfigurationHealth.BLOCKED

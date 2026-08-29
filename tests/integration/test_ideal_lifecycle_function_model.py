@@ -6,6 +6,9 @@ from orchflow.domain.lifecycle_function_model import (
     IDEAL_LIFECYCLE_FUNCTION_BY_ACTION,
     IDEAL_LIFECYCLE_FUNCTIONS,
     LifecycleFunctionConfigurationState,
+    ProjectConfigurationHealth,
+    build_lifecycle_function_configurations,
+    derive_project_configuration_health,
 )
 from orchflow.domain.project_registry import CanonicalLifecycleAction
 
@@ -42,3 +45,28 @@ def test_lifecycle_function_configuration_states_match_documented_contract() -> 
     assert LifecycleFunctionConfigurationState.CONFIGURED.value == "configured"
     assert LifecycleFunctionConfigurationState.UNDEFINED.value == "undefined"
     assert LifecycleFunctionConfigurationState.UNCONFIGURED.value == "unconfigured"
+
+
+def test_project_configuration_health_is_derived_from_function_states() -> None:
+    complete_configuration = build_lifecycle_function_configurations(
+        {
+            CanonicalLifecycleAction.STATUS: "STATUS",
+            CanonicalLifecycleAction.START: "START",
+            CanonicalLifecycleAction.STOP: "STOP",
+            CanonicalLifecycleAction.RESTART: "RESTART",
+        }
+    )
+    partial_configuration = build_lifecycle_function_configurations(
+        {CanonicalLifecycleAction.STATUS: "STATUS"}
+    )
+    blocked_configuration = build_lifecycle_function_configurations({})
+
+    assert derive_project_configuration_health(complete_configuration) is (
+        ProjectConfigurationHealth.COMPLETE
+    )
+    assert derive_project_configuration_health(partial_configuration) is (
+        ProjectConfigurationHealth.PARTIAL
+    )
+    assert derive_project_configuration_health(blocked_configuration) is (
+        ProjectConfigurationHealth.BLOCKED
+    )

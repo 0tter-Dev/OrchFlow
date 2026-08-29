@@ -18,17 +18,29 @@ from orchflow.application.services import (
     create_access_control_service,
     create_project_registry_service,
 )
-from orchflow.domain.project_registry import CanonicalLifecycleAction
+from orchflow.domain.project_registry import CanonicalLifecycleAction, MappingSource
 
 
-def _write_dispatch_batch(path: Path, *, start_identifier: str = "START") -> None:
+def _write_dispatch_batch(
+    path: Path,
+    *,
+    include_restart: bool = True,
+    include_status: bool = True,
+    include_stop: bool = True,
+    start_identifier: str | None = "START",
+) -> None:
+    lines = ["@echo off\r\n"]
+    if include_status:
+        lines.append("if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n")
+    if start_identifier is not None:
+        lines.append(f"if /I \"%~1\"==\"{start_identifier}\" echo start-ok & exit /b 0\r\n")
+    if include_stop:
+        lines.append("if /I \"%~1\"==\"STOP\" echo stop-ok & exit /b 0\r\n")
+    if include_restart:
+        lines.append("if /I \"%~1\"==\"RESTART\" echo restart-ok & exit /b 0\r\n")
+    lines.append("exit /b 1\r\n")
     path.write_text(
-        "@echo off\r\n"
-        "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
-        f"if /I \"%~1\"==\"{start_identifier}\" echo start-ok & exit /b 0\r\n"
-        "if /I \"%~1\"==\"STOP\" echo stop-ok & exit /b 0\r\n"
-        "if /I \"%~1\"==\"RESTART\" echo restart-ok & exit /b 0\r\n"
-        "exit /b 1\r\n",
+        "".join(lines),
         encoding="utf-8",
     )
 
@@ -68,10 +80,127 @@ def test_registered_project_is_visible_to_owner(
     )
 
     listed_projects = project_registry_service.list_projects(token)
+    mapping_by_action = {
+        mapping.canonical_action: mapping
+        for mapping in listed_projects[0].action_mappings
+    }
 
     assert len(listed_projects) == 1
     assert listed_projects[0].id == created_project.id
-    assert listed_projects[0].action_mappings[0].script_label == "INICIAR"
+    assert mapping_by_action[CanonicalLifecycleAction.START].script_label == "INICIAR"
+
+
+def test_registration_imports_detected_ideal_lifecycle_functions(
+    isolated_environment: None,
+    tmp_path: Path,
+) -> None:
+    access_control_service = create_access_control_service()
+    project_registry_service = create_project_registry_service()
+
+    access_control_service.register_user(
+        RegisterUserCommand(username="auto-map-user", password="password123")
+    )
+    token = access_control_service.login(
+        LoginCommand(username="auto-map-user", password="password123")
+    ).access_token
+
+    project_dir = tmp_path / "auto-map-project"
+    project_dir.mkdir()
+    lifecycle_script = project_dir / "control.bat"
+    _write_dispatch_batch(lifecycle_script)
+
+    project = project_registry_service.register_project(
+        RegisterProjectCommand(
+            token=token,
+            reference_name="auto-map-project",
+            project_root_path=str(project_dir),
+            lifecycle_script_path=str(lifecycle_script),
+        )
+    )
+
+    assert {
+        mapping.canonical_action: (mapping.script_label, mapping.source)
+        for mapping in project.action_mappings
+    } == {
+        CanonicalLifecycleAction.STATUS: ("STATUS", MappingSource.IMPORTED),
+        CanonicalLifecycleAction.START: ("START", MappingSource.IMPORTED),
+        CanonicalLifecycleAction.STOP: ("STOP", MappingSource.IMPORTED),
+        CanonicalLifecycleAction.RESTART: ("RESTART", MappingSource.IMPORTED),
+    }
+
+
+def test_registration_accepts_partial_lifecycle_configuration(
+    isolated_environment: None,
+    tmp_path: Path,
+) -> None:
+    access_control_service = create_access_control_service()
+    project_registry_service = create_project_registry_service()
+
+    access_control_service.register_user(
+        RegisterUserCommand(username="partial-config-user", password="password123")
+    )
+    token = access_control_service.login(
+        LoginCommand(username="partial-config-user", password="password123")
+    ).access_token
+
+    project_dir = tmp_path / "partial-config-project"
+    project_dir.mkdir()
+    lifecycle_script = project_dir / "control.bat"
+    _write_dispatch_batch(
+        lifecycle_script,
+        include_restart=False,
+        include_stop=False,
+        include_status=False,
+        start_identifier="START",
+    )
+
+    project = project_registry_service.register_project(
+        RegisterProjectCommand(
+            token=token,
+            reference_name="partial-config-project",
+            project_root_path=str(project_dir),
+            lifecycle_script_path=str(lifecycle_script),
+        )
+    )
+
+    assert len(project.action_mappings) == 1
+    assert project.action_mappings[0].canonical_action is CanonicalLifecycleAction.START
+    assert project.action_mappings[0].script_label == "START"
+
+
+def test_registration_rejects_lifecycle_scripts_without_configurable_actions(
+    isolated_environment: None,
+    tmp_path: Path,
+) -> None:
+    access_control_service = create_access_control_service()
+    project_registry_service = create_project_registry_service()
+
+    access_control_service.register_user(
+        RegisterUserCommand(username="blocked-config-user", password="password123")
+    )
+    token = access_control_service.login(
+        LoginCommand(username="blocked-config-user", password="password123")
+    ).access_token
+
+    project_dir = tmp_path / "blocked-config-project"
+    project_dir.mkdir()
+    lifecycle_script = project_dir / "control.bat"
+    lifecycle_script.write_text(
+        "@echo off\r\n"
+        "if /I \"%~1\"==\"VERIFY\" echo custom-status & exit /b 0\r\n"
+        "exit /b 1\r\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ProjectValidationError, match="at least one configured"):
+        project_registry_service.register_project(
+            RegisterProjectCommand(
+                token=token,
+                reference_name="blocked-config-project",
+                project_root_path=str(project_dir),
+                lifecycle_script_path=str(lifecycle_script),
+            )
+        )
 
 
 def test_registration_rejects_scripts_without_first_argument_dispatch(
