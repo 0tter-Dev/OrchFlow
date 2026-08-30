@@ -17,7 +17,7 @@ def test_root_returns_bootstrap_metadata() -> None:
     assert response.status_code == 200
     assert response.json() == {
         "name": "OrchFlow",
-        "version": "0.2.16",
+        "version": "0.3.0",
         "status": "ok",
         "stage": "bootstrap",
     }

@@ -8,7 +8,7 @@ This document tracks the next planned steps for OrchFlow after the initial docum
 
 The completed implementation sequence now covers the backend bootstrap foundation, configuration plus persistence bootstrap, access-control foundation, project-registry foundation, lifecycle-orchestration foundation, runtime-inspection milestone, web-bootstrap milestone, the first practical web integration flow, real project onboarding hardening for existing `.bat` scripts, the first web project registration flow, lifecycle history plus audit visibility, admin plus project ownership management, runtime inspection refinement, CI plus contract hardening, documentation/versioning governance for pull requests, the LiteLLM dependency plus disabled-by-default AI configuration baseline, the first domain-level ideal lifecycle function model, automatic lifecycle script detection with derived configuration health, API/CLI workflows for manual lifecycle mapping plus explicit `unconfigured` decisions, explicit project reload for one project or multiple projects in sequence, lifecycle execution gating for partial or blocked configurations, web lifecycle configuration indicators plus mapping controls, and the authenticated AI assistance boundary with a LiteLLM gateway status client.
 
-`v0.2.16` consolidates the first usable backend, `CLI`, `API`, and `web` baseline for authenticated operation of registered projects, including project visibility, lifecycle execution, refined runtime inspection, admin audit visibility, user and ownership management, CI validation, lifecycle controls backed by Windows `.bat` scripts, preferred-action detection, project configuration health, reviewable manual lifecycle configuration decisions, explicit reload after local `.bat` changes, configured-action execution enforcement, web mapping controls, and the first authenticated AI assistance status boundary.
+`v0.3.0` consolidates the first usable backend, `CLI`, `API`, and `web` baseline for authenticated operation of registered projects, including project visibility, lifecycle execution, refined runtime inspection, admin audit visibility, user and ownership management, CI validation, lifecycle controls backed by Windows `.bat` scripts, preferred-action detection, project configuration health, reviewable manual lifecycle configuration decisions, explicit reload after local `.bat` changes, configured-action execution enforcement, web mapping controls, and the first authenticated AI assistance status boundary.
 
 The current frontend package manager decision is `pnpm`.
 
@@ -51,7 +51,9 @@ The next implementation sequence should build on reload-aware and execution-gate
 ## Cross-Cutting Rules
 
 - expand the mirrored operator workflow in `CLI`, `API`, and `web` together whenever a new user-facing capability is intentionally introduced
-- keep Windows `.bat` lifecycle scripts as the authoritative operational contract for managed projects in `v0.2.16`
+- keep Windows `.bat` lifecycle scripts as the authoritative operational contract for managed projects in `v0.3.0`
+- implement each roadmap step as a coherent Conventional Commit change unit and document the semantic version decision in the pull request
+- evaluate version impact before starting a roadmap step and confirm it after the diff is complete, especially for AI assistance milestones such as the `AI Agent Adapter` and `LiteLLM` integration
 - avoid container orchestration, remote orchestration, and speculative support layers unless a later approved requirement changes the product scope
 - update `docs/STATUS.md`, `docs/USER-GUIDE.md`, and authorized scope-relevant context documentation whenever a roadmap milestone changes implemented behavior
 - revisit future `mobile` and `desktop` planning only after the API and web flows are stable

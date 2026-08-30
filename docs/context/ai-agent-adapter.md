@@ -32,7 +32,7 @@ The first implementation should prefer a minimal integration path:
 6. create authorized analysis sessions that return proposals only
 7. add file generation and mapping persistence only after proposal review is implemented
 
-The first four items are implemented in `v0.2.16`. The current boundary can report whether AI assistance is disabled, configured, or misconfigured, but it does not send project files, execute model requests, discover models, create proposals, or write lifecycle scripts.
+The first four items are implemented in `v0.3.0`. The current boundary can report whether AI assistance is disabled, configured, or misconfigured, but it does not send project files, execute model requests, discover models, create proposals, or write lifecycle scripts.
 
 ## Scope
 

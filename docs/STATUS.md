@@ -13,7 +13,7 @@ This document tracks the current implementation state of major OrchFlow capabili
 
 ## Current Project Stage
 
-OrchFlow is currently in the `v0.2.16` implementation stage as of `2026-08-30`.
+OrchFlow is currently in the `v0.3.0` implementation stage as of `2026-08-30`.
 
 ## Feature Table
 
@@ -46,7 +46,7 @@ OrchFlow is currently in the `v0.2.16` implementation stage as of `2026-08-30`.
 
 - The initial project planning, documentation baseline, and repository skeleton were completed before the current implementation stage.
 - The consolidated documentation model and Git plus GitHub workflow foundation were completed before the current implementation stage.
-- The project is now operating in `v0.2.16`, which consolidates the first real backend and web implementation milestones, runtime inspection refinement, admin and ownership management, LiteLLM dependency onboarding, documentation/versioning governance, CI plus contract hardening, the first ideal lifecycle function domain model, automatic lifecycle configuration health, manual lifecycle configuration decisions, explicit project reload, configured-action lifecycle execution gating, web lifecycle configuration controls, and the first authenticated AI assistance status boundary on `main`.
+- The project is now operating in `v0.3.0`, which consolidates the first real backend and web implementation milestones, runtime inspection refinement, admin and ownership management, LiteLLM dependency onboarding, documentation/versioning governance, CI plus contract hardening, the first ideal lifecycle function domain model, automatic lifecycle configuration health, manual lifecycle configuration decisions, explicit project reload, configured-action lifecycle execution gating, web lifecycle configuration controls, and the first authenticated AI assistance status boundary on `main`.
 - The initial backend bootstrap now exists with executable API and CLI entrypoints plus smoke tests.
 - Configuration loading, runtime path normalization, disabled-by-default LiteLLM AI settings, SQLAlchemy bootstrap, and Alembic migrations are available as part of the current baseline.
 - API and CLI should keep evolving as mirrored external surfaces whenever a capability is intentionally exposed to operators.

@@ -112,16 +112,26 @@ The project should adopt tests progressively in the following order:
 - Prefer short-lived branches
 - Require pull-request review for protected branches
 - Allow both human-driven and agent-driven pull request authorship as long as the documented review and identity rules are respected
-- Use semantic versioning
+- Use Conventional Commits for commit messages
+- Use semantic versioning for project version decisions
 - Treat documentation and tests as part of the expected change set
 
 When an AI agent is allowed to execute Git operations for this repository, it should do so only through the documented repository workflow, using `git` and `gh` through the CLI, a repository-specific Git identity, and leaving review and merge authority to a human maintainer.
 
-For code-changing agent work, the expected delivery path is: implement the focused change, update the relevant documentation, run the relevant backend and/or frontend validations, inspect the diff, create a specific short-lived branch, commit, push, and open a pull request into `main`.
+For code-changing agent work, the expected delivery path is: implement the focused change, update the relevant documentation, run the relevant backend and/or frontend validations, inspect the diff, create a specific short-lived branch, commit with a Conventional Commit message, push, and open a pull request into `main`.
 
 Pull request descriptions should use `.github/PULL_REQUEST_TEMPLATE.md` as the standard repository template. Contributors and AI agents should fill that structure when creating PRs, including the summary, decision notes, validation checklist, documentation checklist, and review notes that apply to the change.
 
 Every pull request should explicitly state the version bump decision. If the change updates behavior, dependencies, public contracts, operational workflow, or documentation-defined scope, the project version should be advanced according to semantic versioning and kept synchronized across package metadata, runtime version reporting, tests, lockfiles, README, status documentation, and any other version-bearing documentation. If no version bump is made, the pull request should explain why.
+
+Every roadmap step should be treated as a release-relevant change unit. Before implementation starts, contributors and AI agents should identify the expected Conventional Commit type and the likely semantic version impact. After implementation, the final commit and pull request must confirm that decision against the actual diff.
+
+Examples:
+
+- `feat(ai): add LiteLLM gateway health checks` should normally advance the project version because it adds product capability.
+- `fix(api): reject invalid lifecycle mappings` should normally use a patch-level bump in the current `0.x` line unless it changes a public contract.
+- `docs(roadmap): clarify AI assistance sequencing` may avoid a version bump only when it changes documentation wording without changing product policy or implemented behavior.
+- `ci(validation): add version consistency check` should state whether the CI rule affects release discipline enough to warrant a version bump.
 
 ## CI/CD Direction
 
@@ -154,7 +164,7 @@ The current implementation baseline is:
 
 ## Technology Decision Policy
 
-The core technology direction is now selected for `v0.2.16`.
+The core technology direction is now selected for `v0.3.0`.
 
 Future changes should still be evaluated according to:
 

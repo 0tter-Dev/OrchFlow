@@ -26,6 +26,12 @@ Describe any important architectural, workflow, or behavior decisions.
 - Reason:
 - Version-bearing files updated:
 
+## Commit Convention
+
+- Conventional Commit type/scope:
+- Commit message matches the change:
+- Breaking change marker used only if intentional:
+
 ## Validation
 
 List the checks you ran locally.
