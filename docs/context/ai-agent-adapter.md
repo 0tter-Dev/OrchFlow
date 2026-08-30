@@ -10,11 +10,11 @@ Help the user analyze a project folder and produce a reviewable lifecycle `.bat`
 
 ## Current Status
 
-`planned`
+`in_progress`
 
 ## LiteLLM Gateway Direction
 
-OrchFlow should use `LiteLLM` as the planned central gateway for LLM, model, and agent connectivity.
+OrchFlow should use `LiteLLM` as the central gateway for LLM, model, and agent connectivity.
 
 LiteLLM may provide provider routing, OpenAI-compatible request and response handling, local `Ollama` connectivity, retries, fallback, cost tracking, rate limits, virtual keys, and gateway observability when those capabilities are configured.
 
@@ -27,9 +27,12 @@ The first implementation should prefer a minimal integration path:
 1. define an OrchFlow-owned AI assistance boundary
 2. define a LiteLLM gateway client behind that boundary
 3. support a disabled-by-default configuration contract
-4. verify configured model availability without sending project files
-5. create authorized analysis sessions that return proposals only
-6. add file generation and mapping persistence only after proposal review is implemented
+4. expose authenticated, audited status through API and CLI without model requests
+5. verify configured model availability without sending project files
+6. create authorized analysis sessions that return proposals only
+7. add file generation and mapping persistence only after proposal review is implemented
+
+The first four items are implemented in `v0.2.16`. The current boundary can report whether AI assistance is disabled, configured, or misconfigured, but it does not send project files, execute model requests, discover models, create proposals, or write lifecycle scripts.
 
 ## Scope
 

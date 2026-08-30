@@ -1,5 +1,6 @@
 """Shared presentation helpers for OrchFlow external adapters."""
 
+from orchflow.application.ai_assistance import AIAssistanceStatus
 from orchflow.application.project_registry import (
     ProjectReloadResult,
     unconfigured_actions_for_project,
@@ -21,6 +22,23 @@ def render_user(user: User) -> str:
         f"username: {user.username}\n"
         f"role: {user.role.value}\n"
         f"is_active: {str(user.is_active).lower()}"
+    )
+
+
+def render_ai_assistance_status(status: AIAssistanceStatus) -> str:
+    """Render AI assistance status for CLI output."""
+    return (
+        f"provider: {status.provider}\n"
+        f"status: {status.status}\n"
+        f"enabled: {str(status.enabled).lower()}\n"
+        f"mode: {status.mode}\n"
+        f"base_url: {status.base_url}\n"
+        f"default_model: {status.default_model}\n"
+        f"timeout_seconds: {status.timeout_seconds}\n"
+        f"api_key_configured: {str(status.api_key_configured).lower()}\n"
+        f"sdk_available: {str(status.sdk_available).lower()}\n"
+        f"ready_for_requests: {str(status.ready_for_requests).lower()}\n"
+        f"message: {status.message}"
     )
 
 

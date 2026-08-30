@@ -53,7 +53,8 @@ Defines the standard `.bat` contract shape and ideal lifecycle function model us
 Defines how OrchFlow inspects ports, processes, uptime, resource usage, status explanations, and URL reachability.
 
 - [AI Assistance Adapter](./context/ai-agent-adapter.md)
-Defines the optional AI assistance adapter layer, including the planned LiteLLM gateway integration, for analyzing a folder and helping produce a reviewable lifecycle `.bat` script.
+Defines the optional AI assistance adapter layer, including LiteLLM gateway integration, for analyzing a folder and helping produce a reviewable lifecycle `.bat` script.
+The initial authenticated status boundary is implemented, while model discovery, authorized project context manifests, analysis proposals, review, and file writes remain planned.
 
 - [Configuration And Environment](./context/configuration-and-environment.md)
 Defines the environment-based configuration contract and `.env` direction.
@@ -84,7 +85,7 @@ Defines source-control, validation, and CI/CD expectations.
 
 `Runtime Inspection` supports `Lifecycle Orchestration` by validating whether actions succeeded and by producing runtime facts and diagnostic explanations for operators.
 
-`AI Assistance Adapter` supports `Project Registry` by helping a user transform a project folder into a reviewable `.bat` lifecycle script and, when needed, suggest action mappings. LiteLLM is planned as the provider/model gateway inside that adapter, while OrchFlow remains responsible for authorization, allowed context, validation, and final approval.
+`AI Assistance Adapter` supports `Project Registry` by helping a user transform a project folder into a reviewable `.bat` lifecycle script and, when needed, suggest action mappings. LiteLLM is the provider/model gateway inside that adapter, while OrchFlow remains responsible for authorization, allowed context, validation, and final approval. In the current implementation, only authenticated safe status reporting is exposed.
 
 Project reload workflows now let users explicitly reread one or more lifecycle scripts through API and CLI, refresh automatic function detection, compare the project against the ideal lifecycle model, and decide whether to update mappings manually or ask AI assistance for improvements.
 

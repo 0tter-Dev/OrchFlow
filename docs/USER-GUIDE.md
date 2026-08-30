@@ -63,7 +63,7 @@ OrchFlow then:
 
 - asks for explicit authorization to inspect the selected project
 - verifies that AI assistance is enabled and configured through the OrchFlow adapter
-- uses LiteLLM as the planned gateway for the selected local or configured model provider
+- uses LiteLLM as the gateway for the selected local or configured model provider
 - starts or verifies a local provider process only when that behavior is explicitly configured
 - lists available configured models or agents when the gateway supports that capability
 - lets the user choose a model or agent
@@ -76,6 +76,8 @@ OrchFlow then asks for explicit authorization before creating or overwriting the
 The user reviews the generated suggestion and confirms or edits it before saving the project definition. AI output is treated as a proposal, not as verified operational truth.
 
 If the project script uses different action names such as `iniciar`, `parar`, or `reiniciar`, the user can explicitly map them to OrchFlow canonical actions before finishing the registration.
+
+At the current implementation stage, the AI assistance flow exposes only the safe status check. Authenticated users can run `orchflow ai status --token <TOKEN>` or call `GET /ai/status` to see whether the LiteLLM-backed boundary is disabled, configured, or misconfigured. This check records an audit event and does not inspect project files, discover models, execute prompts, generate proposals, or write `.bat` scripts yet.
 
 ### 2.1. Reload Project Configuration
 
