@@ -2,6 +2,7 @@
 
 from orchflow.application.ai_assistance import (
     AIAnalysisProposal,
+    AIAnalysisProposalApplication,
     AIAnalysisProposalReview,
     AIAssistanceGatewayHealth,
     AIAssistanceModelCatalog,
@@ -152,6 +153,35 @@ def render_ai_analysis_proposal_review(review: AIAnalysisProposalReview) -> str:
         f"validation_errors: {validation_errors}\n"
         f"reviewer_notes: {review.reviewer_notes or ''}\n"
         f"created_at: {review.created_at.isoformat()}"
+    )
+
+
+def render_ai_analysis_proposal_application(
+    application: AIAnalysisProposalApplication,
+) -> str:
+    """Render an approved AI analysis proposal application for CLI output."""
+    mappings = (
+        "\n".join(
+            f"{mapping.canonical_action}: {mapping.script_label}"
+            for mapping in application.persisted_mappings
+        )
+        if application.persisted_mappings
+        else "none"
+    )
+    project_details = (
+        f"\nproject:\n{render_project(application.project)}"
+        if application.project is not None
+        else ""
+    )
+    return (
+        f"id: {application.id}\n"
+        f"proposal_id: {application.proposal_id}\n"
+        f"project_id: {application.project_id}\n"
+        f"applied_by_user_id: {application.applied_by_user_id}\n"
+        f"lifecycle_script_path: {application.lifecycle_script_path}\n"
+        f"persisted_mappings:\n{mappings}\n"
+        f"created_at: {application.created_at.isoformat()}"
+        f"{project_details}"
     )
 
 

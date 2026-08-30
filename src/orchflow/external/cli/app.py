@@ -14,6 +14,7 @@ from orchflow.application.ai_assistance import (
     AIAnalysisProposalReviewDecision,
     AIAssistanceError,
     AIAssistanceManifestOperation,
+    ApplyAnalysisProposalCommand,
     CheckAIAssistanceGatewayHealthCommand,
     CreateAnalysisProposalCommand,
     CreateAuthorizedContextManifestCommand,
@@ -56,6 +57,7 @@ from orchflow.domain.access_control import AccessToken, UserRole
 from orchflow.domain.project_registry import CanonicalLifecycleAction, MappingSource
 from orchflow.external.presenters import (
     render_ai_analysis_proposal,
+    render_ai_analysis_proposal_application,
     render_ai_analysis_proposal_review,
     render_ai_assistance_gateway_health,
     render_ai_assistance_model_catalog,
@@ -667,6 +669,29 @@ def ai_proposal_review(
     except (AIAssistanceError, AccessControlError, ProjectRegistryError) as error:
         _exit_with_error(error)
     typer.echo(render_ai_analysis_proposal_review(review))
+
+
+@ai_app.command("proposal-apply")
+def ai_proposal_apply(
+    token: str = typer.Option(...),
+    proposal_id: int = typer.Option(...),
+    confirm_file_write: bool = typer.Option(default=False),
+    confirm_mapping_persistence: bool = typer.Option(default=False),
+) -> None:
+    """Apply an approved AI proposal by writing its .bat and mappings."""
+    service = create_ai_assistance_service()
+    try:
+        application = service.apply_analysis_proposal(
+            ApplyAnalysisProposalCommand(
+                token=token,
+                proposal_id=proposal_id,
+                confirm_file_write=confirm_file_write,
+                confirm_mapping_persistence=confirm_mapping_persistence,
+            )
+        )
+    except (AIAssistanceError, AccessControlError, ProjectRegistryError) as error:
+        _exit_with_error(error)
+    typer.echo(render_ai_analysis_proposal_application(application))
 
 
 def run() -> None:

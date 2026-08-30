@@ -550,7 +550,7 @@ class ProjectRegistryService:
             ProjectMappingInput(
                 canonical_action=mapping.canonical_action,
                 script_label=mapping.script_label,
-                source=MappingSource.USER_DEFINED,
+                source=mapping.source,
             )
             for mapping in mappings
         )
