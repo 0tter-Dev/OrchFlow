@@ -17,7 +17,7 @@ def test_root_returns_bootstrap_metadata() -> None:
     assert response.status_code == 200
     assert response.json() == {
         "name": "OrchFlow",
-        "version": "0.2.15",
+        "version": "0.3.0",
         "status": "ok",
         "stage": "bootstrap",
     }
@@ -130,6 +130,33 @@ def test_audit_history_api_requires_admin(isolated_environment: None) -> None:
     )
 
     assert events_response.status_code == 403
+
+
+def test_ai_assistance_status_is_exposed_through_authenticated_api(
+    isolated_environment: None,
+) -> None:
+    client = TestClient(create_app())
+
+    client.post(
+        "/auth/register",
+        json={"username": "ai-status-user", "password": "password123"},
+    )
+    login_response = client.post(
+        "/auth/login",
+        json={"username": "ai-status-user", "password": "password123"},
+    )
+    token = login_response.json()["access_token"]
+
+    status_response = client.get(
+        "/ai/status",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    assert status_response.status_code == 200
+    payload = status_response.json()
+    assert payload["provider"] == "litellm"
+    assert payload["status"] == "disabled"
+    assert payload["ready_for_requests"] is False
 
 
 def test_registering_admin_after_bootstrap_requires_admin_token(

@@ -238,7 +238,7 @@ When a project is reloaded in a later workflow, OrchFlow should reuse the same i
 ## Key Rules
 
 - the template should be generic enough to support different projects
-- the template should remain Windows-first for `v0.2.15`
+- the template should remain Windows-first for `v0.3.0`
 - the template should be easy for a human to review and adjust
 - the template should be easy for the `AI Assistance Adapter` to generate or update
 - the template should avoid hidden behavior and implicit side effects

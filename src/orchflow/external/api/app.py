@@ -15,6 +15,7 @@ from orchflow.application.access_control import (
     UserConflictError,
     UserNotFoundError,
 )
+from orchflow.application.ai_assistance import AIAssistanceStatus, GetAIAssistanceStatusCommand
 from orchflow.application.audit_history import (
     AuditHistoryError,
     AuditHistoryValidationError,
@@ -38,6 +39,7 @@ from orchflow.application.project_registry import (
 from orchflow.application.runtime_inspection import InspectRuntimeCommand
 from orchflow.application.services import (
     create_access_control_service,
+    create_ai_assistance_service,
     create_audit_history_service,
     create_bootstrap_service,
     create_lifecycle_orchestration_service,
@@ -206,6 +208,20 @@ class RuntimeInspectionResponse(BaseModel):
     process_snapshots: list[RuntimeProcessResponse]
 
 
+class AIAssistanceStatusResponse(BaseModel):
+    provider: str
+    status: Literal["disabled", "configured", "misconfigured"]
+    enabled: bool
+    mode: str
+    base_url: str
+    default_model: str
+    timeout_seconds: int
+    api_key_configured: bool
+    sdk_available: bool
+    ready_for_requests: bool
+    message: str
+
+
 def _to_user_response(user: User) -> UserResponse:
     return UserResponse(
         id=user.id,
@@ -225,6 +241,12 @@ def _to_audit_event_response(event: AuditEvent) -> AuditEventResponse:
         details=event.details,
         created_at=event.created_at.isoformat(),
     )
+
+
+def _to_ai_assistance_status_response(
+    ai_status: AIAssistanceStatus,
+) -> AIAssistanceStatusResponse:
+    return AIAssistanceStatusResponse.model_validate(ai_status, from_attributes=True)
 
 
 def _to_project_response(project: Project) -> ProjectResponse:
@@ -380,6 +402,7 @@ def create_app() -> FastAPI:
     bootstrap_service = create_bootstrap_service()
     access_control_service = create_access_control_service()
     audit_history_service = create_audit_history_service()
+    ai_assistance_service = create_ai_assistance_service()
     project_registry_service = create_project_registry_service()
     lifecycle_service = create_lifecycle_orchestration_service()
     runtime_service = create_runtime_inspection_service()
@@ -518,6 +541,28 @@ def create_app() -> FastAPI:
         except (AuditHistoryError, AuthorizationError) as error:
             raise _map_audit_history_error(error) from error
         return [_to_audit_event_response(event) for event in events]
+
+    @app.get(
+        "/ai/status",
+        response_model=AIAssistanceStatusResponse,
+        tags=["ai"],
+    )
+    def read_ai_assistance_status(
+        authorization: str | None = Header(default=None),
+    ) -> AIAssistanceStatusResponse:
+        token = _extract_bearer_token(authorization)
+        if token is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Missing bearer token.",
+            )
+        try:
+            ai_status = ai_assistance_service.get_status(
+                GetAIAssistanceStatusCommand(token=token)
+            )
+        except AccessControlError as error:
+            raise _map_access_control_error(error) from error
+        return _to_ai_assistance_status_response(ai_status)
 
     @app.post(
         "/projects",

@@ -8,6 +8,7 @@ def test_openapi_contract_exposes_current_operator_routes() -> None:
     paths = schema["paths"]
 
     expected_operations = [
+        ("/ai/status", "get"),
         ("/auth/login", "post"),
         ("/auth/me", "get"),
         ("/auth/users", "get"),
@@ -66,3 +67,14 @@ def test_project_reload_openapi_contract_includes_change_metadata() -> None:
     assert "previous_lifecycle_configuration_health" in reload_properties
     assert "current_lifecycle_configuration_health" in reload_properties
     assert "changed_actions" in reload_properties
+
+
+def test_ai_assistance_openapi_contract_includes_safe_gateway_status() -> None:
+    schema = create_app().openapi()
+    ai_status_schema = schema["components"]["schemas"]["AIAssistanceStatusResponse"]
+    ai_status_properties = ai_status_schema["properties"]
+
+    assert "provider" in ai_status_properties
+    assert "status" in ai_status_properties
+    assert "ready_for_requests" in ai_status_properties
+    assert "api_key_configured" in ai_status_properties

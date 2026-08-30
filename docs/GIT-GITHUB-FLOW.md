@@ -31,7 +31,7 @@ This means:
 - branches should be deleted after merge
 - work may be authored either by a human contributor or by an authorized AI agent using a dedicated repository identity
 
-This project should not adopt a heavy Git Flow model in `v0.2.15`.
+This project should not adopt a heavy Git Flow model in `v0.3.0`.
 
 The repository is still in an early product stage, so a simpler branch model reduces process weight and makes maintenance easier.
 
@@ -196,7 +196,14 @@ Reasons:
 
 ## Commit Convention
 
-OrchFlow should use Conventional Commits.
+OrchFlow must use Conventional Commits for human-authored and agent-authored commits.
+
+Commit messages should follow:
+
+- `<type>: <imperative summary>`
+- `<type>(<scope>): <imperative summary>`
+- `<type>!: <imperative summary>` for intentional breaking changes
+- `<type>(<scope>)!: <imperative summary>` for scoped intentional breaking changes
 
 Recommended commit types:
 
@@ -214,6 +221,8 @@ Optional scope format:
 - `fix(api): validate missing token`
 - `docs(devops): define release process`
 - `ci(repo): add backend validation workflow`
+- `feat(ai): add LiteLLM gateway health checks`
+- `feat(adapter): add authorized project context manifest`
 
 Rules:
 
@@ -221,26 +230,50 @@ Rules:
 - keep each commit coherent
 - avoid vague messages such as `update`, `changes`, or `misc`
 - use `!` only when a change intentionally introduces a breaking contract
+- choose a scope that matches the primary area changed, such as `ai`, `api`, `cli`, `web`, `adapter`, `registry`, `lifecycle`, `runtime`, `docs`, `ci`, or `repo`
+- use the same commit convention for roadmap milestones, fixes discovered during a milestone, and documentation-only governance changes
+- align the commit type with the version decision documented in the pull request
+
+Roadmap implementation commits should be easy to read as release history. For example, the AI assistance sequence should use messages such as:
+
+- `feat(ai): add LiteLLM gateway health checks`
+- `feat(ai): add authorized project context manifest`
+- `feat(ai): add reviewable lifecycle script proposals`
+- `feat(ai): persist approved lifecycle mappings`
 
 ## Versioning Model
 
-OrchFlow should use Semantic Versioning.
+OrchFlow must use Semantic Versioning.
 
 The project is currently in the `0.x` phase, so versioning should be interpreted with extra discipline:
 
-- `0.1.z` for fixes, small internal improvements, documentation refinements, test additions, and CI changes that do not redefine product scope
-- `0.x.0` for meaningful increments in product capability or project maturity
+- patch increments, such as `0.3.0` to `0.3.1`, for fixes, small internal improvements, documentation refinements, test additions, and CI changes that do not redefine product scope
+- minor increments, such as `0.2.x` to `0.3.0`, for meaningful increments in product capability, public workflow shape, or project maturity
 - `1.0.0` only when the public baseline is stable enough that breaking behavior becomes exceptional instead of expected
 
 ### Version Bump Guidance
 
 Use:
 
-- patch version when correcting behavior or improving quality without materially expanding scope
-- minor version when adding meaningful capability or crossing an important delivery milestone
+- patch version when correcting behavior, adding narrowly scoped functionality inside the current milestone line, improving quality, or updating documentation/governance without materially expanding product scope
+- minor version when adding a meaningful capability family, changing the public workflow shape, crossing an important delivery milestone, or completing a major Roadmap phase
 - major version only after the project reaches `1.0.0`
 
 Every pull request must evaluate whether the project version should change. When a bump is required, update all relevant version-bearing files in the same change set, including package metadata, runtime version constants, lockfiles, tests that assert version output, README/status documentation, and any workflow or roadmap documents that name the current version. If no bump is required, the pull request should explicitly say so.
+
+Each Roadmap step must include a version decision before the pull request is opened. The decision should be based on the actual behavior introduced, not only on the commit type. For example, adding the first `AI Agent Adapter` plus `LiteLLM` boundary is a feature commit and requires a version bump because it introduces new public API/CLI behavior and architectural capability. A later internal refactor of the same boundary may use `refactor(ai)` and may keep the version unchanged only if the pull request proves there is no behavior, contract, dependency, workflow, or documentation-policy change.
+
+### Commit Type And Version Relationship
+
+The commit type does not mechanically determine the version bump, but it should guide the decision:
+
+- `feat`: usually requires a version bump; patch while inside the current `0.x` milestone line for narrow increments, minor for larger capability phases
+- `fix`: usually requires a patch bump when user-visible behavior changes
+- `docs`: may require a patch bump when it changes governance, workflow policy, architecture, or documented product scope; may avoid a bump for wording-only corrections
+- `refactor`: may require a patch bump if it changes operational behavior, public contracts, or supported workflows
+- `test`: usually does not require a bump unless tests formalize a new public contract or release rule
+- `ci`: may require a patch bump when CI changes release, validation, or merge requirements
+- `chore`: should explain why the change is not product-visible; dependency or tooling changes may still require a bump
 
 ### Release Tag Format
 
@@ -248,7 +281,7 @@ Git tags should use the format:
 
 - `v0.1.2`
 - `v0.1.3`
-- `v0.2.15`
+- `v0.3.0`
 
 The GitHub release title should match the tag version.
 
@@ -281,7 +314,7 @@ For the current backend baseline, the expected validation direction is:
 - `uv run alembic upgrade head`
 - `uv run pytest`
 
-The selected frontend package manager for `v0.2.15` is `pnpm`.
+The selected frontend package manager for `v0.3.0` is `pnpm`.
 
 The expected frontend validation direction is:
 
@@ -344,7 +377,7 @@ CI should continue evolving in stages.
 
 ### Stage 1
 
-The repository now has the backend and frontend quality baseline needed for `v0.2.15`.
+The repository now has the backend and frontend quality baseline needed for `v0.3.0`.
 
 ### Stage 2
 

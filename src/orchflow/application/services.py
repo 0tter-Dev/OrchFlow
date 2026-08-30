@@ -1,11 +1,13 @@
 """Application service factory helpers."""
 
 from orchflow.application.access_control import AccessControlService
+from orchflow.application.ai_assistance import AIAssistanceService
 from orchflow.application.audit_history import AuditHistoryService
 from orchflow.application.bootstrap import BootstrapStatusService
 from orchflow.application.lifecycle import LifecycleOrchestrationService
 from orchflow.application.project_registry import ProjectRegistryService
 from orchflow.application.runtime_inspection import RuntimeInspectionService
+from orchflow.infrastructure.ai.litellm_gateway import LiteLLMGatewayClient
 from orchflow.infrastructure.config.settings import AppSettings, get_settings
 from orchflow.infrastructure.persistence.project_registry_repository import (
     SqlAlchemyProjectRegistryRepository,
@@ -98,3 +100,20 @@ def create_audit_history_service(settings: AppSettings | None = None) -> AuditHi
     repository = SqlAlchemyAuditHistoryRepository(session_factory)
     access_control_service = create_access_control_service(current_settings)
     return AuditHistoryService(repository, access_control_service)
+
+
+def create_ai_assistance_service(
+    settings: AppSettings | None = None,
+) -> AIAssistanceService:
+    """Create the AI assistance application service."""
+    current_settings = settings or get_settings()
+    initialize_database(current_settings)
+    session_factory = create_session_factory(current_settings)
+    repository = SqlAlchemyAuditHistoryRepository(session_factory)
+    access_control_service = create_access_control_service(current_settings)
+    gateway = LiteLLMGatewayClient(current_settings)
+    return AIAssistanceService(
+        gateway=gateway,
+        current_user_resolver=access_control_service,
+        audit_recorder=repository,
+    )

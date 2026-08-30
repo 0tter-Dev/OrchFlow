@@ -10,6 +10,7 @@ from orchflow.application.access_control import (
     RegisterUserCommand,
     UpdateUserCommand,
 )
+from orchflow.application.ai_assistance import GetAIAssistanceStatusCommand
 from orchflow.application.audit_history import (
     AuditHistoryError,
     ListAuditEventsCommand,
@@ -32,6 +33,7 @@ from orchflow.application.project_registry import (
 from orchflow.application.runtime_inspection import InspectRuntimeCommand
 from orchflow.application.services import (
     create_access_control_service,
+    create_ai_assistance_service,
     create_audit_history_service,
     create_bootstrap_service,
     create_lifecycle_orchestration_service,
@@ -41,6 +43,7 @@ from orchflow.application.services import (
 from orchflow.domain.access_control import AccessToken, UserRole
 from orchflow.domain.project_registry import CanonicalLifecycleAction, MappingSource
 from orchflow.external.presenters import (
+    render_ai_assistance_status,
     render_audit_event,
     render_lifecycle_result,
     render_project,
@@ -64,6 +67,8 @@ runtime_app = typer.Typer(help="Runtime inspection commands.")
 app.add_typer(runtime_app, name="runtime")
 audit_app = typer.Typer(help="Operational audit history commands.")
 app.add_typer(audit_app, name="audit")
+ai_app = typer.Typer(help="AI assistance commands.")
+app.add_typer(ai_app, name="ai")
 
 
 def _render_status(service: BootstrapStatusService) -> str:
@@ -503,6 +508,17 @@ def audit_events(token: str = typer.Option(...), limit: int = typer.Option(defau
     for event in events:
         typer.echo(render_audit_event(event))
         typer.echo("")
+
+
+@ai_app.command("status")
+def ai_status(token: str = typer.Option(...)) -> None:
+    """Show the safe LiteLLM-backed AI assistance status."""
+    service = create_ai_assistance_service()
+    try:
+        status_result = service.get_status(GetAIAssistanceStatusCommand(token=token))
+    except AccessControlError as error:
+        _exit_with_error(error)
+    typer.echo(render_ai_assistance_status(status_result))
 
 
 def run() -> None:

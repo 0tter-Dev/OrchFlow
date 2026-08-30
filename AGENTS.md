@@ -27,10 +27,10 @@ Before any alteration, AI agents must ground their understanding in the applicab
 Agents must:
 
 - preserve the local-first purpose of the project
-- keep `.bat` lifecycle scripts as the concrete operational base for managed projects in `v0.2.15`
+- keep `.bat` lifecycle scripts as the concrete operational base for managed projects in `v0.3.0`
 - preserve the ideal lifecycle function model as the reference for project mapping, configuration health, warnings, blocking rules, reload, and AI-assisted `.bat` improvement
 - treat the AI assistance layer as optional assistance mediated by OrchFlow, not as the authoritative lifecycle controller
-- treat `LiteLLM` as the planned central LLM/model gateway, while keeping OrchFlow responsible for allowed context, file access, review-driven flow, validation, and final user approval
+- treat `LiteLLM` as the central LLM/model gateway, while keeping OrchFlow responsible for allowed context, file access, review-driven flow, validation, and final user approval
 - respect the documented scope, non-goals, and architectural boundaries
 - prefer small, explicit, reviewable changes
 - keep documentation and implementation aligned
@@ -38,6 +38,7 @@ Agents must:
 - after any relevant code change, re-evaluate the root-level documentation and any explicitly authorized, scope-relevant context documentation to update the documentation affected by the change
 - keep `docs/TO-DO.md` limited to upcoming planned steps instead of retaining items that are already implemented
 - avoid placeholder shared abstractions or generic kernel layers unless they serve a clear current purpose
+- use Conventional Commits for agent-authored commits and align each commit with the semantic version decision documented for the pull request
 - follow the documented repository workflow for human-driven and agent-driven pull request delivery
 - avoid hidden architectural drift
 
@@ -87,6 +88,8 @@ When introducing or changing features, agents should update:
 AI agents must not treat documentation updates as optional cleanup. If code behavior changes, the agent must actively verify whether the related documentation needs to change and either update it or state why no documentation update was required.
 
 Every pull request must also evaluate and update the system version according to the change being proposed. Version updates must keep project metadata, runtime version exposure, tests, lockfiles, and documentation aligned with the semantic versioning guidance in `docs/GIT-GITHUB-FLOW.md` and `docs/DEVELOPMENT-GUIDE.md`.
+
+Every agent-authored commit must use the Conventional Commit format documented in `docs/GIT-GITHUB-FLOW.md`. For Roadmap work, agents must choose the commit type and scope from the actual change area, such as `feat(ai)` for AI assistance and LiteLLM milestones, `fix(api)` for API corrections, `docs(roadmap)` for documentation-only Roadmap changes, or `ci(validation)` for validation workflow changes.
 
 ## Code Delivery Workflow
 

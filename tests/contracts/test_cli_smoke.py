@@ -24,7 +24,7 @@ def test_info_command_displays_bootstrap_metadata() -> None:
     result = runner.invoke(app, ["info"])
 
     assert result.exit_code == 0
-    assert "OrchFlow 0.2.15" in result.stdout
+    assert "OrchFlow 0.3.0" in result.stdout
     assert "stage: bootstrap" in result.stdout
 
 
@@ -99,6 +99,28 @@ def test_cli_audit_history_flow_is_available(isolated_environment: None) -> None
     assert audit_result.exit_code == 0
     assert "action: admin.audit_events.list" in audit_result.stdout
     assert "action: user.login" in audit_result.stdout
+
+
+def test_cli_ai_assistance_status_flow_is_available(isolated_environment: None) -> None:
+    runner.invoke(
+        app,
+        ["auth", "register", "--username", "ai-status-user", "--password", "password123"],
+    )
+    login_result = runner.invoke(
+        app,
+        ["auth", "login", "--username", "ai-status-user", "--password", "password123"],
+    )
+    token_line = next(
+        line for line in login_result.stdout.splitlines() if line.startswith("access_token: ")
+    )
+    token = token_line.removeprefix("access_token: ")
+
+    status_result = runner.invoke(app, ["ai", "status", "--token", token])
+
+    assert status_result.exit_code == 0
+    assert "provider: litellm" in status_result.stdout
+    assert "status: disabled" in status_result.stdout
+    assert "ready_for_requests: false" in status_result.stdout
 
 
 def test_cli_admin_user_management_flow_is_available(isolated_environment: None) -> None:
