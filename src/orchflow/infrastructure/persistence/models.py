@@ -150,3 +150,30 @@ class LifecycleFunctionDecisionModel(Base):
         server_default=func.now(),
         nullable=False,
     )
+
+
+class AIAuthorizedContextManifestModel(Base):
+    """Persisted AI context authorization manifest metadata."""
+
+    __tablename__ = "ai_authorized_context_manifests"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    project_id: Mapped[int] = mapped_column(ForeignKey("projects.id"), nullable=False)
+    requested_by_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    selected_model: Mapped[str] = mapped_column(String(128), nullable=False)
+    intended_operation: Mapped[str] = mapped_column(String(64), nullable=False)
+    project_root_path: Mapped[str] = mapped_column(String(512), nullable=False)
+    include_patterns: Mapped[str] = mapped_column(Text, nullable=False)
+    exclude_patterns: Mapped[str] = mapped_column(Text, nullable=False)
+    included_paths: Mapped[str] = mapped_column(Text, nullable=False)
+    excluded_paths: Mapped[str] = mapped_column(Text, nullable=False)
+    ignored_paths: Mapped[str] = mapped_column(Text, nullable=False)
+    secret_filter_rules: Mapped[str] = mapped_column(Text, nullable=False)
+    max_file_size_bytes: Mapped[int] = mapped_column(nullable=False)
+    max_total_bytes: Mapped[int] = mapped_column(nullable=False)
+    total_included_bytes: Mapped[int] = mapped_column(nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+    )

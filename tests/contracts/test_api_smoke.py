@@ -17,7 +17,7 @@ def test_root_returns_bootstrap_metadata() -> None:
     assert response.status_code == 200
     assert response.json() == {
         "name": "OrchFlow",
-        "version": "0.3.1",
+        "version": "0.3.2",
         "status": "ok",
         "stage": "bootstrap",
     }
@@ -211,6 +211,74 @@ def test_ai_assistance_models_are_exposed_through_authenticated_api(
     assert payload["provider"] == "litellm"
     assert payload["supports_discovery"] is False
     assert payload["models"] == []
+
+
+def test_ai_context_manifest_flow_is_exposed_through_authenticated_api(
+    isolated_environment: None,
+    tmp_path: Path,
+) -> None:
+    client = TestClient(create_app())
+
+    client.post(
+        "/auth/register",
+        json={"username": "ai-manifest-user", "password": "password123"},
+    )
+    login_response = client.post(
+        "/auth/login",
+        json={"username": "ai-manifest-user", "password": "password123"},
+    )
+    token = login_response.json()["access_token"]
+
+    project_dir = tmp_path / "api-ai-manifest-project"
+    project_dir.mkdir()
+    (project_dir / "app.py").write_text("print('ok')\n", encoding="utf-8")
+    (project_dir / ".env").write_text("SECRET=value\n", encoding="utf-8")
+    (project_dir / "dist").mkdir()
+    (project_dir / "dist" / "bundle.js").write_text("generated\n", encoding="utf-8")
+    lifecycle_script = project_dir / "control.bat"
+    lifecycle_script.write_text(
+        "@echo off\r\n"
+        "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
+        "exit /b 1\r\n",
+        encoding="utf-8",
+    )
+    register_response = client.post(
+        "/projects",
+        headers={"Authorization": f"Bearer {token}"},
+        json={
+            "reference_name": "api-ai-manifest-project",
+            "project_root_path": str(project_dir),
+            "lifecycle_script_path": str(lifecycle_script),
+        },
+    )
+    project_id = register_response.json()["id"]
+
+    manifest_response = client.post(
+        "/ai/context-manifests",
+        headers={"Authorization": f"Bearer {token}"},
+        json={
+            "project_id": project_id,
+            "selected_model": "ollama/llama3",
+            "intended_operation": "improve_lifecycle_script",
+            "include_patterns": ["*.py"],
+        },
+    )
+
+    assert manifest_response.status_code == 201
+    manifest = manifest_response.json()
+    assert manifest["project_id"] == project_id
+    assert manifest["selected_model"] == "ollama/llama3"
+    assert manifest["included_paths"] == ["app.py"]
+    assert ".env" in manifest["ignored_paths"]
+    assert "dist/bundle.js" in manifest["ignored_paths"]
+
+    read_response = client.get(
+        f"/ai/context-manifests/{manifest['id']}",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    assert read_response.status_code == 200
+    assert read_response.json()["id"] == manifest["id"]
 
 
 def test_registering_admin_after_bootstrap_requires_admin_token(

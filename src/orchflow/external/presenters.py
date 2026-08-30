@@ -4,6 +4,7 @@ from orchflow.application.ai_assistance import (
     AIAssistanceGatewayHealth,
     AIAssistanceModelCatalog,
     AIAssistanceStatus,
+    AuthorizedContextManifest,
 )
 from orchflow.application.project_registry import (
     ProjectReloadResult,
@@ -80,6 +81,28 @@ def render_ai_assistance_model_catalog(catalog: AIAssistanceModelCatalog) -> str
         f"supports_discovery: {str(catalog.supports_discovery).lower()}\n"
         f"message: {catalog.message}\n"
         f"models:\n{model_lines}"
+    )
+
+
+def render_authorized_context_manifest(manifest: AuthorizedContextManifest) -> str:
+    """Render an authorized AI context manifest for CLI output."""
+    return (
+        f"id: {manifest.id}\n"
+        f"project_id: {manifest.project_id}\n"
+        f"requested_by_user_id: {manifest.requested_by_user_id}\n"
+        f"selected_model: {manifest.selected_model}\n"
+        f"intended_operation: {manifest.intended_operation}\n"
+        f"project_root_path: {manifest.project_root_path}\n"
+        f"include_patterns: {', '.join(manifest.include_patterns)}\n"
+        f"exclude_patterns: {', '.join(manifest.exclude_patterns)}\n"
+        f"included_paths: {', '.join(manifest.included_paths) or 'none'}\n"
+        f"excluded_paths: {', '.join(manifest.excluded_paths) or 'none'}\n"
+        f"ignored_paths: {', '.join(manifest.ignored_paths) or 'none'}\n"
+        f"secret_filter_rules: {', '.join(manifest.secret_filter_rules)}\n"
+        f"max_file_size_bytes: {manifest.max_file_size_bytes}\n"
+        f"max_total_bytes: {manifest.max_total_bytes}\n"
+        f"total_included_bytes: {manifest.total_included_bytes}\n"
+        f"created_at: {manifest.created_at.isoformat()}"
     )
 
 

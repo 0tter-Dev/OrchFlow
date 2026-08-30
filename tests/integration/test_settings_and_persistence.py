@@ -71,17 +71,23 @@ def test_alembic_upgrade_head_runs_against_local_sqlite(tmp_path: Path) -> None:
         os.environ.pop("ORCHFLOW_RUNTIME_DIR", None)
 
     assert database_path.exists()
-    engine = create_engine_from_settings(get_settings())
+    migrated_settings = AppSettings(
+        data_dir=tmp_path / "data",
+        runtime_dir=tmp_path / "runtime",
+        database_url=f"sqlite:///{database_path.as_posix()}",
+    )
+    engine = create_engine_from_settings(migrated_settings)
     try:
         with engine.connect() as connection:
             table_count = connection.execute(
                 text(
                     "SELECT COUNT(*) FROM sqlite_master "
                     "WHERE type = 'table' AND name IN ("
-                    "'users', 'audit_events', 'lifecycle_function_decisions'"
+                    "'users', 'audit_events', 'lifecycle_function_decisions', "
+                    "'ai_authorized_context_manifests'"
                     ")"
                 )
             ).scalar_one()
     finally:
         engine.dispose()
-    assert table_count == 3
+    assert table_count == 4

@@ -1,6 +1,6 @@
 """Typer application for the OrchFlow backend bootstrap."""
 
-from typing import Annotated
+from typing import Annotated, cast
 
 import typer
 
@@ -11,8 +11,12 @@ from orchflow.application.access_control import (
     UpdateUserCommand,
 )
 from orchflow.application.ai_assistance import (
+    AIAssistanceError,
+    AIAssistanceManifestOperation,
     CheckAIAssistanceGatewayHealthCommand,
+    CreateAuthorizedContextManifestCommand,
     GetAIAssistanceStatusCommand,
+    GetAuthorizedContextManifestCommand,
     ListAIAssistanceModelsCommand,
 )
 from orchflow.application.audit_history import (
@@ -51,6 +55,7 @@ from orchflow.external.presenters import (
     render_ai_assistance_model_catalog,
     render_ai_assistance_status,
     render_audit_event,
+    render_authorized_context_manifest,
     render_lifecycle_result,
     render_project,
     render_project_reload_result,
@@ -549,6 +554,53 @@ def ai_models(token: str = typer.Option(...)) -> None:
     except AccessControlError as error:
         _exit_with_error(error)
     typer.echo(render_ai_assistance_model_catalog(catalog))
+
+
+@ai_app.command("manifest-create")
+def ai_manifest_create(
+    token: str = typer.Option(...),
+    project_id: int = typer.Option(...),
+    selected_model: str = typer.Option(...),
+    intended_operation: str = typer.Option(...),
+    include_pattern: Annotated[list[str] | None, typer.Option()] = None,
+    exclude_pattern: Annotated[list[str] | None, typer.Option()] = None,
+    max_file_size_bytes: int = typer.Option(default=65536),
+    max_total_bytes: int = typer.Option(default=262144),
+) -> None:
+    """Create an authorized AI project context manifest without reading file contents."""
+    service = create_ai_assistance_service()
+    try:
+        manifest = service.create_authorized_context_manifest(
+            CreateAuthorizedContextManifestCommand(
+                token=token,
+                project_id=project_id,
+                selected_model=selected_model,
+                intended_operation=cast(
+                    AIAssistanceManifestOperation,
+                    intended_operation,
+                ),
+                include_patterns=tuple(include_pattern or ["*"]),
+                exclude_patterns=tuple(exclude_pattern or []),
+                max_file_size_bytes=max_file_size_bytes,
+                max_total_bytes=max_total_bytes,
+            )
+        )
+    except (AIAssistanceError, AccessControlError, ProjectRegistryError) as error:
+        _exit_with_error(error)
+    typer.echo(render_authorized_context_manifest(manifest))
+
+
+@ai_app.command("manifest-show")
+def ai_manifest_show(token: str = typer.Option(...), manifest_id: int = typer.Option(...)) -> None:
+    """Show a previously authorized AI project context manifest."""
+    service = create_ai_assistance_service()
+    try:
+        manifest = service.get_authorized_context_manifest(
+            GetAuthorizedContextManifestCommand(token=token, manifest_id=manifest_id)
+        )
+    except (AIAssistanceError, AccessControlError, ProjectRegistryError) as error:
+        _exit_with_error(error)
+    typer.echo(render_authorized_context_manifest(manifest))
 
 
 def run() -> None:

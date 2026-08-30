@@ -24,7 +24,7 @@ def test_info_command_displays_bootstrap_metadata() -> None:
     result = runner.invoke(app, ["info"])
 
     assert result.exit_code == 0
-    assert "OrchFlow 0.3.1" in result.stdout
+    assert "OrchFlow 0.3.2" in result.stdout
     assert "stage: bootstrap" in result.stdout
 
 
@@ -169,6 +169,93 @@ def test_cli_ai_assistance_model_discovery_flow_is_available(
     assert "provider: litellm" in models_result.stdout
     assert "supports_discovery: false" in models_result.stdout
     assert "models:\nnone" in models_result.stdout
+
+
+def test_cli_ai_context_manifest_flow_is_available(
+    isolated_environment: None,
+    tmp_path: Path,
+) -> None:
+    runner.invoke(
+        app,
+        ["auth", "register", "--username", "ai-manifest-user", "--password", "password123"],
+    )
+    login_result = runner.invoke(
+        app,
+        ["auth", "login", "--username", "ai-manifest-user", "--password", "password123"],
+    )
+    token_line = next(
+        line for line in login_result.stdout.splitlines() if line.startswith("access_token: ")
+    )
+    token = token_line.removeprefix("access_token: ")
+
+    project_dir = tmp_path / "cli-ai-manifest-project"
+    project_dir.mkdir()
+    (project_dir / "app.py").write_text("print('ok')\n", encoding="utf-8")
+    (project_dir / ".env").write_text("SECRET=value\n", encoding="utf-8")
+    lifecycle_script = project_dir / "control.bat"
+    lifecycle_script.write_text(
+        "@echo off\r\n"
+        "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
+        "exit /b 1\r\n",
+        encoding="utf-8",
+    )
+    register_result = runner.invoke(
+        app,
+        [
+            "project",
+            "register",
+            "--token",
+            token,
+            "--reference-name",
+            "cli-ai-manifest-project",
+            "--project-root-path",
+            str(project_dir),
+            "--lifecycle-script-path",
+            str(lifecycle_script),
+        ],
+    )
+    project_id = next(
+        line.removeprefix("id: ")
+        for line in register_result.stdout.splitlines()
+        if line.startswith("id: ")
+    )
+
+    manifest_result = runner.invoke(
+        app,
+        [
+            "ai",
+            "manifest-create",
+            "--token",
+            token,
+            "--project-id",
+            project_id,
+            "--selected-model",
+            "ollama/llama3",
+            "--intended-operation",
+            "improve_lifecycle_script",
+            "--include-pattern",
+            "*.py",
+        ],
+    )
+
+    assert manifest_result.exit_code == 0
+    assert "selected_model: ollama/llama3" in manifest_result.stdout
+    assert "included_paths: app.py" in manifest_result.stdout
+    assert ".env" in manifest_result.stdout
+    manifest_id = next(
+        line.removeprefix("id: ")
+        for line in manifest_result.stdout.splitlines()
+        if line.startswith("id: ")
+    )
+
+    show_result = runner.invoke(
+        app,
+        ["ai", "manifest-show", "--token", token, "--manifest-id", manifest_id],
+    )
+
+    assert show_result.exit_code == 0
+    assert "project_id:" in show_result.stdout
+    assert "included_paths: app.py" in show_result.stdout
 
 
 def test_cli_admin_user_management_flow_is_available(isolated_environment: None) -> None:

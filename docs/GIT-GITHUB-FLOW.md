@@ -31,7 +31,7 @@ This means:
 - branches should be deleted after merge
 - work may be authored either by a human contributor or by an authorized AI agent using a dedicated repository identity
 
-This project should not adopt a heavy Git Flow model in `v0.3.1`.
+This project should not adopt a heavy Git Flow model in `v0.3.2`.
 
 The repository is still in an early product stage, so a simpler branch model reduces process weight and makes maintenance easier.
 
@@ -247,7 +247,7 @@ OrchFlow must use Semantic Versioning.
 
 The project is currently in the `0.x` phase, so versioning should be interpreted with extra discipline:
 
-- patch increments, such as `0.3.0` to `0.3.1`, for fixes, small internal improvements, documentation refinements, test additions, and CI changes that do not redefine product scope
+- patch increments, such as `0.3.1` to `0.3.2`, for fixes, small internal improvements, documentation refinements, test additions, and CI changes that do not redefine product scope
 - minor increments, such as `0.2.x` to `0.3.0`, for meaningful increments in product capability, public workflow shape, or project maturity
 - `1.0.0` only when the public baseline is stable enough that breaking behavior becomes exceptional instead of expected
 
@@ -314,7 +314,7 @@ For the current backend baseline, the expected validation direction is:
 - `uv run alembic upgrade head`
 - `uv run pytest`
 
-The selected frontend package manager for `v0.3.1` is `pnpm`.
+The selected frontend package manager for `v0.3.2` is `pnpm`.
 
 The expected frontend validation direction is:
 
@@ -377,7 +377,7 @@ CI should continue evolving in stages.
 
 ### Stage 1
 
-The repository now has the backend and frontend quality baseline needed for `v0.3.1`.
+The repository now has the backend and frontend quality baseline needed for `v0.3.2`.
 
 ### Stage 2
 

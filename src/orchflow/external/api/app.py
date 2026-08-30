@@ -16,11 +16,15 @@ from orchflow.application.access_control import (
     UserNotFoundError,
 )
 from orchflow.application.ai_assistance import (
+    AIAssistanceError,
     AIAssistanceGatewayHealth,
     AIAssistanceModelCatalog,
     AIAssistanceStatus,
+    AuthorizedContextManifest,
     CheckAIAssistanceGatewayHealthCommand,
+    CreateAuthorizedContextManifestCommand,
     GetAIAssistanceStatusCommand,
+    GetAuthorizedContextManifestCommand,
     ListAIAssistanceModelsCommand,
 )
 from orchflow.application.audit_history import (
@@ -257,6 +261,35 @@ class AIAssistanceModelCatalogResponse(BaseModel):
     message: str
 
 
+class AuthorizedContextManifestRequest(BaseModel):
+    project_id: int
+    selected_model: str
+    intended_operation: Literal["improve_lifecycle_script", "generate_lifecycle_script"]
+    include_patterns: list[str] = ["*"]
+    exclude_patterns: list[str] = []
+    max_file_size_bytes: int = 65536
+    max_total_bytes: int = 262144
+
+
+class AuthorizedContextManifestResponse(BaseModel):
+    id: int
+    project_id: int
+    requested_by_user_id: int
+    selected_model: str
+    intended_operation: Literal["improve_lifecycle_script", "generate_lifecycle_script"]
+    project_root_path: str
+    include_patterns: list[str]
+    exclude_patterns: list[str]
+    included_paths: list[str]
+    excluded_paths: list[str]
+    ignored_paths: list[str]
+    secret_filter_rules: list[str]
+    max_file_size_bytes: int
+    max_total_bytes: int
+    total_included_bytes: int
+    created_at: str
+
+
 def _to_user_response(user: User) -> UserResponse:
     return UserResponse(
         id=user.id,
@@ -305,6 +338,29 @@ def _to_ai_assistance_model_catalog_response(
         ],
         supports_discovery=catalog.supports_discovery,
         message=catalog.message,
+    )
+
+
+def _to_authorized_context_manifest_response(
+    manifest: AuthorizedContextManifest,
+) -> AuthorizedContextManifestResponse:
+    return AuthorizedContextManifestResponse(
+        id=manifest.id,
+        project_id=manifest.project_id,
+        requested_by_user_id=manifest.requested_by_user_id,
+        selected_model=manifest.selected_model,
+        intended_operation=manifest.intended_operation,
+        project_root_path=manifest.project_root_path,
+        include_patterns=list(manifest.include_patterns),
+        exclude_patterns=list(manifest.exclude_patterns),
+        included_paths=list(manifest.included_paths),
+        excluded_paths=list(manifest.excluded_paths),
+        ignored_paths=list(manifest.ignored_paths),
+        secret_filter_rules=list(manifest.secret_filter_rules),
+        max_file_size_bytes=manifest.max_file_size_bytes,
+        max_total_bytes=manifest.max_total_bytes,
+        total_included_bytes=manifest.total_included_bytes,
+        created_at=manifest.created_at.isoformat(),
     )
 
 
@@ -666,6 +722,76 @@ def create_app() -> FastAPI:
         except AccessControlError as error:
             raise _map_access_control_error(error) from error
         return _to_ai_assistance_model_catalog_response(catalog)
+
+    @app.post(
+        "/ai/context-manifests",
+        response_model=AuthorizedContextManifestResponse,
+        status_code=status.HTTP_201_CREATED,
+        tags=["ai"],
+    )
+    def create_ai_context_manifest(
+        payload: AuthorizedContextManifestRequest,
+        authorization: str | None = Header(default=None),
+    ) -> AuthorizedContextManifestResponse:
+        token = _extract_bearer_token(authorization)
+        if token is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Missing bearer token.",
+            )
+        try:
+            manifest = ai_assistance_service.create_authorized_context_manifest(
+                CreateAuthorizedContextManifestCommand(
+                    token=token,
+                    project_id=payload.project_id,
+                    selected_model=payload.selected_model,
+                    intended_operation=payload.intended_operation,
+                    include_patterns=tuple(payload.include_patterns),
+                    exclude_patterns=tuple(payload.exclude_patterns),
+                    max_file_size_bytes=payload.max_file_size_bytes,
+                    max_total_bytes=payload.max_total_bytes,
+                )
+            )
+        except AuthorizationError as error:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(error)) from error
+        except ProjectRegistryError as error:
+            raise _map_project_registry_error(error) from error
+        except AIAssistanceError as error:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=str(error),
+            ) from error
+        return _to_authorized_context_manifest_response(manifest)
+
+    @app.get(
+        "/ai/context-manifests/{manifest_id}",
+        response_model=AuthorizedContextManifestResponse,
+        tags=["ai"],
+    )
+    def read_ai_context_manifest(
+        manifest_id: int,
+        authorization: str | None = Header(default=None),
+    ) -> AuthorizedContextManifestResponse:
+        token = _extract_bearer_token(authorization)
+        if token is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Missing bearer token.",
+            )
+        try:
+            manifest = ai_assistance_service.get_authorized_context_manifest(
+                GetAuthorizedContextManifestCommand(token=token, manifest_id=manifest_id)
+            )
+        except AuthorizationError as error:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(error)) from error
+        except ProjectRegistryError as error:
+            raise _map_project_registry_error(error) from error
+        except AIAssistanceError as error:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=str(error),
+            ) from error
+        return _to_authorized_context_manifest_response(manifest)
 
     @app.post(
         "/projects",
