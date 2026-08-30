@@ -35,6 +35,7 @@ The preferred initial persistence direction is `SQLite`.
 - audit events are persisted in local `SQLite` storage
 - access-control operations record user registration, login, and admin user listing events
 - project registry operations record project registration, list, and read events
+- project metadata, lifecycle script-path, and lifecycle configuration updates are persisted and audited through registry-owned workflows
 - registry reload operations and automatic mapping refreshes are audited
 - current registration persists automatically detected preferred mappings as imported lifecycle action mappings
 - manual mapping decisions and explicit unconfigured-function decisions are persisted with actor metadata and audited through project lifecycle configuration update events
@@ -56,6 +57,7 @@ The preferred initial persistence direction is `SQLite`.
 - AI proposal approval and rejection decisions should be auditable
 - approved proposal applications should be auditable as file-write and mapping-persistence events owned by OrchFlow rather than LiteLLM
 - lifecycle action mapping changes should be auditable with user attribution
+- project metadata and lifecycle script path changes should be auditable with user attribution
 - project reload and lifecycle configuration health changes should be auditable when they affect controllability or operator guidance
 - the system should prioritize practical local reliability over premature complexity
 - the initial persistence bootstrap should provide a real migration path early, even before the first business entities are fully implemented

@@ -42,7 +42,7 @@ def test_info_command_displays_bootstrap_metadata() -> None:
     result = runner.invoke(app, ["info"])
 
     assert result.exit_code == 0
-    assert "OrchFlow 0.3.5" in result.stdout
+    assert "OrchFlow 0.3.6" in result.stdout
     assert "stage: bootstrap" in result.stdout
 
 
@@ -542,10 +542,47 @@ def test_cli_project_registry_flow_is_available(
     )
     assert register_result.exit_code == 0
     assert "reference_name: cli-project" in register_result.stdout
+    project_id = next(
+        line.removeprefix("id: ")
+        for line in register_result.stdout.splitlines()
+        if line.startswith("id: ")
+    )
+
+    replacement_script = project_dir / "orchflow.bat"
+    replacement_script.write_text(
+        "@echo off\r\n"
+        "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
+        "if /I \"%~1\"==\"START\" echo start-ok & exit /b 0\r\n"
+        "exit /b 1\r\n",
+        encoding="utf-8",
+    )
+    update_result = runner.invoke(
+        app,
+        [
+            "project",
+            "update",
+            "--token",
+            token,
+            "--project-id",
+            project_id,
+            "--reference-name",
+            "cli-project-renamed",
+            "--lifecycle-script-path",
+            str(replacement_script),
+            "--clear-description",
+            "--map-start",
+            "START",
+            "--stop-unconfigured",
+            "--restart-unconfigured",
+        ],
+    )
+    assert update_result.exit_code == 0
+    assert "reference_name: cli-project-renamed" in update_result.stdout
+    assert "start: START (user_defined)" in update_result.stdout
 
     list_result = runner.invoke(app, ["project", "list", "--token", token])
     assert list_result.exit_code == 0
-    assert "reference_name: cli-project" in list_result.stdout
+    assert "reference_name: cli-project-renamed" in list_result.stdout
 
 
 def test_cli_project_lifecycle_configuration_flow_is_available(

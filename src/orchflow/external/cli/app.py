@@ -41,6 +41,7 @@ from orchflow.application.project_registry import (
     ReloadProjectCommand,
     ReloadProjectsCommand,
     UpdateLifecycleFunctionConfigurationCommand,
+    UpdateProjectCommand,
     UpdateProjectOwnerCommand,
 )
 from orchflow.application.runtime_inspection import InspectRuntimeCommand
@@ -357,6 +358,55 @@ def show_project(token: str = typer.Option(...), project_id: int = typer.Option(
     service = create_project_registry_service()
     try:
         project = service.get_project(token, project_id)
+    except (ProjectRegistryError, AccessControlError) as error:
+        _exit_with_error(error)
+    typer.echo(render_project(project))
+
+
+@project_app.command("update")
+def update_project(
+    token: str = typer.Option(...),
+    project_id: int = typer.Option(...),
+    reference_name: str | None = typer.Option(default=None),
+    project_root_path: str | None = typer.Option(default=None),
+    lifecycle_script_path: str | None = typer.Option(default=None),
+    description: str | None = typer.Option(default=None),
+    clear_description: bool = typer.Option(default=False),
+    map_status: str | None = typer.Option(default=None),
+    map_start: str | None = typer.Option(default=None),
+    map_stop: str | None = typer.Option(default=None),
+    map_restart: str | None = typer.Option(default=None),
+    status_unconfigured: bool = typer.Option(default=False),
+    start_unconfigured: bool = typer.Option(default=False),
+    stop_unconfigured: bool = typer.Option(default=False),
+    restart_unconfigured: bool = typer.Option(default=False),
+) -> None:
+    """Update project metadata, script path, and optional lifecycle mappings."""
+    service = create_project_registry_service()
+    mappings = _build_mapping_inputs(map_status, map_start, map_stop, map_restart)
+    unconfigured_actions = _build_unconfigured_actions(
+        status_unconfigured,
+        start_unconfigured,
+        stop_unconfigured,
+        restart_unconfigured,
+    )
+    should_update_configuration = bool(mappings or unconfigured_actions)
+    try:
+        project = service.update_project(
+            UpdateProjectCommand(
+                token=token,
+                project_id=project_id,
+                reference_name=reference_name,
+                description=None if clear_description else description,
+                update_description=clear_description or description is not None,
+                project_root_path=project_root_path,
+                lifecycle_script_path=lifecycle_script_path,
+                mappings=mappings if should_update_configuration else None,
+                unconfigured_actions=(
+                    unconfigured_actions if should_update_configuration else None
+                ),
+            )
+        )
     except (ProjectRegistryError, AccessControlError) as error:
         _exit_with_error(error)
     typer.echo(render_project(project))

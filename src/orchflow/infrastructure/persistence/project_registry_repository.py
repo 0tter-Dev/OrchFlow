@@ -214,6 +214,78 @@ class SqlAlchemyProjectRegistryRepository(ProjectRegistryRepository):
             session.flush()
             return self._inflate_project(session, model)
 
+    def update_project(
+        self,
+        *,
+        project_id: int,
+        reference_name: str,
+        description: str | None,
+        project_root_path: str,
+        lifecycle_script_path: str,
+        mappings: tuple[ProjectMappingInput, ...],
+        unconfigured_actions: tuple[CanonicalLifecycleAction, ...],
+        updated_by_user_id: int,
+    ) -> Project | None:
+        with self._session_scope() as session:
+            model = session.get(ProjectModel, project_id)
+            if model is None:
+                return None
+
+            model.reference_name = reference_name
+            model.description = description
+            model.project_root_path = project_root_path
+            model.lifecycle_script_path = lifecycle_script_path
+
+            existing_mappings = (
+                session.execute(
+                    select(LifecycleActionMappingModel).where(
+                        LifecycleActionMappingModel.project_id == project_id
+                    )
+                )
+                .scalars()
+                .all()
+            )
+            for existing_mapping in existing_mappings:
+                session.delete(existing_mapping)
+
+            existing_decisions = (
+                session.execute(
+                    select(LifecycleFunctionDecisionModel).where(
+                        LifecycleFunctionDecisionModel.project_id == project_id
+                    )
+                )
+                .scalars()
+                .all()
+            )
+            for existing_decision in existing_decisions:
+                session.delete(existing_decision)
+
+            session.flush()
+
+            for mapping in mappings:
+                session.add(
+                    LifecycleActionMappingModel(
+                        project_id=project_id,
+                        canonical_action=mapping.canonical_action.value,
+                        script_label=mapping.script_label,
+                        source=mapping.source.value,
+                        configured_by_user_id=updated_by_user_id,
+                    )
+                )
+
+            for action in unconfigured_actions:
+                session.add(
+                    LifecycleFunctionDecisionModel(
+                        project_id=project_id,
+                        canonical_action=action.value,
+                        state="unconfigured",
+                        decided_by_user_id=updated_by_user_id,
+                    )
+                )
+
+            session.flush()
+            return self._inflate_project(session, model)
+
     def get_project_for_user(self, project_id: int, user: User) -> Project | None:
         with self._session_scope() as session:
             model = session.get(ProjectModel, project_id)

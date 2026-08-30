@@ -124,6 +124,18 @@ At the current implementation stage, configured lifecycle actions are available 
 
 The web project detail view also shows lifecycle configuration health, function-level configured or missing states, a reload action for rereading the `.bat` script, and a manual configuration dialog for mapping script labels or explicitly leaving ideal functions unconfigured.
 
+### 4.1. Update A Registered Project
+
+When a project changes after registration, the implemented backend workflow lets an authorized user update project metadata, the lifecycle script path, and lifecycle action mappings without using AI assistance.
+
+Available backend commands include:
+
+- `CLI`: `orchflow project update --token <TOKEN> --project-id <ID> --reference-name <NAME>`
+- `CLI`: `orchflow project update --token <TOKEN> --project-id <ID> --lifecycle-script-path <PATH> --map-start START`
+- `API`: `PATCH /projects/{project_id}`
+
+The update path reuses lifecycle script validation, preserves audit details, and keeps the project blocked from operational use if the submitted lifecycle configuration leaves no executable lifecycle function.
+
 ### 5. Review History
 
 The user can review recent lifecycle activity and operational outcomes to understand what happened and when.

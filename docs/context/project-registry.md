@@ -22,6 +22,8 @@ For the current Windows batch adapter, registration validates that the selected 
 
 The registry now compares every newly connected `.bat` script against the ideal lifecycle function model. Preferred identifiers are mapped automatically during registration. Missing functions are represented as `undefined` in derived project responses, and users can map them manually or explicitly mark them as `unconfigured` through API and CLI workflows.
 
+Registered projects can now be updated through non-AI API and CLI workflows. Users may change the project reference name, description, project root path, lifecycle script path, and lifecycle mappings. Updates reuse the same `.bat` path validation, first-argument dispatch checks, duplicate reference-name protection, and lifecycle mapping validation used by registration and manual configuration workflows. If an update changes the script path without explicit mappings, OrchFlow reloads compatible existing decisions against the new script so imported mappings can refresh while valid user-defined and AI-approved decisions remain preferred when their handlers still exist.
+
 Users can explicitly reload one project or multiple projects in sequence after local `.bat` or project changes. Reload rereads the lifecycle script, refreshes imported preferred-identifier mappings, preserves valid user-defined or AI-approved mappings when the script still exposes their handlers, keeps explicit `unconfigured` decisions, returns the previous and current configuration health, reports changed actions, and writes an audit event.
 
 Projects with at least one `configured` lifecycle function can be registered or manually reconfigured. Projects where every ideal lifecycle function is `undefined` or `unconfigured` are treated as not operationally controllable until at least one function is configured.
@@ -34,6 +36,7 @@ The user selects a project folder, OrchFlow analyzes it through the LiteLLM-back
 
 - every project must end with a concrete `.bat` lifecycle script
 - each project must have a user-facing reference name
+- project metadata and lifecycle script paths may be updated only through validated registry workflows
 - registration must persist ownership and permission metadata
 - admins may assign or remove project owners
 - project ownership changes must be auditable
@@ -46,6 +49,7 @@ The user selects a project folder, OrchFlow analyzes it through the LiteLLM-back
 - partially configured projects should remain usable and should present warnings plus manual and AI-assisted improvement paths
 - projects with no configured lifecycle function should be blocked from operational use until at least one function is mapped
 - users should be able to explicitly reload one project or multiple projects to refresh script analysis and mapping guidance after local `.bat` or project changes
+- users should be able to update registered project metadata, lifecycle script paths, and action mappings without AI assistance while preserving validation and auditability
 - existing `.bat` registration must validate first-argument dispatch compatibility before persisting the project definition
 - scripts that define labels or menus but do not dispatch from `%~1` or `%1` should be rejected with actionable operator-facing guidance
 - AI-generated script proposals must not be persisted without user review
