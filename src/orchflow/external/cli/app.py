@@ -10,7 +10,11 @@ from orchflow.application.access_control import (
     RegisterUserCommand,
     UpdateUserCommand,
 )
-from orchflow.application.ai_assistance import GetAIAssistanceStatusCommand
+from orchflow.application.ai_assistance import (
+    CheckAIAssistanceGatewayHealthCommand,
+    GetAIAssistanceStatusCommand,
+    ListAIAssistanceModelsCommand,
+)
 from orchflow.application.audit_history import (
     AuditHistoryError,
     ListAuditEventsCommand,
@@ -43,6 +47,8 @@ from orchflow.application.services import (
 from orchflow.domain.access_control import AccessToken, UserRole
 from orchflow.domain.project_registry import CanonicalLifecycleAction, MappingSource
 from orchflow.external.presenters import (
+    render_ai_assistance_gateway_health,
+    render_ai_assistance_model_catalog,
     render_ai_assistance_status,
     render_audit_event,
     render_lifecycle_result,
@@ -519,6 +525,30 @@ def ai_status(token: str = typer.Option(...)) -> None:
     except AccessControlError as error:
         _exit_with_error(error)
     typer.echo(render_ai_assistance_status(status_result))
+
+
+@ai_app.command("health")
+def ai_health(token: str = typer.Option(...)) -> None:
+    """Check the configured LiteLLM gateway health without project context."""
+    service = create_ai_assistance_service()
+    try:
+        health_result = service.check_gateway_health(
+            CheckAIAssistanceGatewayHealthCommand(token=token)
+        )
+    except AccessControlError as error:
+        _exit_with_error(error)
+    typer.echo(render_ai_assistance_gateway_health(health_result))
+
+
+@ai_app.command("models")
+def ai_models(token: str = typer.Option(...)) -> None:
+    """List configured LiteLLM gateway models without project context."""
+    service = create_ai_assistance_service()
+    try:
+        catalog = service.list_models(ListAIAssistanceModelsCommand(token=token))
+    except AccessControlError as error:
+        _exit_with_error(error)
+    typer.echo(render_ai_assistance_model_catalog(catalog))
 
 
 def run() -> None:

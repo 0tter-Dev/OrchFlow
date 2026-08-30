@@ -17,7 +17,7 @@ def test_root_returns_bootstrap_metadata() -> None:
     assert response.status_code == 200
     assert response.json() == {
         "name": "OrchFlow",
-        "version": "0.3.0",
+        "version": "0.3.1",
         "status": "ok",
         "stage": "bootstrap",
     }
@@ -157,6 +157,60 @@ def test_ai_assistance_status_is_exposed_through_authenticated_api(
     assert payload["provider"] == "litellm"
     assert payload["status"] == "disabled"
     assert payload["ready_for_requests"] is False
+
+
+def test_ai_assistance_gateway_health_is_exposed_through_authenticated_api(
+    isolated_environment: None,
+) -> None:
+    client = TestClient(create_app())
+
+    client.post(
+        "/auth/register",
+        json={"username": "ai-health-user", "password": "password123"},
+    )
+    login_response = client.post(
+        "/auth/login",
+        json={"username": "ai-health-user", "password": "password123"},
+    )
+    token = login_response.json()["access_token"]
+
+    health_response = client.get(
+        "/ai/gateway/health",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    assert health_response.status_code == 200
+    payload = health_response.json()
+    assert payload["provider"] == "litellm"
+    assert payload["status"] == "disabled"
+    assert payload["checked"] is False
+
+
+def test_ai_assistance_models_are_exposed_through_authenticated_api(
+    isolated_environment: None,
+) -> None:
+    client = TestClient(create_app())
+
+    client.post(
+        "/auth/register",
+        json={"username": "ai-model-user", "password": "password123"},
+    )
+    login_response = client.post(
+        "/auth/login",
+        json={"username": "ai-model-user", "password": "password123"},
+    )
+    token = login_response.json()["access_token"]
+
+    models_response = client.get(
+        "/ai/models",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    assert models_response.status_code == 200
+    payload = models_response.json()
+    assert payload["provider"] == "litellm"
+    assert payload["supports_discovery"] is False
+    assert payload["models"] == []
 
 
 def test_registering_admin_after_bootstrap_requires_admin_token(

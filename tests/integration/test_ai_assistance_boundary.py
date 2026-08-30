@@ -5,9 +5,14 @@ from __future__ import annotations
 from datetime import UTC, datetime
 
 from orchflow.application.ai_assistance import (
+    AIAssistanceGatewayHealth,
+    AIAssistanceModel,
+    AIAssistanceModelCatalog,
     AIAssistanceService,
     AIAssistanceStatus,
+    CheckAIAssistanceGatewayHealthCommand,
     GetAIAssistanceStatusCommand,
+    ListAIAssistanceModelsCommand,
 )
 from orchflow.domain.access_control import User, UserRole
 from orchflow.infrastructure.ai.litellm_gateway import LiteLLMGatewayClient
@@ -42,6 +47,31 @@ class FakeGateway:
             api_key_configured=False,
             sdk_available=True,
             ready_for_requests=False,
+            message="AI assistance is disabled by configuration.",
+        )
+
+    def check_health(self) -> AIAssistanceGatewayHealth:
+        return AIAssistanceGatewayHealth(
+            provider="litellm",
+            status="disabled",
+            enabled=False,
+            mode="sdk",
+            base_url="http://localhost:4000",
+            checked=False,
+            status_code=None,
+            response_time_ms=None,
+            message="AI assistance is disabled by configuration.",
+        )
+
+    def list_models(self) -> AIAssistanceModelCatalog:
+        return AIAssistanceModelCatalog(
+            provider="litellm",
+            enabled=False,
+            mode="sdk",
+            base_url="http://localhost:4000",
+            default_model="ollama/llama2",
+            models=(),
+            supports_discovery=False,
             message="AI assistance is disabled by configuration.",
         )
 
@@ -93,6 +123,57 @@ def test_ai_assistance_service_reads_status_through_gateway_and_audits() -> None
     ]
 
 
+def test_ai_assistance_service_checks_gateway_health_and_audits() -> None:
+    audit_recorder = FakeAuditRecorder()
+    service = AIAssistanceService(
+        gateway=FakeGateway(),
+        current_user_resolver=FakeCurrentUserResolver(),
+        audit_recorder=audit_recorder,
+    )
+
+    health = service.check_gateway_health(
+        CheckAIAssistanceGatewayHealthCommand(token="token")
+    )
+
+    assert health.status == "disabled"
+    assert audit_recorder.events == [
+        {
+            "actor_user_id": 123,
+            "action": "ai_assistance.gateway.health",
+            "target_type": "ai_assistance_gateway",
+            "target_id": "litellm",
+            "details": (
+                "status:disabled;enabled:false;mode:sdk;"
+                "checked:false;status_code:None"
+            ),
+        }
+    ]
+
+
+def test_ai_assistance_service_lists_models_and_audits() -> None:
+    audit_recorder = FakeAuditRecorder()
+    service = AIAssistanceService(
+        gateway=FakeGateway(),
+        current_user_resolver=FakeCurrentUserResolver(),
+        audit_recorder=audit_recorder,
+    )
+
+    catalog = service.list_models(ListAIAssistanceModelsCommand(token="token"))
+
+    assert catalog.models == ()
+    assert audit_recorder.events == [
+        {
+            "actor_user_id": 123,
+            "action": "ai_assistance.models.list",
+            "target_type": "ai_assistance_gateway",
+            "target_id": "litellm",
+            "details": (
+                "enabled:false;mode:sdk;supports_discovery:false;model_count:0"
+            ),
+        }
+    ]
+
+
 def test_litellm_gateway_client_defaults_to_disabled_without_requests() -> None:
     status = LiteLLMGatewayClient(AppSettings()).get_status()
 
@@ -122,3 +203,80 @@ def test_litellm_gateway_client_reports_invalid_enabled_configuration() -> None:
     assert status.ready_for_requests is False
     assert "default model is required" in status.message
     assert "timeout must be at least 1 second" in status.message
+
+
+def test_litellm_gateway_health_is_disabled_without_request() -> None:
+    calls: list[str] = []
+
+    def http_get(url: str, headers: dict[str, str], timeout_seconds: int) -> tuple[int, str]:
+        calls.append(url)
+        return 200, "{}"
+
+    health = LiteLLMGatewayClient(AppSettings(), http_get=http_get).check_health()
+
+    assert health.status == "disabled"
+    assert health.checked is False
+    assert calls == []
+
+
+def test_litellm_gateway_health_checks_gateway_mode() -> None:
+    calls: list[tuple[str, dict[str, str], int]] = []
+
+    def http_get(url: str, headers: dict[str, str], timeout_seconds: int) -> tuple[int, str]:
+        calls.append((url, headers, timeout_seconds))
+        return 200, "{}"
+
+    health = LiteLLMGatewayClient(
+        AppSettings(
+            ai_enabled=True,
+            litellm_mode="gateway",
+            litellm_base_url="http://litellm.local",
+            litellm_api_key="secret",
+            litellm_timeout_seconds=7,
+        ),
+        http_get=http_get,
+    ).check_health()
+
+    assert health.status == "healthy"
+    assert health.checked is True
+    assert health.status_code == 200
+    assert calls == [
+        (
+            "http://litellm.local/health/readiness",
+            {"Accept": "application/json", "Authorization": "Bearer secret"},
+            7,
+        )
+    ]
+
+
+def test_litellm_model_discovery_returns_default_model_for_sdk_mode() -> None:
+    catalog = LiteLLMGatewayClient(AppSettings(ai_enabled=True)).list_models()
+
+    assert catalog.supports_discovery is False
+    assert catalog.models == (AIAssistanceModel(id="ollama/llama2"),)
+
+
+def test_litellm_model_discovery_reads_openai_compatible_gateway_response() -> None:
+    def http_get(url: str, headers: dict[str, str], timeout_seconds: int) -> tuple[int, str]:
+        assert url == "http://litellm.local/models"
+        return (
+            200,
+            '{"data":[{"id":"ollama/llama3","owned_by":"local"},'
+            '{"model_name":"openai/gpt-4.1"}]}',
+        )
+
+    catalog = LiteLLMGatewayClient(
+        AppSettings(
+            ai_enabled=True,
+            litellm_mode="gateway",
+            litellm_base_url="http://litellm.local",
+            litellm_default_model="ollama/llama3",
+        ),
+        http_get=http_get,
+    ).list_models()
+
+    assert catalog.supports_discovery is True
+    assert catalog.models == (
+        AIAssistanceModel(id="ollama/llama3", owned_by="local"),
+        AIAssistanceModel(id="openai/gpt-4.1"),
+    )

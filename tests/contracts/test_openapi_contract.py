@@ -8,6 +8,8 @@ def test_openapi_contract_exposes_current_operator_routes() -> None:
     paths = schema["paths"]
 
     expected_operations = [
+        ("/ai/gateway/health", "get"),
+        ("/ai/models", "get"),
         ("/ai/status", "get"),
         ("/auth/login", "post"),
         ("/auth/me", "get"),
@@ -78,3 +80,19 @@ def test_ai_assistance_openapi_contract_includes_safe_gateway_status() -> None:
     assert "status" in ai_status_properties
     assert "ready_for_requests" in ai_status_properties
     assert "api_key_configured" in ai_status_properties
+
+
+def test_ai_assistance_openapi_contract_includes_health_and_model_discovery() -> None:
+    schema = create_app().openapi()
+    health_properties = schema["components"]["schemas"][
+        "AIAssistanceGatewayHealthResponse"
+    ]["properties"]
+    catalog_properties = schema["components"]["schemas"][
+        "AIAssistanceModelCatalogResponse"
+    ]["properties"]
+
+    assert "checked" in health_properties
+    assert "status_code" in health_properties
+    assert "response_time_ms" in health_properties
+    assert "models" in catalog_properties
+    assert "supports_discovery" in catalog_properties

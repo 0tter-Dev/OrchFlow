@@ -1,6 +1,10 @@
 """Shared presentation helpers for OrchFlow external adapters."""
 
-from orchflow.application.ai_assistance import AIAssistanceStatus
+from orchflow.application.ai_assistance import (
+    AIAssistanceGatewayHealth,
+    AIAssistanceModelCatalog,
+    AIAssistanceStatus,
+)
 from orchflow.application.project_registry import (
     ProjectReloadResult,
     unconfigured_actions_for_project,
@@ -39,6 +43,43 @@ def render_ai_assistance_status(status: AIAssistanceStatus) -> str:
         f"sdk_available: {str(status.sdk_available).lower()}\n"
         f"ready_for_requests: {str(status.ready_for_requests).lower()}\n"
         f"message: {status.message}"
+    )
+
+
+def render_ai_assistance_gateway_health(health: AIAssistanceGatewayHealth) -> str:
+    """Render AI assistance gateway health for CLI output."""
+    return (
+        f"provider: {health.provider}\n"
+        f"status: {health.status}\n"
+        f"enabled: {str(health.enabled).lower()}\n"
+        f"mode: {health.mode}\n"
+        f"base_url: {health.base_url}\n"
+        f"checked: {str(health.checked).lower()}\n"
+        f"status_code: {health.status_code}\n"
+        f"response_time_ms: {health.response_time_ms}\n"
+        f"message: {health.message}"
+    )
+
+
+def render_ai_assistance_model_catalog(catalog: AIAssistanceModelCatalog) -> str:
+    """Render AI assistance model discovery for CLI output."""
+    model_lines = (
+        "\n".join(
+            f"{model.id}{f' ({model.owned_by})' if model.owned_by else ''}"
+            for model in catalog.models
+        )
+        if catalog.models
+        else "none"
+    )
+    return (
+        f"provider: {catalog.provider}\n"
+        f"enabled: {str(catalog.enabled).lower()}\n"
+        f"mode: {catalog.mode}\n"
+        f"base_url: {catalog.base_url}\n"
+        f"default_model: {catalog.default_model}\n"
+        f"supports_discovery: {str(catalog.supports_discovery).lower()}\n"
+        f"message: {catalog.message}\n"
+        f"models:\n{model_lines}"
     )
 
 
