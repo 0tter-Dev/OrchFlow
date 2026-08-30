@@ -14,8 +14,10 @@ from orchflow.application.ai_assistance import (
     AIAssistanceError,
     AIAssistanceManifestOperation,
     CheckAIAssistanceGatewayHealthCommand,
+    CreateAnalysisProposalCommand,
     CreateAuthorizedContextManifestCommand,
     GetAIAssistanceStatusCommand,
+    GetAnalysisProposalCommand,
     GetAuthorizedContextManifestCommand,
     ListAIAssistanceModelsCommand,
 )
@@ -51,6 +53,7 @@ from orchflow.application.services import (
 from orchflow.domain.access_control import AccessToken, UserRole
 from orchflow.domain.project_registry import CanonicalLifecycleAction, MappingSource
 from orchflow.external.presenters import (
+    render_ai_analysis_proposal,
     render_ai_assistance_gateway_health,
     render_ai_assistance_model_catalog,
     render_ai_assistance_status,
@@ -601,6 +604,40 @@ def ai_manifest_show(token: str = typer.Option(...), manifest_id: int = typer.Op
     except (AIAssistanceError, AccessControlError, ProjectRegistryError) as error:
         _exit_with_error(error)
     typer.echo(render_authorized_context_manifest(manifest))
+
+
+@ai_app.command("proposal-create")
+def ai_proposal_create(
+    token: str = typer.Option(...),
+    manifest_id: int = typer.Option(...),
+    user_instructions: str | None = typer.Option(default=None),
+) -> None:
+    """Create a reviewable AI analysis proposal without writing files."""
+    service = create_ai_assistance_service()
+    try:
+        proposal = service.create_analysis_proposal(
+            CreateAnalysisProposalCommand(
+                token=token,
+                manifest_id=manifest_id,
+                user_instructions=user_instructions,
+            )
+        )
+    except (AIAssistanceError, AccessControlError, ProjectRegistryError) as error:
+        _exit_with_error(error)
+    typer.echo(render_ai_analysis_proposal(proposal))
+
+
+@ai_app.command("proposal-show")
+def ai_proposal_show(token: str = typer.Option(...), proposal_id: int = typer.Option(...)) -> None:
+    """Show a reviewable AI analysis proposal."""
+    service = create_ai_assistance_service()
+    try:
+        proposal = service.get_analysis_proposal(
+            GetAnalysisProposalCommand(token=token, proposal_id=proposal_id)
+        )
+    except (AIAssistanceError, AccessControlError, ProjectRegistryError) as error:
+        _exit_with_error(error)
+    typer.echo(render_ai_analysis_proposal(proposal))
 
 
 def run() -> None:

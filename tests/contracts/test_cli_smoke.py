@@ -6,9 +6,24 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
+from orchflow.application.ai_assistance import AIAssistancePromptMessage
 from orchflow.external.cli.app import app
+from orchflow.infrastructure.ai.litellm_gateway import LiteLLMGatewayClient
+from orchflow.infrastructure.config.settings import get_settings
 
 runner = CliRunner()
+
+
+def _proposal_completion() -> str:
+    return (
+        '{"lifecycle_strategy":"Use canonical dispatch labels.",'
+        '"runtime_hints":["APP_URL can help runtime inspection."],'
+        '"candidate_script_content":"@echo off\\r\\nif /I \\"%~1\\"==\\"STATUS\\" '
+        'echo status-ok & exit /b 0\\r\\n",'
+        '"action_mappings":[{"canonical_action":"status","script_label":"STATUS",'
+        '"rationale":"Detected status command."}],'
+        '"warnings":["Review before writing files."]}'
+    )
 
 
 def _extract_user_id_from_cli_output(output: str, username: str) -> str:
@@ -24,7 +39,7 @@ def test_info_command_displays_bootstrap_metadata() -> None:
     result = runner.invoke(app, ["info"])
 
     assert result.exit_code == 0
-    assert "OrchFlow 0.3.2" in result.stdout
+    assert "OrchFlow 0.3.3" in result.stdout
     assert "stage: bootstrap" in result.stdout
 
 
@@ -256,6 +271,141 @@ def test_cli_ai_context_manifest_flow_is_available(
     assert show_result.exit_code == 0
     assert "project_id:" in show_result.stdout
     assert "included_paths: app.py" in show_result.stdout
+
+
+def test_cli_ai_analysis_proposal_flow_is_available(
+    isolated_environment: None,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("ORCHFLOW_AI_ENABLED", "true")
+    get_settings.cache_clear()
+
+    captured_messages: list[AIAssistancePromptMessage] = []
+
+    def fake_generate_completion(
+        self: LiteLLMGatewayClient,
+        *,
+        model: str,
+        messages: tuple[AIAssistancePromptMessage, ...],
+    ) -> str:
+        assert model == "ollama/llama3"
+        captured_messages.extend(messages)
+        return _proposal_completion()
+
+    monkeypatch.setattr(
+        LiteLLMGatewayClient,
+        "generate_completion",
+        fake_generate_completion,
+    )
+    runner.invoke(
+        app,
+        ["auth", "register", "--username", "ai-proposal-user", "--password", "password123"],
+    )
+    login_result = runner.invoke(
+        app,
+        ["auth", "login", "--username", "ai-proposal-user", "--password", "password123"],
+    )
+    token_line = next(
+        line for line in login_result.stdout.splitlines() if line.startswith("access_token: ")
+    )
+    token = token_line.removeprefix("access_token: ")
+
+    project_dir = tmp_path / "cli-ai-proposal-project"
+    project_dir.mkdir()
+    (project_dir / "app.py").write_text("print('approved proposal context')\n", encoding="utf-8")
+    lifecycle_script = project_dir / "control.bat"
+    lifecycle_script.write_text(
+        "@echo off\r\n"
+        "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
+        "exit /b 1\r\n",
+        encoding="utf-8",
+    )
+    register_result = runner.invoke(
+        app,
+        [
+            "project",
+            "register",
+            "--token",
+            token,
+            "--reference-name",
+            "cli-ai-proposal-project",
+            "--project-root-path",
+            str(project_dir),
+            "--lifecycle-script-path",
+            str(lifecycle_script),
+        ],
+    )
+    project_id = next(
+        line.removeprefix("id: ")
+        for line in register_result.stdout.splitlines()
+        if line.startswith("id: ")
+    )
+    manifest_result = runner.invoke(
+        app,
+        [
+            "ai",
+            "manifest-create",
+            "--token",
+            token,
+            "--project-id",
+            project_id,
+            "--selected-model",
+            "ollama/llama3",
+            "--intended-operation",
+            "improve_lifecycle_script",
+            "--include-pattern",
+            "app.py",
+        ],
+    )
+    manifest_id = next(
+        line.removeprefix("id: ")
+        for line in manifest_result.stdout.splitlines()
+        if line.startswith("id: ")
+    )
+
+    proposal_result = runner.invoke(
+        app,
+        [
+            "ai",
+            "proposal-create",
+            "--token",
+            token,
+            "--manifest-id",
+            manifest_id,
+            "--user-instructions",
+            "Keep it reviewable.",
+        ],
+    )
+
+    assert proposal_result.exit_code == 0
+    assert "lifecycle_strategy: Use canonical dispatch labels." in proposal_result.stdout
+    assert "status: STATUS" in proposal_result.stdout
+    assert "candidate_script_content:" in proposal_result.stdout
+    assert "approved proposal context" in captured_messages[1].content
+    assert [
+        line.strip()
+        for line in lifecycle_script.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ] == [
+        "@echo off",
+        'if /I "%~1"=="STATUS" echo status-ok & exit /b 0',
+        "exit /b 1",
+    ]
+    proposal_id = next(
+        line.removeprefix("id: ")
+        for line in proposal_result.stdout.splitlines()
+        if line.startswith("id: ")
+    )
+
+    show_result = runner.invoke(
+        app,
+        ["ai", "proposal-show", "--token", token, "--proposal-id", proposal_id],
+    )
+
+    assert show_result.exit_code == 0
+    assert "manifest_id:" in show_result.stdout
+    assert "runtime_hints: APP_URL can help runtime inspection." in show_result.stdout
 
 
 def test_cli_admin_user_management_flow_is_available(isolated_environment: None) -> None:

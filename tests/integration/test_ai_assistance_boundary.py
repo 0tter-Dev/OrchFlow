@@ -6,17 +6,22 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from orchflow.application.ai_assistance import (
+    AIAnalysisProposal,
     AIAssistanceGatewayHealth,
     AIAssistanceModel,
     AIAssistanceModelCatalog,
+    AIAssistancePromptMessage,
     AIAssistanceService,
     AIAssistanceStatus,
     AuthorizedContextManifest,
     CheckAIAssistanceGatewayHealthCommand,
+    CreateAnalysisProposalCommand,
     CreateAuthorizedContextManifestCommand,
     GetAIAssistanceStatusCommand,
+    GetAnalysisProposalCommand,
     GetAuthorizedContextManifestCommand,
     ListAIAssistanceModelsCommand,
+    ProposedLifecycleActionMapping,
 )
 from orchflow.domain.access_control import User, UserRole
 from orchflow.domain.project_registry import Project
@@ -63,19 +68,28 @@ class FakeProjectResolver:
 
 
 class FakeGateway:
+    def __init__(self, *, ready_for_requests: bool = False) -> None:
+        self.ready_for_requests = ready_for_requests
+        self.messages: tuple[AIAssistancePromptMessage, ...] = ()
+
     def get_status(self) -> AIAssistanceStatus:
         return AIAssistanceStatus(
             provider="litellm",
-            status="disabled",
-            enabled=False,
+            status="configured" if self.ready_for_requests else "disabled",
+            enabled=self.ready_for_requests,
             mode="sdk",
             base_url="http://localhost:4000",
             default_model="ollama/llama2",
             timeout_seconds=60,
             api_key_configured=False,
             sdk_available=True,
-            ready_for_requests=False,
-            message="AI assistance is disabled by configuration.",
+            ready_for_requests=self.ready_for_requests,
+            message=(
+                "LiteLLM is configured for future AI assistance requests. "
+                "No model request was executed."
+                if self.ready_for_requests
+                else "AI assistance is disabled by configuration."
+            ),
         )
 
     def check_health(self) -> AIAssistanceGatewayHealth:
@@ -101,6 +115,24 @@ class FakeGateway:
             models=(),
             supports_discovery=False,
             message="AI assistance is disabled by configuration.",
+        )
+
+    def generate_completion(
+        self,
+        *,
+        model: str,
+        messages: tuple[AIAssistancePromptMessage, ...],
+    ) -> str:
+        assert model == "ollama/llama3"
+        self.messages = messages
+        return (
+            '{"lifecycle_strategy":"Use first-argument dispatch for canonical actions.",'
+            '"runtime_hints":["APP_PORT may be declared in control.bat."],'
+            '"candidate_script_content":"@echo off\\r\\nif /I \\"%~1\\"==\\"STATUS\\" '
+            'echo ok & exit /b 0\\r\\n",'
+            '"action_mappings":[{"canonical_action":"status","script_label":"STATUS",'
+            '"rationale":"Canonical status handler."}],'
+            '"warnings":["Review before applying."]}'
         )
 
 
@@ -131,6 +163,7 @@ class FakeAuditRecorder:
 class FakeManifestRepository:
     def __init__(self) -> None:
         self.manifest: AuthorizedContextManifest | None = None
+        self.proposal: AIAnalysisProposal | None = None
 
     def create_authorized_context_manifest(
         self,
@@ -177,16 +210,54 @@ class FakeManifestRepository:
         assert manifest_id == 1
         return self.manifest
 
+    def create_analysis_proposal(
+        self,
+        *,
+        manifest_id: int,
+        project_id: int,
+        requested_by_user_id: int,
+        selected_model: str,
+        intended_operation: str,
+        lifecycle_strategy: str,
+        runtime_hints: tuple[str, ...],
+        candidate_script_content: str,
+        action_mappings: tuple[ProposedLifecycleActionMapping, ...],
+        warnings: tuple[str, ...],
+    ) -> AIAnalysisProposal:
+        self.proposal = AIAnalysisProposal(
+            id=2,
+            manifest_id=manifest_id,
+            project_id=project_id,
+            requested_by_user_id=requested_by_user_id,
+            selected_model=selected_model,
+            intended_operation=intended_operation,
+            lifecycle_strategy=lifecycle_strategy,
+            runtime_hints=runtime_hints,
+            candidate_script_content=candidate_script_content,
+            action_mappings=action_mappings,
+            warnings=warnings,
+            created_at=datetime.now(UTC),
+        )
+        return self.proposal
+
+    def get_analysis_proposal(
+        self,
+        proposal_id: int,
+    ) -> AIAnalysisProposal | None:
+        assert proposal_id == 2
+        return self.proposal
+
 
 def _build_service(
     *,
     project_root_path: Path | None = None,
+    gateway: FakeGateway | None = None,
     audit_recorder: FakeAuditRecorder | None = None,
     manifest_repository: FakeManifestRepository | None = None,
 ) -> AIAssistanceService:
     root_path = project_root_path or Path.cwd()
     return AIAssistanceService(
-        gateway=FakeGateway(),
+        gateway=gateway or FakeGateway(),
         current_user_resolver=FakeCurrentUserResolver(),
         audit_recorder=audit_recorder or FakeAuditRecorder(),
         project_resolver=FakeProjectResolver(root_path),
@@ -295,6 +366,59 @@ def test_ai_assistance_service_creates_authorized_context_manifest(
 
     assert persisted_manifest.id == manifest.id
     assert audit_recorder.events[-1]["action"] == "ai_assistance.context_manifest.read"
+
+
+def test_ai_assistance_service_creates_reviewable_analysis_proposal(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "app.py").write_text("print('approved context')\n", encoding="utf-8")
+    (tmp_path / "control.bat").write_text("@echo off\r\n", encoding="utf-8")
+    audit_recorder = FakeAuditRecorder()
+    manifest_repository = FakeManifestRepository()
+    gateway = FakeGateway(ready_for_requests=True)
+    service = _build_service(
+        project_root_path=tmp_path,
+        gateway=gateway,
+        audit_recorder=audit_recorder,
+        manifest_repository=manifest_repository,
+    )
+    manifest = service.create_authorized_context_manifest(
+        CreateAuthorizedContextManifestCommand(
+            token="token",
+            project_id=456,
+            selected_model="ollama/llama3",
+            intended_operation="improve_lifecycle_script",
+            include_patterns=("app.py",),
+        )
+    )
+
+    proposal = service.create_analysis_proposal(
+        CreateAnalysisProposalCommand(
+            token="token",
+            manifest_id=manifest.id,
+            user_instructions="Prefer canonical labels.",
+        )
+    )
+
+    assert proposal.manifest_id == manifest.id
+    assert proposal.lifecycle_strategy == "Use first-argument dispatch for canonical actions."
+    assert proposal.runtime_hints == ("APP_PORT may be declared in control.bat.",)
+    assert proposal.action_mappings[0].canonical_action == "status"
+    assert proposal.action_mappings[0].script_label == "STATUS"
+    assert "approved context" in gateway.messages[1].content
+    assert "control.bat" not in proposal.candidate_script_content
+    assert (tmp_path / "control.bat").read_text(encoding="utf-8").split() == [
+        "@echo",
+        "off",
+    ]
+    assert audit_recorder.events[-1]["action"] == "ai_assistance.analysis_proposal.create"
+
+    persisted_proposal = service.get_analysis_proposal(
+        GetAnalysisProposalCommand(token="token", proposal_id=2)
+    )
+
+    assert persisted_proposal.id == proposal.id
+    assert audit_recorder.events[-1]["action"] == "ai_assistance.analysis_proposal.read"
 
 
 def test_litellm_gateway_client_defaults_to_disabled_without_requests() -> None:

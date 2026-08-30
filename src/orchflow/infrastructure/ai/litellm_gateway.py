@@ -4,17 +4,20 @@ from __future__ import annotations
 
 import json
 import time
+from importlib import import_module
 from importlib.util import find_spec
 from json import JSONDecodeError
-from typing import Protocol
+from typing import Any, Protocol
 from urllib.error import HTTPError, URLError
 from urllib.parse import urljoin
 from urllib.request import Request, urlopen
 
 from orchflow.application.ai_assistance import (
+    AIAssistanceError,
     AIAssistanceGatewayHealth,
     AIAssistanceModel,
     AIAssistanceModelCatalog,
+    AIAssistancePromptMessage,
     AIAssistanceStatus,
 )
 from orchflow.infrastructure.config.settings import AppSettings
@@ -33,6 +36,18 @@ class HttpGet(Protocol):
     ) -> tuple[int, str]: ...
 
 
+class HttpPost(Protocol):
+    """Callable boundary used to perform LiteLLM-compatible POST requests."""
+
+    def __call__(
+        self,
+        url: str,
+        headers: dict[str, str],
+        body: str,
+        timeout_seconds: int,
+    ) -> tuple[int, str]: ...
+
+
 def _default_http_get(
     url: str,
     headers: dict[str, str],
@@ -44,12 +59,35 @@ def _default_http_get(
         return response.status, body
 
 
+def _default_http_post(
+    url: str,
+    headers: dict[str, str],
+    body: str,
+    timeout_seconds: int,
+) -> tuple[int, str]:
+    request = Request(
+        url,
+        data=body.encode("utf-8"),
+        headers=headers,
+        method="POST",
+    )
+    with urlopen(request, timeout=timeout_seconds) as response:
+        response_body = response.read().decode("utf-8")
+        return response.status, response_body
+
+
 class LiteLLMGatewayClient:
     """Safe configuration-level client for the LiteLLM gateway."""
 
-    def __init__(self, settings: AppSettings, http_get: HttpGet = _default_http_get) -> None:
+    def __init__(
+        self,
+        settings: AppSettings,
+        http_get: HttpGet = _default_http_get,
+        http_post: HttpPost = _default_http_post,
+    ) -> None:
         self._settings = settings
         self._http_get = http_get
+        self._http_post = http_post
 
     def get_status(self) -> AIAssistanceStatus:
         """Return a safe status summary without invoking models or sending files."""
@@ -217,6 +255,28 @@ class LiteLLMGatewayClient:
 
         return self._request_gateway_models(status.base_url, status.default_model)
 
+    def generate_completion(
+        self,
+        *,
+        model: str,
+        messages: tuple[AIAssistancePromptMessage, ...],
+    ) -> str:
+        """Generate a completion through LiteLLM for approved AI assistance context."""
+        status = self.get_status()
+        if not status.ready_for_requests:
+            raise AIAssistanceError(
+                "LiteLLM is not ready for AI assistance completion requests."
+            )
+        if status.mode == "gateway":
+            return self._request_gateway_completion(
+                base_url=status.base_url,
+                model=model,
+                messages=messages,
+            )
+        if status.mode == "sdk":
+            return self._request_sdk_completion(model=model, messages=messages)
+        raise AIAssistanceError("Unsupported LiteLLM mode.")
+
     def _request_gateway_health(self, base_url: str) -> AIAssistanceGatewayHealth:
         health_url = urljoin(f"{base_url.rstrip('/')}/", "health/readiness")
         started_at = time.perf_counter()
@@ -315,6 +375,107 @@ class LiteLLMGatewayClient:
         if api_key:
             headers["Authorization"] = f"Bearer {api_key}"
         return headers
+
+    def _json_headers(self) -> dict[str, str]:
+        headers = self._headers()
+        headers["Content-Type"] = "application/json"
+        return headers
+
+    def _request_gateway_completion(
+        self,
+        *,
+        base_url: str,
+        model: str,
+        messages: tuple[AIAssistancePromptMessage, ...],
+    ) -> str:
+        completion_url = urljoin(f"{base_url.rstrip('/')}/", "chat/completions")
+        body = json.dumps(
+            {
+                "model": model,
+                "messages": [
+                    {"role": message.role, "content": message.content}
+                    for message in messages
+                ],
+                "temperature": 0.2,
+            },
+            separators=(",", ":"),
+        )
+        try:
+            status_code, response_body = self._http_post(
+                completion_url,
+                self._json_headers(),
+                body,
+                self._settings.litellm_timeout_seconds,
+            )
+        except HTTPError as error:
+            raise AIAssistanceError(
+                f"LiteLLM completion failed with HTTP {error.code}."
+            ) from error
+        except (OSError, URLError) as error:
+            raise AIAssistanceError(f"LiteLLM completion failed: {error}") from error
+
+        if not 200 <= status_code < 300:
+            raise AIAssistanceError(
+                f"LiteLLM completion returned HTTP {status_code}."
+            )
+        return self._extract_completion_content(response_body)
+
+    def _request_sdk_completion(
+        self,
+        *,
+        model: str,
+        messages: tuple[AIAssistancePromptMessage, ...],
+    ) -> str:
+        try:
+            litellm = import_module("litellm")
+            response = litellm.completion(
+                model=model,
+                messages=[
+                    {"role": message.role, "content": message.content}
+                    for message in messages
+                ],
+                temperature=0.2,
+                timeout=self._settings.litellm_timeout_seconds,
+            )
+        except Exception as error:
+            raise AIAssistanceError(f"LiteLLM completion failed: {error}") from error
+        return self._extract_completion_message(response)
+
+    def _extract_completion_content(self, body: str) -> str:
+        try:
+            payload = json.loads(body)
+        except JSONDecodeError as error:
+            raise AIAssistanceError(
+                "LiteLLM completion returned invalid JSON."
+            ) from error
+        return self._extract_completion_message(payload)
+
+    def _extract_completion_message(self, payload: Any) -> str:
+        if not isinstance(payload, dict):
+            payload = self._model_dump(payload)
+        choices = payload.get("choices") if isinstance(payload, dict) else None
+        if not isinstance(choices, list) or not choices:
+            raise AIAssistanceError("LiteLLM completion returned no choices.")
+        first_choice = choices[0]
+        if not isinstance(first_choice, dict):
+            first_choice = self._model_dump(first_choice)
+        message = first_choice.get("message") if isinstance(first_choice, dict) else None
+        if not isinstance(message, dict):
+            message = self._model_dump(message)
+        content = message.get("content") if isinstance(message, dict) else None
+        if not isinstance(content, str) or not content.strip():
+            raise AIAssistanceError("LiteLLM completion returned empty content.")
+        return content
+
+    @staticmethod
+    def _model_dump(value: Any) -> dict[str, Any]:
+        if hasattr(value, "model_dump"):
+            dumped = value.model_dump()
+            return dumped if isinstance(dumped, dict) else {}
+        if hasattr(value, "dict"):
+            dumped = value.dict()
+            return dumped if isinstance(dumped, dict) else {}
+        return {}
 
     def _failed_health_response(
         self,

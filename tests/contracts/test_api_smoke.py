@@ -6,7 +6,22 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
+from orchflow.application.ai_assistance import AIAssistancePromptMessage
 from orchflow.external.api.app import create_app
+from orchflow.infrastructure.ai.litellm_gateway import LiteLLMGatewayClient
+from orchflow.infrastructure.config.settings import get_settings
+
+
+def _proposal_completion() -> str:
+    return (
+        '{"lifecycle_strategy":"Use a canonical first-argument dispatch .bat.",'
+        '"runtime_hints":["Declare APP_PORT when available."],'
+        '"candidate_script_content":"@echo off\\r\\nif /I \\"%~1\\"==\\"STATUS\\" '
+        'echo status-ok & exit /b 0\\r\\n",'
+        '"action_mappings":[{"canonical_action":"status","script_label":"STATUS",'
+        '"rationale":"Detected status command."}],'
+        '"warnings":["Review before writing files."]}'
+    )
 
 
 def test_root_returns_bootstrap_metadata() -> None:
@@ -17,7 +32,7 @@ def test_root_returns_bootstrap_metadata() -> None:
     assert response.status_code == 200
     assert response.json() == {
         "name": "OrchFlow",
-        "version": "0.3.2",
+        "version": "0.3.3",
         "status": "ok",
         "stage": "bootstrap",
     }
@@ -279,6 +294,109 @@ def test_ai_context_manifest_flow_is_exposed_through_authenticated_api(
 
     assert read_response.status_code == 200
     assert read_response.json()["id"] == manifest["id"]
+
+
+def test_ai_analysis_proposal_flow_is_exposed_through_authenticated_api(
+    isolated_environment: None,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("ORCHFLOW_AI_ENABLED", "true")
+    get_settings.cache_clear()
+
+    captured_messages: list[AIAssistancePromptMessage] = []
+
+    def fake_generate_completion(
+        self: LiteLLMGatewayClient,
+        *,
+        model: str,
+        messages: tuple[AIAssistancePromptMessage, ...],
+    ) -> str:
+        assert model == "ollama/llama3"
+        captured_messages.extend(messages)
+        return _proposal_completion()
+
+    monkeypatch.setattr(
+        LiteLLMGatewayClient,
+        "generate_completion",
+        fake_generate_completion,
+    )
+    client = TestClient(create_app())
+
+    client.post(
+        "/auth/register",
+        json={"username": "ai-proposal-user", "password": "password123"},
+    )
+    login_response = client.post(
+        "/auth/login",
+        json={"username": "ai-proposal-user", "password": "password123"},
+    )
+    token = login_response.json()["access_token"]
+
+    project_dir = tmp_path / "api-ai-proposal-project"
+    project_dir.mkdir()
+    (project_dir / "app.py").write_text("print('approved proposal context')\n", encoding="utf-8")
+    lifecycle_script = project_dir / "control.bat"
+    lifecycle_script.write_text(
+        "@echo off\r\n"
+        "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
+        "exit /b 1\r\n",
+        encoding="utf-8",
+    )
+    register_response = client.post(
+        "/projects",
+        headers={"Authorization": f"Bearer {token}"},
+        json={
+            "reference_name": "api-ai-proposal-project",
+            "project_root_path": str(project_dir),
+            "lifecycle_script_path": str(lifecycle_script),
+        },
+    )
+    project_id = register_response.json()["id"]
+    manifest_response = client.post(
+        "/ai/context-manifests",
+        headers={"Authorization": f"Bearer {token}"},
+        json={
+            "project_id": project_id,
+            "selected_model": "ollama/llama3",
+            "intended_operation": "improve_lifecycle_script",
+            "include_patterns": ["app.py"],
+        },
+    )
+    manifest_id = manifest_response.json()["id"]
+
+    proposal_response = client.post(
+        "/ai/analysis-proposals",
+        headers={"Authorization": f"Bearer {token}"},
+        json={
+            "manifest_id": manifest_id,
+            "user_instructions": "Keep the proposal reviewable.",
+        },
+    )
+
+    assert proposal_response.status_code == 201
+    proposal = proposal_response.json()
+    assert proposal["manifest_id"] == manifest_id
+    assert proposal["lifecycle_strategy"] == "Use a canonical first-argument dispatch .bat."
+    assert proposal["action_mappings"][0]["canonical_action"] == "status"
+    assert "approved proposal context" in captured_messages[1].content
+    assert [
+        line.strip()
+        for line in lifecycle_script.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ] == [
+        "@echo off",
+        'if /I "%~1"=="STATUS" echo status-ok & exit /b 0',
+        "exit /b 1",
+    ]
+
+    read_response = client.get(
+        f"/ai/analysis-proposals/{proposal['id']}",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    assert read_response.status_code == 200
+    assert read_response.json()["id"] == proposal["id"]
 
 
 def test_registering_admin_after_bootstrap_requires_admin_token(
