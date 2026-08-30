@@ -15,7 +15,14 @@ from orchflow.application.access_control import (
     UserConflictError,
     UserNotFoundError,
 )
-from orchflow.application.ai_assistance import AIAssistanceStatus, GetAIAssistanceStatusCommand
+from orchflow.application.ai_assistance import (
+    AIAssistanceGatewayHealth,
+    AIAssistanceModelCatalog,
+    AIAssistanceStatus,
+    CheckAIAssistanceGatewayHealthCommand,
+    GetAIAssistanceStatusCommand,
+    ListAIAssistanceModelsCommand,
+)
 from orchflow.application.audit_history import (
     AuditHistoryError,
     AuditHistoryValidationError,
@@ -222,6 +229,34 @@ class AIAssistanceStatusResponse(BaseModel):
     message: str
 
 
+class AIAssistanceGatewayHealthResponse(BaseModel):
+    provider: str
+    status: Literal["disabled", "healthy", "unhealthy", "unsupported"]
+    enabled: bool
+    mode: str
+    base_url: str
+    checked: bool
+    status_code: int | None
+    response_time_ms: int | None
+    message: str
+
+
+class AIAssistanceModelResponse(BaseModel):
+    id: str
+    owned_by: str | None = None
+
+
+class AIAssistanceModelCatalogResponse(BaseModel):
+    provider: str
+    enabled: bool
+    mode: str
+    base_url: str
+    default_model: str
+    models: list[AIAssistanceModelResponse]
+    supports_discovery: bool
+    message: str
+
+
 def _to_user_response(user: User) -> UserResponse:
     return UserResponse(
         id=user.id,
@@ -247,6 +282,30 @@ def _to_ai_assistance_status_response(
     ai_status: AIAssistanceStatus,
 ) -> AIAssistanceStatusResponse:
     return AIAssistanceStatusResponse.model_validate(ai_status, from_attributes=True)
+
+
+def _to_ai_assistance_gateway_health_response(
+    health: AIAssistanceGatewayHealth,
+) -> AIAssistanceGatewayHealthResponse:
+    return AIAssistanceGatewayHealthResponse.model_validate(health, from_attributes=True)
+
+
+def _to_ai_assistance_model_catalog_response(
+    catalog: AIAssistanceModelCatalog,
+) -> AIAssistanceModelCatalogResponse:
+    return AIAssistanceModelCatalogResponse(
+        provider=catalog.provider,
+        enabled=catalog.enabled,
+        mode=catalog.mode,
+        base_url=catalog.base_url,
+        default_model=catalog.default_model,
+        models=[
+            AIAssistanceModelResponse.model_validate(model, from_attributes=True)
+            for model in catalog.models
+        ],
+        supports_discovery=catalog.supports_discovery,
+        message=catalog.message,
+    )
 
 
 def _to_project_response(project: Project) -> ProjectResponse:
@@ -563,6 +622,50 @@ def create_app() -> FastAPI:
         except AccessControlError as error:
             raise _map_access_control_error(error) from error
         return _to_ai_assistance_status_response(ai_status)
+
+    @app.get(
+        "/ai/gateway/health",
+        response_model=AIAssistanceGatewayHealthResponse,
+        tags=["ai"],
+    )
+    def read_ai_assistance_gateway_health(
+        authorization: str | None = Header(default=None),
+    ) -> AIAssistanceGatewayHealthResponse:
+        token = _extract_bearer_token(authorization)
+        if token is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Missing bearer token.",
+            )
+        try:
+            health = ai_assistance_service.check_gateway_health(
+                CheckAIAssistanceGatewayHealthCommand(token=token)
+            )
+        except AccessControlError as error:
+            raise _map_access_control_error(error) from error
+        return _to_ai_assistance_gateway_health_response(health)
+
+    @app.get(
+        "/ai/models",
+        response_model=AIAssistanceModelCatalogResponse,
+        tags=["ai"],
+    )
+    def list_ai_assistance_models(
+        authorization: str | None = Header(default=None),
+    ) -> AIAssistanceModelCatalogResponse:
+        token = _extract_bearer_token(authorization)
+        if token is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Missing bearer token.",
+            )
+        try:
+            catalog = ai_assistance_service.list_models(
+                ListAIAssistanceModelsCommand(token=token)
+            )
+        except AccessControlError as error:
+            raise _map_access_control_error(error) from error
+        return _to_ai_assistance_model_catalog_response(catalog)
 
     @app.post(
         "/projects",

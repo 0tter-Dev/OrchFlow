@@ -24,7 +24,7 @@ def test_info_command_displays_bootstrap_metadata() -> None:
     result = runner.invoke(app, ["info"])
 
     assert result.exit_code == 0
-    assert "OrchFlow 0.3.0" in result.stdout
+    assert "OrchFlow 0.3.1" in result.stdout
     assert "stage: bootstrap" in result.stdout
 
 
@@ -121,6 +121,54 @@ def test_cli_ai_assistance_status_flow_is_available(isolated_environment: None) 
     assert "provider: litellm" in status_result.stdout
     assert "status: disabled" in status_result.stdout
     assert "ready_for_requests: false" in status_result.stdout
+
+
+def test_cli_ai_assistance_gateway_health_flow_is_available(
+    isolated_environment: None,
+) -> None:
+    runner.invoke(
+        app,
+        ["auth", "register", "--username", "ai-health-user", "--password", "password123"],
+    )
+    login_result = runner.invoke(
+        app,
+        ["auth", "login", "--username", "ai-health-user", "--password", "password123"],
+    )
+    token_line = next(
+        line for line in login_result.stdout.splitlines() if line.startswith("access_token: ")
+    )
+    token = token_line.removeprefix("access_token: ")
+
+    health_result = runner.invoke(app, ["ai", "health", "--token", token])
+
+    assert health_result.exit_code == 0
+    assert "provider: litellm" in health_result.stdout
+    assert "status: disabled" in health_result.stdout
+    assert "checked: false" in health_result.stdout
+
+
+def test_cli_ai_assistance_model_discovery_flow_is_available(
+    isolated_environment: None,
+) -> None:
+    runner.invoke(
+        app,
+        ["auth", "register", "--username", "ai-model-user", "--password", "password123"],
+    )
+    login_result = runner.invoke(
+        app,
+        ["auth", "login", "--username", "ai-model-user", "--password", "password123"],
+    )
+    token_line = next(
+        line for line in login_result.stdout.splitlines() if line.startswith("access_token: ")
+    )
+    token = token_line.removeprefix("access_token: ")
+
+    models_result = runner.invoke(app, ["ai", "models", "--token", token])
+
+    assert models_result.exit_code == 0
+    assert "provider: litellm" in models_result.stdout
+    assert "supports_discovery: false" in models_result.stdout
+    assert "models:\nnone" in models_result.stdout
 
 
 def test_cli_admin_user_management_flow_is_available(isolated_environment: None) -> None:

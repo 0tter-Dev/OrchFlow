@@ -77,7 +77,7 @@ The user reviews the generated suggestion and confirms or edits it before saving
 
 If the project script uses different action names such as `iniciar`, `parar`, or `reiniciar`, the user can explicitly map them to OrchFlow canonical actions before finishing the registration.
 
-At the current implementation stage, the AI assistance flow exposes only the safe status check. Authenticated users can run `orchflow ai status --token <TOKEN>` or call `GET /ai/status` to see whether the LiteLLM-backed boundary is disabled, configured, or misconfigured. This check records an audit event and does not inspect project files, discover models, execute prompts, generate proposals, or write `.bat` scripts yet.
+At the current implementation stage, the AI assistance flow exposes safe status, LiteLLM gateway health, and model discovery checks. Authenticated users can run `orchflow ai status --token <TOKEN>`, `orchflow ai health --token <TOKEN>`, and `orchflow ai models --token <TOKEN>`, or call `GET /ai/status`, `GET /ai/gateway/health`, and `GET /ai/models`. These checks record audit events and do not inspect project files, execute prompts, generate proposals, or write `.bat` scripts yet.
 
 ### 2.1. Reload Project Configuration
 

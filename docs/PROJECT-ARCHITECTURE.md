@@ -20,9 +20,9 @@ The platform must centralize:
 
 ## Core Principle
 
-In `v0.3.0`, every managed project must have a concrete lifecycle control definition based on a Windows `.bat` script. This script is the authoritative operational contract used by OrchFlow to control the project lifecycle.
+In `v0.3.1`, every managed project must have a concrete lifecycle control definition based on a Windows `.bat` script. This script is the authoritative operational contract used by OrchFlow to control the project lifecycle.
 
-The AI assistance layer is optional and assistive. Its integration model uses `LiteLLM` as the central gateway for connecting to local or configured AI models and agents, while OrchFlow keeps a dedicated adapter boundary responsible for context selection, file access control, authorization, validation, review workflow, and final user approval. The first implemented boundary reports authenticated, audited LiteLLM configuration status only. LiteLLM may connect to providers such as local `Ollama` or other explicitly configured model backends, but it must not replace the explicit `.bat` script contract or OrchFlow's business rules.
+The AI assistance layer is optional and assistive. Its integration model uses `LiteLLM` as the central gateway for connecting to local or configured AI models and agents, while OrchFlow keeps a dedicated adapter boundary responsible for context selection, file access control, authorization, validation, review workflow, and final user approval. The implemented boundary reports authenticated, audited LiteLLM configuration status, gateway health, and model discovery without project context. LiteLLM may connect to providers such as local `Ollama` or other explicitly configured model backends, but it must not replace the explicit `.bat` script contract or OrchFlow's business rules.
 
 ## Goals
 
@@ -35,7 +35,7 @@ The AI assistance layer is optional and assistive. Its integration model uses `L
 - Enforce authentication and authorization through application users and permissions
 - Establish a disciplined engineering foundation for Git, GitHub, testing, and CI
 
-## Non-Goals For v0.3.0
+## Non-Goals For v0.3.1
 
 - Container orchestration
 - Multi-host orchestration
@@ -87,7 +87,7 @@ These non-goals should not be treated as a reason to hard-couple the codebase ag
 - OrchFlow must mediate all AI interactions through an AI assistance adapter owned by the application layer
 - `LiteLLM` is the central LLM gateway for provider and model connectivity
 - OrchFlow must not call `LiteLLM` directly from delivery adapters or domain rules
-- API and CLI may expose only OrchFlow application-service AI workflows; the first implemented workflow is an authenticated, audited status check that does not send project context or invoke a model
+- API and CLI may expose only OrchFlow application-service AI workflows; implemented status, gateway health, and model discovery checks must not send project context or execute prompts
 - local `Ollama` should be supported through the LiteLLM integration path when enabled, but the architecture must remain provider-agnostic
 - AI assistance must operate only against resources already available and authorized on the machine
 - OrchFlow may start or verify a local provider process only through explicit configuration and user-authorized workflows
@@ -127,7 +127,7 @@ OrchFlow should:
 - mediate optional AI-assisted project analysis and script generation
 - expose consistent operational capabilities through CLI, API, and interface adapters
 
-OrchFlow should not, in `v0.3.0`:
+OrchFlow should not, in `v0.3.1`:
 
 - behave as a container orchestrator
 - assume remote infrastructure control
@@ -187,7 +187,7 @@ These interface clients should consume the API rather than bypassing the backend
 
 `SQLite` is the initial persistence candidate because it supports a lightweight local-first workflow while still allowing robust enough storage for users, projects, permissions, lifecycle metadata, and audit events.
 
-For `v0.3.0`, the selected backend persistence stack is `SQLite` with `SQLAlchemy` and `Alembic`.
+For `v0.3.1`, the selected backend persistence stack is `SQLite` with `SQLAlchemy` and `Alembic`.
 
 ## Selected Technology Direction
 
