@@ -54,7 +54,7 @@ Defines how OrchFlow inspects ports, processes, uptime, resource usage, status e
 
 - [AI Assistance Adapter](./context/ai-agent-adapter.md)
 Defines the optional AI assistance adapter layer, including LiteLLM gateway integration, for analyzing a folder and helping produce a reviewable lifecycle `.bat` script.
-The authenticated status, gateway health, model discovery, and authorized context manifest boundaries are implemented, while analysis proposals, review, and file writes remain planned.
+The authenticated status, gateway health, model discovery, authorized context manifest, and reviewable analysis proposal boundaries are implemented, while proposal review, approvals, and file writes remain planned.
 
 - [Configuration And Environment](./context/configuration-and-environment.md)
 Defines the environment-based configuration contract and `.env` direction.
@@ -85,7 +85,7 @@ Defines source-control, validation, and CI/CD expectations.
 
 `Runtime Inspection` supports `Lifecycle Orchestration` by validating whether actions succeeded and by producing runtime facts and diagnostic explanations for operators.
 
-`AI Assistance Adapter` supports `Project Registry` by helping a user transform a project folder into a reviewable `.bat` lifecycle script and, when needed, suggest action mappings. LiteLLM is the provider/model gateway inside that adapter, while OrchFlow remains responsible for authorization, allowed context, validation, and final approval. In the current implementation, only authenticated safe status reporting is exposed.
+`AI Assistance Adapter` supports `Project Registry` by helping a user transform a project folder into a reviewable `.bat` lifecycle script and, when needed, suggest action mappings. LiteLLM is the provider/model gateway inside that adapter, while OrchFlow remains responsible for authorization, allowed context, validation, and final approval. In the current implementation, authenticated safe status reporting, context authorization, and proposal creation are exposed without file writes.
 
 Project reload workflows now let users explicitly reread one or more lifecycle scripts through API and CLI, refresh automatic function detection, compare the project against the ideal lifecycle model, and decide whether to update mappings manually or ask AI assistance for improvements.
 

@@ -27,7 +27,7 @@ The preferred initial persistence direction is `SQLite`.
 - lifecycle function configuration states
 - runtime-related snapshots when appropriate
 - AI analysis sessions and allowed-context manifests
-- AI-generated proposals, review decisions, and approved file or mapping changes when implemented
+- AI-generated proposals, review decisions, and approved file or mapping changes
 - lifecycle and audit events
 
 ## Implemented Baseline
@@ -50,6 +50,7 @@ The preferred initial persistence direction is `SQLite`.
 - AI-assisted inspection and script generation authorizations should be auditable
 - LiteLLM-backed model invocation metadata should be auditable without storing secrets or unnecessary prompt contents
 - authorized context manifests should persist selected project, selected model, intended operation, include/exclude path metadata, ignored/generated artifact metadata, secret filtering rules, size limits, and total authorized byte counts without storing file contents or secret values
+- AI analysis proposals should persist structured proposal output, selected model, manifest relationship, requesting user, lifecycle strategy, runtime hints, candidate script content, warnings, and proposed mappings without storing secrets or unnecessary prompt contents
 - AI proposal approval and rejection decisions should be auditable
 - lifecycle action mapping changes should be auditable with user attribution
 - project reload and lifecycle configuration health changes should be auditable when they affect controllability or operator guidance

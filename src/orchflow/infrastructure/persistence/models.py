@@ -177,3 +177,29 @@ class AIAuthorizedContextManifestModel(Base):
         server_default=func.now(),
         nullable=False,
     )
+
+
+class AIAnalysisProposalModel(Base):
+    """Persisted reviewable AI analysis proposal."""
+
+    __tablename__ = "ai_analysis_proposals"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    manifest_id: Mapped[int] = mapped_column(
+        ForeignKey("ai_authorized_context_manifests.id"),
+        nullable=False,
+    )
+    project_id: Mapped[int] = mapped_column(ForeignKey("projects.id"), nullable=False)
+    requested_by_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    selected_model: Mapped[str] = mapped_column(String(128), nullable=False)
+    intended_operation: Mapped[str] = mapped_column(String(64), nullable=False)
+    lifecycle_strategy: Mapped[str] = mapped_column(Text, nullable=False)
+    runtime_hints: Mapped[str] = mapped_column(Text, nullable=False)
+    candidate_script_content: Mapped[str] = mapped_column(Text, nullable=False)
+    action_mappings: Mapped[str] = mapped_column(Text, nullable=False)
+    warnings: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+    )

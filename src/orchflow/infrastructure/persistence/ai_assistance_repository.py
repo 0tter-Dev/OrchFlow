@@ -5,16 +5,21 @@ from __future__ import annotations
 import json
 from collections.abc import Iterator
 from contextlib import contextmanager
-from typing import cast
+from typing import Literal, cast
 
 from sqlalchemy.orm import Session, sessionmaker
 
 from orchflow.application.ai_assistance import (
+    AIAnalysisProposal,
     AIAssistanceManifestOperation,
     AIAssistanceManifestRepository,
     AuthorizedContextManifest,
+    ProposedLifecycleActionMapping,
 )
-from orchflow.infrastructure.persistence.models import AIAuthorizedContextManifestModel
+from orchflow.infrastructure.persistence.models import (
+    AIAnalysisProposalModel,
+    AIAuthorizedContextManifestModel,
+)
 
 
 def _to_json(values: tuple[str, ...]) -> str:
@@ -26,6 +31,48 @@ def _from_json(value: str) -> tuple[str, ...]:
     if not isinstance(raw_values, list):
         return ()
     return tuple(raw_value for raw_value in raw_values if isinstance(raw_value, str))
+
+
+def _mappings_to_json(values: tuple[ProposedLifecycleActionMapping, ...]) -> str:
+    return json.dumps(
+        [
+            {
+                "canonical_action": value.canonical_action,
+                "script_label": value.script_label,
+                "rationale": value.rationale,
+            }
+            for value in values
+        ],
+        separators=(",", ":"),
+    )
+
+
+def _mappings_from_json(value: str) -> tuple[ProposedLifecycleActionMapping, ...]:
+    raw_values = json.loads(value)
+    if not isinstance(raw_values, list):
+        return ()
+    mappings: list[ProposedLifecycleActionMapping] = []
+    for raw_value in raw_values:
+        if not isinstance(raw_value, dict):
+            continue
+        canonical_action = raw_value.get("canonical_action")
+        script_label = raw_value.get("script_label")
+        rationale = raw_value.get("rationale")
+        if canonical_action not in {"status", "start", "stop", "restart"}:
+            continue
+        if not isinstance(script_label, str):
+            continue
+        mappings.append(
+            ProposedLifecycleActionMapping(
+                canonical_action=cast(
+                    Literal["status", "start", "stop", "restart"],
+                    canonical_action,
+                ),
+                script_label=script_label,
+                rationale=rationale if isinstance(rationale, str) else None,
+            )
+        )
+    return tuple(mappings)
 
 
 def _to_manifest(model: AIAuthorizedContextManifestModel) -> AuthorizedContextManifest:
@@ -45,6 +92,23 @@ def _to_manifest(model: AIAuthorizedContextManifestModel) -> AuthorizedContextMa
         max_file_size_bytes=model.max_file_size_bytes,
         max_total_bytes=model.max_total_bytes,
         total_included_bytes=model.total_included_bytes,
+        created_at=model.created_at,
+    )
+
+
+def _to_proposal(model: AIAnalysisProposalModel) -> AIAnalysisProposal:
+    return AIAnalysisProposal(
+        id=model.id,
+        manifest_id=model.manifest_id,
+        project_id=model.project_id,
+        requested_by_user_id=model.requested_by_user_id,
+        selected_model=model.selected_model,
+        intended_operation=cast(AIAssistanceManifestOperation, model.intended_operation),
+        lifecycle_strategy=model.lifecycle_strategy,
+        runtime_hints=_from_json(model.runtime_hints),
+        candidate_script_content=model.candidate_script_content,
+        action_mappings=_mappings_from_json(model.action_mappings),
+        warnings=_from_json(model.warnings),
         created_at=model.created_at,
     )
 
@@ -114,3 +178,43 @@ class SqlAlchemyAIAssistanceRepository(AIAssistanceManifestRepository):
         with self._session_scope() as session:
             model = session.get(AIAuthorizedContextManifestModel, manifest_id)
             return _to_manifest(model) if model is not None else None
+
+    def create_analysis_proposal(
+        self,
+        *,
+        manifest_id: int,
+        project_id: int,
+        requested_by_user_id: int,
+        selected_model: str,
+        intended_operation: AIAssistanceManifestOperation,
+        lifecycle_strategy: str,
+        runtime_hints: tuple[str, ...],
+        candidate_script_content: str,
+        action_mappings: tuple[ProposedLifecycleActionMapping, ...],
+        warnings: tuple[str, ...],
+    ) -> AIAnalysisProposal:
+        with self._session_scope() as session:
+            model = AIAnalysisProposalModel(
+                manifest_id=manifest_id,
+                project_id=project_id,
+                requested_by_user_id=requested_by_user_id,
+                selected_model=selected_model,
+                intended_operation=intended_operation,
+                lifecycle_strategy=lifecycle_strategy,
+                runtime_hints=_to_json(runtime_hints),
+                candidate_script_content=candidate_script_content,
+                action_mappings=_mappings_to_json(action_mappings),
+                warnings=_to_json(warnings),
+            )
+            session.add(model)
+            session.flush()
+            session.refresh(model)
+            return _to_proposal(model)
+
+    def get_analysis_proposal(
+        self,
+        proposal_id: int,
+    ) -> AIAnalysisProposal | None:
+        with self._session_scope() as session:
+            model = session.get(AIAnalysisProposalModel, proposal_id)
+            return _to_proposal(model) if model is not None else None

@@ -16,14 +16,17 @@ from orchflow.application.access_control import (
     UserNotFoundError,
 )
 from orchflow.application.ai_assistance import (
+    AIAnalysisProposal,
     AIAssistanceError,
     AIAssistanceGatewayHealth,
     AIAssistanceModelCatalog,
     AIAssistanceStatus,
     AuthorizedContextManifest,
     CheckAIAssistanceGatewayHealthCommand,
+    CreateAnalysisProposalCommand,
     CreateAuthorizedContextManifestCommand,
     GetAIAssistanceStatusCommand,
+    GetAnalysisProposalCommand,
     GetAuthorizedContextManifestCommand,
     ListAIAssistanceModelsCommand,
 )
@@ -290,6 +293,32 @@ class AuthorizedContextManifestResponse(BaseModel):
     created_at: str
 
 
+class AIAnalysisProposalRequest(BaseModel):
+    manifest_id: int
+    user_instructions: str | None = None
+
+
+class ProposedLifecycleActionMappingResponse(BaseModel):
+    canonical_action: Literal["status", "start", "stop", "restart"]
+    script_label: str
+    rationale: str | None = None
+
+
+class AIAnalysisProposalResponse(BaseModel):
+    id: int
+    manifest_id: int
+    project_id: int
+    requested_by_user_id: int
+    selected_model: str
+    intended_operation: Literal["improve_lifecycle_script", "generate_lifecycle_script"]
+    lifecycle_strategy: str
+    runtime_hints: list[str]
+    candidate_script_content: str
+    action_mappings: list[ProposedLifecycleActionMappingResponse]
+    warnings: list[str]
+    created_at: str
+
+
 def _to_user_response(user: User) -> UserResponse:
     return UserResponse(
         id=user.id,
@@ -361,6 +390,32 @@ def _to_authorized_context_manifest_response(
         max_total_bytes=manifest.max_total_bytes,
         total_included_bytes=manifest.total_included_bytes,
         created_at=manifest.created_at.isoformat(),
+    )
+
+
+def _to_ai_analysis_proposal_response(
+    proposal: AIAnalysisProposal,
+) -> AIAnalysisProposalResponse:
+    return AIAnalysisProposalResponse(
+        id=proposal.id,
+        manifest_id=proposal.manifest_id,
+        project_id=proposal.project_id,
+        requested_by_user_id=proposal.requested_by_user_id,
+        selected_model=proposal.selected_model,
+        intended_operation=proposal.intended_operation,
+        lifecycle_strategy=proposal.lifecycle_strategy,
+        runtime_hints=list(proposal.runtime_hints),
+        candidate_script_content=proposal.candidate_script_content,
+        action_mappings=[
+            ProposedLifecycleActionMappingResponse(
+                canonical_action=mapping.canonical_action,
+                script_label=mapping.script_label,
+                rationale=mapping.rationale,
+            )
+            for mapping in proposal.action_mappings
+        ],
+        warnings=list(proposal.warnings),
+        created_at=proposal.created_at.isoformat(),
     )
 
 
@@ -792,6 +847,71 @@ def create_app() -> FastAPI:
                 detail=str(error),
             ) from error
         return _to_authorized_context_manifest_response(manifest)
+
+    @app.post(
+        "/ai/analysis-proposals",
+        response_model=AIAnalysisProposalResponse,
+        status_code=status.HTTP_201_CREATED,
+        tags=["ai"],
+    )
+    def create_ai_analysis_proposal(
+        payload: AIAnalysisProposalRequest,
+        authorization: str | None = Header(default=None),
+    ) -> AIAnalysisProposalResponse:
+        token = _extract_bearer_token(authorization)
+        if token is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Missing bearer token.",
+            )
+        try:
+            proposal = ai_assistance_service.create_analysis_proposal(
+                CreateAnalysisProposalCommand(
+                    token=token,
+                    manifest_id=payload.manifest_id,
+                    user_instructions=payload.user_instructions,
+                )
+            )
+        except AuthorizationError as error:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(error)) from error
+        except ProjectRegistryError as error:
+            raise _map_project_registry_error(error) from error
+        except AIAssistanceError as error:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=str(error),
+            ) from error
+        return _to_ai_analysis_proposal_response(proposal)
+
+    @app.get(
+        "/ai/analysis-proposals/{proposal_id}",
+        response_model=AIAnalysisProposalResponse,
+        tags=["ai"],
+    )
+    def read_ai_analysis_proposal(
+        proposal_id: int,
+        authorization: str | None = Header(default=None),
+    ) -> AIAnalysisProposalResponse:
+        token = _extract_bearer_token(authorization)
+        if token is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Missing bearer token.",
+            )
+        try:
+            proposal = ai_assistance_service.get_analysis_proposal(
+                GetAnalysisProposalCommand(token=token, proposal_id=proposal_id)
+            )
+        except AuthorizationError as error:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(error)) from error
+        except ProjectRegistryError as error:
+            raise _map_project_registry_error(error) from error
+        except AIAssistanceError as error:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=str(error),
+            ) from error
+        return _to_ai_analysis_proposal_response(proposal)
 
     @app.post(
         "/projects",

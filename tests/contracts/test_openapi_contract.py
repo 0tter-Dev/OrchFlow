@@ -8,6 +8,8 @@ def test_openapi_contract_exposes_current_operator_routes() -> None:
     paths = schema["paths"]
 
     expected_operations = [
+        ("/ai/analysis-proposals", "post"),
+        ("/ai/analysis-proposals/{proposal_id}", "get"),
         ("/ai/context-manifests", "post"),
         ("/ai/context-manifests/{manifest_id}", "get"),
         ("/ai/gateway/health", "get"),
@@ -111,3 +113,17 @@ def test_ai_assistance_openapi_contract_includes_authorized_context_manifest() -
     assert "included_paths" in manifest_properties
     assert "ignored_paths" in manifest_properties
     assert "secret_filter_rules" in manifest_properties
+
+
+def test_ai_assistance_openapi_contract_includes_analysis_proposal() -> None:
+    schema = create_app().openapi()
+    proposal_properties = schema["components"]["schemas"][
+        "AIAnalysisProposalResponse"
+    ]["properties"]
+
+    assert "manifest_id" in proposal_properties
+    assert "lifecycle_strategy" in proposal_properties
+    assert "runtime_hints" in proposal_properties
+    assert "candidate_script_content" in proposal_properties
+    assert "action_mappings" in proposal_properties
+    assert "warnings" in proposal_properties

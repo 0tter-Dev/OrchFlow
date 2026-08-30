@@ -32,7 +32,7 @@ The first implementation should prefer a minimal integration path:
 6. create authorized analysis sessions that return proposals only
 7. add file generation and mapping persistence only after proposal review is implemented
 
-The first six items are implemented in `v0.3.2`. The current boundary can report whether AI assistance is disabled, configured, or misconfigured, verify LiteLLM gateway health when gateway mode is configured, list models when the gateway supports discovery, and persist authorized context manifests with included paths, excluded paths, ignored/generated artifacts, secret filtering rules, size limits, selected model, requesting user, and intended operation. It does not send project file contents to models, execute prompts, create proposals, or write lifecycle scripts.
+The first six items are implemented in `v0.3.3`. The current boundary can report whether AI assistance is disabled, configured, or misconfigured, verify LiteLLM gateway health when gateway mode is configured, list models when the gateway supports discovery, persist authorized context manifests with included paths, excluded paths, ignored/generated artifacts, secret filtering rules, size limits, selected model, requesting user, and intended operation, and create structured analysis proposals from manifest-approved context. Proposal creation may send only the approved context listed in the manifest to LiteLLM and persists lifecycle strategy, runtime hints, candidate `.bat` content, proposed action mappings, and warnings for review. It does not write lifecycle scripts or persist suggested mappings.
 
 ## Scope
 

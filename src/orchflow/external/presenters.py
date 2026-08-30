@@ -1,6 +1,7 @@
 """Shared presentation helpers for OrchFlow external adapters."""
 
 from orchflow.application.ai_assistance import (
+    AIAnalysisProposal,
     AIAssistanceGatewayHealth,
     AIAssistanceModelCatalog,
     AIAssistanceStatus,
@@ -103,6 +104,37 @@ def render_authorized_context_manifest(manifest: AuthorizedContextManifest) -> s
         f"max_total_bytes: {manifest.max_total_bytes}\n"
         f"total_included_bytes: {manifest.total_included_bytes}\n"
         f"created_at: {manifest.created_at.isoformat()}"
+    )
+
+
+def render_ai_analysis_proposal(proposal: AIAnalysisProposal) -> str:
+    """Render a reviewable AI analysis proposal for CLI output."""
+    runtime_hints = ", ".join(proposal.runtime_hints) or "none"
+    warnings = ", ".join(proposal.warnings) or "none"
+    mappings = (
+        "\n".join(
+            (
+                f"{mapping.canonical_action}: {mapping.script_label}"
+                f"{f' ({mapping.rationale})' if mapping.rationale else ''}"
+            )
+            for mapping in proposal.action_mappings
+        )
+        if proposal.action_mappings
+        else "none"
+    )
+    return (
+        f"id: {proposal.id}\n"
+        f"manifest_id: {proposal.manifest_id}\n"
+        f"project_id: {proposal.project_id}\n"
+        f"requested_by_user_id: {proposal.requested_by_user_id}\n"
+        f"selected_model: {proposal.selected_model}\n"
+        f"intended_operation: {proposal.intended_operation}\n"
+        f"lifecycle_strategy: {proposal.lifecycle_strategy}\n"
+        f"runtime_hints: {runtime_hints}\n"
+        f"warnings: {warnings}\n"
+        f"action_mappings:\n{mappings}\n"
+        f"candidate_script_content:\n{proposal.candidate_script_content}\n"
+        f"created_at: {proposal.created_at.isoformat()}"
     )
 
 

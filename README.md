@@ -2,7 +2,7 @@
 
 OrchFlow is a local-first project lifecycle orchestrator focused on registering, controlling, and inspecting software projects through a standardized operational contract.
 
-In `v0.3.2`, OrchFlow is designed around a concrete execution base: each managed project must expose a lifecycle control script, initially standardized as a Windows `.bat` file. OrchFlow compares those scripts against an ideal lifecycle function model so projects can be classified as completely configured, partially configured with warnings, or blocked when no lifecycle function is configured. Users can explicitly reload one project or multiple projects after local `.bat` changes so OrchFlow refreshes detection, preserves valid user decisions, and audits the before/after configuration health. Lifecycle execution now runs only configured actions; undefined or explicitly unconfigured actions return operator-facing feedback instead of falling back to assumed script labels. The web workspace now surfaces configuration health, disables non-configured lifecycle actions, and lets operators edit lifecycle mappings or reload detection from the project detail view. OrchFlow now exposes authenticated, audited AI assistance status, LiteLLM gateway health, model discovery, and authorized context manifests, but it still does not send project files to models or perform model-backed analysis until proposal workflows are implemented.
+In `v0.3.3`, OrchFlow is designed around a concrete execution base: each managed project must expose a lifecycle control script, initially standardized as a Windows `.bat` file. OrchFlow compares those scripts against an ideal lifecycle function model so projects can be classified as completely configured, partially configured with warnings, or blocked when no lifecycle function is configured. Users can explicitly reload one project or multiple projects after local `.bat` changes so OrchFlow refreshes detection, preserves valid user decisions, and audits the before/after configuration health. Lifecycle execution now runs only configured actions; undefined or explicitly unconfigured actions return operator-facing feedback instead of falling back to assumed script labels. The web workspace now surfaces configuration health, disables non-configured lifecycle actions, and lets operators edit lifecycle mappings or reload detection from the project detail view. OrchFlow now exposes authenticated, audited AI assistance status, LiteLLM gateway health, model discovery, authorized context manifests, and reviewable analysis proposals. Proposal creation may send only manifest-approved context to LiteLLM and still does not write `.bat` files or persist suggested mappings.
 
 ## Selected Stack
 
@@ -34,7 +34,7 @@ In `v0.3.2`, OrchFlow is designed around a concrete execution base: each managed
 - Project registration through `.bat` lifecycle scripts
 - Ideal lifecycle function mapping for `status`, `start`, `stop`, and `restart`
 - Explicit project reload to refresh lifecycle script detection after local changes
-- Authenticated AI assistance status, LiteLLM gateway health, model discovery, and authorized context manifests through an OrchFlow-owned adapter boundary, with future project analysis planned through review-driven LiteLLM-backed workflows
+- Authenticated AI assistance status, LiteLLM gateway health, model discovery, authorized context manifests, and reviewable analysis proposals through an OrchFlow-owned adapter boundary, with future approval workflows planned before file writes or mapping persistence
 - Lifecycle operations: status, start, stop, restart
 - Basic runtime inspection: ports, processes, uptime, CPU, memory
 - User authentication and authorization with `admin` and `member`
@@ -90,7 +90,7 @@ For local runtime configuration, copy `.env.example` into a local `.env` file an
 
 The `interface/web` client now defaults to `VITE_API_BASE_URL=/orchflow-api` so local Vite development can proxy API traffic to the backend without changing backend contracts.
 
-## Out Of Scope For v0.3.2
+## Out Of Scope For v0.3.3
 
 - Container orchestration
 - Multi-host orchestration
@@ -100,6 +100,6 @@ The `interface/web` client now defaults to `VITE_API_BASE_URL=/orchflow-api` so 
 
 ## Status
 
-The repository is currently in the `v0.3.2` implementation stage with the backend foundation, mirrored API and CLI operational surfaces, runtime inspection refinement, CI and API contract hardening, LiteLLM dependency baseline, explicit project reload, configured-action lifecycle execution gating, web lifecycle configuration indicators plus mapping controls, and authenticated AI assistance status, gateway health, model discovery, and authorized context manifests implemented on top of those contracts.
+The repository is currently in the `v0.3.3` implementation stage with the backend foundation, mirrored API and CLI operational surfaces, runtime inspection refinement, CI and API contract hardening, LiteLLM dependency baseline, explicit project reload, configured-action lifecycle execution gating, web lifecycle configuration indicators plus mapping controls, and authenticated AI assistance status, gateway health, model discovery, authorized context manifests, and reviewable analysis proposals implemented on top of those contracts.
 
 The current web baseline includes authenticated session loading, project listing, project details, runtime inspection visibility, and the first lifecycle controls wired directly through the API.
