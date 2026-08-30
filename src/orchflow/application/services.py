@@ -9,6 +9,9 @@ from orchflow.application.project_registry import ProjectRegistryService
 from orchflow.application.runtime_inspection import RuntimeInspectionService
 from orchflow.infrastructure.ai.litellm_gateway import LiteLLMGatewayClient
 from orchflow.infrastructure.config.settings import AppSettings, get_settings
+from orchflow.infrastructure.persistence.ai_assistance_repository import (
+    SqlAlchemyAIAssistanceRepository,
+)
 from orchflow.infrastructure.persistence.project_registry_repository import (
     SqlAlchemyProjectRegistryRepository,
 )
@@ -109,11 +112,19 @@ def create_ai_assistance_service(
     current_settings = settings or get_settings()
     initialize_database(current_settings)
     session_factory = create_session_factory(current_settings)
-    repository = SqlAlchemyAuditHistoryRepository(session_factory)
+    audit_repository = SqlAlchemyAuditHistoryRepository(session_factory)
+    manifest_repository = SqlAlchemyAIAssistanceRepository(session_factory)
     access_control_service = create_access_control_service(current_settings)
+    project_registry_repository = SqlAlchemyProjectRegistryRepository(session_factory)
+    project_registry_service = ProjectRegistryService(
+        project_registry_repository,
+        access_control_service,
+    )
     gateway = LiteLLMGatewayClient(current_settings)
     return AIAssistanceService(
         gateway=gateway,
         current_user_resolver=access_control_service,
-        audit_recorder=repository,
+        audit_recorder=audit_repository,
+        project_resolver=project_registry_service,
+        manifest_repository=manifest_repository,
     )

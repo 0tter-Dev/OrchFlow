@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from pathlib import Path
 
 from orchflow.application.ai_assistance import (
     AIAssistanceGatewayHealth,
@@ -10,11 +11,15 @@ from orchflow.application.ai_assistance import (
     AIAssistanceModelCatalog,
     AIAssistanceService,
     AIAssistanceStatus,
+    AuthorizedContextManifest,
     CheckAIAssistanceGatewayHealthCommand,
+    CreateAuthorizedContextManifestCommand,
     GetAIAssistanceStatusCommand,
+    GetAuthorizedContextManifestCommand,
     ListAIAssistanceModelsCommand,
 )
 from orchflow.domain.access_control import User, UserRole
+from orchflow.domain.project_registry import Project
 from orchflow.infrastructure.ai.litellm_gateway import LiteLLMGatewayClient
 from orchflow.infrastructure.config.settings import AppSettings
 
@@ -32,6 +37,29 @@ class FakeCurrentUserResolver:
             updated_at=now,
             last_login_at=None,
         )
+
+
+class FakeProjectResolver:
+    def __init__(self, project_root_path: Path) -> None:
+        now = datetime.now(UTC)
+        self.project = Project(
+            id=456,
+            reference_name="sample",
+            description=None,
+            project_root_path=str(project_root_path),
+            lifecycle_script_path=str(project_root_path / "control.bat"),
+            created_by_user_id=123,
+            created_at=now,
+            updated_at=now,
+            owner_user_ids=(123,),
+            action_mappings=(),
+            lifecycle_function_decisions=(),
+        )
+
+    def get_project(self, token: str, project_id: int) -> Project:
+        assert token == "token"
+        assert project_id == self.project.id
+        return self.project
 
 
 class FakeGateway:
@@ -100,13 +128,75 @@ class FakeAuditRecorder:
         )
 
 
-def test_ai_assistance_service_reads_status_through_gateway_and_audits() -> None:
-    audit_recorder = FakeAuditRecorder()
-    service = AIAssistanceService(
+class FakeManifestRepository:
+    def __init__(self) -> None:
+        self.manifest: AuthorizedContextManifest | None = None
+
+    def create_authorized_context_manifest(
+        self,
+        *,
+        project_id: int,
+        requested_by_user_id: int,
+        selected_model: str,
+        intended_operation: str,
+        project_root_path: str,
+        include_patterns: tuple[str, ...],
+        exclude_patterns: tuple[str, ...],
+        included_paths: tuple[str, ...],
+        excluded_paths: tuple[str, ...],
+        ignored_paths: tuple[str, ...],
+        secret_filter_rules: tuple[str, ...],
+        max_file_size_bytes: int,
+        max_total_bytes: int,
+        total_included_bytes: int,
+    ) -> AuthorizedContextManifest:
+        self.manifest = AuthorizedContextManifest(
+            id=1,
+            project_id=project_id,
+            requested_by_user_id=requested_by_user_id,
+            selected_model=selected_model,
+            intended_operation=intended_operation,
+            project_root_path=project_root_path,
+            include_patterns=include_patterns,
+            exclude_patterns=exclude_patterns,
+            included_paths=included_paths,
+            excluded_paths=excluded_paths,
+            ignored_paths=ignored_paths,
+            secret_filter_rules=secret_filter_rules,
+            max_file_size_bytes=max_file_size_bytes,
+            max_total_bytes=max_total_bytes,
+            total_included_bytes=total_included_bytes,
+            created_at=datetime.now(UTC),
+        )
+        return self.manifest
+
+    def get_authorized_context_manifest(
+        self,
+        manifest_id: int,
+    ) -> AuthorizedContextManifest | None:
+        assert manifest_id == 1
+        return self.manifest
+
+
+def _build_service(
+    *,
+    project_root_path: Path | None = None,
+    audit_recorder: FakeAuditRecorder | None = None,
+    manifest_repository: FakeManifestRepository | None = None,
+) -> AIAssistanceService:
+    root_path = project_root_path or Path.cwd()
+    return AIAssistanceService(
         gateway=FakeGateway(),
         current_user_resolver=FakeCurrentUserResolver(),
-        audit_recorder=audit_recorder,
+        audit_recorder=audit_recorder or FakeAuditRecorder(),
+        project_resolver=FakeProjectResolver(root_path),
+        manifest_repository=manifest_repository or FakeManifestRepository(),
     )
+
+
+def test_ai_assistance_service_reads_status_through_gateway_and_audits() -> None:
+    audit_recorder = FakeAuditRecorder()
+    service = _build_service(audit_recorder=audit_recorder)
 
     status = service.get_status(GetAIAssistanceStatusCommand(token="token"))
 
@@ -125,11 +215,7 @@ def test_ai_assistance_service_reads_status_through_gateway_and_audits() -> None
 
 def test_ai_assistance_service_checks_gateway_health_and_audits() -> None:
     audit_recorder = FakeAuditRecorder()
-    service = AIAssistanceService(
-        gateway=FakeGateway(),
-        current_user_resolver=FakeCurrentUserResolver(),
-        audit_recorder=audit_recorder,
-    )
+    service = _build_service(audit_recorder=audit_recorder)
 
     health = service.check_gateway_health(
         CheckAIAssistanceGatewayHealthCommand(token="token")
@@ -152,11 +238,7 @@ def test_ai_assistance_service_checks_gateway_health_and_audits() -> None:
 
 def test_ai_assistance_service_lists_models_and_audits() -> None:
     audit_recorder = FakeAuditRecorder()
-    service = AIAssistanceService(
-        gateway=FakeGateway(),
-        current_user_resolver=FakeCurrentUserResolver(),
-        audit_recorder=audit_recorder,
-    )
+    service = _build_service(audit_recorder=audit_recorder)
 
     catalog = service.list_models(ListAIAssistanceModelsCommand(token="token"))
 
@@ -172,6 +254,47 @@ def test_ai_assistance_service_lists_models_and_audits() -> None:
             ),
         }
     ]
+
+
+def test_ai_assistance_service_creates_authorized_context_manifest(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "src").mkdir()
+    (tmp_path / "src" / "app.py").write_text("print('ok')\n", encoding="utf-8")
+    (tmp_path / ".env").write_text("TOKEN=secret\n", encoding="utf-8")
+    (tmp_path / "dist").mkdir()
+    (tmp_path / "dist" / "bundle.js").write_text("generated\n", encoding="utf-8")
+    audit_recorder = FakeAuditRecorder()
+    manifest_repository = FakeManifestRepository()
+    service = _build_service(
+        project_root_path=tmp_path,
+        audit_recorder=audit_recorder,
+        manifest_repository=manifest_repository,
+    )
+
+    manifest = service.create_authorized_context_manifest(
+        CreateAuthorizedContextManifestCommand(
+            token="token",
+            project_id=456,
+            selected_model="ollama/llama3",
+            intended_operation="improve_lifecycle_script",
+            include_patterns=("src/*.py",),
+        )
+    )
+
+    assert manifest.included_paths == ("src/app.py",)
+    assert ".env" in manifest.ignored_paths
+    assert "dist/bundle.js" in manifest.ignored_paths
+    assert manifest.secret_filter_rules
+    assert manifest.total_included_bytes == (tmp_path / "src" / "app.py").stat().st_size
+    assert audit_recorder.events[-1]["action"] == "ai_assistance.context_manifest.create"
+
+    persisted_manifest = service.get_authorized_context_manifest(
+        GetAuthorizedContextManifestCommand(token="token", manifest_id=1)
+    )
+
+    assert persisted_manifest.id == manifest.id
+    assert audit_recorder.events[-1]["action"] == "ai_assistance.context_manifest.read"
 
 
 def test_litellm_gateway_client_defaults_to_disabled_without_requests() -> None:

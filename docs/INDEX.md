@@ -54,7 +54,7 @@ Defines how OrchFlow inspects ports, processes, uptime, resource usage, status e
 
 - [AI Assistance Adapter](./context/ai-agent-adapter.md)
 Defines the optional AI assistance adapter layer, including LiteLLM gateway integration, for analyzing a folder and helping produce a reviewable lifecycle `.bat` script.
-The authenticated status, gateway health, and model discovery boundaries are implemented, while authorized project context manifests, analysis proposals, review, and file writes remain planned.
+The authenticated status, gateway health, model discovery, and authorized context manifest boundaries are implemented, while analysis proposals, review, and file writes remain planned.
 
 - [Configuration And Environment](./context/configuration-and-environment.md)
 Defines the environment-based configuration contract and `.env` direction.

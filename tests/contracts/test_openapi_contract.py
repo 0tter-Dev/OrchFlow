@@ -8,6 +8,8 @@ def test_openapi_contract_exposes_current_operator_routes() -> None:
     paths = schema["paths"]
 
     expected_operations = [
+        ("/ai/context-manifests", "post"),
+        ("/ai/context-manifests/{manifest_id}", "get"),
         ("/ai/gateway/health", "get"),
         ("/ai/models", "get"),
         ("/ai/status", "get"),
@@ -96,3 +98,16 @@ def test_ai_assistance_openapi_contract_includes_health_and_model_discovery() ->
     assert "response_time_ms" in health_properties
     assert "models" in catalog_properties
     assert "supports_discovery" in catalog_properties
+
+
+def test_ai_assistance_openapi_contract_includes_authorized_context_manifest() -> None:
+    schema = create_app().openapi()
+    manifest_properties = schema["components"]["schemas"][
+        "AuthorizedContextManifestResponse"
+    ]["properties"]
+
+    assert "project_id" in manifest_properties
+    assert "selected_model" in manifest_properties
+    assert "included_paths" in manifest_properties
+    assert "ignored_paths" in manifest_properties
+    assert "secret_filter_rules" in manifest_properties
