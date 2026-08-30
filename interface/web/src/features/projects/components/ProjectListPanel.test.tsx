@@ -114,6 +114,7 @@ describe("ProjectListPanel", () => {
     });
 
     expect(screen.getByText("1 project(s) visible")).toBeInTheDocument();
+    expect(screen.getByText("partial")).toBeInTheDocument();
     expect(screen.getByText("Local API controlled by an existing script")).toBeInTheDocument();
     expect(screen.getByText("Owners: 1, 2")).toBeInTheDocument();
 

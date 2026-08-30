@@ -6,10 +6,13 @@ import {
   getRuntimeSnapshot,
   listProjects,
   registerProject,
+  reloadProject,
+  updateProjectLifecycleConfiguration,
 } from "../../../shared/api/projects";
 import type {
   CanonicalLifecycleAction,
   LifecycleExecutionSnapshot,
+  ProjectLifecycleConfigurationInput,
   ProjectRegistrationInput,
   ProjectSummary,
   RuntimeInspectionSnapshot,
@@ -17,10 +20,13 @@ import type {
 
 type ProjectWorkspaceState = {
   activeAction: CanonicalLifecycleAction | null;
+  configurationMessage: string | null;
   errorMessage: string | null;
+  isReloadingProject: boolean;
   isLoadingDetail: boolean;
   isLoadingProjects: boolean;
   isRegisteringProject: boolean;
+  isUpdatingLifecycleConfiguration: boolean;
   lifecycleResult: LifecycleExecutionSnapshot | null;
   projects: ProjectSummary[];
   registrationMessage: string | null;
@@ -32,10 +38,13 @@ type ProjectWorkspaceState = {
 
 const initialState: ProjectWorkspaceState = {
   activeAction: null,
+  configurationMessage: null,
   errorMessage: null,
+  isReloadingProject: false,
   isLoadingDetail: false,
   isLoadingProjects: false,
   isRegisteringProject: false,
+  isUpdatingLifecycleConfiguration: false,
   lifecycleResult: null,
   projects: [],
   registrationMessage: null,
@@ -47,6 +56,12 @@ const initialState: ProjectWorkspaceState = {
 
 function buildErrorMessage(error: unknown, fallback: string): string {
   return error instanceof Error ? error.message : fallback;
+}
+
+function replaceProjectInList(projects: ProjectSummary[], project: ProjectSummary) {
+  return projects.map((currentProject) =>
+    currentProject.id === project.id ? project : currentProject,
+  );
 }
 
 export function useProjectWorkspace(token: string | null) {
@@ -231,6 +246,80 @@ export function useProjectWorkspace(token: string | null) {
     }
   });
 
+  const updateLifecycleConfiguration = useEffectEvent(
+    async (configurationInput: ProjectLifecycleConfigurationInput) => {
+      if (token === null || state.selectedProjectId === null) {
+        return;
+      }
+
+      setState((currentState) => ({
+        ...currentState,
+        configurationMessage: null,
+        errorMessage: null,
+        isUpdatingLifecycleConfiguration: true,
+      }));
+
+      try {
+        const selectedProject = await updateProjectLifecycleConfiguration(
+          token,
+          state.selectedProjectId,
+          configurationInput,
+        );
+        setState((currentState) => ({
+          ...currentState,
+          configurationMessage: "Lifecycle configuration updated.",
+          errorMessage: null,
+          isUpdatingLifecycleConfiguration: false,
+          lifecycleResult: null,
+          projects: replaceProjectInList(currentState.projects, selectedProject),
+          selectedProject,
+        }));
+      } catch (error) {
+        setState((currentState) => ({
+          ...currentState,
+          errorMessage: buildErrorMessage(error, "Unable to update lifecycle configuration."),
+          isUpdatingLifecycleConfiguration: false,
+        }));
+      }
+    },
+  );
+
+  const reloadSelectedProject = useEffectEvent(async () => {
+    if (token === null || state.selectedProjectId === null) {
+      return;
+    }
+
+    setState((currentState) => ({
+      ...currentState,
+      configurationMessage: null,
+      errorMessage: null,
+      isReloadingProject: true,
+    }));
+
+    try {
+      const result = await reloadProject(token, state.selectedProjectId);
+      const changedActions = result.changed_actions.join(", ");
+      setState((currentState) => ({
+        ...currentState,
+        configurationMessage:
+          result.changed_actions.length === 0
+            ? "Lifecycle configuration reloaded with no mapping changes."
+            : `Lifecycle configuration reloaded. Changed actions: ${changedActions}.`,
+        errorMessage: null,
+        isReloadingProject: false,
+        lifecycleResult: null,
+        projects: replaceProjectInList(currentState.projects, result.project),
+        selectedProject: result.project,
+      }));
+    } catch (error) {
+      setState((currentState) => ({
+        ...currentState,
+        errorMessage: buildErrorMessage(error, "Unable to reload lifecycle configuration."),
+        isReloadingProject: false,
+      }));
+    }
+  });
+
   const refresh = useEffectEvent(async () => {
     if (token === null) {
       return;
@@ -253,13 +342,17 @@ export function useProjectWorkspace(token: string | null) {
 
   return {
     activeAction: state.activeAction,
+    configurationMessage: state.configurationMessage,
     errorMessage: state.errorMessage,
+    isReloadingProject: state.isReloadingProject,
     isLoadingDetail: state.isLoadingDetail,
     isLoadingProjects: state.isLoadingProjects,
     isRegisteringProject: state.isRegisteringProject,
+    isUpdatingLifecycleConfiguration: state.isUpdatingLifecycleConfiguration,
     lifecycleResult: state.lifecycleResult,
     projects: visibleProjects,
     registrationMessage: state.registrationMessage,
+    reloadSelectedProject,
     refresh,
     runLifecycleAction,
     runtimeSnapshot: state.runtimeSnapshot,
@@ -269,5 +362,6 @@ export function useProjectWorkspace(token: string | null) {
     selectedProjectId: state.selectedProjectId,
     setSearchQuery,
     submitProjectRegistration,
+    updateLifecycleConfiguration,
   };
 }

@@ -1,25 +1,59 @@
 import "./ProjectDetailPanel.css";
 
+import { useEffect, useState } from "react";
+import type { FormEvent } from "react";
+
 import type { UserSummary } from "../../../shared/types/auth";
 import type {
   CanonicalLifecycleAction,
   LifecycleExecutionSnapshot,
+  ProjectLifecycleConfigurationInput,
   ProjectSummary,
   RuntimeInspectionSnapshot,
 } from "../../../shared/types/project";
 
+const lifecycleActions: CanonicalLifecycleAction[] = ["status", "start", "stop", "restart"];
+
 type ProjectDetailPanelProps = {
   activeAction: CanonicalLifecycleAction | null;
+  configurationMessage: string | null;
   currentUser: UserSummary;
   errorMessage: string | null;
   isLoadingDetail: boolean;
+  isReloadingProject: boolean;
+  isUpdatingLifecycleConfiguration: boolean;
   lifecycleResult: LifecycleExecutionSnapshot | null;
   onLogout: () => void;
+  onReloadProject: () => void;
   onRunLifecycleAction: (action: CanonicalLifecycleAction) => void;
   onRefreshProject: () => void;
+  onUpdateLifecycleConfiguration: (configurationInput: ProjectLifecycleConfigurationInput) => void;
   runtimeSnapshot: RuntimeInspectionSnapshot | null;
   selectedProject: ProjectSummary | null;
 };
+
+type MappingFormState = Record<
+  CanonicalLifecycleAction,
+  {
+    isUnconfigured: boolean;
+    scriptLabel: string;
+  }
+>;
+
+function buildMappingFormState(project: ProjectSummary): MappingFormState {
+  return lifecycleActions.reduce((formState, action) => {
+    const configuration = project.lifecycle_function_configurations.find(
+      (item) => item.canonical_action === action,
+    );
+    return {
+      ...formState,
+      [action]: {
+        isUnconfigured: configuration?.state === "unconfigured",
+        scriptLabel: configuration?.script_label ?? "",
+      },
+    };
+  }, {} as MappingFormState);
+}
 
 function formatUptime(uptimeSeconds: number | null): string {
   if (uptimeSeconds === null) {
@@ -62,16 +96,33 @@ function formatTimestamp(value: string | null | undefined): string {
 
 export function ProjectDetailPanel({
   activeAction,
+  configurationMessage,
   currentUser,
   errorMessage,
   isLoadingDetail,
+  isReloadingProject,
+  isUpdatingLifecycleConfiguration,
   lifecycleResult,
   onLogout,
+  onReloadProject,
   onRefreshProject,
   onRunLifecycleAction,
+  onUpdateLifecycleConfiguration,
   runtimeSnapshot,
   selectedProject,
 }: ProjectDetailPanelProps) {
+  const [isMappingPanelOpen, setIsMappingPanelOpen] = useState(false);
+  const [mappingFormState, setMappingFormState] = useState<MappingFormState | null>(null);
+
+  useEffect(() => {
+    if (selectedProject === null) {
+      setMappingFormState(null);
+      setIsMappingPanelOpen(false);
+      return;
+    }
+    setMappingFormState(buildMappingFormState(selectedProject));
+  }, [selectedProject]);
+
   if (selectedProject === null) {
     return (
       <section className="project-detail">
@@ -81,6 +132,73 @@ export function ProjectDetailPanel({
         </div>
       </section>
     );
+  }
+
+  const configurationByAction = new Map(
+    selectedProject.lifecycle_function_configurations.map((configuration) => [
+      configuration.canonical_action,
+      configuration,
+    ]),
+  );
+  const blockedProject = selectedProject.lifecycle_configuration_health === "blocked";
+  const partialProject = selectedProject.lifecycle_configuration_health === "partial";
+
+  function updateMappingLabel(action: CanonicalLifecycleAction, scriptLabel: string) {
+    setMappingFormState((currentState) =>
+      currentState === null
+        ? currentState
+        : {
+            ...currentState,
+            [action]: {
+              isUnconfigured: false,
+              scriptLabel,
+            },
+          },
+    );
+  }
+
+  function updateMappingUnconfigured(
+    action: CanonicalLifecycleAction,
+    isUnconfigured: boolean,
+  ) {
+    setMappingFormState((currentState) =>
+      currentState === null
+        ? currentState
+        : {
+            ...currentState,
+            [action]: {
+              ...currentState[action],
+              isUnconfigured,
+              scriptLabel: isUnconfigured ? "" : currentState[action].scriptLabel,
+            },
+          },
+    );
+  }
+
+  function submitLifecycleConfiguration(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (mappingFormState === null) {
+      return;
+    }
+
+    const mappings = lifecycleActions
+      .map((action) => ({
+        canonical_action: action,
+        script_label: mappingFormState[action].scriptLabel.trim(),
+        source: "user_defined" as const,
+      }))
+      .filter(
+        (mapping) =>
+          mapping.script_label.length > 0 &&
+          !mappingFormState[mapping.canonical_action].isUnconfigured,
+      );
+    const unconfigured_actions = lifecycleActions.filter(
+      (action) => mappingFormState[action].isUnconfigured,
+    );
+
+    onUpdateLifecycleConfiguration({ mappings, unconfigured_actions });
+    setIsMappingPanelOpen(false);
   }
 
   return (
@@ -103,6 +221,46 @@ export function ProjectDetailPanel({
       </header>
 
       {errorMessage !== null ? <div className="project-detail__error">{errorMessage}</div> : null}
+      {configurationMessage !== null ? (
+        <div className="project-detail__success">{configurationMessage}</div>
+      ) : null}
+
+      <section
+        className="project-detail__configuration-banner"
+        data-health={selectedProject.lifecycle_configuration_health}
+      >
+        <div>
+          <span className="project-detail__label">Lifecycle configuration</span>
+          <strong>{selectedProject.lifecycle_configuration_health}</strong>
+          <p>
+            {blockedProject
+              ? "No lifecycle function is configured for execution."
+              : partialProject
+                ? "Some ideal lifecycle functions still need mapping or confirmation."
+                : "All ideal lifecycle functions are configured."}
+          </p>
+        </div>
+        <div className="project-detail__configuration-actions">
+          <button
+            className="project-detail__secondary-action"
+            disabled={isReloadingProject}
+            onClick={onReloadProject}
+            type="button"
+          >
+            {isReloadingProject ? "Reloading..." : "Reload"}
+          </button>
+          <button
+            className="project-detail__secondary-action"
+            onClick={() => setIsMappingPanelOpen(true)}
+            type="button"
+          >
+            Configure
+          </button>
+          <button className="project-detail__secondary-action" disabled type="button">
+            AI improvement
+          </button>
+        </div>
+      </section>
 
       <div className="project-detail__grid">
         <article className="project-detail__card">
@@ -167,18 +325,24 @@ export function ProjectDetailPanel({
       <section>
         <h3 className="project-list__title">Lifecycle actions</h3>
         <div className="project-detail__actions">
-          {(["status", "start", "stop", "restart"] as CanonicalLifecycleAction[]).map((action) => (
-            <button
-              className="project-detail__action"
-              data-action={action}
-              disabled={activeAction !== null}
-              key={action}
-              onClick={() => onRunLifecycleAction(action)}
-              type="button"
-            >
-              {activeAction === action ? `Running ${action}...` : action}
-            </button>
-          ))}
+          {lifecycleActions.map((action) => {
+            const configuration = configurationByAction.get(action);
+            const isConfigured = configuration?.state === "configured";
+            return (
+              <button
+                className="project-detail__action"
+                data-action={action}
+                data-state={configuration?.state ?? "undefined"}
+                disabled={activeAction !== null || !isConfigured}
+                key={action}
+                onClick={() => onRunLifecycleAction(action)}
+                type="button"
+              >
+                <span>{activeAction === action ? `Running ${action}...` : action}</span>
+                <small>{configuration?.state ?? "undefined"}</small>
+              </button>
+            );
+          })}
         </div>
       </section>
 
@@ -202,13 +366,32 @@ export function ProjectDetailPanel({
       ) : null}
 
       <section>
-        <h3 className="project-list__title">Lifecycle mappings</h3>
+        <div className="project-list__title-row">
+          <h3 className="project-list__title">Lifecycle mappings</h3>
+          <button
+            className="project-list__button"
+            onClick={() => setIsMappingPanelOpen(true)}
+            type="button"
+          >
+            Configure mappings
+          </button>
+        </div>
         <div className="project-detail__mappings">
-          {selectedProject.action_mappings.map((mapping) => (
-            <div className="project-detail__mapping" key={mapping.canonical_action}>
-              <strong>{mapping.canonical_action}</strong> → {mapping.script_label}
+          {selectedProject.lifecycle_function_configurations.map((configuration) => (
+            <div
+              className="project-detail__mapping"
+              data-state={configuration.state}
+              key={configuration.canonical_action}
+            >
+              <strong>{configuration.canonical_action}</strong> {configuration.state}
               <br />
-              source: {mapping.source} · configured_by_user_id: {mapping.configured_by_user_id}
+              preferred: {configuration.preferred_script_identifier}
+              {configuration.script_label !== null ? (
+                <>
+                  <br />
+                  mapped to: {configuration.script_label}
+                </>
+              ) : null}
             </div>
           ))}
         </div>
@@ -237,6 +420,76 @@ export function ProjectDetailPanel({
           )}
         </div>
       </section>
+
+      {isMappingPanelOpen && mappingFormState !== null ? (
+        <div className="project-detail__modal-backdrop" role="presentation">
+          <section
+            aria-labelledby="lifecycle-configuration-title"
+            className="project-detail__modal"
+            role="dialog"
+          >
+            <form onSubmit={submitLifecycleConfiguration}>
+              <div className="project-detail__modal-header">
+                <h3 id="lifecycle-configuration-title">Lifecycle configuration</h3>
+                <button
+                  className="project-detail__secondary-action"
+                  onClick={() => setIsMappingPanelOpen(false)}
+                  type="button"
+                >
+                  Close
+                </button>
+              </div>
+
+              <div className="project-detail__configuration-form">
+                {lifecycleActions.map((action) => {
+                  const configuration = configurationByAction.get(action);
+                  return (
+                    <fieldset className="project-detail__configuration-field" key={action}>
+                      <legend>{action}</legend>
+                      <label>
+                        <span>Script label</span>
+                        <input
+                          disabled={mappingFormState[action].isUnconfigured}
+                          onChange={(event) => updateMappingLabel(action, event.target.value)}
+                          placeholder={configuration?.preferred_script_identifier ?? action.toUpperCase()}
+                          value={mappingFormState[action].scriptLabel}
+                        />
+                      </label>
+                      <label className="project-detail__checkbox">
+                        <input
+                          checked={mappingFormState[action].isUnconfigured}
+                          onChange={(event) =>
+                            updateMappingUnconfigured(action, event.target.checked)
+                          }
+                          type="checkbox"
+                        />
+                        <span>Leave unconfigured</span>
+                      </label>
+                    </fieldset>
+                  );
+                })}
+              </div>
+
+              <div className="project-detail__modal-actions">
+                <button
+                  className="project-detail__secondary-action"
+                  onClick={() => setIsMappingPanelOpen(false)}
+                  type="button"
+                >
+                  Cancel
+                </button>
+                <button
+                  className="project-detail__primary-action"
+                  disabled={isUpdatingLifecycleConfiguration}
+                  type="submit"
+                >
+                  {isUpdatingLifecycleConfiguration ? "Saving..." : "Save configuration"}
+                </button>
+              </div>
+            </form>
+          </section>
+        </div>
+      ) : null}
     </section>
   );
 }

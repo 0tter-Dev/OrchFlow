@@ -88,6 +88,29 @@
   font-size: 1rem;
 }
 
+.project-list__health {
+  width: fit-content;
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.project-list__health[data-health="complete"] {
+  background: rgba(153, 239, 230, 0.16);
+  color: #99efe6;
+}
+
+.project-list__health[data-health="partial"] {
+  background: rgba(240, 212, 141, 0.16);
+  color: #f0d48d;
+}
+
+.project-list__health[data-health="blocked"] {
+  background: rgba(208, 72, 45, 0.18);
+  color: #ffd2c7;
+}
+
 .project-list__description {
   color: rgba(245, 239, 226, 0.68);
   line-height: 1.6;

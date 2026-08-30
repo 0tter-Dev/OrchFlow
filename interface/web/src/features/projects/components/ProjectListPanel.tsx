@@ -231,6 +231,12 @@ export function ProjectListPanel({
               type="button"
             >
               <strong>{project.reference_name}</strong>
+              <span
+                className="project-list__health"
+                data-health={project.lifecycle_configuration_health}
+              >
+                {project.lifecycle_configuration_health}
+              </span>
               <span className="project-list__description">
                 {project.description ?? "No description registered for this project yet."}
               </span>

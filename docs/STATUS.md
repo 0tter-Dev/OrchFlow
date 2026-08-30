@@ -13,7 +13,7 @@ This document tracks the current implementation state of major OrchFlow capabili
 
 ## Current Project Stage
 
-OrchFlow is currently in the `v0.2.14` implementation stage as of `2026-08-29`.
+OrchFlow is currently in the `v0.2.15` implementation stage as of `2026-08-29`.
 
 ## Feature Table
 
@@ -38,7 +38,7 @@ OrchFlow is currently in the `v0.2.14` implementation stage as of `2026-08-29`.
 | AI assistance adapter with LiteLLM gateway | Analyze project folders and help generate `.bat` scripts | planned | LiteLLM is planned as the central model gateway; OrchFlow still owns context control, authorization, validation, review, and final approval |
 | CLI surface | Expose orchestration through terminal commands | in_progress | Authentication, project registry, lifecycle execution, runtime inspection, admin audit history, user management, and owner management are mirrored; broader operator workflows still pending |
 | API surface | Expose orchestration through HTTP endpoints | in_progress | Authentication, project registry, lifecycle execution, runtime inspection, admin audit history, user management, and owner management are mirrored; broader operator workflows still pending |
-| Interface layer | Visualize and control projects across client platforms | in_progress | `interface/web` includes authenticated session loading, project registration, project visibility, runtime inspection, lifecycle controls, admin audit history, user management, owner management, and a shared API client boundary |
+| Interface layer | Visualize and control projects across client platforms | in_progress | `interface/web` includes authenticated session loading, project registration, project visibility, runtime inspection, configured lifecycle controls, lifecycle configuration indicators, manual mapping controls, project reload, admin audit history, user management, owner management, and a shared API client boundary |
 | Persistence and audit | Store users, projects, permissions, events | implemented | SQLAlchemy engine/session bootstrap, Alembic migrations, users, audit events, projects, ownership, lifecycle action mappings, and admin history visibility are implemented |
 | DevOps and CI | Enforce repository quality and automation | implemented | Git and GitHub flow documented, including PR version decisions, human-driven and agent-driven PR modes; PR and issue templates, migration validation, API contract coverage, critical web-flow tests, and full project validation checks are in place |
 
@@ -46,7 +46,7 @@ OrchFlow is currently in the `v0.2.14` implementation stage as of `2026-08-29`.
 
 - The initial project planning, documentation baseline, and repository skeleton were completed before the current implementation stage.
 - The consolidated documentation model and Git plus GitHub workflow foundation were completed before the current implementation stage.
-- The project is now operating in `v0.2.14`, which consolidates the first real backend and web implementation milestones, runtime inspection refinement, admin and ownership management, LiteLLM dependency onboarding, documentation/versioning governance, CI plus contract hardening, the first ideal lifecycle function domain model, automatic lifecycle configuration health, manual lifecycle configuration decisions, explicit project reload, and configured-action lifecycle execution gating on `main`.
+- The project is now operating in `v0.2.15`, which consolidates the first real backend and web implementation milestones, runtime inspection refinement, admin and ownership management, LiteLLM dependency onboarding, documentation/versioning governance, CI plus contract hardening, the first ideal lifecycle function domain model, automatic lifecycle configuration health, manual lifecycle configuration decisions, explicit project reload, configured-action lifecycle execution gating, and web lifecycle configuration controls on `main`.
 - The initial backend bootstrap now exists with executable API and CLI entrypoints plus smoke tests.
 - Configuration loading, runtime path normalization, disabled-by-default LiteLLM AI settings, SQLAlchemy bootstrap, and Alembic migrations are available as part of the current baseline.
 - API and CLI should keep evolving as mirrored external surfaces whenever a capability is intentionally exposed to operators.
@@ -58,7 +58,7 @@ OrchFlow is currently in the `v0.2.14` implementation stage as of `2026-08-29`.
 - AI-assisted onboarding is now planned around a LiteLLM-backed gateway rather than direct provider-specific integration. The OrchFlow adapter remains responsible for allowed project context, explicit authorization, proposal validation, review-driven file generation, and approved mapping persistence.
 - Admin audit history visibility is now implemented through a shared application service and exposed as `GET /audit/events`, `orchflow audit events`, and the web audit panel for recent operational events.
 - Admin and ownership management is now implemented through user role/activation updates, last-active-admin protection, project owner add/remove operations, and the first web admin management panel.
-- The first practical web client flow now exists in `interface/web`, covering sign-in, existing `.bat` project registration, project listing, project details, runtime inspection visibility, lifecycle controls, admin audit history, user management, and owner management against the stabilized API contracts.
+- The first practical web client flow now exists in `interface/web`, covering sign-in, existing `.bat` project registration, project listing, project details, runtime inspection visibility, configured lifecycle controls, lifecycle configuration health, manual mapping, reload, admin audit history, user management, and owner management against the stabilized API contracts.
 - The web client now uses a local proxy-friendly API base URL contract so frontend development can stay aligned with the backend surface without introducing special backend-only web behavior.
 - The Git and GitHub maintenance flow is now documented.
 - The Git and GitHub flow now documents both human-driven and agent-driven pull request authorship, while preserving human review and merge authority on protected branches.
