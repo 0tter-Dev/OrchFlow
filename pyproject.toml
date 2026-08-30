@@ -1,6 +1,6 @@
 [project]
 name = "orchflow"
-version = "0.3.3"
+version = "0.3.4"
 description = "Local-first project lifecycle orchestrator with CLI, API, UI, and AI-assisted bat generation."
 readme = "README.md"
 authors = [
@@ -49,6 +49,7 @@ select = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
+cache_dir = "runtime/pytest-cache"
 
 [tool.mypy]
 python_version = "3.12"

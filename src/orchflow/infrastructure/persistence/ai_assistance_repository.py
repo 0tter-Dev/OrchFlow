@@ -11,6 +11,9 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from orchflow.application.ai_assistance import (
     AIAnalysisProposal,
+    AIAnalysisProposalReview,
+    AIAnalysisProposalReviewDecision,
+    AIAnalysisProposalValidationStatus,
     AIAssistanceManifestOperation,
     AIAssistanceManifestRepository,
     AuthorizedContextManifest,
@@ -18,6 +21,7 @@ from orchflow.application.ai_assistance import (
 )
 from orchflow.infrastructure.persistence.models import (
     AIAnalysisProposalModel,
+    AIAnalysisProposalReviewModel,
     AIAuthorizedContextManifestModel,
 )
 
@@ -109,6 +113,20 @@ def _to_proposal(model: AIAnalysisProposalModel) -> AIAnalysisProposal:
         candidate_script_content=model.candidate_script_content,
         action_mappings=_mappings_from_json(model.action_mappings),
         warnings=_from_json(model.warnings),
+        created_at=model.created_at,
+    )
+
+
+def _to_review(model: AIAnalysisProposalReviewModel) -> AIAnalysisProposalReview:
+    return AIAnalysisProposalReview(
+        id=model.id,
+        proposal_id=model.proposal_id,
+        project_id=model.project_id,
+        reviewer_user_id=model.reviewer_user_id,
+        decision=cast(AIAnalysisProposalReviewDecision, model.decision),
+        validation_status=cast(AIAnalysisProposalValidationStatus, model.validation_status),
+        validation_errors=_from_json(model.validation_errors),
+        reviewer_notes=model.reviewer_notes,
         created_at=model.created_at,
     )
 
@@ -218,3 +236,41 @@ class SqlAlchemyAIAssistanceRepository(AIAssistanceManifestRepository):
         with self._session_scope() as session:
             model = session.get(AIAnalysisProposalModel, proposal_id)
             return _to_proposal(model) if model is not None else None
+
+    def create_analysis_proposal_review(
+        self,
+        *,
+        proposal_id: int,
+        project_id: int,
+        reviewer_user_id: int,
+        decision: AIAnalysisProposalReviewDecision,
+        validation_status: AIAnalysisProposalValidationStatus,
+        validation_errors: tuple[str, ...],
+        reviewer_notes: str | None,
+    ) -> AIAnalysisProposalReview:
+        with self._session_scope() as session:
+            model = AIAnalysisProposalReviewModel(
+                proposal_id=proposal_id,
+                project_id=project_id,
+                reviewer_user_id=reviewer_user_id,
+                decision=decision,
+                validation_status=validation_status,
+                validation_errors=_to_json(validation_errors),
+                reviewer_notes=reviewer_notes,
+            )
+            session.add(model)
+            session.flush()
+            session.refresh(model)
+            return _to_review(model)
+
+    def get_analysis_proposal_review_for_proposal(
+        self,
+        proposal_id: int,
+    ) -> AIAnalysisProposalReview | None:
+        with self._session_scope() as session:
+            model = (
+                session.query(AIAnalysisProposalReviewModel)
+                .filter(AIAnalysisProposalReviewModel.proposal_id == proposal_id)
+                .one_or_none()
+            )
+            return _to_review(model) if model is not None else None

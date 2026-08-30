@@ -84,10 +84,11 @@ def test_alembic_upgrade_head_runs_against_local_sqlite(tmp_path: Path) -> None:
                     "SELECT COUNT(*) FROM sqlite_master "
                     "WHERE type = 'table' AND name IN ("
                     "'users', 'audit_events', 'lifecycle_function_decisions', "
-                    "'ai_authorized_context_manifests', 'ai_analysis_proposals'"
+                    "'ai_authorized_context_manifests', 'ai_analysis_proposals', "
+                    "'ai_analysis_proposal_reviews'"
                     ")"
                 )
             ).scalar_one()
     finally:
         engine.dispose()
-    assert table_count == 5
+    assert table_count == 6

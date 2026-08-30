@@ -2,6 +2,7 @@
 
 from orchflow.application.ai_assistance import (
     AIAnalysisProposal,
+    AIAnalysisProposalReview,
     AIAssistanceGatewayHealth,
     AIAssistanceModelCatalog,
     AIAssistanceStatus,
@@ -135,6 +136,22 @@ def render_ai_analysis_proposal(proposal: AIAnalysisProposal) -> str:
         f"action_mappings:\n{mappings}\n"
         f"candidate_script_content:\n{proposal.candidate_script_content}\n"
         f"created_at: {proposal.created_at.isoformat()}"
+    )
+
+
+def render_ai_analysis_proposal_review(review: AIAnalysisProposalReview) -> str:
+    """Render a human review decision for CLI output."""
+    validation_errors = ", ".join(review.validation_errors) or "none"
+    return (
+        f"id: {review.id}\n"
+        f"proposal_id: {review.proposal_id}\n"
+        f"project_id: {review.project_id}\n"
+        f"reviewer_user_id: {review.reviewer_user_id}\n"
+        f"decision: {review.decision}\n"
+        f"validation_status: {review.validation_status}\n"
+        f"validation_errors: {validation_errors}\n"
+        f"reviewer_notes: {review.reviewer_notes or ''}\n"
+        f"created_at: {review.created_at.isoformat()}"
     )
 
 

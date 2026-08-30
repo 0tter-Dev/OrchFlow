@@ -11,6 +11,7 @@ from orchflow.application.access_control import (
     UpdateUserCommand,
 )
 from orchflow.application.ai_assistance import (
+    AIAnalysisProposalReviewDecision,
     AIAssistanceError,
     AIAssistanceManifestOperation,
     CheckAIAssistanceGatewayHealthCommand,
@@ -20,6 +21,7 @@ from orchflow.application.ai_assistance import (
     GetAnalysisProposalCommand,
     GetAuthorizedContextManifestCommand,
     ListAIAssistanceModelsCommand,
+    ReviewAnalysisProposalCommand,
 )
 from orchflow.application.audit_history import (
     AuditHistoryError,
@@ -54,6 +56,7 @@ from orchflow.domain.access_control import AccessToken, UserRole
 from orchflow.domain.project_registry import CanonicalLifecycleAction, MappingSource
 from orchflow.external.presenters import (
     render_ai_analysis_proposal,
+    render_ai_analysis_proposal_review,
     render_ai_assistance_gateway_health,
     render_ai_assistance_model_catalog,
     render_ai_assistance_status,
@@ -638,6 +641,32 @@ def ai_proposal_show(token: str = typer.Option(...), proposal_id: int = typer.Op
     except (AIAssistanceError, AccessControlError, ProjectRegistryError) as error:
         _exit_with_error(error)
     typer.echo(render_ai_analysis_proposal(proposal))
+
+
+@ai_app.command("proposal-review")
+def ai_proposal_review(
+    token: str = typer.Option(...),
+    proposal_id: int = typer.Option(...),
+    decision: str = typer.Option(...),
+    reviewer_notes: str | None = typer.Option(default=None),
+) -> None:
+    """Approve or reject an AI analysis proposal after validation."""
+    service = create_ai_assistance_service()
+    try:
+        review = service.review_analysis_proposal(
+            ReviewAnalysisProposalCommand(
+                token=token,
+                proposal_id=proposal_id,
+                decision=cast(
+                    AIAnalysisProposalReviewDecision,
+                    decision,
+                ),
+                reviewer_notes=reviewer_notes,
+            )
+        )
+    except (AIAssistanceError, AccessControlError, ProjectRegistryError) as error:
+        _exit_with_error(error)
+    typer.echo(render_ai_analysis_proposal_review(review))
 
 
 def run() -> None:

@@ -51,6 +51,7 @@ The preferred initial persistence direction is `SQLite`.
 - LiteLLM-backed model invocation metadata should be auditable without storing secrets or unnecessary prompt contents
 - authorized context manifests should persist selected project, selected model, intended operation, include/exclude path metadata, ignored/generated artifact metadata, secret filtering rules, size limits, and total authorized byte counts without storing file contents or secret values
 - AI analysis proposals should persist structured proposal output, selected model, manifest relationship, requesting user, lifecycle strategy, runtime hints, candidate script content, warnings, and proposed mappings without storing secrets or unnecessary prompt contents
+- AI analysis proposal reviews should persist one review decision per proposal, reviewer attribution, validation status, validation errors, reviewer notes, and timestamps without applying the proposal to a project
 - AI proposal approval and rejection decisions should be auditable
 - lifecycle action mapping changes should be auditable with user attribution
 - project reload and lifecycle configuration health changes should be auditable when they affect controllability or operator guidance

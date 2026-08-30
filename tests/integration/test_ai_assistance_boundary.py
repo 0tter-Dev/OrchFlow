@@ -7,6 +7,8 @@ from pathlib import Path
 
 from orchflow.application.ai_assistance import (
     AIAnalysisProposal,
+    AIAnalysisProposalReview,
+    AIAnalysisProposalReviewDecision,
     AIAssistanceGatewayHealth,
     AIAssistanceModel,
     AIAssistanceModelCatalog,
@@ -22,6 +24,7 @@ from orchflow.application.ai_assistance import (
     GetAuthorizedContextManifestCommand,
     ListAIAssistanceModelsCommand,
     ProposedLifecycleActionMapping,
+    ReviewAnalysisProposalCommand,
 )
 from orchflow.domain.access_control import User, UserRole
 from orchflow.domain.project_registry import Project
@@ -129,7 +132,9 @@ class FakeGateway:
             '{"lifecycle_strategy":"Use first-argument dispatch for canonical actions.",'
             '"runtime_hints":["APP_PORT may be declared in control.bat."],'
             '"candidate_script_content":"@echo off\\r\\nif /I \\"%~1\\"==\\"STATUS\\" '
-            'echo ok & exit /b 0\\r\\n",'
+            'echo ok & exit /b 0\\r\\nif /I \\"%~1\\"==\\"START\\" echo ok & exit /b 0\\r\\n'
+            'if /I \\"%~1\\"==\\"STOP\\" echo ok & exit /b 0\\r\\n'
+            'if /I \\"%~1\\"==\\"RESTART\\" echo ok & exit /b 0\\r\\n",'
             '"action_mappings":[{"canonical_action":"status","script_label":"STATUS",'
             '"rationale":"Canonical status handler."}],'
             '"warnings":["Review before applying."]}'
@@ -164,6 +169,7 @@ class FakeManifestRepository:
     def __init__(self) -> None:
         self.manifest: AuthorizedContextManifest | None = None
         self.proposal: AIAnalysisProposal | None = None
+        self.review: AIAnalysisProposalReview | None = None
 
     def create_authorized_context_manifest(
         self,
@@ -246,6 +252,37 @@ class FakeManifestRepository:
     ) -> AIAnalysisProposal | None:
         assert proposal_id == 2
         return self.proposal
+
+    def create_analysis_proposal_review(
+        self,
+        *,
+        proposal_id: int,
+        project_id: int,
+        reviewer_user_id: int,
+        decision: AIAnalysisProposalReviewDecision,
+        validation_status: str,
+        validation_errors: tuple[str, ...],
+        reviewer_notes: str | None,
+    ) -> AIAnalysisProposalReview:
+        self.review = AIAnalysisProposalReview(
+            id=3,
+            proposal_id=proposal_id,
+            project_id=project_id,
+            reviewer_user_id=reviewer_user_id,
+            decision=decision,
+            validation_status=validation_status,
+            validation_errors=validation_errors,
+            reviewer_notes=reviewer_notes,
+            created_at=datetime.now(UTC),
+        )
+        return self.review
+
+    def get_analysis_proposal_review_for_proposal(
+        self,
+        proposal_id: int,
+    ) -> AIAnalysisProposalReview | None:
+        assert proposal_id == 2
+        return self.review
 
 
 def _build_service(
@@ -419,6 +456,88 @@ def test_ai_assistance_service_creates_reviewable_analysis_proposal(
 
     assert persisted_proposal.id == proposal.id
     assert audit_recorder.events[-1]["action"] == "ai_assistance.analysis_proposal.read"
+
+
+def test_ai_assistance_service_approves_valid_analysis_proposal(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "app.py").write_text("print('approved context')\n", encoding="utf-8")
+    audit_recorder = FakeAuditRecorder()
+    manifest_repository = FakeManifestRepository()
+    service = _build_service(
+        project_root_path=tmp_path,
+        gateway=FakeGateway(ready_for_requests=True),
+        audit_recorder=audit_recorder,
+        manifest_repository=manifest_repository,
+    )
+    manifest = service.create_authorized_context_manifest(
+        CreateAuthorizedContextManifestCommand(
+            token="token",
+            project_id=456,
+            selected_model="ollama/llama3",
+            intended_operation="improve_lifecycle_script",
+            include_patterns=("app.py",),
+        )
+    )
+    proposal = service.create_analysis_proposal(
+        CreateAnalysisProposalCommand(token="token", manifest_id=manifest.id)
+    )
+
+    review = service.review_analysis_proposal(
+        ReviewAnalysisProposalCommand(
+            token="token",
+            proposal_id=proposal.id,
+            decision="approved",
+            reviewer_notes="Looks good.",
+        )
+    )
+
+    assert review.decision == "approved"
+    assert review.validation_status == "valid"
+    assert review.validation_errors == ()
+    assert review.reviewer_notes == "Looks good."
+    assert audit_recorder.events[-1]["action"] == "ai_assistance.analysis_proposal.review"
+
+
+def test_ai_assistance_service_rejects_invalid_analysis_proposal(
+    tmp_path: Path,
+) -> None:
+    audit_recorder = FakeAuditRecorder()
+    manifest_repository = FakeManifestRepository()
+    now = datetime.now(UTC)
+    manifest_repository.proposal = AIAnalysisProposal(
+        id=2,
+        manifest_id=1,
+        project_id=456,
+        requested_by_user_id=123,
+        selected_model="ollama/llama3",
+        intended_operation="improve_lifecycle_script",
+        lifecycle_strategy="Missing dispatch handlers.",
+        runtime_hints=(),
+        candidate_script_content="@echo off\r\necho no dispatch\r\n",
+        action_mappings=(),
+        warnings=(),
+        created_at=now,
+    )
+    service = _build_service(
+        project_root_path=tmp_path,
+        audit_recorder=audit_recorder,
+        manifest_repository=manifest_repository,
+    )
+
+    review = service.review_analysis_proposal(
+        ReviewAnalysisProposalCommand(
+            token="token",
+            proposal_id=2,
+            decision="rejected",
+            reviewer_notes="Needs a dispatcher.",
+        )
+    )
+
+    assert review.decision == "rejected"
+    assert review.validation_status == "invalid"
+    assert review.validation_errors
+    assert audit_recorder.events[-1]["action"] == "ai_assistance.analysis_proposal.review"
 
 
 def test_litellm_gateway_client_defaults_to_disabled_without_requests() -> None:
