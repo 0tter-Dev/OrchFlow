@@ -17,7 +17,10 @@ def _proposal_completion() -> str:
         '{"lifecycle_strategy":"Use a canonical first-argument dispatch .bat.",'
         '"runtime_hints":["Declare APP_PORT when available."],'
         '"candidate_script_content":"@echo off\\r\\nif /I \\"%~1\\"==\\"STATUS\\" '
-        'echo status-ok & exit /b 0\\r\\n",'
+        'echo status-ok & exit /b 0\\r\\nif /I \\"%~1\\"==\\"START\\" '
+        'echo start-ok & exit /b 0\\r\\nif /I \\"%~1\\"==\\"STOP\\" '
+        'echo stop-ok & exit /b 0\\r\\nif /I \\"%~1\\"==\\"RESTART\\" '
+        'echo restart-ok & exit /b 0\\r\\n",'
         '"action_mappings":[{"canonical_action":"status","script_label":"STATUS",'
         '"rationale":"Detected status command."}],'
         '"warnings":["Review before writing files."]}'
@@ -32,7 +35,7 @@ def test_root_returns_bootstrap_metadata() -> None:
     assert response.status_code == 200
     assert response.json() == {
         "name": "OrchFlow",
-        "version": "0.3.3",
+        "version": "0.3.4",
         "status": "ok",
         "stage": "bootstrap",
     }
@@ -397,6 +400,19 @@ def test_ai_analysis_proposal_flow_is_exposed_through_authenticated_api(
 
     assert read_response.status_code == 200
     assert read_response.json()["id"] == proposal["id"]
+
+    review_response = client.post(
+        f"/ai/analysis-proposals/{proposal['id']}/review",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"decision": "approved", "reviewer_notes": "Approved for next step."},
+    )
+
+    assert review_response.status_code == 201
+    review = review_response.json()
+    assert review["proposal_id"] == proposal["id"]
+    assert review["decision"] == "approved"
+    assert review["validation_status"] == "valid"
+    assert review["validation_errors"] == []
 
 
 def test_registering_admin_after_bootstrap_requires_admin_token(

@@ -17,6 +17,7 @@ from orchflow.application.access_control import (
 )
 from orchflow.application.ai_assistance import (
     AIAnalysisProposal,
+    AIAnalysisProposalReview,
     AIAssistanceError,
     AIAssistanceGatewayHealth,
     AIAssistanceModelCatalog,
@@ -29,6 +30,7 @@ from orchflow.application.ai_assistance import (
     GetAnalysisProposalCommand,
     GetAuthorizedContextManifestCommand,
     ListAIAssistanceModelsCommand,
+    ReviewAnalysisProposalCommand,
 )
 from orchflow.application.audit_history import (
     AuditHistoryError,
@@ -319,6 +321,23 @@ class AIAnalysisProposalResponse(BaseModel):
     created_at: str
 
 
+class AIAnalysisProposalReviewRequest(BaseModel):
+    decision: Literal["approved", "rejected"]
+    reviewer_notes: str | None = None
+
+
+class AIAnalysisProposalReviewResponse(BaseModel):
+    id: int
+    proposal_id: int
+    project_id: int
+    reviewer_user_id: int
+    decision: Literal["approved", "rejected"]
+    validation_status: Literal["valid", "invalid"]
+    validation_errors: list[str]
+    reviewer_notes: str | None
+    created_at: str
+
+
 def _to_user_response(user: User) -> UserResponse:
     return UserResponse(
         id=user.id,
@@ -416,6 +435,22 @@ def _to_ai_analysis_proposal_response(
         ],
         warnings=list(proposal.warnings),
         created_at=proposal.created_at.isoformat(),
+    )
+
+
+def _to_ai_analysis_proposal_review_response(
+    review: AIAnalysisProposalReview,
+) -> AIAnalysisProposalReviewResponse:
+    return AIAnalysisProposalReviewResponse(
+        id=review.id,
+        proposal_id=review.proposal_id,
+        project_id=review.project_id,
+        reviewer_user_id=review.reviewer_user_id,
+        decision=review.decision,
+        validation_status=review.validation_status,
+        validation_errors=list(review.validation_errors),
+        reviewer_notes=review.reviewer_notes,
+        created_at=review.created_at.isoformat(),
     )
 
 
@@ -912,6 +947,43 @@ def create_app() -> FastAPI:
                 detail=str(error),
             ) from error
         return _to_ai_analysis_proposal_response(proposal)
+
+    @app.post(
+        "/ai/analysis-proposals/{proposal_id}/review",
+        response_model=AIAnalysisProposalReviewResponse,
+        status_code=status.HTTP_201_CREATED,
+        tags=["ai"],
+    )
+    def review_ai_analysis_proposal(
+        proposal_id: int,
+        payload: AIAnalysisProposalReviewRequest,
+        authorization: str | None = Header(default=None),
+    ) -> AIAnalysisProposalReviewResponse:
+        token = _extract_bearer_token(authorization)
+        if token is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Missing bearer token.",
+            )
+        try:
+            review = ai_assistance_service.review_analysis_proposal(
+                ReviewAnalysisProposalCommand(
+                    token=token,
+                    proposal_id=proposal_id,
+                    decision=payload.decision,
+                    reviewer_notes=payload.reviewer_notes,
+                )
+            )
+        except AuthorizationError as error:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(error)) from error
+        except ProjectRegistryError as error:
+            raise _map_project_registry_error(error) from error
+        except AIAssistanceError as error:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=str(error),
+            ) from error
+        return _to_ai_analysis_proposal_review_response(review)
 
     @app.post(
         "/projects",

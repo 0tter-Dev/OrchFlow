@@ -11,12 +11,17 @@ from pathlib import Path
 from typing import Any, Literal, Protocol, cast
 
 from orchflow.domain.access_control import User
-from orchflow.domain.lifecycle_function_model import build_lifecycle_function_configurations
+from orchflow.domain.lifecycle_function_model import (
+    IDEAL_LIFECYCLE_FUNCTIONS,
+    build_lifecycle_function_configurations,
+)
 from orchflow.domain.project_registry import Project
 
 AIAssistanceGatewayStatus = Literal["disabled", "configured", "misconfigured"]
 AIAssistanceHealthStatus = Literal["disabled", "healthy", "unhealthy", "unsupported"]
 AIAssistanceManifestOperation = Literal["improve_lifecycle_script", "generate_lifecycle_script"]
+AIAnalysisProposalReviewDecision = Literal["approved", "rejected"]
+AIAnalysisProposalValidationStatus = Literal["valid", "invalid"]
 
 DEFAULT_EXCLUDE_DIR_NAMES = frozenset(
     {
@@ -133,6 +138,16 @@ class GetAnalysisProposalCommand:
 
     token: str
     proposal_id: int
+
+
+@dataclass(frozen=True, slots=True)
+class ReviewAnalysisProposalCommand:
+    """Input required to approve or reject an AI analysis proposal."""
+
+    token: str
+    proposal_id: int
+    decision: AIAnalysisProposalReviewDecision
+    reviewer_notes: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -266,6 +281,29 @@ class AIAnalysisProposal:
     created_at: datetime
 
 
+@dataclass(frozen=True, slots=True)
+class AIAnalysisProposalValidation:
+    """Validation result for a reviewable AI analysis proposal."""
+
+    status: AIAnalysisProposalValidationStatus
+    errors: tuple[str, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class AIAnalysisProposalReview:
+    """Persisted human review decision for an AI analysis proposal."""
+
+    id: int
+    proposal_id: int
+    project_id: int
+    reviewer_user_id: int
+    decision: AIAnalysisProposalReviewDecision
+    validation_status: AIAnalysisProposalValidationStatus
+    validation_errors: tuple[str, ...]
+    reviewer_notes: str | None
+    created_at: datetime
+
+
 class AIAssistanceGateway(Protocol):
     """Infrastructure boundary for the configured AI/model gateway."""
 
@@ -343,6 +381,23 @@ class AIAssistanceManifestRepository(Protocol):
         self,
         proposal_id: int,
     ) -> AIAnalysisProposal | None: ...
+
+    def create_analysis_proposal_review(
+        self,
+        *,
+        proposal_id: int,
+        project_id: int,
+        reviewer_user_id: int,
+        decision: AIAnalysisProposalReviewDecision,
+        validation_status: AIAnalysisProposalValidationStatus,
+        validation_errors: tuple[str, ...],
+        reviewer_notes: str | None,
+    ) -> AIAnalysisProposalReview: ...
+
+    def get_analysis_proposal_review_for_proposal(
+        self,
+        proposal_id: int,
+    ) -> AIAnalysisProposalReview | None: ...
 
 
 class CurrentUserResolver(Protocol):
@@ -600,6 +655,66 @@ class AIAssistanceService:
             details=f"manifest_id:{proposal.manifest_id};project_id:{proposal.project_id}",
         )
         return proposal
+
+    def review_analysis_proposal(
+        self,
+        command: ReviewAnalysisProposalCommand,
+    ) -> AIAnalysisProposalReview:
+        """Approve or reject a proposal after validating its reviewable content."""
+        actor = self._current_user_resolver.get_current_user(command.token)
+        decision = self._validate_review_decision(command.decision)
+        proposal = self._manifest_repository.get_analysis_proposal(command.proposal_id)
+        if proposal is None:
+            raise AIAssistanceError("AI analysis proposal was not found.")
+        self._project_resolver.get_project(command.token, proposal.project_id)
+        existing_review = (
+            self._manifest_repository.get_analysis_proposal_review_for_proposal(
+                proposal.id
+            )
+        )
+        if existing_review is not None:
+            raise AIAssistanceError("AI analysis proposal has already been reviewed.")
+
+        validation = self._validate_analysis_proposal_for_review(proposal)
+        if decision == "approved" and validation.status == "invalid":
+            self._audit_recorder.record_audit_event(
+                actor_user_id=actor.id,
+                action="ai_assistance.analysis_proposal.review_blocked",
+                target_type="ai_analysis_proposal",
+                target_id=str(proposal.id),
+                details=(
+                    f"decision:{decision};"
+                    f"validation_status:{validation.status};"
+                    f"errors:{len(validation.errors)}"
+                ),
+            )
+            raise AIAssistanceError(
+                "AI analysis proposal cannot be approved because validation failed: "
+                f"{'; '.join(validation.errors)}"
+            )
+
+        review = self._manifest_repository.create_analysis_proposal_review(
+            proposal_id=proposal.id,
+            project_id=proposal.project_id,
+            reviewer_user_id=actor.id,
+            decision=decision,
+            validation_status=validation.status,
+            validation_errors=validation.errors,
+            reviewer_notes=self._normalize_optional_text(command.reviewer_notes),
+        )
+        self._audit_recorder.record_audit_event(
+            actor_user_id=actor.id,
+            action="ai_assistance.analysis_proposal.review",
+            target_type="ai_analysis_proposal",
+            target_id=str(proposal.id),
+            details=(
+                f"review_id:{review.id};"
+                f"decision:{review.decision};"
+                f"validation_status:{review.validation_status};"
+                f"errors:{len(review.validation_errors)}"
+            ),
+        )
+        return review
 
     @staticmethod
     def _validate_patterns(patterns: tuple[str, ...], label: str) -> tuple[str, ...]:
@@ -895,3 +1010,68 @@ class AIAssistanceService:
                 )
             )
         return tuple(mappings)
+
+    @staticmethod
+    def _validate_review_decision(
+        decision: str,
+    ) -> AIAnalysisProposalReviewDecision:
+        if decision not in {"approved", "rejected"}:
+            raise AIAssistanceError("Unsupported AI proposal review decision.")
+        return cast(AIAnalysisProposalReviewDecision, decision)
+
+    @staticmethod
+    def _normalize_optional_text(value: str | None) -> str | None:
+        if value is None:
+            return None
+        normalized = value.strip()
+        return normalized or None
+
+    def _validate_analysis_proposal_for_review(
+        self,
+        proposal: AIAnalysisProposal,
+    ) -> AIAnalysisProposalValidation:
+        from orchflow.application.project_registry import ProjectRegistryService
+
+        errors: list[str] = []
+        script_content = proposal.candidate_script_content
+        if not script_content.strip():
+            errors.append("Candidate script content is required.")
+        elif not ProjectRegistryService._has_first_argument_dispatch(script_content):
+            errors.append(
+                "Candidate script must dispatch lifecycle actions from the first "
+                "argument (%~1 or %1)."
+            )
+
+        mapping_by_action: dict[str, str] = {}
+        for mapping in proposal.action_mappings:
+            if mapping.canonical_action in mapping_by_action:
+                errors.append(
+                    f"Duplicate mapping for canonical action '{mapping.canonical_action}'."
+                )
+                continue
+            mapping_by_action[mapping.canonical_action] = mapping.script_label
+            if not ProjectRegistryService._has_dispatch_handler(
+                script_content,
+                mapping.script_label,
+            ):
+                errors.append(
+                    "Candidate script does not expose a dispatch handler for "
+                    f"{mapping.canonical_action} -> {mapping.script_label}."
+                )
+
+        for function in IDEAL_LIFECYCLE_FUNCTIONS:
+            proposed_label = mapping_by_action.get(function.action.value)
+            expected_label = proposed_label or function.preferred_script_identifier
+            if not ProjectRegistryService._has_dispatch_handler(
+                script_content,
+                expected_label,
+            ):
+                errors.append(
+                    "Candidate script does not cover required lifecycle action "
+                    f"'{function.action.value}'."
+                )
+
+        return AIAnalysisProposalValidation(
+            status="invalid" if errors else "valid",
+            errors=tuple(errors),
+        )

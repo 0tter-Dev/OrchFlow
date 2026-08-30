@@ -27,7 +27,7 @@ Before any alteration, AI agents must ground their understanding in the applicab
 Agents must:
 
 - preserve the local-first purpose of the project
-- keep `.bat` lifecycle scripts as the concrete operational base for managed projects in `v0.3.3`
+- keep `.bat` lifecycle scripts as the concrete operational base for managed projects in `v0.3.4`
 - preserve the ideal lifecycle function model as the reference for project mapping, configuration health, warnings, blocking rules, reload, and AI-assisted `.bat` improvement
 - treat the AI assistance layer as optional assistance mediated by OrchFlow, not as the authoritative lifecycle controller
 - treat `LiteLLM` as the central LLM/model gateway, while keeping OrchFlow responsible for allowed context, file access, review-driven flow, validation, and final user approval

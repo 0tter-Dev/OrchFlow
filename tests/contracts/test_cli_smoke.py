@@ -19,7 +19,10 @@ def _proposal_completion() -> str:
         '{"lifecycle_strategy":"Use canonical dispatch labels.",'
         '"runtime_hints":["APP_URL can help runtime inspection."],'
         '"candidate_script_content":"@echo off\\r\\nif /I \\"%~1\\"==\\"STATUS\\" '
-        'echo status-ok & exit /b 0\\r\\n",'
+        'echo status-ok & exit /b 0\\r\\nif /I \\"%~1\\"==\\"START\\" '
+        'echo start-ok & exit /b 0\\r\\nif /I \\"%~1\\"==\\"STOP\\" '
+        'echo stop-ok & exit /b 0\\r\\nif /I \\"%~1\\"==\\"RESTART\\" '
+        'echo restart-ok & exit /b 0\\r\\n",'
         '"action_mappings":[{"canonical_action":"status","script_label":"STATUS",'
         '"rationale":"Detected status command."}],'
         '"warnings":["Review before writing files."]}'
@@ -39,7 +42,7 @@ def test_info_command_displays_bootstrap_metadata() -> None:
     result = runner.invoke(app, ["info"])
 
     assert result.exit_code == 0
-    assert "OrchFlow 0.3.3" in result.stdout
+    assert "OrchFlow 0.3.4" in result.stdout
     assert "stage: bootstrap" in result.stdout
 
 
@@ -406,6 +409,27 @@ def test_cli_ai_analysis_proposal_flow_is_available(
     assert show_result.exit_code == 0
     assert "manifest_id:" in show_result.stdout
     assert "runtime_hints: APP_URL can help runtime inspection." in show_result.stdout
+
+    review_result = runner.invoke(
+        app,
+        [
+            "ai",
+            "proposal-review",
+            "--token",
+            token,
+            "--proposal-id",
+            proposal_id,
+            "--decision",
+            "approved",
+            "--reviewer-notes",
+            "Approved for next step.",
+        ],
+    )
+
+    assert review_result.exit_code == 0
+    assert "decision: approved" in review_result.stdout
+    assert "validation_status: valid" in review_result.stdout
+    assert "validation_errors: none" in review_result.stdout
 
 
 def test_cli_admin_user_management_flow_is_available(isolated_environment: None) -> None:

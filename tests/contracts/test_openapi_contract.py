@@ -10,6 +10,7 @@ def test_openapi_contract_exposes_current_operator_routes() -> None:
     expected_operations = [
         ("/ai/analysis-proposals", "post"),
         ("/ai/analysis-proposals/{proposal_id}", "get"),
+        ("/ai/analysis-proposals/{proposal_id}/review", "post"),
         ("/ai/context-manifests", "post"),
         ("/ai/context-manifests/{manifest_id}", "get"),
         ("/ai/gateway/health", "get"),
@@ -127,3 +128,16 @@ def test_ai_assistance_openapi_contract_includes_analysis_proposal() -> None:
     assert "candidate_script_content" in proposal_properties
     assert "action_mappings" in proposal_properties
     assert "warnings" in proposal_properties
+
+
+def test_ai_assistance_openapi_contract_includes_proposal_review() -> None:
+    schema = create_app().openapi()
+    review_properties = schema["components"]["schemas"][
+        "AIAnalysisProposalReviewResponse"
+    ]["properties"]
+
+    assert "proposal_id" in review_properties
+    assert "decision" in review_properties
+    assert "validation_status" in review_properties
+    assert "validation_errors" in review_properties
+    assert "reviewer_notes" in review_properties
