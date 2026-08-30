@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from orchflow.application.ai_assistance import (
     AIAnalysisProposal,
+    AIAnalysisProposalApplication,
     AIAnalysisProposalReview,
     AIAnalysisProposalReviewDecision,
     AIAnalysisProposalValidationStatus,
@@ -19,7 +20,9 @@ from orchflow.application.ai_assistance import (
     AuthorizedContextManifest,
     ProposedLifecycleActionMapping,
 )
+from orchflow.domain.project_registry import Project
 from orchflow.infrastructure.persistence.models import (
+    AIAnalysisProposalApplicationModel,
     AIAnalysisProposalModel,
     AIAnalysisProposalReviewModel,
     AIAuthorizedContextManifestModel,
@@ -127,6 +130,21 @@ def _to_review(model: AIAnalysisProposalReviewModel) -> AIAnalysisProposalReview
         validation_status=cast(AIAnalysisProposalValidationStatus, model.validation_status),
         validation_errors=_from_json(model.validation_errors),
         reviewer_notes=model.reviewer_notes,
+        created_at=model.created_at,
+    )
+
+
+def _to_application(
+    model: AIAnalysisProposalApplicationModel,
+) -> AIAnalysisProposalApplication:
+    return AIAnalysisProposalApplication(
+        id=model.id,
+        proposal_id=model.proposal_id,
+        project_id=model.project_id,
+        applied_by_user_id=model.applied_by_user_id,
+        lifecycle_script_path=model.lifecycle_script_path,
+        persisted_mappings=_mappings_from_json(model.persisted_mappings),
+        project=None,
         created_at=model.created_at,
     )
 
@@ -274,3 +292,48 @@ class SqlAlchemyAIAssistanceRepository(AIAssistanceManifestRepository):
                 .one_or_none()
             )
             return _to_review(model) if model is not None else None
+
+    def create_analysis_proposal_application(
+        self,
+        *,
+        proposal_id: int,
+        project_id: int,
+        applied_by_user_id: int,
+        lifecycle_script_path: str,
+        persisted_mappings: tuple[ProposedLifecycleActionMapping, ...],
+        project: Project,
+    ) -> AIAnalysisProposalApplication:
+        with self._session_scope() as session:
+            model = AIAnalysisProposalApplicationModel(
+                proposal_id=proposal_id,
+                project_id=project_id,
+                applied_by_user_id=applied_by_user_id,
+                lifecycle_script_path=lifecycle_script_path,
+                persisted_mappings=_mappings_to_json(persisted_mappings),
+            )
+            session.add(model)
+            session.flush()
+            session.refresh(model)
+            application = _to_application(model)
+            return AIAnalysisProposalApplication(
+                id=application.id,
+                proposal_id=application.proposal_id,
+                project_id=application.project_id,
+                applied_by_user_id=application.applied_by_user_id,
+                lifecycle_script_path=application.lifecycle_script_path,
+                persisted_mappings=application.persisted_mappings,
+                project=project,
+                created_at=application.created_at,
+            )
+
+    def get_analysis_proposal_application_for_proposal(
+        self,
+        proposal_id: int,
+    ) -> AIAnalysisProposalApplication | None:
+        with self._session_scope() as session:
+            model = (
+                session.query(AIAnalysisProposalApplicationModel)
+                .filter(AIAnalysisProposalApplicationModel.proposal_id == proposal_id)
+                .one_or_none()
+            )
+            return _to_application(model) if model is not None else None

@@ -35,7 +35,7 @@ The preferred initial persistence direction is `SQLite`.
 - audit events are persisted in local `SQLite` storage
 - access-control operations record user registration, login, and admin user listing events
 - project registry operations record project registration, list, and read events
-- planned registry refinements should record reload operations and automatic mapping refreshes
+- registry reload operations and automatic mapping refreshes are audited
 - current registration persists automatically detected preferred mappings as imported lifecycle action mappings
 - manual mapping decisions and explicit unconfigured-function decisions are persisted with actor metadata and audited through project lifecycle configuration update events
 - lifecycle operations record action, command identifier, exit status, success state, and runtime status when available
@@ -52,7 +52,9 @@ The preferred initial persistence direction is `SQLite`.
 - authorized context manifests should persist selected project, selected model, intended operation, include/exclude path metadata, ignored/generated artifact metadata, secret filtering rules, size limits, and total authorized byte counts without storing file contents or secret values
 - AI analysis proposals should persist structured proposal output, selected model, manifest relationship, requesting user, lifecycle strategy, runtime hints, candidate script content, warnings, and proposed mappings without storing secrets or unnecessary prompt contents
 - AI analysis proposal reviews should persist one review decision per proposal, reviewer attribution, validation status, validation errors, reviewer notes, and timestamps without applying the proposal to a project
+- AI analysis proposal applications should persist one application record per proposal, actor attribution, target project, lifecycle script path, effective persisted mappings, and timestamp after the user explicitly confirms file writes and mapping persistence
 - AI proposal approval and rejection decisions should be auditable
+- approved proposal applications should be auditable as file-write and mapping-persistence events owned by OrchFlow rather than LiteLLM
 - lifecycle action mapping changes should be auditable with user attribution
 - project reload and lifecycle configuration health changes should be auditable when they affect controllability or operator guidance
 - the system should prioritize practical local reliability over premature complexity

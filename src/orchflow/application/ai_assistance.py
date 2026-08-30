@@ -15,7 +15,7 @@ from orchflow.domain.lifecycle_function_model import (
     IDEAL_LIFECYCLE_FUNCTIONS,
     build_lifecycle_function_configurations,
 )
-from orchflow.domain.project_registry import Project
+from orchflow.domain.project_registry import CanonicalLifecycleAction, MappingSource, Project
 
 AIAssistanceGatewayStatus = Literal["disabled", "configured", "misconfigured"]
 AIAssistanceHealthStatus = Literal["disabled", "healthy", "unhealthy", "unsupported"]
@@ -148,6 +148,16 @@ class ReviewAnalysisProposalCommand:
     proposal_id: int
     decision: AIAnalysisProposalReviewDecision
     reviewer_notes: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class ApplyAnalysisProposalCommand:
+    """Input required to apply an approved AI analysis proposal."""
+
+    token: str
+    proposal_id: int
+    confirm_file_write: bool = False
+    confirm_mapping_persistence: bool = False
 
 
 @dataclass(frozen=True, slots=True)
@@ -304,6 +314,20 @@ class AIAnalysisProposalReview:
     created_at: datetime
 
 
+@dataclass(frozen=True, slots=True)
+class AIAnalysisProposalApplication:
+    """Persisted application record for an approved AI analysis proposal."""
+
+    id: int
+    proposal_id: int
+    project_id: int
+    applied_by_user_id: int
+    lifecycle_script_path: str
+    persisted_mappings: tuple[ProposedLifecycleActionMapping, ...]
+    project: Project | None
+    created_at: datetime
+
+
 class AIAssistanceGateway(Protocol):
     """Infrastructure boundary for the configured AI/model gateway."""
 
@@ -399,6 +423,22 @@ class AIAssistanceManifestRepository(Protocol):
         proposal_id: int,
     ) -> AIAnalysisProposalReview | None: ...
 
+    def create_analysis_proposal_application(
+        self,
+        *,
+        proposal_id: int,
+        project_id: int,
+        applied_by_user_id: int,
+        lifecycle_script_path: str,
+        persisted_mappings: tuple[ProposedLifecycleActionMapping, ...],
+        project: Project,
+    ) -> AIAnalysisProposalApplication: ...
+
+    def get_analysis_proposal_application_for_proposal(
+        self,
+        proposal_id: int,
+    ) -> AIAnalysisProposalApplication | None: ...
+
 
 class CurrentUserResolver(Protocol):
     """Boundary used to resolve the current authenticated user."""
@@ -410,6 +450,11 @@ class ProjectResolver(Protocol):
     """Boundary used to resolve project visibility for AI context authorization."""
 
     def get_project(self, token: str, project_id: int) -> Project: ...
+
+    def update_lifecycle_function_configuration(
+        self,
+        command: Any,
+    ) -> Project: ...
 
 
 class AIAssistanceService:
@@ -715,6 +760,117 @@ class AIAssistanceService:
             ),
         )
         return review
+
+    def apply_analysis_proposal(
+        self,
+        command: ApplyAnalysisProposalCommand,
+    ) -> AIAnalysisProposalApplication:
+        """Write an approved proposal's .bat and persist approved mappings."""
+        from orchflow.application.project_registry import (
+            ProjectMappingInput,
+            UpdateLifecycleFunctionConfigurationCommand,
+        )
+
+        actor = self._current_user_resolver.get_current_user(command.token)
+        if not command.confirm_file_write:
+            raise AIAssistanceError(
+                "Applying an AI proposal requires explicit file-write confirmation."
+            )
+        if not command.confirm_mapping_persistence:
+            raise AIAssistanceError(
+                "Applying an AI proposal requires explicit mapping-persistence confirmation."
+            )
+
+        proposal = self._manifest_repository.get_analysis_proposal(command.proposal_id)
+        if proposal is None:
+            raise AIAssistanceError("AI analysis proposal was not found.")
+        project = self._project_resolver.get_project(command.token, proposal.project_id)
+
+        review = self._manifest_repository.get_analysis_proposal_review_for_proposal(
+            proposal.id
+        )
+        if review is None:
+            raise AIAssistanceError(
+                "AI analysis proposal must be reviewed before it can be applied."
+            )
+        if review.decision != "approved" or review.validation_status != "valid":
+            raise AIAssistanceError(
+                "Only approved and valid AI analysis proposals can be applied."
+            )
+        existing_application = (
+            self._manifest_repository.get_analysis_proposal_application_for_proposal(
+                proposal.id
+            )
+        )
+        if existing_application is not None:
+            raise AIAssistanceError("AI analysis proposal has already been applied.")
+
+        validation = self._validate_analysis_proposal_for_review(proposal)
+        if validation.status == "invalid":
+            raise AIAssistanceError(
+                "AI analysis proposal cannot be applied because validation failed: "
+                f"{'; '.join(validation.errors)}"
+            )
+
+        script_path = self._resolve_project_lifecycle_script_path(project)
+        original_content = (
+            script_path.read_text(encoding="utf-8")
+            if script_path.exists()
+            else None
+        )
+        script_existed = script_path.exists()
+        persisted_mappings = self._effective_approved_mappings(proposal)
+
+        try:
+            script_path.write_text(
+                proposal.candidate_script_content,
+                encoding="utf-8",
+            )
+            updated_project = self._project_resolver.update_lifecycle_function_configuration(
+                UpdateLifecycleFunctionConfigurationCommand(
+                    token=command.token,
+                    project_id=proposal.project_id,
+                    mappings=tuple(
+                        ProjectMappingInput(
+                            canonical_action=CanonicalLifecycleAction(
+                                mapping.canonical_action
+                            ),
+                            script_label=mapping.script_label,
+                            source=MappingSource.AI_APPROVED,
+                        )
+                        for mapping in persisted_mappings
+                    ),
+                    unconfigured_actions=(),
+                )
+            )
+        except Exception:
+            if script_existed and original_content is not None:
+                script_path.write_text(original_content, encoding="utf-8")
+            elif not script_existed and script_path.exists():
+                script_path.unlink()
+            raise
+
+        application = self._manifest_repository.create_analysis_proposal_application(
+            proposal_id=proposal.id,
+            project_id=proposal.project_id,
+            applied_by_user_id=actor.id,
+            lifecycle_script_path=str(script_path),
+            persisted_mappings=persisted_mappings,
+            project=updated_project,
+        )
+        self._audit_recorder.record_audit_event(
+            actor_user_id=actor.id,
+            action="ai_assistance.analysis_proposal.apply",
+            target_type="ai_analysis_proposal",
+            target_id=str(proposal.id),
+            details=(
+                f"application_id:{application.id};"
+                f"project_id:{proposal.project_id};"
+                f"lifecycle_script_path:{script_path};"
+                f"persisted_mappings:{len(persisted_mappings)}"
+            ),
+        )
+        return application
 
     @staticmethod
     def _validate_patterns(patterns: tuple[str, ...], label: str) -> tuple[str, ...]:
@@ -1074,4 +1230,40 @@ class AIAssistanceService:
         return AIAnalysisProposalValidation(
             status="invalid" if errors else "valid",
             errors=tuple(errors),
+        )
+
+    @staticmethod
+    def _resolve_project_lifecycle_script_path(project: Project) -> Path:
+        project_root_path = Path(project.project_root_path).resolve()
+        script_path = Path(project.lifecycle_script_path).resolve()
+        try:
+            script_path.relative_to(project_root_path)
+        except ValueError as error:
+            raise AIAssistanceError(
+                "Lifecycle script path must stay inside the project root."
+            ) from error
+        if script_path.suffix.lower() != ".bat":
+            raise AIAssistanceError("Lifecycle script path must point to a .bat file.")
+        if not script_path.parent.exists() or not script_path.parent.is_dir():
+            raise AIAssistanceError("Lifecycle script parent directory must exist.")
+        return script_path
+
+    @staticmethod
+    def _effective_approved_mappings(
+        proposal: AIAnalysisProposal,
+    ) -> tuple[ProposedLifecycleActionMapping, ...]:
+        proposed_labels = {
+            mapping.canonical_action: mapping.script_label
+            for mapping in proposal.action_mappings
+        }
+        return tuple(
+            ProposedLifecycleActionMapping(
+                canonical_action=function.action.value,
+                script_label=proposed_labels.get(
+                    function.action.value,
+                    function.preferred_script_identifier,
+                ),
+                rationale="Approved AI proposal mapping.",
+            )
+            for function in IDEAL_LIFECYCLE_FUNCTIONS
         )

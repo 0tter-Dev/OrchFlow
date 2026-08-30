@@ -7,14 +7,17 @@ from pathlib import Path
 
 from orchflow.application.ai_assistance import (
     AIAnalysisProposal,
+    AIAnalysisProposalApplication,
     AIAnalysisProposalReview,
     AIAnalysisProposalReviewDecision,
+    AIAssistanceError,
     AIAssistanceGatewayHealth,
     AIAssistanceModel,
     AIAssistanceModelCatalog,
     AIAssistancePromptMessage,
     AIAssistanceService,
     AIAssistanceStatus,
+    ApplyAnalysisProposalCommand,
     AuthorizedContextManifest,
     CheckAIAssistanceGatewayHealthCommand,
     CreateAnalysisProposalCommand,
@@ -26,8 +29,9 @@ from orchflow.application.ai_assistance import (
     ProposedLifecycleActionMapping,
     ReviewAnalysisProposalCommand,
 )
+from orchflow.application.project_registry import UpdateLifecycleFunctionConfigurationCommand
 from orchflow.domain.access_control import User, UserRole
-from orchflow.domain.project_registry import Project
+from orchflow.domain.project_registry import LifecycleActionMapping, MappingSource, Project
 from orchflow.infrastructure.ai.litellm_gateway import LiteLLMGatewayClient
 from orchflow.infrastructure.config.settings import AppSettings
 
@@ -63,10 +67,46 @@ class FakeProjectResolver:
             action_mappings=(),
             lifecycle_function_decisions=(),
         )
+        self.update_command: UpdateLifecycleFunctionConfigurationCommand | None = None
 
     def get_project(self, token: str, project_id: int) -> Project:
         assert token == "token"
         assert project_id == self.project.id
+        return self.project
+
+    def update_lifecycle_function_configuration(
+        self,
+        command: UpdateLifecycleFunctionConfigurationCommand,
+    ) -> Project:
+        assert command.token == "token"
+        assert command.project_id == self.project.id
+        self.update_command = command
+        now = datetime.now(UTC)
+        self.project = Project(
+            id=self.project.id,
+            reference_name=self.project.reference_name,
+            description=self.project.description,
+            project_root_path=self.project.project_root_path,
+            lifecycle_script_path=self.project.lifecycle_script_path,
+            created_by_user_id=self.project.created_by_user_id,
+            created_at=self.project.created_at,
+            updated_at=now,
+            owner_user_ids=self.project.owner_user_ids,
+            action_mappings=tuple(
+                LifecycleActionMapping(
+                    id=index,
+                    project_id=self.project.id,
+                    canonical_action=mapping.canonical_action,
+                    script_label=mapping.script_label,
+                    source=mapping.source,
+                    configured_by_user_id=123,
+                    created_at=now,
+                    updated_at=now,
+                )
+                for index, mapping in enumerate(command.mappings, start=1)
+            ),
+            lifecycle_function_decisions=(),
+        )
         return self.project
 
 
@@ -170,6 +210,7 @@ class FakeManifestRepository:
         self.manifest: AuthorizedContextManifest | None = None
         self.proposal: AIAnalysisProposal | None = None
         self.review: AIAnalysisProposalReview | None = None
+        self.application: AIAnalysisProposalApplication | None = None
 
     def create_authorized_context_manifest(
         self,
@@ -284,6 +325,35 @@ class FakeManifestRepository:
         assert proposal_id == 2
         return self.review
 
+    def create_analysis_proposal_application(
+        self,
+        *,
+        proposal_id: int,
+        project_id: int,
+        applied_by_user_id: int,
+        lifecycle_script_path: str,
+        persisted_mappings: tuple[ProposedLifecycleActionMapping, ...],
+        project: Project,
+    ) -> AIAnalysisProposalApplication:
+        self.application = AIAnalysisProposalApplication(
+            id=4,
+            proposal_id=proposal_id,
+            project_id=project_id,
+            applied_by_user_id=applied_by_user_id,
+            lifecycle_script_path=lifecycle_script_path,
+            persisted_mappings=persisted_mappings,
+            project=project,
+            created_at=datetime.now(UTC),
+        )
+        return self.application
+
+    def get_analysis_proposal_application_for_proposal(
+        self,
+        proposal_id: int,
+    ) -> AIAnalysisProposalApplication | None:
+        assert proposal_id == 2
+        return self.application
+
 
 def _build_service(
     *,
@@ -291,13 +361,15 @@ def _build_service(
     gateway: FakeGateway | None = None,
     audit_recorder: FakeAuditRecorder | None = None,
     manifest_repository: FakeManifestRepository | None = None,
+    project_resolver: FakeProjectResolver | None = None,
 ) -> AIAssistanceService:
     root_path = project_root_path or Path.cwd()
+    resolver = project_resolver or FakeProjectResolver(root_path)
     return AIAssistanceService(
         gateway=gateway or FakeGateway(),
         current_user_resolver=FakeCurrentUserResolver(),
         audit_recorder=audit_recorder or FakeAuditRecorder(),
-        project_resolver=FakeProjectResolver(root_path),
+        project_resolver=resolver,
         manifest_repository=manifest_repository or FakeManifestRepository(),
     )
 
@@ -497,6 +569,144 @@ def test_ai_assistance_service_approves_valid_analysis_proposal(
     assert review.validation_errors == ()
     assert review.reviewer_notes == "Looks good."
     assert audit_recorder.events[-1]["action"] == "ai_assistance.analysis_proposal.review"
+
+
+def test_ai_assistance_service_applies_approved_analysis_proposal(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "app.py").write_text("print('approved context')\n", encoding="utf-8")
+    (tmp_path / "control.bat").write_text("@echo off\r\necho old\r\n", encoding="utf-8")
+    audit_recorder = FakeAuditRecorder()
+    manifest_repository = FakeManifestRepository()
+    project_resolver = FakeProjectResolver(tmp_path)
+    service = _build_service(
+        project_root_path=tmp_path,
+        gateway=FakeGateway(ready_for_requests=True),
+        audit_recorder=audit_recorder,
+        manifest_repository=manifest_repository,
+        project_resolver=project_resolver,
+    )
+    manifest = service.create_authorized_context_manifest(
+        CreateAuthorizedContextManifestCommand(
+            token="token",
+            project_id=456,
+            selected_model="ollama/llama3",
+            intended_operation="improve_lifecycle_script",
+            include_patterns=("app.py",),
+        )
+    )
+    proposal = service.create_analysis_proposal(
+        CreateAnalysisProposalCommand(token="token", manifest_id=manifest.id)
+    )
+    service.review_analysis_proposal(
+        ReviewAnalysisProposalCommand(
+            token="token",
+            proposal_id=proposal.id,
+            decision="approved",
+        )
+    )
+
+    application = service.apply_analysis_proposal(
+        ApplyAnalysisProposalCommand(
+            token="token",
+            proposal_id=proposal.id,
+            confirm_file_write=True,
+            confirm_mapping_persistence=True,
+        )
+    )
+
+    written_script = (tmp_path / "control.bat").read_text(encoding="utf-8")
+    assert "START" in written_script
+    assert "STOP" in written_script
+    assert application.proposal_id == proposal.id
+    assert len(application.persisted_mappings) == 4
+    assert project_resolver.update_command is not None
+    assert {
+        mapping.source for mapping in project_resolver.update_command.mappings
+    } == {MappingSource.AI_APPROVED}
+    assert application.project is not None
+    assert {
+        mapping.source for mapping in application.project.action_mappings
+    } == {MappingSource.AI_APPROVED}
+    assert audit_recorder.events[-1]["action"] == "ai_assistance.analysis_proposal.apply"
+
+
+def test_ai_assistance_service_blocks_apply_without_explicit_confirmation(
+    tmp_path: Path,
+) -> None:
+    audit_recorder = FakeAuditRecorder()
+    manifest_repository = FakeManifestRepository()
+    service = _build_service(
+        project_root_path=tmp_path,
+        audit_recorder=audit_recorder,
+        manifest_repository=manifest_repository,
+    )
+
+    try:
+        service.apply_analysis_proposal(
+            ApplyAnalysisProposalCommand(token="token", proposal_id=2)
+        )
+    except AIAssistanceError as error:
+        assert "file-write confirmation" in str(error)
+    else:
+        raise AssertionError("Expected apply confirmation failure.")
+
+
+def test_ai_assistance_service_blocks_rejected_analysis_proposal_apply(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "control.bat").write_text("@echo off\r\n", encoding="utf-8")
+    manifest_repository = FakeManifestRepository()
+    now = datetime.now(UTC)
+    manifest_repository.proposal = AIAnalysisProposal(
+        id=2,
+        manifest_id=1,
+        project_id=456,
+        requested_by_user_id=123,
+        selected_model="ollama/llama3",
+        intended_operation="improve_lifecycle_script",
+        lifecycle_strategy="Rejected.",
+        runtime_hints=(),
+        candidate_script_content=(
+            "@echo off\r\n"
+            'if /I "%~1"=="STATUS" echo ok & exit /b 0\r\n'
+            'if /I "%~1"=="START" echo ok & exit /b 0\r\n'
+            'if /I "%~1"=="STOP" echo ok & exit /b 0\r\n'
+            'if /I "%~1"=="RESTART" echo ok & exit /b 0\r\n'
+        ),
+        action_mappings=(),
+        warnings=(),
+        created_at=now,
+    )
+    manifest_repository.review = AIAnalysisProposalReview(
+        id=3,
+        proposal_id=2,
+        project_id=456,
+        reviewer_user_id=123,
+        decision="rejected",
+        validation_status="valid",
+        validation_errors=(),
+        reviewer_notes=None,
+        created_at=now,
+    )
+    service = _build_service(
+        project_root_path=tmp_path,
+        manifest_repository=manifest_repository,
+    )
+
+    try:
+        service.apply_analysis_proposal(
+            ApplyAnalysisProposalCommand(
+                token="token",
+                proposal_id=2,
+                confirm_file_write=True,
+                confirm_mapping_persistence=True,
+            )
+        )
+    except AIAssistanceError as error:
+        assert "Only approved and valid" in str(error)
+    else:
+        raise AssertionError("Expected rejected proposal apply failure.")
 
 
 def test_ai_assistance_service_rejects_invalid_analysis_proposal(

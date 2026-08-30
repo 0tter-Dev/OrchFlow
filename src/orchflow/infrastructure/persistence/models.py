@@ -232,3 +232,30 @@ class AIAnalysisProposalReviewModel(Base):
         server_default=func.now(),
         nullable=False,
     )
+
+
+class AIAnalysisProposalApplicationModel(Base):
+    """Persisted application record for an approved AI analysis proposal."""
+
+    __tablename__ = "ai_analysis_proposal_applications"
+    __table_args__ = (
+        UniqueConstraint(
+            "proposal_id",
+            name="uq_ai_analysis_proposal_applications_proposal",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    proposal_id: Mapped[int] = mapped_column(
+        ForeignKey("ai_analysis_proposals.id"),
+        nullable=False,
+    )
+    project_id: Mapped[int] = mapped_column(ForeignKey("projects.id"), nullable=False)
+    applied_by_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    lifecycle_script_path: Mapped[str] = mapped_column(String(512), nullable=False)
+    persisted_mappings: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+    )

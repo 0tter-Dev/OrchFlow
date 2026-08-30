@@ -42,7 +42,7 @@ def test_info_command_displays_bootstrap_metadata() -> None:
     result = runner.invoke(app, ["info"])
 
     assert result.exit_code == 0
-    assert "OrchFlow 0.3.4" in result.stdout
+    assert "OrchFlow 0.3.5" in result.stdout
     assert "stage: bootstrap" in result.stdout
 
 
@@ -430,6 +430,27 @@ def test_cli_ai_analysis_proposal_flow_is_available(
     assert "decision: approved" in review_result.stdout
     assert "validation_status: valid" in review_result.stdout
     assert "validation_errors: none" in review_result.stdout
+
+    apply_result = runner.invoke(
+        app,
+        [
+            "ai",
+            "proposal-apply",
+            "--token",
+            token,
+            "--proposal-id",
+            proposal_id,
+            "--confirm-file-write",
+            "--confirm-mapping-persistence",
+        ],
+    )
+
+    assert apply_result.exit_code == 0
+    assert "persisted_mappings:" in apply_result.stdout
+    assert "start: START" in apply_result.stdout
+    assert "lifecycle_configuration_health: complete" in apply_result.stdout
+    assert "status: STATUS (ai_approved)" in apply_result.stdout
+    assert "START" in lifecycle_script.read_text(encoding="utf-8")
 
 
 def test_cli_admin_user_management_flow_is_available(isolated_environment: None) -> None:

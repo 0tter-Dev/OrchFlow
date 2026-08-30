@@ -17,11 +17,13 @@ from orchflow.application.access_control import (
 )
 from orchflow.application.ai_assistance import (
     AIAnalysisProposal,
+    AIAnalysisProposalApplication,
     AIAnalysisProposalReview,
     AIAssistanceError,
     AIAssistanceGatewayHealth,
     AIAssistanceModelCatalog,
     AIAssistanceStatus,
+    ApplyAnalysisProposalCommand,
     AuthorizedContextManifest,
     CheckAIAssistanceGatewayHealthCommand,
     CreateAnalysisProposalCommand,
@@ -338,6 +340,22 @@ class AIAnalysisProposalReviewResponse(BaseModel):
     created_at: str
 
 
+class AIAnalysisProposalApplyRequest(BaseModel):
+    confirm_file_write: bool = False
+    confirm_mapping_persistence: bool = False
+
+
+class AIAnalysisProposalApplicationResponse(BaseModel):
+    id: int
+    proposal_id: int
+    project_id: int
+    applied_by_user_id: int
+    lifecycle_script_path: str
+    persisted_mappings: list[ProposedLifecycleActionMappingResponse]
+    project: ProjectResponse
+    created_at: str
+
+
 def _to_user_response(user: User) -> UserResponse:
     return UserResponse(
         id=user.id,
@@ -451,6 +469,30 @@ def _to_ai_analysis_proposal_review_response(
         validation_errors=list(review.validation_errors),
         reviewer_notes=review.reviewer_notes,
         created_at=review.created_at.isoformat(),
+    )
+
+
+def _to_ai_analysis_proposal_application_response(
+    application: AIAnalysisProposalApplication,
+) -> AIAnalysisProposalApplicationResponse:
+    if application.project is None:
+        raise AIAssistanceError("Applied proposal response is missing project details.")
+    return AIAnalysisProposalApplicationResponse(
+        id=application.id,
+        proposal_id=application.proposal_id,
+        project_id=application.project_id,
+        applied_by_user_id=application.applied_by_user_id,
+        lifecycle_script_path=application.lifecycle_script_path,
+        persisted_mappings=[
+            ProposedLifecycleActionMappingResponse(
+                canonical_action=mapping.canonical_action,
+                script_label=mapping.script_label,
+                rationale=mapping.rationale,
+            )
+            for mapping in application.persisted_mappings
+        ],
+        project=_to_project_response(application.project),
+        created_at=application.created_at.isoformat(),
     )
 
 
@@ -984,6 +1026,43 @@ def create_app() -> FastAPI:
                 detail=str(error),
             ) from error
         return _to_ai_analysis_proposal_review_response(review)
+
+    @app.post(
+        "/ai/analysis-proposals/{proposal_id}/apply",
+        response_model=AIAnalysisProposalApplicationResponse,
+        status_code=status.HTTP_201_CREATED,
+        tags=["ai"],
+    )
+    def apply_ai_analysis_proposal(
+        proposal_id: int,
+        payload: AIAnalysisProposalApplyRequest,
+        authorization: str | None = Header(default=None),
+    ) -> AIAnalysisProposalApplicationResponse:
+        token = _extract_bearer_token(authorization)
+        if token is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Missing bearer token.",
+            )
+        try:
+            application = ai_assistance_service.apply_analysis_proposal(
+                ApplyAnalysisProposalCommand(
+                    token=token,
+                    proposal_id=proposal_id,
+                    confirm_file_write=payload.confirm_file_write,
+                    confirm_mapping_persistence=payload.confirm_mapping_persistence,
+                )
+            )
+        except AuthorizationError as error:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(error)) from error
+        except ProjectRegistryError as error:
+            raise _map_project_registry_error(error) from error
+        except AIAssistanceError as error:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=str(error),
+            ) from error
+        return _to_ai_analysis_proposal_application_response(application)
 
     @app.post(
         "/projects",

@@ -35,7 +35,7 @@ def test_root_returns_bootstrap_metadata() -> None:
     assert response.status_code == 200
     assert response.json() == {
         "name": "OrchFlow",
-        "version": "0.3.4",
+        "version": "0.3.5",
         "status": "ok",
         "stage": "bootstrap",
     }
@@ -413,6 +413,26 @@ def test_ai_analysis_proposal_flow_is_exposed_through_authenticated_api(
     assert review["decision"] == "approved"
     assert review["validation_status"] == "valid"
     assert review["validation_errors"] == []
+
+    apply_response = client.post(
+        f"/ai/analysis-proposals/{proposal['id']}/apply",
+        headers={"Authorization": f"Bearer {token}"},
+        json={
+            "confirm_file_write": True,
+            "confirm_mapping_persistence": True,
+        },
+    )
+
+    assert apply_response.status_code == 201
+    application = apply_response.json()
+    assert application["proposal_id"] == proposal["id"]
+    assert application["project_id"] == project_id
+    assert len(application["persisted_mappings"]) == 4
+    assert application["project"]["lifecycle_configuration_health"] == "complete"
+    assert {
+        mapping["source"] for mapping in application["project"]["action_mappings"]
+    } == {"ai_approved"}
+    assert "START" in lifecycle_script.read_text(encoding="utf-8")
 
 
 def test_registering_admin_after_bootstrap_requires_admin_token(

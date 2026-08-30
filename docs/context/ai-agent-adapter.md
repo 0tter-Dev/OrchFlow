@@ -32,7 +32,7 @@ The first implementation should prefer a minimal integration path:
 6. create authorized analysis sessions that return proposals only
 7. add file generation and mapping persistence only after proposal review is implemented
 
-The first seven items are implemented in `v0.3.4`, except for the final approved file-generation and mapping-persistence portion, which remains planned. The current boundary can report whether AI assistance is disabled, configured, or misconfigured, verify LiteLLM gateway health when gateway mode is configured, list models when the gateway supports discovery, persist authorized context manifests with included paths, excluded paths, ignored/generated artifacts, secret filtering rules, size limits, selected model, requesting user, and intended operation, create structured analysis proposals from manifest-approved context, and record API/CLI review decisions. Proposal creation may send only the approved context listed in the manifest to LiteLLM and persists lifecycle strategy, runtime hints, candidate `.bat` content, proposed action mappings, and warnings for review. Proposal approval validates first-argument dispatch, required canonical actions, and proposed mapping consistency before accepting the approval. It does not write lifecycle scripts or persist suggested mappings.
+The first seven items are implemented in `v0.3.5`. The current boundary can report whether AI assistance is disabled, configured, or misconfigured, verify LiteLLM gateway health when gateway mode is configured, list models when the gateway supports discovery, persist authorized context manifests with included paths, excluded paths, ignored/generated artifacts, secret filtering rules, size limits, selected model, requesting user, and intended operation, create structured analysis proposals from manifest-approved context, record API/CLI review decisions, and apply approved proposals through a separate confirmed operation. Proposal creation may send only the approved context listed in the manifest to LiteLLM and persists lifecycle strategy, runtime hints, candidate `.bat` content, proposed action mappings, and warnings for review. Proposal approval validates first-argument dispatch, required canonical actions, and proposed mapping consistency before accepting the approval. Proposal application requires explicit file-write and mapping-persistence confirmations, writes or overwrites the lifecycle `.bat`, expands effective mappings for ideal labels that were omitted from the proposal payload, persists mappings as `ai_approved`, and records a dedicated application record plus audit event.
 
 ## Scope
 
@@ -51,6 +51,7 @@ The first seven items are implemented in `v0.3.4`, except for the final approved
 - detect non-canonical labels in existing scripts and suggest action mappings for user approval
 - explain missing, undefined, or explicitly unconfigured lifecycle functions in operator-friendly language
 - validate model responses into structured, reviewable proposals before any persistence or file write
+- apply only approved and valid proposals through a separate confirmed operation that revalidates the candidate script before writing
 
 ## Adapter Responsibilities
 
@@ -63,6 +64,7 @@ The first seven items are implemented in `v0.3.4`, except for the final approved
 - require user approval before writing or overwriting files
 - require user approval before persisting AI-suggested mappings
 - audit authorization, analysis request metadata, proposal creation, approval, rejection, file writes, and mapping persistence
+- record which approved proposal application wrote a lifecycle script and which effective mappings became operational
 
 ## LiteLLM Responsibilities
 
@@ -81,6 +83,7 @@ LiteLLM must not decide which project files are allowed, approve generated scrip
 - OrchFlow must request explicit user authorization before persisting AI-suggested action mappings
 - AI outputs must remain reviewable before they become part of a project definition
 - rejected proposals must not be persisted as operational project definitions
+- approved proposals must not mutate project files or mappings until the user explicitly confirms the application step
 
 ## Key Rules
 
@@ -101,4 +104,4 @@ LiteLLM must not decide which project files are allowed, approve generated scrip
 - may surface information through `External Surfaces`
 - is governed by `Project Architecture` scope boundaries
 - depends on `Configuration And Environment` for LiteLLM gateway settings
-- depends on `Persistence And Audit` for session, proposal, authorization, approval, and rejection records
+- depends on `Persistence And Audit` for session, proposal, authorization, approval, rejection, and application records
