@@ -1,0 +1,104 @@
+.project-onboarding {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.project-onboarding__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.project-onboarding__title {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.project-onboarding__status {
+  padding: 0.28rem 0.5rem;
+  border-radius: 8px;
+  background: rgba(153, 239, 230, 0.16);
+  color: #bcfff4;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.project-onboarding__steps {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.project-onboarding__step {
+  display: grid;
+  grid-template-columns: 0.75rem 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem;
+  border-radius: 8px;
+  background: rgba(7, 14, 24, 0.64);
+}
+
+.project-onboarding__marker {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  background: #99efe6;
+}
+
+.project-onboarding__step[data-state="attention"] .project-onboarding__marker {
+  background: #f0d48d;
+}
+
+.project-onboarding__step[data-state="blocked"] .project-onboarding__marker {
+  background: #ff7575;
+}
+
+.project-onboarding__step strong {
+  display: block;
+  font-size: 0.92rem;
+}
+
+.project-onboarding__step span {
+  display: block;
+  margin-top: 0.2rem;
+  color: rgba(245, 239, 226, 0.68);
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+.project-onboarding__button {
+  min-height: 2.35rem;
+  padding: 0.58rem 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #f5efe2;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.project-onboarding__button:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+@media (max-width: 720px) {
+  .project-onboarding__header,
+  .project-onboarding__step {
+    align-items: stretch;
+    grid-template-columns: 1fr;
+  }
+
+  .project-onboarding__marker {
+    display: none;
+  }
+
+  .project-onboarding__button {
+    width: 100%;
+  }
+}

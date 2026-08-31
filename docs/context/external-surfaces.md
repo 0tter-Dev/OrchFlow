@@ -39,7 +39,7 @@ Expose the same core application behavior through both CLI and API without dupli
 - direct runtime inspection is available through `GET /projects/{project_id}/runtime` and the mirrored CLI command `runtime inspect`, including status explanation, inspection timestamp, `APP_URL` reachability when available, `APP_URL`-only running detection, and clearer timeout or unsupported diagnostics
 - the first `interface/web` operator flow now consumes these same contracts for sign-in, project visibility, runtime inspection, lifecycle controls, project registration, AI proposal review/application, and filtered admin audit history
 
-External surfaces now include API and CLI workflows for updating project metadata and lifecycle script paths, manual mapping updates, explicit unconfigured-function decisions, explicit reload for one or more projects, AI-assisted improvement proposal workflows, and clear lifecycle execution rejection when an action is undefined, explicitly unconfigured, or part of a blocked project. Planned refinements include richer lifecycle function configuration indicators and broader web operator experience polish.
+External surfaces now include API and CLI workflows for updating project metadata and lifecycle script paths, manual mapping updates, explicit unconfigured-function decisions, explicit reload for one or more projects, AI-assisted improvement proposal workflows, and clear lifecycle execution rejection when an action is undefined, explicitly unconfigured, or part of a blocked project. The web operator surface now combines those contracts into a guided operational readiness panel for selected projects. Planned refinements include broader web operator experience polish.
 
 ## Main Relationships
 

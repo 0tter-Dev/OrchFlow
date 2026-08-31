@@ -105,7 +105,7 @@ After registration, the user can inspect:
 - CPU and memory usage
 - inspection timestamp
 
-At the current implementation stage, these inspection capabilities are already exposed through `CLI`, `API`, and the authenticated `web` workspace. If a script has no `APP_PORT` but does define `APP_URL`, OrchFlow uses URL reachability as the runtime signal. If neither runtime hint exists, OrchFlow reports `unsupported` with an explanation instead of implying the project is stopped. URL timeout and reachability failures are included in the status explanation.
+At the current implementation stage, these inspection capabilities are already exposed through `CLI`, `API`, and the authenticated `web` workspace. If a script has no `APP_PORT` but does define `APP_URL`, OrchFlow uses URL reachability as the runtime signal. If neither runtime hint exists, OrchFlow reports `unsupported` with an explanation instead of implying the project is stopped. URL timeout and reachability failures are included in the status explanation. The web project detail view now also surfaces operational readiness for the selected project, combining lifecycle script, lifecycle mapping, runtime diagnostics, and review-path state with direct actions for reload, mapping configuration, and runtime refresh.
 
 ### 4. Control The Lifecycle
 
@@ -122,7 +122,7 @@ Only configured lifecycle actions can be executed. If the user requests an undef
 
 At the current implementation stage, configured lifecycle actions are available through the mirrored `CLI` and `API` surfaces, and the web workspace can trigger only configured actions for authenticated users, with runtime status summaries returned when inspection is available.
 
-The web project detail view also shows lifecycle configuration health, function-level configured or missing states, a reload action for rereading the `.bat` script, and a manual configuration dialog for mapping script labels or explicitly leaving ideal functions unconfigured.
+The web project detail view also shows lifecycle configuration health, function-level configured or missing states, operational readiness, a reload action for rereading the `.bat` script, and a manual configuration dialog for mapping script labels or explicitly leaving ideal functions unconfigured.
 
 ### 4.1. Update A Registered Project
 
