@@ -8,6 +8,7 @@ import pytest
 
 from orchflow.application.access_control import LoginCommand, RegisterUserCommand
 from orchflow.application.project_registry import (
+    ProjectConflictError,
     ProjectMappingInput,
     ProjectOwnershipError,
     ProjectValidationError,
@@ -15,6 +16,7 @@ from orchflow.application.project_registry import (
     ReloadProjectCommand,
     ReloadProjectsCommand,
     UpdateLifecycleFunctionConfigurationCommand,
+    UpdateProjectCommand,
     UpdateProjectOwnerCommand,
 )
 from orchflow.application.services import (
@@ -296,6 +298,118 @@ def test_lifecycle_configuration_update_rejects_all_unconfigured_actions(
                     CanonicalLifecycleAction.STOP,
                     CanonicalLifecycleAction.RESTART,
                 ),
+            )
+        )
+
+
+def test_user_can_update_project_metadata_and_lifecycle_script(
+    isolated_environment: None,
+    tmp_path: Path,
+) -> None:
+    access_control_service = create_access_control_service()
+    project_registry_service = create_project_registry_service()
+
+    access_control_service.register_user(
+        RegisterUserCommand(username="project-update-user", password="password123")
+    )
+    token = access_control_service.login(
+        LoginCommand(username="project-update-user", password="password123")
+    ).access_token
+
+    project_dir = tmp_path / "project-update"
+    project_dir.mkdir()
+    initial_script = project_dir / "control.bat"
+    replacement_script = project_dir / "orchflow.bat"
+    _write_dispatch_batch(initial_script, include_restart=False, include_stop=False)
+    _write_dispatch_batch(replacement_script, start_identifier="INICIAR")
+    project = project_registry_service.register_project(
+        RegisterProjectCommand(
+            token=token,
+            reference_name="project-update",
+            description="Initial description",
+            project_root_path=str(project_dir),
+            lifecycle_script_path=str(initial_script),
+        )
+    )
+
+    updated_project = project_registry_service.update_project(
+        UpdateProjectCommand(
+            token=token,
+            project_id=project.id,
+            reference_name="project-update-renamed",
+            description=None,
+            update_description=True,
+            lifecycle_script_path=str(replacement_script),
+            mappings=(
+                ProjectMappingInput(
+                    canonical_action=CanonicalLifecycleAction.START,
+                    script_label="INICIAR",
+                ),
+            ),
+            unconfigured_actions=(CanonicalLifecycleAction.STOP,),
+        )
+    )
+
+    mapping_by_action = {
+        mapping.canonical_action: (mapping.script_label, mapping.source)
+        for mapping in updated_project.action_mappings
+    }
+    assert updated_project.reference_name == "project-update-renamed"
+    assert updated_project.description is None
+    assert updated_project.lifecycle_script_path == str(replacement_script.resolve())
+    assert mapping_by_action == {
+        CanonicalLifecycleAction.START: ("INICIAR", MappingSource.USER_DEFINED),
+    }
+    assert tuple(
+        decision.canonical_action
+        for decision in updated_project.lifecycle_function_decisions
+    ) == (CanonicalLifecycleAction.STOP,)
+
+
+def test_project_update_rejects_duplicate_reference_name(
+    isolated_environment: None,
+    tmp_path: Path,
+) -> None:
+    access_control_service = create_access_control_service()
+    project_registry_service = create_project_registry_service()
+
+    access_control_service.register_user(
+        RegisterUserCommand(username="project-conflict-user", password="password123")
+    )
+    token = access_control_service.login(
+        LoginCommand(username="project-conflict-user", password="password123")
+    ).access_token
+
+    project_ids: list[int] = []
+    for reference_name in ("first-project", "second-project"):
+        project_dir = tmp_path / reference_name
+        project_dir.mkdir()
+        lifecycle_script = project_dir / "control.bat"
+        _write_dispatch_batch(lifecycle_script)
+        project = project_registry_service.register_project(
+            RegisterProjectCommand(
+                token=token,
+                reference_name=reference_name,
+                project_root_path=str(project_dir),
+                lifecycle_script_path=str(lifecycle_script),
+            )
+        )
+        project_ids.append(project.id)
+
+    with pytest.raises(ProjectValidationError):
+        project_registry_service.update_project(
+            UpdateProjectCommand(
+                token=token,
+                project_id=project_ids[1],
+                reference_name="ab",
+            )
+        )
+    with pytest.raises(ProjectConflictError, match="already exists"):
+        project_registry_service.update_project(
+            UpdateProjectCommand(
+                token=token,
+                project_id=project_ids[1],
+                reference_name="first-project",
             )
         )
 

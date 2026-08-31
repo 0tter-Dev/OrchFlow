@@ -75,7 +75,7 @@ Defines source-control, validation, and CI/CD expectations.
 
 `Access Control` governs who can see and control a `Project`, including admin user-management rules.
 
-`Project Registry` stores and normalizes the metadata needed for a project to exist inside OrchFlow, including project ownership assignments, lifecycle action mappings, and lifecycle function configuration state.
+`Project Registry` stores and normalizes the metadata needed for a project to exist inside OrchFlow, including project ownership assignments, editable project metadata and script paths, lifecycle action mappings, and lifecycle function configuration state.
 
 `Project Adapter` gives `Lifecycle Orchestration` a generic boundary for project-specific execution behavior.
 

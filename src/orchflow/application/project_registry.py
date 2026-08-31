@@ -76,6 +76,21 @@ class UpdateLifecycleFunctionConfigurationCommand:
 
 
 @dataclass(frozen=True, slots=True)
+class UpdateProjectCommand:
+    """Input required to update a registered project definition."""
+
+    token: str
+    project_id: int
+    reference_name: str | None = None
+    description: str | None = None
+    update_description: bool = False
+    project_root_path: str | None = None
+    lifecycle_script_path: str | None = None
+    mappings: tuple[ProjectMappingInput, ...] | None = None
+    unconfigured_actions: tuple[CanonicalLifecycleAction, ...] | None = None
+
+
+@dataclass(frozen=True, slots=True)
 class ReloadProjectCommand:
     """Input required to reload lifecycle function detection for one project."""
 
@@ -134,6 +149,19 @@ class ProjectRegistryRepository(Protocol):
         mappings: tuple[ProjectMappingInput, ...],
         unconfigured_actions: tuple[CanonicalLifecycleAction, ...],
         decided_by_user_id: int,
+    ) -> Project | None: ...
+
+    def update_project(
+        self,
+        *,
+        project_id: int,
+        reference_name: str,
+        description: str | None,
+        project_root_path: str,
+        lifecycle_script_path: str,
+        mappings: tuple[ProjectMappingInput, ...],
+        unconfigured_actions: tuple[CanonicalLifecycleAction, ...],
+        updated_by_user_id: int,
     ) -> Project | None: ...
 
     def list_projects_for_user(self, user: User) -> list[Project]: ...
@@ -342,6 +370,91 @@ class ProjectRegistryService:
             target_id=str(project.id),
             details=(
                 f"configured:{len(configured_mappings)};"
+                f"unconfigured:{len(unconfigured_actions)}"
+            ),
+        )
+        return updated_project
+
+    def update_project(self, command: UpdateProjectCommand) -> Project:
+        """Update a visible project's metadata, script path, and optional configuration."""
+        actor = self._current_user_resolver.get_current_user(command.token)
+        project = self._repository.get_project_for_user(command.project_id, actor)
+        if project is None:
+            raise AuthorizationError("Project is not visible to the current user.")
+
+        reference_name = (
+            command.reference_name.strip()
+            if command.reference_name is not None
+            else project.reference_name
+        )
+        if len(reference_name) < 3:
+            raise ProjectValidationError(
+                "Project reference name must contain at least 3 characters."
+            )
+        existing_project = self._repository.get_project_by_reference_name(reference_name)
+        if existing_project is not None and existing_project.id != project.id:
+            raise ProjectConflictError(f"Project '{reference_name}' already exists.")
+
+        description = project.description
+        if command.update_description:
+            description = command.description.strip() if command.description else None
+
+        project_root_path = (
+            self._normalize_directory_path(command.project_root_path)
+            if command.project_root_path is not None
+            else project.project_root_path
+        )
+        lifecycle_script_path = (
+            self._normalize_file_path(command.lifecycle_script_path)
+            if command.lifecycle_script_path is not None
+            else project.lifecycle_script_path
+        )
+        script_content = self._validate_lifecycle_script_paths(
+            project_root_path,
+            lifecycle_script_path,
+        )
+
+        if command.mappings is not None or command.unconfigured_actions is not None:
+            mappings = self._normalize_mappings(command.mappings or ())
+            unconfigured_actions = self._normalize_unconfigured_actions(
+                command.unconfigured_actions or (),
+                mappings,
+            )
+            configured_mappings = self._resolve_manual_mappings(script_content, mappings)
+            if not configured_mappings:
+                raise ProjectValidationError(
+                    "At least one lifecycle function must remain configured before a project "
+                    "can be operated by OrchFlow."
+                )
+        else:
+            unconfigured_actions = unconfigured_actions_for_project(project)
+            configured_mappings = self._resolve_reloaded_mappings(
+                script_content,
+                project.action_mappings,
+                unconfigured_actions,
+            )
+
+        updated_project = self._repository.update_project(
+            project_id=project.id,
+            reference_name=reference_name,
+            description=description,
+            project_root_path=project_root_path,
+            lifecycle_script_path=lifecycle_script_path,
+            mappings=configured_mappings,
+            unconfigured_actions=unconfigured_actions,
+            updated_by_user_id=actor.id,
+        )
+        if updated_project is None:
+            raise AuthorizationError("Project is not visible to the current user.")
+
+        self._repository.record_audit_event(
+            actor_user_id=actor.id,
+            action="project.update",
+            target_type="project",
+            target_id=str(project.id),
+            details=(
+                f"reference_name:{project.reference_name}->{updated_project.reference_name};"
+                f"configured:{len(updated_project.action_mappings)};"
                 f"unconfigured:{len(unconfigured_actions)}"
             ),
         )

@@ -26,6 +26,7 @@ def test_openapi_contract_exposes_current_operator_routes() -> None:
         ("/projects", "post"),
         ("/projects/reload", "post"),
         ("/projects/{project_id}", "get"),
+        ("/projects/{project_id}", "patch"),
         ("/projects/{project_id}/lifecycle-configuration", "patch"),
         ("/projects/{project_id}/lifecycle/{action}", "post"),
         ("/projects/{project_id}/owners/{user_id}", "post"),

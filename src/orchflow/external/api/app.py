@@ -51,6 +51,7 @@ from orchflow.application.project_registry import (
     ReloadProjectCommand,
     ReloadProjectsCommand,
     UpdateLifecycleFunctionConfigurationCommand,
+    UpdateProjectCommand,
     UpdateProjectOwnerCommand,
     unconfigured_actions_for_project,
 )
@@ -149,6 +150,15 @@ class RegisterProjectRequest(BaseModel):
     lifecycle_script_path: str
     description: str | None = None
     mappings: list[ProjectMappingRequest] = []
+
+
+class UpdateProjectRequest(BaseModel):
+    reference_name: str | None = None
+    description: str | None = None
+    project_root_path: str | None = None
+    lifecycle_script_path: str | None = None
+    mappings: list[ProjectMappingRequest] | None = None
+    unconfigured_actions: list[Literal["status", "start", "stop", "restart"]] | None = None
 
 
 class UpdateLifecycleFunctionConfigurationRequest(BaseModel):
@@ -1129,6 +1139,60 @@ def create_app() -> FastAPI:
             )
         try:
             project = project_registry_service.get_project(token, project_id)
+        except (ProjectRegistryError, AuthorizationError) as error:
+            raise _map_project_registry_error(error) from error
+        return _to_project_response(project)
+
+    @app.patch(
+        "/projects/{project_id}",
+        response_model=ProjectResponse,
+        tags=["projects"],
+    )
+    def update_project(
+        project_id: int,
+        payload: UpdateProjectRequest,
+        authorization: str | None = Header(default=None),
+    ) -> ProjectResponse:
+        token = _extract_bearer_token(authorization)
+        if token is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Missing bearer token.",
+            )
+        try:
+            project = project_registry_service.update_project(
+                UpdateProjectCommand(
+                    token=token,
+                    project_id=project_id,
+                    reference_name=payload.reference_name,
+                    description=payload.description,
+                    update_description="description" in payload.model_fields_set,
+                    project_root_path=payload.project_root_path,
+                    lifecycle_script_path=payload.lifecycle_script_path,
+                    mappings=(
+                        tuple(
+                            ProjectMappingInput(
+                                canonical_action=CanonicalLifecycleAction(
+                                    mapping.canonical_action
+                                ),
+                                script_label=mapping.script_label,
+                                source=MappingSource.USER_DEFINED,
+                            )
+                            for mapping in payload.mappings
+                        )
+                        if payload.mappings is not None
+                        else None
+                    ),
+                    unconfigured_actions=(
+                        tuple(
+                            CanonicalLifecycleAction(action)
+                            for action in payload.unconfigured_actions
+                        )
+                        if payload.unconfigured_actions is not None
+                        else None
+                    ),
+                )
+            )
         except (ProjectRegistryError, AuthorizationError) as error:
             raise _map_project_registry_error(error) from error
         return _to_project_response(project)

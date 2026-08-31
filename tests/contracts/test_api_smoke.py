@@ -35,7 +35,7 @@ def test_root_returns_bootstrap_metadata() -> None:
     assert response.status_code == 200
     assert response.json() == {
         "name": "OrchFlow",
-        "version": "0.3.5",
+        "version": "0.3.6",
         "status": "ok",
         "stage": "bootstrap",
     }
@@ -547,6 +547,40 @@ def test_project_registry_flow_is_exposed_in_api(
     assert get_response.status_code == 200
     assert get_response.json()["reference_name"] == "api-project"
     assert get_response.json()["lifecycle_configuration_health"] == "complete"
+
+    replacement_script = project_dir / "orchflow.bat"
+    replacement_script.write_text(
+        "@echo off\r\n"
+        "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
+        "if /I \"%~1\"==\"START\" echo start-ok & exit /b 0\r\n"
+        "exit /b 1\r\n",
+        encoding="utf-8",
+    )
+    update_response = client.patch(
+        f"/projects/{project_id}",
+        headers={"Authorization": f"Bearer {token}"},
+        json={
+            "reference_name": "api-project-renamed",
+            "description": None,
+            "lifecycle_script_path": str(replacement_script),
+            "mappings": [{"canonical_action": "start", "script_label": "START"}],
+            "unconfigured_actions": ["stop", "restart"],
+        },
+    )
+
+    assert update_response.status_code == 200
+    updated_payload = update_response.json()
+    assert updated_payload["reference_name"] == "api-project-renamed"
+    assert updated_payload["description"] is None
+    assert updated_payload["lifecycle_script_path"] == str(replacement_script.resolve())
+    assert updated_payload["action_mappings"] == [
+        {
+            "canonical_action": "start",
+            "script_label": "START",
+            "source": "user_defined",
+            "configured_by_user_id": 1,
+        }
+    ]
 
 
 def test_project_registry_api_exposes_partial_lifecycle_configuration(
