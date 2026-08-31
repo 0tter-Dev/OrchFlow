@@ -12,6 +12,7 @@ import type {
   ProjectUpdateInput,
   RuntimeInspectionSnapshot,
 } from "../../../shared/types/project";
+import { ProjectOnboardingPanel } from "./ProjectOnboardingPanel";
 
 const lifecycleActions: CanonicalLifecycleAction[] = ["status", "start", "stop", "restart"];
 
@@ -326,6 +327,16 @@ export function ProjectDetailPanel({
           </button>
         </div>
       </section>
+
+      <ProjectOnboardingPanel
+        isLoadingRuntime={isLoadingDetail}
+        isReloadingProject={isReloadingProject}
+        onConfigureMappings={() => setIsMappingPanelOpen(true)}
+        onRefreshRuntime={onRefreshProject}
+        onReloadProject={onReloadProject}
+        project={selectedProject}
+        runtimeSnapshot={runtimeSnapshot}
+      />
 
       <div className="project-detail__grid">
         <article className="project-detail__card">

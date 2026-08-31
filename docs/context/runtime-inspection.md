@@ -36,6 +36,7 @@ Expose practical operational facts for local project control and troubleshooting
 - captures lightweight process snapshots including PID, process name, CPU, memory, and start time
 - derives a practical `running`, `stopped`, or `unsupported` runtime state for operator consumption, including `APP_URL`-only running detection when no `APP_PORT` is available
 - includes an operator-facing status explanation so `stopped`, timeout, missing-hint, and `unsupported` states are clearer
+- feeds web operational readiness so selected projects can surface runtime diagnostics beside direct refresh actions
 - checks basic `APP_URL` reachability when an application URL is available and reports timeout or connection failure details in the status explanation
 - exposes the inspection timestamp with the runtime snapshot
 - is available as a direct inspection use case and as a post-lifecycle validation step

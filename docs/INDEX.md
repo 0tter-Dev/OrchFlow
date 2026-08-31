@@ -83,7 +83,7 @@ Defines source-control, validation, and CI/CD expectations.
 
 `Lifecycle Script Template` defines the standardized `.bat` shape and ideal lifecycle function model expected by `Project Registry`, `Project Adapter`, and `AI Assistance Adapter`.
 
-`Runtime Inspection` supports `Lifecycle Orchestration` by validating whether actions succeeded and by producing runtime facts, APP_URL-only reachability signals, and diagnostic explanations for operators.
+`Runtime Inspection` supports `Lifecycle Orchestration` by validating whether actions succeeded and by producing runtime facts, APP_URL-only reachability signals, and diagnostic explanations for operators. The web interface now reuses those diagnostics in the selected project's operational readiness panel.
 
 `AI Assistance Adapter` supports `Project Registry` by helping a user transform a project folder into a reviewable `.bat` lifecycle script and, when needed, suggest action mappings. LiteLLM is the provider/model gateway inside that adapter, while OrchFlow remains responsible for authorization, allowed context, validation, and final approval. In the current implementation, authenticated safe status reporting, context authorization, proposal creation, proposal review decisions, and explicitly confirmed proposal application are exposed through backend contracts, with web consuming the review/application flow. Applying an approved proposal writes or overwrites the lifecycle `.bat`, persists effective mappings as `ai_approved`, and reuses Project Registry validation before the project becomes operational.
 
@@ -93,7 +93,7 @@ Project reload workflows now let users explicitly reread one or more lifecycle s
 
 `External Surfaces` expose use cases from the core application without redefining business logic.
 
-`Interface Layer` depends on the API-facing surface for data presentation and control actions across different client implementations.
+`Interface Layer` depends on the API-facing surface for data presentation and control actions across different client implementations, including guided operational readiness for lifecycle configuration and runtime diagnostics in the web workspace.
 
 `Persistence And Audit` supports all core modules by storing users, permissions, projects, lifecycle events, and filtered recent audit history for admin troubleshooting.
 
