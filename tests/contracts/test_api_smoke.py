@@ -35,7 +35,7 @@ def test_root_returns_bootstrap_metadata() -> None:
     assert response.status_code == 200
     assert response.json() == {
         "name": "OrchFlow",
-        "version": "0.3.7",
+        "version": "0.3.8",
         "status": "ok",
         "stage": "bootstrap",
     }
@@ -123,6 +123,14 @@ def test_audit_history_flow_is_exposed_in_api(isolated_environment: None) -> Non
     events = events_response.json()
     assert events[0]["action"] == "admin.audit_events.list"
     assert any(event["action"] == "user.login" for event in events)
+
+    filtered_response = client.get(
+        "/audit/events?limit=10&action=user.login",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    assert filtered_response.status_code == 200
+    assert {event["action"] for event in filtered_response.json()} == {"user.login"}
 
 
 def test_audit_history_api_requires_admin(isolated_environment: None) -> None:

@@ -142,11 +142,11 @@ The user can review recent lifecycle activity and operational outcomes to unders
 
 At the current implementation stage, recent audit history is available to authenticated admins through:
 
-- `CLI`: `orchflow audit events --token <TOKEN> --limit 25`
-- `API`: `GET /audit/events?limit=25`
-- `web`: the audit history panel in the authenticated operator workspace
+- `CLI`: `orchflow audit events --token <TOKEN> --limit 25 --project-id <ID> --actor-user-id <ID> --action project.register --created-from <ISO_DATETIME> --created-to <ISO_DATETIME>`
+- `API`: `GET /audit/events?limit=25&project_id=<ID>&actor_user_id=<ID>&action=project.register&created_from=<ISO_DATETIME>&created_to=<ISO_DATETIME>`
+- `web`: the audit history panel in the authenticated operator workspace, including compact filters for limit, actor, action, project, and time window
 
-The first history view covers already recorded user registration, login, admin listing, project registration, project listing, project reads, and lifecycle action events.
+The history view covers already recorded user registration, login, admin listing, project registration, project listing, project reads, lifecycle action events, project updates, ownership changes, AI assistance events, and audit list activity. Admins can narrow the view by actor, action, project target, and time window for troubleshooting.
 
 ## Operating Expectations
 
@@ -165,6 +165,7 @@ An `admin` can additionally:
 - view platform users
 - update user role and activation state
 - review recent audit history
+- filter recent audit history by actor, action, project, and time window
 - add or remove project owners while keeping at least one owner per project
 - inspect projects across the system
 - troubleshoot access and operational issues

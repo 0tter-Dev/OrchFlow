@@ -1,13 +1,17 @@
 import "./AuditEventsPanel.css";
 
-import type { AuditEventSummary } from "../../../shared/types/audit";
+import type { Dispatch, SetStateAction } from "react";
+
+import type { AuditEventFilters, AuditEventSummary } from "../../../shared/types/audit";
 
 type AuditEventsPanelProps = {
   canLoadAuditEvents: boolean;
   errorMessage: string | null;
   events: AuditEventSummary[];
+  filters: AuditEventFilters;
   isLoading: boolean;
   onRefresh: () => void;
+  onUpdateFilters: Dispatch<SetStateAction<AuditEventFilters>>;
 };
 
 function formatTimestamp(value: string): string {
@@ -22,9 +26,15 @@ export function AuditEventsPanel({
   canLoadAuditEvents,
   errorMessage,
   events,
+  filters,
   isLoading,
   onRefresh,
+  onUpdateFilters,
 }: AuditEventsPanelProps) {
+  const updateFilter = (name: keyof AuditEventFilters, value: string) => {
+    onUpdateFilters((currentFilters) => ({ ...currentFilters, [name]: value }));
+  };
+
   return (
     <section className="audit-panel">
       <header className="audit-panel__header">
@@ -44,6 +54,63 @@ export function AuditEventsPanel({
 
       {!canLoadAuditEvents ? (
         <div className="audit-panel__empty">Admin role is required to view audit history.</div>
+      ) : null}
+
+      {canLoadAuditEvents ? (
+        <div className="audit-panel__filters">
+          <label className="audit-panel__field">
+            <span>Limit</span>
+            <input
+              min="1"
+              max="100"
+              onChange={(event) => updateFilter("limit", event.target.value)}
+              type="number"
+              value={filters.limit}
+            />
+          </label>
+          <label className="audit-panel__field">
+            <span>Action</span>
+            <input
+              onChange={(event) => updateFilter("action", event.target.value)}
+              placeholder="project.register"
+              value={filters.action}
+            />
+          </label>
+          <label className="audit-panel__field">
+            <span>Actor</span>
+            <input
+              min="1"
+              onChange={(event) => updateFilter("actorUserId", event.target.value)}
+              type="number"
+              value={filters.actorUserId}
+            />
+          </label>
+          <label className="audit-panel__field">
+            <span>Project</span>
+            <input
+              min="1"
+              onChange={(event) => updateFilter("projectId", event.target.value)}
+              type="number"
+              value={filters.projectId}
+            />
+          </label>
+          <label className="audit-panel__field">
+            <span>From</span>
+            <input
+              onChange={(event) => updateFilter("createdFrom", event.target.value)}
+              type="datetime-local"
+              value={filters.createdFrom}
+            />
+          </label>
+          <label className="audit-panel__field">
+            <span>To</span>
+            <input
+              onChange={(event) => updateFilter("createdTo", event.target.value)}
+              type="datetime-local"
+              value={filters.createdTo}
+            />
+          </label>
+        </div>
       ) : null}
 
       {errorMessage !== null ? <div className="audit-panel__error">{errorMessage}</div> : null}

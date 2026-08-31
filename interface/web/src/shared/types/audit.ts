@@ -7,3 +7,12 @@ export type AuditEventSummary = {
   target_id: string | null;
   target_type: string;
 };
+
+export type AuditEventFilters = {
+  action: string;
+  actorUserId: string;
+  createdFrom: string;
+  createdTo: string;
+  limit: string;
+  projectId: string;
+};

@@ -1,5 +1,6 @@
 """Typer application for the OrchFlow backend bootstrap."""
 
+from datetime import datetime
 from typing import Annotated, cast
 
 import typer
@@ -25,7 +26,9 @@ from orchflow.application.ai_assistance import (
     ReviewAnalysisProposalCommand,
 )
 from orchflow.application.audit_history import (
+    AuditEventFilters,
     AuditHistoryError,
+    AuditHistoryValidationError,
     ListAuditEventsCommand,
 )
 from orchflow.application.bootstrap import BootstrapStatusService
@@ -176,6 +179,17 @@ def _build_unconfigured_actions(
 def _exit_with_error(error: Exception) -> None:
     typer.echo(f"error: {error}", err=True)
     raise typer.Exit(code=1)
+
+
+def _parse_datetime_option(value: str | None, option_name: str) -> datetime | None:
+    if value is None:
+        return None
+    try:
+        return datetime.fromisoformat(value)
+    except ValueError as error:
+        raise AuditHistoryValidationError(
+            f"{option_name} must be an ISO 8601 datetime."
+        ) from error
 
 
 def _execute_lifecycle_action(
@@ -567,11 +581,28 @@ def inspect_runtime(token: str = typer.Option(...), project_id: int = typer.Opti
 
 
 @audit_app.command("events")
-def audit_events(token: str = typer.Option(...), limit: int = typer.Option(default=25)) -> None:
+def audit_events(
+    token: str = typer.Option(...),
+    limit: int = typer.Option(default=25),
+    actor_user_id: int | None = typer.Option(default=None),
+    action: str | None = typer.Option(default=None),
+    project_id: int | None = typer.Option(default=None),
+    created_from: str | None = typer.Option(default=None),
+    created_to: str | None = typer.Option(default=None),
+) -> None:
     """List recent audit events as an authenticated admin."""
     service = create_audit_history_service()
     try:
-        events = service.list_recent_events(ListAuditEventsCommand(token=token, limit=limit))
+        filters = AuditEventFilters(
+            actor_user_id=actor_user_id,
+            action=action,
+            project_id=project_id,
+            created_from=_parse_datetime_option(created_from, "--created-from"),
+            created_to=_parse_datetime_option(created_to, "--created-to"),
+        )
+        events = service.list_recent_events(
+            ListAuditEventsCommand(token=token, limit=limit, filters=filters)
+        )
     except (AuditHistoryError, AccessControlError) as error:
         _exit_with_error(error)
     for event in events:

@@ -34,6 +34,7 @@ Ensure that project visibility and lifecycle actions are restricted according to
 - admins can update user roles and activation state
 - updates that would remove the last active admin are rejected
 - admin user-management actions are audited
+- admin-only audit history filtering is implemented for actor, action, project, and time-window troubleshooting
 
 ## Key Rules
 

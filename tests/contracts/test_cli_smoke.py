@@ -42,7 +42,7 @@ def test_info_command_displays_bootstrap_metadata() -> None:
     result = runner.invoke(app, ["info"])
 
     assert result.exit_code == 0
-    assert "OrchFlow 0.3.7" in result.stdout
+    assert "OrchFlow 0.3.8" in result.stdout
     assert "stage: bootstrap" in result.stdout
 
 
@@ -117,6 +117,15 @@ def test_cli_audit_history_flow_is_available(isolated_environment: None) -> None
     assert audit_result.exit_code == 0
     assert "action: admin.audit_events.list" in audit_result.stdout
     assert "action: user.login" in audit_result.stdout
+
+    filtered_result = runner.invoke(
+        app,
+        ["audit", "events", "--token", token, "--limit", "10", "--action", "user.login"],
+    )
+
+    assert filtered_result.exit_code == 0
+    assert "action: user.login" in filtered_result.stdout
+    assert "action: admin.audit_events.list" not in filtered_result.stdout
 
 
 def test_cli_ai_assistance_status_flow_is_available(isolated_environment: None) -> None:

@@ -40,7 +40,7 @@ The preferred initial persistence direction is `SQLite`.
 - current registration persists automatically detected preferred mappings as imported lifecycle action mappings
 - manual mapping decisions and explicit unconfigured-function decisions are persisted with actor metadata and audited through project lifecycle configuration update events
 - lifecycle operations record action, command identifier, exit status, success state, and runtime status when available
-- recent audit history is exposed to authenticated admins through `CLI`, `API`, and the web operator workspace
+- recent audit history is exposed to authenticated admins through `CLI`, `API`, and the web operator workspace with filters for actor, action, project target, and time window
 - admin user updates and project ownership changes are audited
 
 ## Key Rules
@@ -48,6 +48,7 @@ The preferred initial persistence direction is `SQLite`.
 - persistence concerns must remain outside the core domain logic
 - lifecycle actions should leave an audit trail
 - recent audit history visibility must stay permissioned to admins until finer-grained operational history rules are intentionally designed
+- audit filters should remain an admin troubleshooting aid and should not weaken event retention or authorization rules
 - AI-assisted inspection and script generation authorizations should be auditable
 - LiteLLM-backed model invocation metadata should be auditable without storing secrets or unnecessary prompt contents
 - authorized context manifests should persist selected project, selected model, intended operation, include/exclude path metadata, ignored/generated artifact metadata, secret filtering rules, size limits, and total authorized byte counts without storing file contents or secret values

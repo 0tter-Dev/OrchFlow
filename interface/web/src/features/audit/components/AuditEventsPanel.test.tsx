@@ -16,6 +16,15 @@ const auditEvents: AuditEventSummary[] = [
   },
 ];
 
+const filters = {
+  action: "",
+  actorUserId: "",
+  createdFrom: "",
+  createdTo: "",
+  limit: "25",
+  projectId: "",
+};
+
 describe("AuditEventsPanel", () => {
   it("renders recent audit events", () => {
     render(
@@ -23,8 +32,10 @@ describe("AuditEventsPanel", () => {
         canLoadAuditEvents
         errorMessage={null}
         events={auditEvents}
+        filters={filters}
         isLoading={false}
         onRefresh={vi.fn()}
+        onUpdateFilters={vi.fn()}
       />,
     );
 
@@ -40,8 +51,10 @@ describe("AuditEventsPanel", () => {
         canLoadAuditEvents={false}
         errorMessage={null}
         events={[]}
+        filters={filters}
         isLoading={false}
         onRefresh={onRefresh}
+        onUpdateFilters={vi.fn()}
       />,
     );
 
@@ -49,5 +62,26 @@ describe("AuditEventsPanel", () => {
 
     expect(screen.getByText("Admin role is required to view audit history.")).toBeInTheDocument();
     expect(onRefresh).not.toHaveBeenCalled();
+  });
+
+  it("updates audit filters from compact controls", () => {
+    const onUpdateFilters = vi.fn();
+    render(
+      <AuditEventsPanel
+        canLoadAuditEvents
+        errorMessage={null}
+        events={[]}
+        filters={filters}
+        isLoading={false}
+        onRefresh={vi.fn()}
+        onUpdateFilters={onUpdateFilters}
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText("Action"), {
+      target: { value: "project.register" },
+    });
+
+    expect(onUpdateFilters).toHaveBeenCalled();
   });
 });
