@@ -175,6 +175,17 @@ export function useProjectWorkspace(token: string | null) {
     }));
   }
 
+  function acceptUpdatedProject(project: ProjectSummary) {
+    setState((currentState) => ({
+      ...currentState,
+      configurationMessage: `${project.reference_name} updated from approved AI proposal.`,
+      lifecycleResult: null,
+      projects: replaceProjectInList(currentState.projects, project),
+      selectedProject: project,
+      selectedProjectId: project.id,
+    }));
+  }
+
   const submitProjectRegistration = useEffectEvent(
     async (registrationInput: ProjectRegistrationInput) => {
       if (token === null) {
@@ -384,6 +395,7 @@ export function useProjectWorkspace(token: string | null) {
 
   return {
     activeAction: state.activeAction,
+    acceptUpdatedProject,
     configurationMessage: state.configurationMessage,
     errorMessage: state.errorMessage,
     isReloadingProject: state.isReloadingProject,

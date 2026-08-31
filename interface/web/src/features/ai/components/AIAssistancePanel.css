@@ -1,0 +1,163 @@
+.ai-panel {
+  display: grid;
+  gap: 1rem;
+  padding: 1.35rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: rgba(7, 14, 24, 0.68);
+}
+
+.ai-panel__header,
+.ai-panel__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.ai-panel__eyebrow {
+  color: #99efe6;
+  font-size: 0.76rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.ai-panel__title {
+  margin: 0.2rem 0 0;
+  font-size: 1.15rem;
+}
+
+.ai-panel__form {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ai-panel__form label,
+.ai-panel__review label,
+.ai-panel__confirmations label {
+  display: grid;
+  gap: 0.35rem;
+  color: rgba(245, 239, 226, 0.72);
+  font-size: 0.84rem;
+}
+
+.ai-panel__confirmations label {
+  grid-template-columns: auto 1fr;
+  align-items: center;
+}
+
+.ai-panel__form input,
+.ai-panel__form select,
+.ai-panel__form textarea,
+.ai-panel__review textarea {
+  min-width: 0;
+  width: 100%;
+  padding: 0.7rem 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #f5efe2;
+  font: inherit;
+}
+
+.ai-panel__form textarea,
+.ai-panel__review textarea {
+  min-height: 5rem;
+  resize: vertical;
+}
+
+.ai-panel__wide {
+  grid-column: 1 / -1;
+}
+
+.ai-panel__button,
+.ai-panel__primary {
+  min-height: 2.65rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.ai-panel__button {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: #f5efe2;
+}
+
+.ai-panel__primary {
+  border: 0;
+  background: #99efe6;
+  color: #0b1320;
+}
+
+.ai-panel__button:disabled,
+.ai-panel__primary:disabled,
+.ai-panel__form input:disabled,
+.ai-panel__form select:disabled,
+.ai-panel__form textarea:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+.ai-panel__empty,
+.ai-panel__error,
+.ai-panel__status,
+.ai-panel__success {
+  padding: 0.95rem 1rem;
+  border-radius: 8px;
+  line-height: 1.65;
+}
+
+.ai-panel__empty,
+.ai-panel__status {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(245, 239, 226, 0.74);
+}
+
+.ai-panel__error {
+  background: rgba(208, 72, 45, 0.14);
+  color: #ffd2c7;
+}
+
+.ai-panel__success {
+  background: rgba(66, 168, 132, 0.14);
+  color: #bcffe4;
+}
+
+.ai-panel__review {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.ai-panel__proposal {
+  max-height: 22rem;
+  overflow: auto;
+  margin: 0;
+  padding: 1rem;
+  border-radius: 8px;
+  background: #08111c;
+  color: #d7f8f1;
+  font-family: "Cascadia Code", "Consolas", monospace;
+  font-size: 0.84rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.ai-panel__confirmations {
+  display: grid;
+  gap: 0.55rem;
+}
+
+@media (max-width: 560px) {
+  .ai-panel__header,
+  .ai-panel__actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .ai-panel__form {
+    grid-template-columns: 1fr;
+  }
+}

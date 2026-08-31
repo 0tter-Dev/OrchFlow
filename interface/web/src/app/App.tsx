@@ -2,6 +2,8 @@ import "./App.css";
 
 import { AdminManagementPanel } from "../features/admin/components/AdminManagementPanel";
 import { useAdminManagement } from "../features/admin/hooks/useAdminManagement";
+import { AIAssistancePanel } from "../features/ai/components/AIAssistancePanel";
+import { useAIAssistance } from "../features/ai/hooks/useAIAssistance";
 import { AuditEventsPanel } from "../features/audit/components/AuditEventsPanel";
 import { useAuditEvents } from "../features/audit/hooks/useAuditEvents";
 import { LoginPanel } from "../features/auth/components/LoginPanel";
@@ -20,6 +22,19 @@ export function App() {
   const adminManagement = useAdminManagement(authSession.token, authSession.currentUser);
   const auditEvents = useAuditEvents(authSession.token, authSession.currentUser);
   const projectWorkspace = useProjectWorkspace(authSession.token);
+  const aiAssistance = useAIAssistance(
+    authSession.token,
+    projectWorkspace.selectedProject,
+    projectWorkspace.acceptUpdatedProject,
+  );
+  const aiModelIds = Array.from(
+    new Set(
+      [
+        aiAssistance.modelCatalog?.default_model,
+        ...(aiAssistance.modelCatalog?.models.map((model) => model.id) ?? []),
+      ].filter((modelId): modelId is string => Boolean(modelId && modelId.length > 0)),
+    ),
+  );
   const { errorMessage, healthStatus, isLoading, lastUpdated, refresh } = useHealthStatus();
 
   return (
@@ -151,6 +166,37 @@ export function App() {
                 selectedProject={projectWorkspace.selectedProject}
                 successMessage={adminManagement.successMessage}
                 users={adminManagement.users}
+              />
+              <AIAssistancePanel
+                canUseAIAssistance={aiAssistance.canUseAIAssistance}
+                errorMessage={aiAssistance.errorMessage}
+                isApplying={aiAssistance.isApplying}
+                isCreatingProposal={aiAssistance.isCreatingProposal}
+                isLoadingStatus={aiAssistance.isLoadingStatus}
+                isReviewing={aiAssistance.isReviewing}
+                message={aiAssistance.message}
+                modelIds={aiModelIds}
+                onApplyProposal={aiAssistance.applyProposal}
+                onCreateProposal={(input) =>
+                  aiAssistance.createProposal(
+                    {
+                      exclude_patterns: input.excludePatterns,
+                      include_patterns: input.includePatterns,
+                      intended_operation: input.intendedOperation,
+                      max_file_size_bytes: input.maxFileSizeBytes,
+                      max_total_bytes: input.maxTotalBytes,
+                      selected_model: input.selectedModel,
+                    },
+                    input.userInstructions,
+                  )
+                }
+                onRefreshStatus={aiAssistance.refreshStatus}
+                onReviewProposal={aiAssistance.reviewProposal}
+                proposal={aiAssistance.proposal}
+                readyForRequests={aiAssistance.status?.ready_for_requests ?? false}
+                reviewDecision={aiAssistance.review?.decision ?? null}
+                selectedProject={projectWorkspace.selectedProject}
+                statusMessage={aiAssistance.status?.message ?? null}
               />
               <AuditEventsPanel
                 canLoadAuditEvents={auditEvents.canLoadAuditEvents}

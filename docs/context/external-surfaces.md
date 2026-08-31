@@ -34,12 +34,12 @@ Expose the same core application behavior through both CLI and API without dupli
 
 ## Implemented Baseline
 
-- CLI and API both expose authentication, project registry, non-AI project updates, configured-action lifecycle execution, runtime inspection, filtered admin audit history visibility, admin user updates, project owner management, manual lifecycle configuration, and project reload. The web interface consumes existing contracts for project editing, project configuration health, action gating, reload, mapping updates, and audit troubleshooting.
+- CLI and API both expose authentication, project registry, non-AI project updates, configured-action lifecycle execution, runtime inspection, filtered admin audit history visibility, admin user updates, project owner management, manual lifecycle configuration, project reload, and AI assistance workflows. The web interface consumes existing contracts for project editing, project configuration health, action gating, reload, mapping updates, AI proposal review/application, and audit troubleshooting.
 - lifecycle responses now include a summarized runtime status when inspection is available
 - direct runtime inspection is available through `GET /projects/{project_id}/runtime` and the mirrored CLI command `runtime inspect`, including status explanation, inspection timestamp, `APP_URL` reachability when available, `APP_URL`-only running detection, and clearer timeout or unsupported diagnostics
-- the first `interface/web` operator flow now consumes these same contracts for sign-in, project visibility, runtime inspection, lifecycle controls, project registration, and filtered admin audit history
+- the first `interface/web` operator flow now consumes these same contracts for sign-in, project visibility, runtime inspection, lifecycle controls, project registration, AI proposal review/application, and filtered admin audit history
 
-External surfaces now include API and CLI workflows for updating project metadata and lifecycle script paths, manual mapping updates, explicit unconfigured-function decisions, explicit reload for one or more projects, and clear lifecycle execution rejection when an action is undefined, explicitly unconfigured, or part of a blocked project. Planned refinements include richer lifecycle function configuration indicators, web project editing, and AI-assisted improvement proposal workflows.
+External surfaces now include API and CLI workflows for updating project metadata and lifecycle script paths, manual mapping updates, explicit unconfigured-function decisions, explicit reload for one or more projects, AI-assisted improvement proposal workflows, and clear lifecycle execution rejection when an action is undefined, explicitly unconfigured, or part of a blocked project. Planned refinements include richer lifecycle function configuration indicators and broader web operator experience polish.
 
 ## Main Relationships
 
