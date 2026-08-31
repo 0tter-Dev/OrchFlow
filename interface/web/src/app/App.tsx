@@ -153,8 +153,10 @@ export function App() {
                 canLoadAuditEvents={auditEvents.canLoadAuditEvents}
                 errorMessage={auditEvents.errorMessage}
                 events={auditEvents.events}
+                filters={auditEvents.filters}
                 isLoading={auditEvents.isLoading}
                 onRefresh={auditEvents.refresh}
+                onUpdateFilters={auditEvents.setFilters}
               />
             </div>
           </section>

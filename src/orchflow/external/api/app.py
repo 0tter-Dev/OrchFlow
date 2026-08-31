@@ -1,6 +1,7 @@
 """FastAPI application factory for the OrchFlow backend bootstrap."""
 
-from typing import Literal
+from datetime import datetime
+from typing import Annotated, Literal
 
 from fastapi import FastAPI, Header, HTTPException, Query, status
 from pydantic import BaseModel
@@ -35,6 +36,7 @@ from orchflow.application.ai_assistance import (
     ReviewAnalysisProposalCommand,
 )
 from orchflow.application.audit_history import (
+    AuditEventFilters,
     AuditHistoryError,
     AuditHistoryValidationError,
     ListAuditEventsCommand,
@@ -784,6 +786,11 @@ def create_app() -> FastAPI:
     def list_audit_events(
         authorization: str | None = Header(default=None),
         limit: int = Query(default=25, ge=1, le=100),
+        actor_user_id: int | None = Query(default=None, ge=1),
+        action: str | None = Query(default=None, min_length=1),
+        project_id: int | None = Query(default=None, ge=1),
+        created_from: Annotated[datetime | None, Query()] = None,
+        created_to: Annotated[datetime | None, Query()] = None,
     ) -> list[AuditEventResponse]:
         token = _extract_bearer_token(authorization)
         if token is None:
@@ -793,7 +800,17 @@ def create_app() -> FastAPI:
             )
         try:
             events = audit_history_service.list_recent_events(
-                ListAuditEventsCommand(token=token, limit=limit)
+                ListAuditEventsCommand(
+                    token=token,
+                    limit=limit,
+                    filters=AuditEventFilters(
+                        actor_user_id=actor_user_id,
+                        action=action,
+                        project_id=project_id,
+                        created_from=created_from,
+                        created_to=created_to,
+                    ),
+                )
             )
         except (AuditHistoryError, AuthorizationError) as error:
             raise _map_audit_history_error(error) from error

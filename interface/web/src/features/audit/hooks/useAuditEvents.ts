@@ -2,7 +2,7 @@ import { useEffect, useEffectEvent, useState } from "react";
 
 import { listAuditEvents } from "../../../shared/api/audit";
 import type { UserSummary } from "../../../shared/types/auth";
-import type { AuditEventSummary } from "../../../shared/types/audit";
+import type { AuditEventFilters, AuditEventSummary } from "../../../shared/types/audit";
 
 type AuditEventsState = {
   errorMessage: string | null;
@@ -16,12 +16,22 @@ const initialState: AuditEventsState = {
   isLoading: false,
 };
 
+const initialFilters: AuditEventFilters = {
+  action: "",
+  actorUserId: "",
+  createdFrom: "",
+  createdTo: "",
+  limit: "25",
+  projectId: "",
+};
+
 function buildErrorMessage(error: unknown, fallback: string): string {
   return error instanceof Error ? error.message : fallback;
 }
 
 export function useAuditEvents(token: string | null, currentUser: UserSummary | null) {
   const [state, setState] = useState<AuditEventsState>(initialState);
+  const [filters, setFilters] = useState<AuditEventFilters>(initialFilters);
   const canLoadAuditEvents = token !== null && currentUser?.role === "admin";
 
   const refresh = useEffectEvent(async () => {
@@ -36,7 +46,7 @@ export function useAuditEvents(token: string | null, currentUser: UserSummary | 
     }));
 
     try {
-      const events = await listAuditEvents(token);
+      const events = await listAuditEvents(token, filters);
       setState({
         errorMessage: null,
         events,
@@ -64,7 +74,9 @@ export function useAuditEvents(token: string | null, currentUser: UserSummary | 
     canLoadAuditEvents,
     errorMessage: state.errorMessage,
     events: state.events,
+    filters,
     isLoading: state.isLoading,
     refresh,
+    setFilters,
   };
 }

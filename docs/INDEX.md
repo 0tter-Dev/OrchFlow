@@ -95,6 +95,6 @@ Project reload workflows now let users explicitly reread one or more lifecycle s
 
 `Interface Layer` depends on the API-facing surface for data presentation and control actions across different client implementations.
 
-`Persistence And Audit` supports all core modules by storing users, permissions, projects, lifecycle events, and recent audit history for admin review.
+`Persistence And Audit` supports all core modules by storing users, permissions, projects, lifecycle events, and filtered recent audit history for admin troubleshooting.
 
 `DevOps And Delivery` governs how the project itself is built, reviewed, tested, and released.

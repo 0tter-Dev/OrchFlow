@@ -10,12 +10,15 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, sessionmaker
 
 from orchflow.application.access_control import UserRepository
-from orchflow.application.audit_history import AuditHistoryRepository
+from orchflow.application.audit_history import AuditEventFilters, AuditHistoryRepository
 from orchflow.domain.access_control import AuditEvent, User, UserRole
 from orchflow.infrastructure.persistence.models import AuditEventModel, UserModel
 
 
 def _to_audit_event(model: AuditEventModel) -> AuditEvent:
+    created_at = model.created_at
+    if created_at.tzinfo is None:
+        created_at = created_at.replace(tzinfo=UTC)
     return AuditEvent(
         id=model.id,
         actor_user_id=model.actor_user_id,
@@ -23,7 +26,7 @@ def _to_audit_event(model: AuditEventModel) -> AuditEvent:
         target_type=model.target_type,
         target_id=model.target_id,
         details=model.details,
-        created_at=model.created_at,
+        created_at=created_at,
     )
 
 
@@ -36,7 +39,13 @@ def _to_user(model: UserModel) -> User:
         created_at=model.created_at,
         updated_at=model.updated_at,
         last_login_at=model.last_login_at,
-            )
+    )
+
+
+def _to_persistence_datetime(value: datetime) -> datetime:
+    if value.tzinfo is None:
+        return value
+    return value.astimezone(UTC).replace(tzinfo=None)
 
 
 class SqlAlchemyAuditHistoryRepository(AuditHistoryRepository):
@@ -57,13 +66,37 @@ class SqlAlchemyAuditHistoryRepository(AuditHistoryRepository):
         finally:
             session.close()
 
-    def list_recent_audit_events(self, limit: int) -> list[AuditEvent]:
+    def list_recent_audit_events(
+        self,
+        *,
+        limit: int,
+        filters: AuditEventFilters,
+    ) -> list[AuditEvent]:
         with self._session_scope() as session:
+            statement = select(AuditEventModel)
+            if filters.actor_user_id is not None:
+                statement = statement.where(
+                    AuditEventModel.actor_user_id == filters.actor_user_id
+                )
+            if filters.action is not None:
+                statement = statement.where(AuditEventModel.action == filters.action)
+            if filters.project_id is not None:
+                statement = statement.where(
+                    AuditEventModel.target_type == "project",
+                    AuditEventModel.target_id == str(filters.project_id),
+                )
+            if filters.created_from is not None:
+                statement = statement.where(
+                    AuditEventModel.created_at
+                    >= _to_persistence_datetime(filters.created_from)
+                )
+            if filters.created_to is not None:
+                statement = statement.where(
+                    AuditEventModel.created_at <= _to_persistence_datetime(filters.created_to)
+                )
             models = (
                 session.execute(
-                    select(AuditEventModel)
-                    .order_by(AuditEventModel.id.desc())
-                    .limit(limit)
+                    statement.order_by(AuditEventModel.id.desc()).limit(limit)
                 )
                 .scalars()
                 .all()
