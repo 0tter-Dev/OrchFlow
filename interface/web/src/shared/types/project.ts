@@ -51,6 +51,15 @@ export type ProjectRegistrationInput = {
   reference_name: string;
 };
 
+export type ProjectUpdateInput = {
+  description?: string | null;
+  lifecycle_script_path?: string;
+  mappings?: ProjectRegistrationMappingInput[];
+  project_root_path?: string;
+  reference_name?: string;
+  unconfigured_actions?: CanonicalLifecycleAction[];
+};
+
 export type ProjectLifecycleConfigurationInput = {
   mappings: ProjectRegistrationMappingInput[];
   unconfigured_actions: CanonicalLifecycleAction[];

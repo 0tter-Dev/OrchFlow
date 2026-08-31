@@ -111,6 +111,7 @@ export function App() {
                 errorMessage={projectWorkspace.errorMessage}
                 isLoadingDetail={projectWorkspace.isLoadingDetail}
                 isReloadingProject={projectWorkspace.isReloadingProject}
+                isUpdatingProject={projectWorkspace.isUpdatingProject}
                 isUpdatingLifecycleConfiguration={
                   projectWorkspace.isUpdatingLifecycleConfiguration
                 }
@@ -119,9 +120,11 @@ export function App() {
                 onRefreshProject={projectWorkspace.refresh}
                 onReloadProject={projectWorkspace.reloadSelectedProject}
                 onRunLifecycleAction={projectWorkspace.runLifecycleAction}
+                onUpdateProject={projectWorkspace.updateSelectedProject}
                 onUpdateLifecycleConfiguration={
                   projectWorkspace.updateLifecycleConfiguration
                 }
+                projectUpdateMessage={projectWorkspace.projectUpdateMessage}
                 runtimeSnapshot={projectWorkspace.runtimeSnapshot}
                 selectedProject={projectWorkspace.selectedProject}
               />

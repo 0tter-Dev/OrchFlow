@@ -7,6 +7,7 @@ import {
   listProjects,
   registerProject,
   reloadProject,
+  updateProject,
   updateProjectLifecycleConfiguration,
 } from "../../../shared/api/projects";
 import type {
@@ -15,6 +16,7 @@ import type {
   ProjectLifecycleConfigurationInput,
   ProjectRegistrationInput,
   ProjectSummary,
+  ProjectUpdateInput,
   RuntimeInspectionSnapshot,
 } from "../../../shared/types/project";
 
@@ -26,8 +28,10 @@ type ProjectWorkspaceState = {
   isLoadingDetail: boolean;
   isLoadingProjects: boolean;
   isRegisteringProject: boolean;
+  isUpdatingProject: boolean;
   isUpdatingLifecycleConfiguration: boolean;
   lifecycleResult: LifecycleExecutionSnapshot | null;
+  projectUpdateMessage: string | null;
   projects: ProjectSummary[];
   registrationMessage: string | null;
   runtimeSnapshot: RuntimeInspectionSnapshot | null;
@@ -44,8 +48,10 @@ const initialState: ProjectWorkspaceState = {
   isLoadingDetail: false,
   isLoadingProjects: false,
   isRegisteringProject: false,
+  isUpdatingProject: false,
   isUpdatingLifecycleConfiguration: false,
   lifecycleResult: null,
+  projectUpdateMessage: null,
   projects: [],
   registrationMessage: null,
   runtimeSnapshot: null,
@@ -284,6 +290,42 @@ export function useProjectWorkspace(token: string | null) {
     },
   );
 
+  const updateSelectedProject = useEffectEvent(async (projectInput: ProjectUpdateInput) => {
+    if (token === null || state.selectedProjectId === null) {
+      return;
+    }
+
+    setState((currentState) => ({
+      ...currentState,
+      errorMessage: null,
+      isUpdatingProject: true,
+      projectUpdateMessage: null,
+    }));
+
+    try {
+      const selectedProject = await updateProject(token, state.selectedProjectId, projectInput);
+      const runtimeSnapshot = await getRuntimeSnapshot(token, selectedProject.id);
+      setState((currentState) => ({
+        ...currentState,
+        errorMessage: null,
+        isUpdatingProject: false,
+        lifecycleResult: null,
+        projectUpdateMessage: `${selectedProject.reference_name} updated.`,
+        projects: replaceProjectInList(currentState.projects, selectedProject),
+        runtimeSnapshot,
+        selectedProject,
+        selectedProjectId: selectedProject.id,
+      }));
+    } catch (error) {
+      setState((currentState) => ({
+        ...currentState,
+        errorMessage: buildErrorMessage(error, "Unable to update the project."),
+        isUpdatingProject: false,
+        projectUpdateMessage: null,
+      }));
+    }
+  });
+
   const reloadSelectedProject = useEffectEvent(async () => {
     if (token === null || state.selectedProjectId === null) {
       return;
@@ -348,9 +390,11 @@ export function useProjectWorkspace(token: string | null) {
     isLoadingDetail: state.isLoadingDetail,
     isLoadingProjects: state.isLoadingProjects,
     isRegisteringProject: state.isRegisteringProject,
+    isUpdatingProject: state.isUpdatingProject,
     isUpdatingLifecycleConfiguration: state.isUpdatingLifecycleConfiguration,
     lifecycleResult: state.lifecycleResult,
     projects: visibleProjects,
+    projectUpdateMessage: state.projectUpdateMessage,
     registrationMessage: state.registrationMessage,
     reloadSelectedProject,
     refresh,
@@ -363,5 +407,6 @@ export function useProjectWorkspace(token: string | null) {
     setSearchQuery,
     submitProjectRegistration,
     updateLifecycleConfiguration,
+    updateSelectedProject,
   };
 }
