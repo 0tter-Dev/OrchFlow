@@ -22,6 +22,14 @@ DOTNET_JSON_DATE_PATTERN = re.compile(r"^/Date\((?P<milliseconds>-?\d+)\)/$")
 
 
 @dataclass(frozen=True, slots=True)
+class ApplicationReachabilityCheck:
+    """Result of checking the optional application URL."""
+
+    reachable: bool | None
+    detail: str | None
+
+
+@dataclass(frozen=True, slots=True)
 class WindowsRuntimeInspector(RuntimeInspector):
     """Inspects ports and process metadata for Windows-first managed projects."""
 
@@ -33,7 +41,7 @@ class WindowsRuntimeInspector(RuntimeInspector):
         known_port, application_url = self._extract_script_runtime_hints(
             project.lifecycle_script_path
         )
-        application_reachable = self._check_application_reachability(application_url)
+        reachability = self._check_application_reachability(application_url)
         if sys.platform != "win32":
             return RuntimeInspectionSnapshot(
                 project_id=project.id,
@@ -41,7 +49,7 @@ class WindowsRuntimeInspector(RuntimeInspector):
                 status_reason="Runtime inspection is currently implemented for Windows only.",
                 known_port=known_port,
                 application_url=application_url,
-                application_reachable=application_reachable,
+                application_reachable=reachability.reachable,
                 uptime_seconds=None,
                 process_snapshots=(),
                 inspected_at=inspected_at,
@@ -59,12 +67,18 @@ class WindowsRuntimeInspector(RuntimeInspector):
             if started_values:
                 oldest_start = min(started_values)
                 uptime_seconds = (inspected_at - oldest_start).total_seconds()
-        status = "running" if processes else "stopped"
+        status = self._derive_status(
+            known_port=known_port,
+            process_count=len(processes),
+            application_url=application_url,
+            application_reachable=reachability.reachable,
+        )
         status_reason = self._build_status_reason(
             status=status,
             known_port=known_port,
             application_url=application_url,
-            application_reachable=application_reachable,
+            application_reachable=reachability.reachable,
+            reachability_detail=reachability.detail,
             process_count=len(processes),
         )
         return RuntimeInspectionSnapshot(
@@ -73,7 +87,7 @@ class WindowsRuntimeInspector(RuntimeInspector):
             status_reason=status_reason,
             known_port=known_port,
             application_url=application_url,
-            application_reachable=application_reachable,
+            application_reachable=reachability.reachable,
             uptime_seconds=uptime_seconds,
             process_snapshots=tuple(processes),
             inspected_at=inspected_at,
@@ -115,18 +129,56 @@ class WindowsRuntimeInspector(RuntimeInspector):
                 pids.append(pid)
         return pids
 
-    def _check_application_reachability(self, application_url: str | None) -> bool | None:
+    def _check_application_reachability(
+        self,
+        application_url: str | None,
+    ) -> ApplicationReachabilityCheck:
         if application_url is None:
-            return None
+            return ApplicationReachabilityCheck(reachable=None, detail=None)
 
         request = Request(application_url, method="GET")
         try:
             with urlopen(request, timeout=self.reachability_timeout_seconds):
-                return True
+                return ApplicationReachabilityCheck(reachable=True, detail="responded")
         except HTTPError:
-            return True
-        except (OSError, URLError, ValueError):
-            return False
+            return ApplicationReachabilityCheck(reachable=True, detail="responded with HTTP error")
+        except TimeoutError:
+            return ApplicationReachabilityCheck(
+                reachable=False,
+                detail=f"timed out after {self.reachability_timeout_seconds:g}s",
+            )
+        except URLError as error:
+            reason = error.reason
+            if isinstance(reason, TimeoutError):
+                return ApplicationReachabilityCheck(
+                    reachable=False,
+                    detail=f"timed out after {self.reachability_timeout_seconds:g}s",
+                )
+            return ApplicationReachabilityCheck(
+                reachable=False,
+                detail=f"failed reachability check: {reason}",
+            )
+        except (OSError, ValueError) as error:
+            return ApplicationReachabilityCheck(
+                reachable=False,
+                detail=f"failed reachability check: {error}",
+            )
+
+    @staticmethod
+    def _derive_status(
+        *,
+        known_port: int | None,
+        process_count: int,
+        application_url: str | None,
+        application_reachable: bool | None,
+    ) -> str:
+        if process_count > 0:
+            return "running"
+        if known_port is None and application_url is None:
+            return "unsupported"
+        if known_port is None and application_reachable:
+            return "running"
+        return "stopped"
 
     @staticmethod
     def _build_status_reason(
@@ -135,30 +187,44 @@ class WindowsRuntimeInspector(RuntimeInspector):
         known_port: int | None,
         application_url: str | None,
         application_reachable: bool | None,
+        reachability_detail: str | None,
         process_count: int,
     ) -> str:
         if known_port is None:
+            if application_url is not None and application_reachable:
+                return (
+                    "No APP_PORT hint was found in the lifecycle script, but APP_URL "
+                    f"{application_url} {reachability_detail or 'responded'}."
+                )
+            if application_url is not None:
+                return (
+                    "No APP_PORT hint was found in the lifecycle script, and APP_URL "
+                    f"{application_url} {reachability_detail or 'did not respond'}."
+                )
             return (
-                "No APP_PORT hint was found in the lifecycle script, so OrchFlow could not "
-                "associate the project with a listening process."
+                "No APP_PORT or APP_URL hint was found in the lifecycle script, so "
+                "OrchFlow cannot inspect a local process or reachability target for this "
+                "project yet."
             )
         if status == "running":
             reason = f"Found {process_count} process(es) listening on APP_PORT {known_port}."
             if application_url is not None:
                 reachability = (
-                    "reachable" if application_reachable else "not reachable"
+                    reachability_detail
+                    if reachability_detail
+                    else ("reachable" if application_reachable else "not reachable")
                 )
-                return f"{reason} APP_URL {application_url} is {reachability}."
+                return f"{reason} APP_URL {application_url} {reachability}."
             return reason
         if application_url is not None and application_reachable:
             return (
                 f"No listening process was found for APP_PORT {known_port}, but APP_URL "
-                f"{application_url} responded to a reachability check."
+                f"{application_url} {reachability_detail or 'responded'}."
             )
         if application_url is not None:
             return (
                 f"No listening process was found for APP_PORT {known_port}, and APP_URL "
-                f"{application_url} did not respond to a reachability check."
+                f"{application_url} {reachability_detail or 'did not respond'}."
             )
         return f"No listening process was found for APP_PORT {known_port}."
 

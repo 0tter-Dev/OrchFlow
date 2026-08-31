@@ -99,13 +99,13 @@ After registration, the user can inspect:
 - current lifecycle state
 - status explanation
 - known ports
-- application URL reachability when `APP_URL` is present
+- application URL reachability when `APP_URL` is present, including `APP_URL`-only projects without `APP_PORT`
 - active processes
 - uptime
 - CPU and memory usage
 - inspection timestamp
 
-At the current implementation stage, these inspection capabilities are already exposed through `CLI`, `API`, and the authenticated `web` workspace.
+At the current implementation stage, these inspection capabilities are already exposed through `CLI`, `API`, and the authenticated `web` workspace. If a script has no `APP_PORT` but does define `APP_URL`, OrchFlow uses URL reachability as the runtime signal. If neither runtime hint exists, OrchFlow reports `unsupported` with an explanation instead of implying the project is stopped. URL timeout and reachability failures are included in the status explanation.
 
 ### 4. Control The Lifecycle
 

@@ -34,12 +34,12 @@ Expose practical operational facts for local project control and troubleshooting
 - extracts runtime hints such as `APP_PORT` and `APP_URL` from the registered lifecycle script
 - inspects Windows listening ports and associates them with process identifiers when possible
 - captures lightweight process snapshots including PID, process name, CPU, memory, and start time
-- derives a practical `running`, `stopped`, or `unsupported` runtime state for operator consumption
-- includes an operator-facing status explanation so `stopped` and `unsupported` states are clearer
-- checks basic `APP_URL` reachability when an application URL is available
+- derives a practical `running`, `stopped`, or `unsupported` runtime state for operator consumption, including `APP_URL`-only running detection when no `APP_PORT` is available
+- includes an operator-facing status explanation so `stopped`, timeout, missing-hint, and `unsupported` states are clearer
+- checks basic `APP_URL` reachability when an application URL is available and reports timeout or connection failure details in the status explanation
 - exposes the inspection timestamp with the runtime snapshot
 - is available as a direct inspection use case and as a post-lifecycle validation step
-- does not persist runtime snapshots yet; current snapshot persistence remains deferred until there is a concrete review or history need beyond audit events
+- does not persist runtime snapshots yet; snapshot persistence was evaluated during runtime maturity work and remains deferred until there is a concrete review or history need beyond audit events and on-demand inspection
 
 ## Main Relationships
 
