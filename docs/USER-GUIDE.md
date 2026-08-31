@@ -136,6 +136,8 @@ Available backend commands include:
 
 The update path reuses lifecycle script validation, preserves audit details, and keeps the project blocked from operational use if the submitted lifecycle configuration leaves no executable lifecycle function.
 
+The authenticated web workspace now exposes project settings from the project detail view. Operators can update the reference name, optional description, project root path, and lifecycle script path through the same backend update contract, while lifecycle mappings remain editable through the lifecycle configuration dialog.
+
 ### 5. Review History
 
 The user can review recent lifecycle activity and operational outcomes to understand what happened and when.

@@ -6,6 +6,7 @@ import type {
   ProjectRegistrationInput,
   ProjectReloadResult,
   ProjectSummary,
+  ProjectUpdateInput,
   RuntimeInspectionSnapshot,
 } from "../types/project";
 
@@ -26,6 +27,18 @@ export function registerProject(
 
 export function getProject(token: string, projectId: number): Promise<ProjectSummary> {
   return requestJson<ProjectSummary>(`/projects/${projectId}`, { token });
+}
+
+export function updateProject(
+  token: string,
+  projectId: number,
+  payload: ProjectUpdateInput,
+): Promise<ProjectSummary> {
+  return requestJson<ProjectSummary>(`/projects/${projectId}`, {
+    body: payload,
+    method: "PATCH",
+    token,
+  });
 }
 
 export function updateProjectLifecycleConfiguration(

@@ -91,13 +91,16 @@ describe("ProjectDetailPanel", () => {
         errorMessage={null}
         isLoadingDetail={false}
         isReloadingProject={false}
+        isUpdatingProject={false}
         isUpdatingLifecycleConfiguration={false}
         lifecycleResult={null}
         onLogout={vi.fn()}
         onRefreshProject={vi.fn()}
         onReloadProject={vi.fn()}
         onRunLifecycleAction={vi.fn()}
+        onUpdateProject={vi.fn()}
         onUpdateLifecycleConfiguration={vi.fn()}
+        projectUpdateMessage={null}
         runtimeSnapshot={runtimeSnapshot}
         selectedProject={selectedProject}
       />,
@@ -129,13 +132,16 @@ describe("ProjectDetailPanel", () => {
         errorMessage={null}
         isLoadingDetail={false}
         isReloadingProject={false}
+        isUpdatingProject={false}
         isUpdatingLifecycleConfiguration={false}
         lifecycleResult={null}
         onLogout={vi.fn()}
         onRefreshProject={vi.fn()}
         onReloadProject={vi.fn()}
         onRunLifecycleAction={onRunLifecycleAction}
+        onUpdateProject={vi.fn()}
         onUpdateLifecycleConfiguration={vi.fn()}
+        projectUpdateMessage={null}
         runtimeSnapshot={runtimeSnapshot}
         selectedProject={selectedProject}
       />,
@@ -157,13 +163,16 @@ describe("ProjectDetailPanel", () => {
         errorMessage={null}
         isLoadingDetail={false}
         isReloadingProject={false}
+        isUpdatingProject={false}
         isUpdatingLifecycleConfiguration={false}
         lifecycleResult={null}
         onLogout={vi.fn()}
         onRefreshProject={vi.fn()}
         onReloadProject={vi.fn()}
         onRunLifecycleAction={vi.fn()}
+        onUpdateProject={vi.fn()}
         onUpdateLifecycleConfiguration={onUpdateLifecycleConfiguration}
+        projectUpdateMessage={null}
         runtimeSnapshot={runtimeSnapshot}
         selectedProject={selectedProject}
       />,
@@ -192,6 +201,55 @@ describe("ProjectDetailPanel", () => {
         },
       ],
       unconfigured_actions: ["stop"],
+    });
+  });
+
+  it("submits project metadata and path edits", () => {
+    const onUpdateProject = vi.fn();
+
+    render(
+      <ProjectDetailPanel
+        activeAction={null}
+        configurationMessage={null}
+        currentUser={currentUser}
+        errorMessage={null}
+        isLoadingDetail={false}
+        isReloadingProject={false}
+        isUpdatingProject={false}
+        isUpdatingLifecycleConfiguration={false}
+        lifecycleResult={null}
+        onLogout={vi.fn()}
+        onRefreshProject={vi.fn()}
+        onReloadProject={vi.fn()}
+        onRunLifecycleAction={vi.fn()}
+        onUpdateProject={onUpdateProject}
+        onUpdateLifecycleConfiguration={vi.fn()}
+        projectUpdateMessage={null}
+        runtimeSnapshot={runtimeSnapshot}
+        selectedProject={selectedProject}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Edit project" }));
+    fireEvent.change(screen.getByLabelText("Reference name"), {
+      target: { value: "edited-project" },
+    });
+    fireEvent.change(screen.getByLabelText("Description"), {
+      target: { value: "Updated project" },
+    });
+    fireEvent.change(screen.getByLabelText("Project root path"), {
+      target: { value: "E:/Projects/edited" },
+    });
+    fireEvent.change(screen.getByLabelText("Lifecycle script path"), {
+      target: { value: "E:/Projects/edited/control.bat" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save project" }));
+
+    expect(onUpdateProject).toHaveBeenCalledWith({
+      description: "Updated project",
+      lifecycle_script_path: "E:/Projects/edited/control.bat",
+      project_root_path: "E:/Projects/edited",
+      reference_name: "edited-project",
     });
   });
 });

@@ -9,6 +9,7 @@ import type {
   LifecycleExecutionSnapshot,
   ProjectLifecycleConfigurationInput,
   ProjectSummary,
+  ProjectUpdateInput,
   RuntimeInspectionSnapshot,
 } from "../../../shared/types/project";
 
@@ -21,13 +22,16 @@ type ProjectDetailPanelProps = {
   errorMessage: string | null;
   isLoadingDetail: boolean;
   isReloadingProject: boolean;
+  isUpdatingProject: boolean;
   isUpdatingLifecycleConfiguration: boolean;
   lifecycleResult: LifecycleExecutionSnapshot | null;
   onLogout: () => void;
   onReloadProject: () => void;
   onRunLifecycleAction: (action: CanonicalLifecycleAction) => void;
   onRefreshProject: () => void;
+  onUpdateProject: (projectInput: ProjectUpdateInput) => void;
   onUpdateLifecycleConfiguration: (configurationInput: ProjectLifecycleConfigurationInput) => void;
+  projectUpdateMessage: string | null;
   runtimeSnapshot: RuntimeInspectionSnapshot | null;
   selectedProject: ProjectSummary | null;
 };
@@ -39,6 +43,13 @@ type MappingFormState = Record<
     scriptLabel: string;
   }
 >;
+
+type ProjectEditFormState = {
+  description: string;
+  lifecycleScriptPath: string;
+  projectRootPath: string;
+  referenceName: string;
+};
 
 function buildMappingFormState(project: ProjectSummary): MappingFormState {
   return lifecycleActions.reduce((formState, action) => {
@@ -53,6 +64,15 @@ function buildMappingFormState(project: ProjectSummary): MappingFormState {
       },
     };
   }, {} as MappingFormState);
+}
+
+function buildProjectEditFormState(project: ProjectSummary): ProjectEditFormState {
+  return {
+    description: project.description ?? "",
+    lifecycleScriptPath: project.lifecycle_script_path,
+    projectRootPath: project.project_root_path,
+    referenceName: project.reference_name,
+  };
 }
 
 function formatUptime(uptimeSeconds: number | null): string {
@@ -101,25 +121,35 @@ export function ProjectDetailPanel({
   errorMessage,
   isLoadingDetail,
   isReloadingProject,
+  isUpdatingProject,
   isUpdatingLifecycleConfiguration,
   lifecycleResult,
   onLogout,
   onReloadProject,
   onRefreshProject,
   onRunLifecycleAction,
+  onUpdateProject,
   onUpdateLifecycleConfiguration,
+  projectUpdateMessage,
   runtimeSnapshot,
   selectedProject,
 }: ProjectDetailPanelProps) {
+  const [isProjectEditOpen, setIsProjectEditOpen] = useState(false);
+  const [projectEditFormState, setProjectEditFormState] = useState<ProjectEditFormState | null>(
+    null,
+  );
   const [isMappingPanelOpen, setIsMappingPanelOpen] = useState(false);
   const [mappingFormState, setMappingFormState] = useState<MappingFormState | null>(null);
 
   useEffect(() => {
     if (selectedProject === null) {
+      setProjectEditFormState(null);
+      setIsProjectEditOpen(false);
       setMappingFormState(null);
       setIsMappingPanelOpen(false);
       return;
     }
+    setProjectEditFormState(buildProjectEditFormState(selectedProject));
     setMappingFormState(buildMappingFormState(selectedProject));
   }, [selectedProject]);
 
@@ -201,6 +231,31 @@ export function ProjectDetailPanel({
     setIsMappingPanelOpen(false);
   }
 
+  function updateProjectEditField(name: keyof ProjectEditFormState, value: string) {
+    setProjectEditFormState((currentState) =>
+      currentState === null ? currentState : { ...currentState, [name]: value },
+    );
+  }
+
+  function submitProjectEdit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (projectEditFormState === null) {
+      return;
+    }
+
+    onUpdateProject({
+      description:
+        projectEditFormState.description.trim().length === 0
+          ? null
+          : projectEditFormState.description.trim(),
+      lifecycle_script_path: projectEditFormState.lifecycleScriptPath.trim(),
+      project_root_path: projectEditFormState.projectRootPath.trim(),
+      reference_name: projectEditFormState.referenceName.trim(),
+    });
+    setIsProjectEditOpen(false);
+  }
+
   return (
     <section className="project-detail">
       <header className="project-detail__header">
@@ -223,6 +278,9 @@ export function ProjectDetailPanel({
       {errorMessage !== null ? <div className="project-detail__error">{errorMessage}</div> : null}
       {configurationMessage !== null ? (
         <div className="project-detail__success">{configurationMessage}</div>
+      ) : null}
+      {projectUpdateMessage !== null ? (
+        <div className="project-detail__success">{projectUpdateMessage}</div>
       ) : null}
 
       <section
@@ -255,6 +313,13 @@ export function ProjectDetailPanel({
             type="button"
           >
             Configure
+          </button>
+          <button
+            className="project-detail__secondary-action"
+            onClick={() => setIsProjectEditOpen(true)}
+            type="button"
+          >
+            Edit project
           </button>
           <button className="project-detail__secondary-action" disabled type="button">
             AI improvement
@@ -484,6 +549,88 @@ export function ProjectDetailPanel({
                   type="submit"
                 >
                   {isUpdatingLifecycleConfiguration ? "Saving..." : "Save configuration"}
+                </button>
+              </div>
+            </form>
+          </section>
+        </div>
+      ) : null}
+
+      {isProjectEditOpen && projectEditFormState !== null ? (
+        <div className="project-detail__modal-backdrop" role="presentation">
+          <section
+            aria-labelledby="project-edit-title"
+            className="project-detail__modal"
+            role="dialog"
+          >
+            <form onSubmit={submitProjectEdit}>
+              <div className="project-detail__modal-header">
+                <h3 id="project-edit-title">Project settings</h3>
+                <button
+                  className="project-detail__secondary-action"
+                  onClick={() => setIsProjectEditOpen(false)}
+                  type="button"
+                >
+                  Close
+                </button>
+              </div>
+
+              <div className="project-detail__edit-form">
+                <label>
+                  <span>Reference name</span>
+                  <input
+                    onChange={(event) =>
+                      updateProjectEditField("referenceName", event.target.value)
+                    }
+                    required
+                    value={projectEditFormState.referenceName}
+                  />
+                </label>
+                <label>
+                  <span>Description</span>
+                  <textarea
+                    onChange={(event) =>
+                      updateProjectEditField("description", event.target.value)
+                    }
+                    value={projectEditFormState.description}
+                  />
+                </label>
+                <label>
+                  <span>Project root path</span>
+                  <input
+                    onChange={(event) =>
+                      updateProjectEditField("projectRootPath", event.target.value)
+                    }
+                    required
+                    value={projectEditFormState.projectRootPath}
+                  />
+                </label>
+                <label>
+                  <span>Lifecycle script path</span>
+                  <input
+                    onChange={(event) =>
+                      updateProjectEditField("lifecycleScriptPath", event.target.value)
+                    }
+                    required
+                    value={projectEditFormState.lifecycleScriptPath}
+                  />
+                </label>
+              </div>
+
+              <div className="project-detail__modal-actions">
+                <button
+                  className="project-detail__secondary-action"
+                  onClick={() => setIsProjectEditOpen(false)}
+                  type="button"
+                >
+                  Cancel
+                </button>
+                <button
+                  className="project-detail__primary-action"
+                  disabled={isUpdatingProject}
+                  type="submit"
+                >
+                  {isUpdatingProject ? "Saving..." : "Save project"}
                 </button>
               </div>
             </form>
