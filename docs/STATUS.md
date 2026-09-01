@@ -13,7 +13,7 @@ This document tracks the current implementation state of major OrchFlow capabili
 
 ## Current Project Stage
 
-OrchFlow is currently in the `v0.3.12` implementation stage as of `2026-08-31`.
+OrchFlow is currently in the `v0.3.13` implementation stage as of `2026-08-31`.
 
 ## Feature Table
 
@@ -46,7 +46,7 @@ OrchFlow is currently in the `v0.3.12` implementation stage as of `2026-08-31`.
 
 - The initial project planning, documentation baseline, and repository skeleton were completed before the current implementation stage.
 - The consolidated documentation model and Git plus GitHub workflow foundation were completed before the current implementation stage.
-- The project is now operating in `v0.3.12`, which consolidates the first real backend and web implementation milestones, runtime inspection refinement, APP_URL-only reachability fallback, clearer unsupported and timeout diagnostics, filtered admin audit history by actor, action, project, and time window, admin and ownership management, LiteLLM dependency onboarding, documentation/versioning governance, CI plus contract hardening, the first ideal lifecycle function domain model, automatic lifecycle configuration health, manual lifecycle configuration decisions, explicit project reload, configured-action lifecycle execution gating, non-AI project update workflows, web project editing, web lifecycle configuration controls, guided operational readiness, richer API error notices, authenticated AI assistance status, gateway health, model discovery, authorized context manifests, reviewable analysis proposals, proposal review decisions, confirmed proposal application, web AI proposal review/application, and pytest cache relocation to `runtime/pytest-cache` on `main`.
+- The project is now operating in `v0.3.13`, which consolidates the first real backend and web implementation milestones, runtime inspection refinement, APP_URL-only reachability fallback, clearer unsupported and timeout diagnostics, filtered admin audit history by actor, action, project, and time window, admin and ownership management, LiteLLM dependency onboarding, documentation/versioning governance, roadmap planning at one-PR granularity, CI plus contract hardening, the first ideal lifecycle function domain model, automatic lifecycle configuration health, manual lifecycle configuration decisions, explicit project reload, configured-action lifecycle execution gating, non-AI project update workflows, web project editing, web lifecycle configuration controls, guided operational readiness, richer API error notices, authenticated AI assistance status, gateway health, model discovery, authorized context manifests, reviewable analysis proposals, proposal review decisions, confirmed proposal application, web AI proposal review/application, and pytest cache relocation to `runtime/pytest-cache` on `main`.
 - The initial backend bootstrap now exists with executable API and CLI entrypoints plus smoke tests.
 - Configuration loading, runtime path normalization, disabled-by-default LiteLLM AI settings, SQLAlchemy bootstrap, and Alembic migrations are available as part of the current baseline.
 - API and CLI should keep evolving as mirrored external surfaces whenever a capability is intentionally exposed to operators.
