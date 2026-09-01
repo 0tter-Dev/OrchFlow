@@ -3,6 +3,7 @@ import "./AIAssistancePanel.css";
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 
+import { ErrorNotice } from "../../../shared/components/ErrorNotice";
 import type { AIAnalysisProposal } from "../../../shared/types/ai";
 import type { ProjectSummary } from "../../../shared/types/project";
 
@@ -156,7 +157,13 @@ export function AIAssistancePanel({
 
       {statusMessage !== null ? <div className="ai-panel__status">{statusMessage}</div> : null}
       {message !== null ? <div className="ai-panel__success">{message}</div> : null}
-      {errorMessage !== null ? <div className="ai-panel__error">{errorMessage}</div> : null}
+      {errorMessage !== null ? (
+        <ErrorNotice
+          className="ai-panel__error"
+          message={errorMessage}
+          title="AI assistance needs review"
+        />
+      ) : null}
 
       <form className="ai-panel__form" onSubmit={submitProposal}>
         <label>

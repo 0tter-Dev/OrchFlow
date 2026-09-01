@@ -1,5 +1,6 @@
 import { useEffect, useEffectEvent, useState } from "react";
 
+import { formatErrorMessage } from "../../../shared/api/errors";
 import { getSystemHealth } from "../../../shared/api/system";
 import type { SystemHealthSnapshot } from "../../../shared/types/system";
 
@@ -36,7 +37,7 @@ export function useHealthStatus() {
         lastUpdated: new Date(),
       });
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Unknown API error.";
+      const message = formatErrorMessage(error, "Unable to reach the OrchFlow API.");
       setState({
         errorMessage: message,
         healthStatus: null,

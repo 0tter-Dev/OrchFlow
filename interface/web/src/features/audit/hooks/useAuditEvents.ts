@@ -1,5 +1,6 @@
 import { useEffect, useEffectEvent, useState } from "react";
 
+import { formatErrorMessage } from "../../../shared/api/errors";
 import { listAuditEvents } from "../../../shared/api/audit";
 import type { UserSummary } from "../../../shared/types/auth";
 import type { AuditEventFilters, AuditEventSummary } from "../../../shared/types/audit";
@@ -24,10 +25,6 @@ const initialFilters: AuditEventFilters = {
   limit: "25",
   projectId: "",
 };
-
-function buildErrorMessage(error: unknown, fallback: string): string {
-  return error instanceof Error ? error.message : fallback;
-}
 
 export function useAuditEvents(token: string | null, currentUser: UserSummary | null) {
   const [state, setState] = useState<AuditEventsState>(initialState);
@@ -55,7 +52,7 @@ export function useAuditEvents(token: string | null, currentUser: UserSummary | 
     } catch (error) {
       setState((currentState) => ({
         ...currentState,
-        errorMessage: buildErrorMessage(error, "Unable to load audit events."),
+        errorMessage: formatErrorMessage(error, "Unable to load audit events."),
         isLoading: false,
       }));
     }

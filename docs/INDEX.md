@@ -93,7 +93,7 @@ Project reload workflows now let users explicitly reread one or more lifecycle s
 
 `External Surfaces` expose use cases from the core application without redefining business logic.
 
-`Interface Layer` depends on the API-facing surface for data presentation and control actions across different client implementations, including guided operational readiness for lifecycle configuration and runtime diagnostics in the web workspace.
+`Interface Layer` depends on the API-facing surface for data presentation and control actions across different client implementations, including guided operational readiness for lifecycle configuration, runtime diagnostics, and contextual API or validation error notices in the web workspace.
 
 `Persistence And Audit` supports all core modules by storing users, permissions, projects, lifecycle events, and filtered recent audit history for admin troubleshooting.
 

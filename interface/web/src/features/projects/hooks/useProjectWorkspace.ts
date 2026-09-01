@@ -1,5 +1,6 @@
 import { startTransition, useDeferredValue, useEffect, useEffectEvent, useState } from "react";
 
+import { formatErrorMessage } from "../../../shared/api/errors";
 import {
   executeLifecycleAction,
   getProject,
@@ -60,10 +61,6 @@ const initialState: ProjectWorkspaceState = {
   selectedProjectId: null,
 };
 
-function buildErrorMessage(error: unknown, fallback: string): string {
-  return error instanceof Error ? error.message : fallback;
-}
-
 function replaceProjectInList(projects: ProjectSummary[], project: ProjectSummary) {
   return projects.map((currentProject) =>
     currentProject.id === project.id ? project : currentProject,
@@ -97,7 +94,7 @@ export function useProjectWorkspace(token: string | null) {
     } catch (error) {
       setState((currentState) => ({
         ...currentState,
-        errorMessage: buildErrorMessage(error, "Unable to load the selected project."),
+        errorMessage: formatErrorMessage(error, "Unable to load the selected project."),
         isLoadingDetail: false,
       }));
     }
@@ -138,7 +135,7 @@ export function useProjectWorkspace(token: string | null) {
     } catch (error) {
       setState((currentState) => ({
         ...currentState,
-        errorMessage: buildErrorMessage(error, "Unable to load managed projects."),
+        errorMessage: formatErrorMessage(error, "Unable to load managed projects."),
         isLoadingProjects: false,
       }));
     }
@@ -222,7 +219,7 @@ export function useProjectWorkspace(token: string | null) {
       } catch (error) {
         setState((currentState) => ({
           ...currentState,
-          errorMessage: buildErrorMessage(error, "Unable to register the project."),
+          errorMessage: formatErrorMessage(error, "Unable to register the project."),
           isRegisteringProject: false,
           registrationMessage: null,
         }));
@@ -258,7 +255,7 @@ export function useProjectWorkspace(token: string | null) {
       setState((currentState) => ({
         ...currentState,
         activeAction: null,
-        errorMessage: buildErrorMessage(error, "Unable to execute the lifecycle action."),
+        errorMessage: formatErrorMessage(error, "Unable to execute the lifecycle action."),
       }));
     }
   });
@@ -294,7 +291,7 @@ export function useProjectWorkspace(token: string | null) {
       } catch (error) {
         setState((currentState) => ({
           ...currentState,
-          errorMessage: buildErrorMessage(error, "Unable to update lifecycle configuration."),
+          errorMessage: formatErrorMessage(error, "Unable to update lifecycle configuration."),
           isUpdatingLifecycleConfiguration: false,
         }));
       }
@@ -330,7 +327,7 @@ export function useProjectWorkspace(token: string | null) {
     } catch (error) {
       setState((currentState) => ({
         ...currentState,
-        errorMessage: buildErrorMessage(error, "Unable to update the project."),
+        errorMessage: formatErrorMessage(error, "Unable to update the project."),
         isUpdatingProject: false,
         projectUpdateMessage: null,
       }));
@@ -367,7 +364,7 @@ export function useProjectWorkspace(token: string | null) {
     } catch (error) {
       setState((currentState) => ({
         ...currentState,
-        errorMessage: buildErrorMessage(error, "Unable to reload lifecycle configuration."),
+        errorMessage: formatErrorMessage(error, "Unable to reload lifecycle configuration."),
         isReloadingProject: false,
       }));
     }

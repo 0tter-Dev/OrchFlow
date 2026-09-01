@@ -1,5 +1,6 @@
 import { startTransition, useEffect, useEffectEvent, useState } from "react";
 
+import { formatErrorMessage } from "../../../shared/api/errors";
 import { getCurrentUser, loginUser } from "../../../shared/api/auth";
 import type { UserSummary } from "../../../shared/types/auth";
 
@@ -42,7 +43,7 @@ export function useAuthSession() {
       });
     } catch (error) {
       window.localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
-      const message = error instanceof Error ? error.message : "Unable to validate the session.";
+      const message = formatErrorMessage(error, "Unable to validate the session.");
       setState({
         currentUser: null,
         errorMessage: message,
@@ -79,7 +80,7 @@ export function useAuthSession() {
       window.localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, payload.access_token);
       await hydrateFromToken(payload.access_token);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Unable to sign in.";
+      const message = formatErrorMessage(error, "Unable to sign in.");
       setState({
         currentUser: null,
         errorMessage: message,
