@@ -37,6 +37,12 @@ type ProjectRegistrationFormState = {
   reference_name: string;
 };
 
+type ProjectGuidance = {
+  detail: string;
+  tone: "attention" | "blocked" | "ready";
+  title: string;
+};
+
 const initialRegistrationFormState: ProjectRegistrationFormState = {
   description: "",
   lifecycle_script_path: "",
@@ -63,6 +69,59 @@ function buildMappings(formState: ProjectRegistrationFormState) {
       source: "user_defined" as const,
     }))
     .filter((mapping) => mapping.script_label.length > 0);
+}
+
+function buildProjectGuidance(
+  projects: ProjectSummary[],
+  selectedProjectId: number | null,
+): ProjectGuidance {
+  if (projects.length === 0) {
+    return {
+      detail:
+        "Connect an existing lifecycle .bat script so OrchFlow can import its first project.",
+      title: "Register the first managed project",
+      tone: "attention",
+    };
+  }
+
+  const selectedProject =
+    selectedProjectId === null
+      ? null
+      : projects.find((project) => project.id === selectedProjectId) ?? null;
+
+  if (selectedProject === null) {
+    return {
+      detail:
+        "Choose one visible project to open details, runtime diagnostics, lifecycle controls, and readiness guidance.",
+      title: "Select a project to continue",
+      tone: "attention",
+    };
+  }
+
+  if (selectedProject.lifecycle_configuration_health === "blocked") {
+    return {
+      detail:
+        "Open mappings for the selected project before running lifecycle actions.",
+      title: "Selected project is blocked",
+      tone: "blocked",
+    };
+  }
+
+  if (selectedProject.lifecycle_configuration_health === "partial") {
+    return {
+      detail:
+        "Configured actions remain usable while missing lifecycle functions wait for manual mapping or AI-assisted review.",
+      title: "Selected project needs readiness review",
+      tone: "attention",
+    };
+  }
+
+  return {
+    detail:
+      "Lifecycle mappings are complete; use the detail panel to inspect runtime state or run actions.",
+    title: "Selected project is ready",
+    tone: "ready",
+  };
 }
 
 export function ProjectListPanel({
@@ -102,6 +161,8 @@ export function ProjectListPanel({
     });
   }
 
+  const guidance = buildProjectGuidance(projects, selectedProjectId);
+
   return (
     <aside className="project-list">
       <header className="project-list__header">
@@ -122,6 +183,14 @@ export function ProjectListPanel({
           {isLoading ? "Loading project registry..." : `${projects.length} project(s) visible`}
         </p>
       </header>
+
+      <section
+        className="project-list__guidance"
+        data-tone={guidance.tone}
+      >
+        <strong>{guidance.title}</strong>
+        <span>{guidance.detail}</span>
+      </section>
 
       {errorMessage !== null ? (
         <ErrorNotice
