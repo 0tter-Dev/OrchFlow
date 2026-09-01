@@ -68,6 +68,7 @@ Future-oriented extensibility is acceptable when it does not add speculative imp
 - Relevant documentation should be updated alongside meaningful implementation changes, especially code changes
 - Pull requests must include a semantic version decision and must update all version-bearing files when the change requires a version bump
 - `docs/TO-DO.md` should remain focused on the next planned steps and should not retain work that is already implemented
+- `docs/TO-DO.md` Roadmap steps should be granular enough for one branch and one pull request; broader themes should be split into ordered steps before implementation starts
 - Changes to established foundations such as the selected stack, business rules, scope boundaries, or non-goals require explicit user approval before they are applied
 
 For AI agents, root-level documentation under `docs/` is the required baseline before any alteration. AI agents must not consult `docs/context/` by default; they may read or update context documents only when the requesting user explicitly authorizes that scope.
@@ -126,6 +127,8 @@ Every pull request should explicitly state the version bump decision. If the cha
 
 Every roadmap step should be treated as a release-relevant change unit. Before implementation starts, contributors and AI agents should identify the expected Conventional Commit type and the likely semantic version impact. After implementation, the final commit and pull request must confirm that decision against the actual diff.
 
+Roadmap planning should use one-PR granularity by default. If the next planned theme cannot be completed as a focused pull request, update `docs/TO-DO.md` first to split it into smaller sequential steps.
+
 Examples:
 
 - `feat(ai): add LiteLLM gateway health checks` should normally advance the project version because it adds product capability.
@@ -164,7 +167,7 @@ The current implementation baseline is:
 
 ## Technology Decision Policy
 
-The core technology direction is now selected for `v0.3.12`.
+The core technology direction is now selected for `v0.3.13`.
 
 Future changes should still be evaluated according to:
 

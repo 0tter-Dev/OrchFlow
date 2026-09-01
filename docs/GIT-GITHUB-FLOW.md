@@ -31,7 +31,7 @@ This means:
 - branches should be deleted after merge
 - work may be authored either by a human contributor or by an authorized AI agent using a dedicated repository identity
 
-This project should not adopt a heavy Git Flow model in `v0.3.12`.
+This project should not adopt a heavy Git Flow model in `v0.3.13`.
 
 The repository is still in an early product stage, so a simpler branch model reduces process weight and makes maintenance easier.
 
@@ -100,6 +100,8 @@ This is a future exception flow, not the normal path for current development.
 
 Each branch should solve one coherent problem.
 
+Roadmap items in `docs/TO-DO.md` should be written at the same granularity as pull requests. A numbered roadmap step should normally map to one short-lived branch, one coherent Conventional Commit change unit, and one pull request. If a roadmap theme would require multiple pull requests, split it into smaller ordered steps before implementation starts.
+
 Good examples:
 
 - define a backend bootstrap structure
@@ -129,6 +131,8 @@ The expected lifecycle for each change is:
 10. delete the branch
 
 For agent-driven code changes, the agent must complete the local implementation, documentation alignment, validation, diff review, branch creation, commit, push, and pull request creation itself when the user has explicitly enabled or requested that delivery mode. The pull request remains the handoff point for human review and merge.
+
+After a pull request is merged and the remote branch is deleted, contributors and agents should prune stale remote-tracking references and delete the corresponding local branch once `main` has been updated. This keeps the local repository aligned with GitHub without affecting the merged history.
 
 ## Contributor Modes
 
@@ -314,7 +318,7 @@ For the current backend baseline, the expected validation direction is:
 - `uv run alembic upgrade head`
 - `uv run pytest`
 
-The selected frontend package manager for `v0.3.12` is `pnpm`.
+The selected frontend package manager for `v0.3.13` is `pnpm`.
 
 The expected frontend validation direction is:
 
@@ -377,7 +381,7 @@ CI should continue evolving in stages.
 
 ### Stage 1
 
-The repository now has the backend and frontend quality baseline needed for `v0.3.12`.
+The repository now has the backend and frontend quality baseline needed for `v0.3.13`.
 
 ### Stage 2
 
@@ -490,6 +494,7 @@ Recommended labels:
 - do not bypass pull request review on protected branches
 - do not treat documentation as optional
 - do not bundle unrelated work into a single branch
+- do not leave merged local working branches around as active work; prune and delete them after confirming the merge is present on local `main`
 - do not introduce release automation before basic CI is stable
 - do not treat a green CI run as a substitute for design review
 - do not let an agent use the maintainer's Git identity for authorship when a dedicated repository identity is expected
