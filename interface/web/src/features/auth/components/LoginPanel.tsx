@@ -1,6 +1,7 @@
 import { FormEvent, useState } from "react";
 
 import "./LoginPanel.css";
+import { ErrorNotice } from "../../../shared/components/ErrorNotice";
 
 type LoginPanelProps = {
   errorMessage: string | null;
@@ -56,7 +57,13 @@ export function LoginPanel({ errorMessage, isLoading, onSubmit }: LoginPanelProp
           <button className="login-panel__button" disabled={isLoading} type="submit">
             {isLoading ? "Signing in..." : "Open operator session"}
           </button>
-          {errorMessage !== null ? <div className="login-panel__error">{errorMessage}</div> : null}
+          {errorMessage !== null ? (
+            <ErrorNotice
+              className="login-panel__error"
+              message={errorMessage}
+              title="Sign-in failed"
+            />
+          ) : null}
         </div>
       </form>
 

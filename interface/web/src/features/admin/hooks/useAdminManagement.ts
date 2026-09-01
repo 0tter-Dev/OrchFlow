@@ -1,6 +1,7 @@
 import { useEffect, useEffectEvent, useState } from "react";
 
 import { listUsers, updateUser } from "../../../shared/api/auth";
+import { formatErrorMessage } from "../../../shared/api/errors";
 import { addProjectOwner, removeProjectOwner } from "../../../shared/api/projects";
 import type { UserRole, UserSummary } from "../../../shared/types/auth";
 import type { ProjectSummary } from "../../../shared/types/project";
@@ -20,10 +21,6 @@ const initialState: AdminManagementState = {
   successMessage: null,
   users: [],
 };
-
-function buildErrorMessage(error: unknown, fallback: string): string {
-  return error instanceof Error ? error.message : fallback;
-}
 
 export function useAdminManagement(token: string | null, currentUser: UserSummary | null) {
   const [state, setState] = useState<AdminManagementState>(initialState);
@@ -51,7 +48,7 @@ export function useAdminManagement(token: string | null, currentUser: UserSummar
     } catch (error) {
       setState((currentState) => ({
         ...currentState,
-        errorMessage: buildErrorMessage(error, "Unable to load users."),
+        errorMessage: formatErrorMessage(error, "Unable to load users."),
         isLoading: false,
       }));
     }
@@ -137,7 +134,7 @@ export function useAdminManagement(token: string | null, currentUser: UserSummar
     } catch (error) {
       setState((currentState) => ({
         ...currentState,
-        errorMessage: buildErrorMessage(error, "Unable to complete admin action."),
+        errorMessage: formatErrorMessage(error, "Unable to complete admin action."),
         isMutating: false,
         successMessage: null,
       }));

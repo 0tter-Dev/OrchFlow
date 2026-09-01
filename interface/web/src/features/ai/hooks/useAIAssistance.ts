@@ -8,6 +8,7 @@ import {
   listAIAssistanceModels,
   reviewAIAnalysisProposal,
 } from "../../../shared/api/ai";
+import { formatErrorMessage } from "../../../shared/api/errors";
 import type {
   AIAnalysisProposal,
   AIAnalysisProposalApplication,
@@ -49,10 +50,6 @@ const initialState: AIAssistanceState = {
   status: null,
 };
 
-function buildErrorMessage(error: unknown, fallback: string): string {
-  return error instanceof Error ? error.message : fallback;
-}
-
 export function useAIAssistance(
   token: string | null,
   selectedProject: ProjectSummary | null,
@@ -87,7 +84,7 @@ export function useAIAssistance(
     } catch (error) {
       setState((currentState) => ({
         ...currentState,
-        errorMessage: buildErrorMessage(error, "Unable to load AI assistance status."),
+        errorMessage: formatErrorMessage(error, "Unable to load AI assistance status."),
         isLoadingStatus: false,
       }));
     }
@@ -151,7 +148,7 @@ export function useAIAssistance(
       } catch (error) {
         setState((currentState) => ({
           ...currentState,
-          errorMessage: buildErrorMessage(error, "Unable to create an AI proposal."),
+          errorMessage: formatErrorMessage(error, "Unable to create an AI proposal."),
           isCreatingProposal: false,
         }));
       }
@@ -185,7 +182,7 @@ export function useAIAssistance(
       } catch (error) {
         setState((currentState) => ({
           ...currentState,
-          errorMessage: buildErrorMessage(error, "Unable to review the AI proposal."),
+          errorMessage: formatErrorMessage(error, "Unable to review the AI proposal."),
           isReviewing: false,
         }));
       }
@@ -220,7 +217,7 @@ export function useAIAssistance(
     } catch (error) {
       setState((currentState) => ({
         ...currentState,
-        errorMessage: buildErrorMessage(error, "Unable to apply the AI proposal."),
+        errorMessage: formatErrorMessage(error, "Unable to apply the AI proposal."),
         isApplying: false,
       }));
     }

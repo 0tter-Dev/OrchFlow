@@ -1,5 +1,6 @@
 import "./AdminManagementPanel.css";
 
+import { ErrorNotice } from "../../../shared/components/ErrorNotice";
 import type { UserRole, UserSummary } from "../../../shared/types/auth";
 import type { ProjectSummary } from "../../../shared/types/project";
 
@@ -65,7 +66,13 @@ export function AdminManagementPanel({
         <div className="admin-panel__empty">Admin role is required to manage users and owners.</div>
       ) : null}
 
-      {errorMessage !== null ? <div className="admin-panel__error">{errorMessage}</div> : null}
+      {errorMessage !== null ? (
+        <ErrorNotice
+          className="admin-panel__error"
+          message={errorMessage}
+          title="Admin action needs attention"
+        />
+      ) : null}
       {successMessage !== null ? (
         <div className="admin-panel__success">{successMessage}</div>
       ) : null}

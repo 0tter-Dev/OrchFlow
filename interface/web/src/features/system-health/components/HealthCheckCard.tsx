@@ -1,5 +1,6 @@
 import type { SystemHealthSnapshot } from "../../../shared/types/system";
 import "./HealthCheckCard.css";
+import { ErrorNotice } from "../../../shared/components/ErrorNotice";
 
 type HealthCheckCardProps = {
   apiBaseUrl: string;
@@ -58,10 +59,11 @@ export function HealthCheckCard({
         ) : null}
 
         {errorMessage !== null ? (
-          <div className="health-card__error" role="alert">
-            <strong>Unable to reach the OrchFlow API.</strong>
-            <span>{errorMessage}</span>
-          </div>
+          <ErrorNotice
+            className="health-card__error"
+            message={errorMessage}
+            title="Unable to reach the OrchFlow API."
+          />
         ) : null}
 
         {healthStatus !== null ? (

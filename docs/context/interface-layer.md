@@ -35,8 +35,9 @@ Provide a clean separation between the backend core and multiple user-facing cli
 - interface clients should remain consumers of platform capabilities, not their owners
 - interface clients should rely on the API-facing surface rather than bypassing application boundaries
 - the `interface/` folder should act as a physical boundary between the backend core and client implementations
-- visual complexity should remain secondary to operational clarity in `v0.3.11`
+- visual complexity should remain secondary to operational clarity in `v0.3.12`
 - interface clients should communicate lifecycle configuration health without blocking partially configured projects
+- interface clients should preserve API failure context in operator-facing error states, including HTTP status, request method/path, and validation details when available
 - the first concrete client direction is `web`, but the structure should allow future `mobile` and `desktop` clients
 
 ## Planned Configuration Experience
@@ -60,6 +61,7 @@ The exact visual component is not fixed. A warning indicator, details popover, m
 - project editing is now available through backend API and CLI contracts and through the web project detail view
 - AI proposal review/application is now available through the web operator workspace using the existing authenticated AI assistance API contracts
 - operational readiness now gives selected projects a compact lifecycle/runtime checklist with direct actions for reload, mapping configuration, and runtime refresh
+- web API failures now surface richer operator-facing notices that preserve status context and FastAPI validation messages from the shared API client
 - the web client keeps the backend contract stable during local development by using a proxy-friendly API base URL convention
 - frontend lint, test, and build scripts are established so later feature work can focus on real operator flows
 

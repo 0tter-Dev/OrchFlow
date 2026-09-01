@@ -22,6 +22,8 @@ At the current implementation stage, the operational surfaces already implemente
 
 `CLI` and `API` remain the reference backend delivery surfaces, and the `web` interface now mirrors the first practical operator workflow on top of those same contracts, including registration of existing projects with compatible `.bat` lifecycle scripts.
 
+When backend requests fail in the web workspace, the interface now shows contextual error notices that keep the operator-facing explanation together with available HTTP status, request method/path, and validation details returned by the API.
+
 - `member` users work with their permitted projects
 - `admin` users can manage all projects and user permissions
 

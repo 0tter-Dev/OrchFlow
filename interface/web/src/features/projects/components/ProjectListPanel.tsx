@@ -3,6 +3,7 @@ import "./ProjectListPanel.css";
 import { useState } from "react";
 import type { FormEvent } from "react";
 
+import { ErrorNotice } from "../../../shared/components/ErrorNotice";
 import type { UserSummary } from "../../../shared/types/auth";
 import type {
   CanonicalLifecycleAction,
@@ -122,7 +123,13 @@ export function ProjectListPanel({
         </p>
       </header>
 
-      {errorMessage !== null ? <div className="project-list__error">{errorMessage}</div> : null}
+      {errorMessage !== null ? (
+        <ErrorNotice
+          className="project-list__error"
+          message={errorMessage}
+          title="Project registry needs attention"
+        />
+      ) : null}
       {registrationMessage !== null ? (
         <div className="project-list__success">{registrationMessage}</div>
       ) : null}

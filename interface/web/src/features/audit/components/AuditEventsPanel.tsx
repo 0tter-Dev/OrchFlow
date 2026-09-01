@@ -2,6 +2,7 @@ import "./AuditEventsPanel.css";
 
 import type { Dispatch, SetStateAction } from "react";
 
+import { ErrorNotice } from "../../../shared/components/ErrorNotice";
 import type { AuditEventFilters, AuditEventSummary } from "../../../shared/types/audit";
 
 type AuditEventsPanelProps = {
@@ -113,7 +114,13 @@ export function AuditEventsPanel({
         </div>
       ) : null}
 
-      {errorMessage !== null ? <div className="audit-panel__error">{errorMessage}</div> : null}
+      {errorMessage !== null ? (
+        <ErrorNotice
+          className="audit-panel__error"
+          message={errorMessage}
+          title="Audit history unavailable"
+        />
+      ) : null}
 
       {canLoadAuditEvents && events.length === 0 && !isLoading ? (
         <div className="audit-panel__empty">No audit events are available yet.</div>

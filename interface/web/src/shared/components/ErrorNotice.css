@@ -1,0 +1,13 @@
+.error-notice {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.error-notice strong {
+  display: block;
+}
+
+.error-notice span {
+  display: block;
+  line-height: 1.6;
+}

@@ -3,6 +3,7 @@ import "./ProjectDetailPanel.css";
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 
+import { ErrorNotice } from "../../../shared/components/ErrorNotice";
 import type { UserSummary } from "../../../shared/types/auth";
 import type {
   CanonicalLifecycleAction,
@@ -276,7 +277,13 @@ export function ProjectDetailPanel({
         </button>
       </header>
 
-      {errorMessage !== null ? <div className="project-detail__error">{errorMessage}</div> : null}
+      {errorMessage !== null ? (
+        <ErrorNotice
+          className="project-detail__error"
+          message={errorMessage}
+          title="Project action needs attention"
+        />
+      ) : null}
       {configurationMessage !== null ? (
         <div className="project-detail__success">{configurationMessage}</div>
       ) : null}
