@@ -46,6 +46,7 @@ The repository now also includes:
 - issue templates for bugs, features, and focused tasks
 - a GitHub Actions workflow that validates backend quality, Alembic migrations, backend tests, frontend lint, frontend tests, and frontend build
 - backend OpenAPI contract coverage for authenticated operator routes and key response fields
+- focused AI API contract coverage for authentication, validation, safe gateway responses, proposal workflow response shapes, and application confirmations
 - frontend critical-flow coverage for registering and selecting managed projects from the web operator surface
 
 ## Key Rules
