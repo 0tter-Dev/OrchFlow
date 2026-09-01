@@ -45,6 +45,7 @@ The repository now also includes:
 - a pull request template
 - issue templates for bugs, features, and focused tasks
 - a GitHub Actions workflow that validates backend quality, Alembic migrations, backend tests, frontend lint, frontend tests, and frontend build
+- hardened Alembic migration validation that checks the revision graph and schema drift against SQLAlchemy metadata
 - backend OpenAPI contract coverage for authenticated operator routes and key response fields
 - focused AI API contract coverage for authentication, validation, safe gateway responses, proposal workflow response shapes, and application confirmations
 - version consistency contract coverage for synchronized package metadata, runtime version exposure, lockfiles, smoke tests, and current-version documentation references

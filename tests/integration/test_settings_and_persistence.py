@@ -6,10 +6,14 @@ import os
 from pathlib import Path
 
 from alembic import command
+from alembic.autogenerate import compare_metadata
 from alembic.config import Config
-from sqlalchemy import text
+from alembic.runtime.migration import MigrationContext
+from alembic.script import ScriptDirectory
+from sqlalchemy import inspect, text
 
 from orchflow.infrastructure.config.settings import AppSettings, get_settings
+from orchflow.infrastructure.persistence.base import Base
 from orchflow.infrastructure.persistence.session import (
     check_database_connection,
     create_engine_from_settings,
@@ -93,3 +97,45 @@ def test_alembic_upgrade_head_runs_against_local_sqlite(tmp_path: Path) -> None:
     finally:
         engine.dispose()
     assert table_count == 7
+
+
+def test_alembic_revision_graph_has_single_base_and_head() -> None:
+    config = Config("alembic.ini")
+    script = ScriptDirectory.from_config(config)
+
+    assert script.get_bases() == ["6bdc38282503"]
+    assert script.get_heads() == ["a3f2d9c8b1e7"]
+
+
+def test_alembic_head_schema_matches_sqlalchemy_metadata(tmp_path: Path) -> None:
+    database_path = tmp_path / "data" / "alembic-metadata.db"
+    os.environ["ORCHFLOW_DATABASE_URL"] = f"sqlite:///{database_path.as_posix()}"
+    os.environ["ORCHFLOW_DATA_DIR"] = str(tmp_path / "data")
+    os.environ["ORCHFLOW_RUNTIME_DIR"] = str(tmp_path / "runtime")
+    get_settings.cache_clear()
+
+    try:
+        config = Config("alembic.ini")
+        command.upgrade(config, "head")
+    finally:
+        get_settings.cache_clear()
+        os.environ.pop("ORCHFLOW_DATABASE_URL", None)
+        os.environ.pop("ORCHFLOW_DATA_DIR", None)
+        os.environ.pop("ORCHFLOW_RUNTIME_DIR", None)
+
+    migrated_settings = AppSettings(
+        data_dir=tmp_path / "data",
+        runtime_dir=tmp_path / "runtime",
+        database_url=f"sqlite:///{database_path.as_posix()}",
+    )
+    engine = create_engine_from_settings(migrated_settings)
+    try:
+        with engine.connect() as connection:
+            migration_context = MigrationContext.configure(connection)
+            metadata_diffs = compare_metadata(migration_context, Base.metadata)
+            table_names = set(inspect(connection).get_table_names())
+    finally:
+        engine.dispose()
+
+    assert metadata_diffs == []
+    assert set(Base.metadata.tables) <= table_names

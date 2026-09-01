@@ -42,6 +42,7 @@ The preferred initial persistence direction is `SQLite`.
 - lifecycle operations record action, command identifier, exit status, success state, and runtime status when available
 - recent audit history is exposed to authenticated admins through `CLI`, `API`, and the web operator workspace with filters for actor, action, project target, and time window
 - admin user updates and project ownership changes are audited
+- Alembic migration validation checks that the repository has one expected base and head and that `upgrade head` produces a schema aligned with SQLAlchemy metadata
 
 ## Key Rules
 
@@ -63,6 +64,7 @@ The preferred initial persistence direction is `SQLite`.
 - runtime snapshot persistence remains intentionally deferred after evaluation in the runtime maturity milestone; audit events and on-demand inspection remain the current history baseline
 - the system should prioritize practical local reliability over premature complexity
 - the initial persistence bootstrap should provide a real migration path early, even before the first business entities are fully implemented
+- migration tests should catch accidental branch heads and schema drift before persistence changes are reviewed
 
 ## Main Relationships
 

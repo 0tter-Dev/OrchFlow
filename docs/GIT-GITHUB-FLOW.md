@@ -31,7 +31,7 @@ This means:
 - branches should be deleted after merge
 - work may be authored either by a human contributor or by an authorized AI agent using a dedicated repository identity
 
-This project should not adopt a heavy Git Flow model in `v0.3.16`.
+This project should not adopt a heavy Git Flow model in `v0.3.17`.
 
 The repository is still in an early product stage, so a simpler branch model reduces process weight and makes maintenance easier.
 
@@ -318,7 +318,7 @@ For the current backend baseline, the expected validation direction is:
 - `uv run alembic upgrade head`
 - `uv run pytest`
 
-The selected frontend package manager for `v0.3.16` is `pnpm`.
+The selected frontend package manager for `v0.3.17` is `pnpm`.
 
 The expected frontend validation direction is:
 
@@ -328,7 +328,7 @@ The expected frontend validation direction is:
 - `pnpm test`
 - `pnpm build`
 
-The backend contract suite includes version consistency tests that compare the current project version across package metadata, runtime version exposure, lockfiles, smoke tests, and current-version documentation references.
+The backend contract suite includes version consistency tests that compare the current project version across package metadata, runtime version exposure, lockfiles, smoke tests, and current-version documentation references. The persistence integration suite validates the Alembic revision graph and compares the migrated schema against SQLAlchemy metadata to catch drift before review.
 
 ## Documentation Gate
 
@@ -383,7 +383,7 @@ CI should continue evolving in stages.
 
 ### Stage 1
 
-The repository now has the backend and frontend quality baseline needed for `v0.3.16`.
+The repository now has the backend and frontend quality baseline needed for `v0.3.17`.
 
 ### Stage 2
 
@@ -392,7 +392,7 @@ As product workflows grow:
 - stricter unit, integration, and contract test separation when the suite becomes large enough to justify it
 - more focused API contract assertions for newly exposed operator routes
 - critical web-flow tests for new workflows before they become release expectations
-- migration downgrade or drift checks if the migration model starts requiring them
+- migration downgrade checks if the migration model starts requiring them
 
 ### Stage 3
 
