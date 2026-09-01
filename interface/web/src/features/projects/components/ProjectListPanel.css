@@ -62,6 +62,40 @@
   font-size: 0.92rem;
 }
 
+.project-list__guidance {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.9rem 1rem;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.045);
+  line-height: 1.55;
+}
+
+.project-list__guidance strong {
+  font-size: 0.92rem;
+}
+
+.project-list__guidance span {
+  color: rgba(245, 239, 226, 0.68);
+  font-size: 0.86rem;
+}
+
+.project-list__guidance[data-tone="ready"] {
+  border-color: rgba(153, 239, 230, 0.28);
+  background: rgba(153, 239, 230, 0.08);
+}
+
+.project-list__guidance[data-tone="attention"] {
+  border-color: rgba(240, 212, 141, 0.28);
+  background: rgba(240, 212, 141, 0.08);
+}
+
+.project-list__guidance[data-tone="blocked"] {
+  border-color: rgba(208, 72, 45, 0.32);
+  background: rgba(208, 72, 45, 0.1);
+}
+
 .project-list__items {
   display: grid;
   gap: 0.65rem;

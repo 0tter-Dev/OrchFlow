@@ -27,6 +27,20 @@ const managedProjects: ProjectSummary[] = [
   },
 ];
 
+const completeProjects: ProjectSummary[] = [
+  {
+    ...managedProjects[0],
+    lifecycle_configuration_health: "complete",
+  },
+];
+
+const blockedProjects: ProjectSummary[] = [
+  {
+    ...managedProjects[0],
+    lifecycle_configuration_health: "blocked",
+  },
+];
+
 function renderProjectListPanel(
   overrides: Partial<Parameters<typeof ProjectListPanel>[0]> = {},
 ) {
@@ -105,6 +119,26 @@ describe("ProjectListPanel", () => {
     expect(screen.getByText("local-api registered successfully.")).toBeInTheDocument();
   });
 
+  it("guides first-time project registration when the workspace is empty", () => {
+    renderProjectListPanel();
+
+    expect(screen.getByText("Register the first managed project")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Connect an existing lifecycle .bat script so OrchFlow can import its first project.",
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("guides project selection when projects are visible", () => {
+    renderProjectListPanel({
+      projects: managedProjects,
+      selectedProjectId: null,
+    });
+
+    expect(screen.getByText("Select a project to continue")).toBeInTheDocument();
+  });
+
   it("selects a visible registered project from the operator list", () => {
     const onSelectProject = vi.fn();
     renderProjectListPanel({
@@ -121,5 +155,21 @@ describe("ProjectListPanel", () => {
     fireEvent.click(screen.getByRole("button", { name: /local-api/ }));
 
     expect(onSelectProject).toHaveBeenCalledWith(7);
+  });
+
+  it("surfaces selected project readiness guidance", () => {
+    renderProjectListPanel({
+      projects: completeProjects,
+      selectedProjectId: 7,
+    });
+
+    expect(screen.getByText("Selected project is ready")).toBeInTheDocument();
+
+    renderProjectListPanel({
+      projects: blockedProjects,
+      selectedProjectId: 7,
+    });
+
+    expect(screen.getByText("Selected project is blocked")).toBeInTheDocument();
   });
 });

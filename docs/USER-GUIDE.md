@@ -57,6 +57,8 @@ If the selected script only exposes an interactive menu or labels without a usab
 
 The authenticated web workspace now exposes this existing-script registration flow directly. The form collects project reference name, optional description, project root path, lifecycle script path, and optional lifecycle action mappings for scripts that use identifiers different from `STATUS`, `START`, `STOP`, or `RESTART`.
 
+The web project list now guides the operator through the current onboarding state: registering the first project, selecting an existing visible project, reviewing a partial or blocked lifecycle configuration, or continuing with a project whose lifecycle mappings are complete.
+
 #### Option B: Analyze A Folder With AI Assistance
 
 The user selects a project folder and asks OrchFlow to assist with lifecycle setup.
