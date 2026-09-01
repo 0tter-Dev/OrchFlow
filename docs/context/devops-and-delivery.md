@@ -47,6 +47,7 @@ The repository now also includes:
 - a GitHub Actions workflow that validates backend quality, Alembic migrations, backend tests, frontend lint, frontend tests, and frontend build
 - backend OpenAPI contract coverage for authenticated operator routes and key response fields
 - focused AI API contract coverage for authentication, validation, safe gateway responses, proposal workflow response shapes, and application confirmations
+- version consistency contract coverage for synchronized package metadata, runtime version exposure, lockfiles, smoke tests, and current-version documentation references
 - frontend critical-flow coverage for registering and selecting managed projects from the web operator surface
 
 ## Key Rules
