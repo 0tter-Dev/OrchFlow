@@ -37,7 +37,7 @@ The user selects a project folder, OrchFlow analyzes it through the LiteLLM-back
 - every project must end with a concrete `.bat` lifecycle script
 - each project must have a user-facing reference name
 - project metadata and lifecycle script paths may be updated only through validated registry workflows
-- registration must persist ownership and permission metadata
+- registration must persist ownership metadata and enforce access through the current role plus ownership model
 - admins may assign or remove project owners
 - project ownership changes must be auditable
 - a project must retain at least one owner

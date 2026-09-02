@@ -4,6 +4,8 @@
 
 This index explains how the documentation is organized and how the major product capabilities connect to one another.
 
+This documentation set is the operating baseline for continuing OrchFlow development. Agents and contributors should be able to use the root-level documents plus the explicitly relevant `docs/context/` files to understand the current goals, implemented behavior, rules, and next-step planning before changing code.
+
 ## Reading Order
 
 1. [Project Architecture](./PROJECT-ARCHITECTURE.md)
@@ -35,7 +37,7 @@ Contains feature-oriented context documents that describe purpose, scope, planne
 ## Context Connections
 
 - [Access Control](./context/access-control.md)
-Defines users, roles, activation, permissions, and how access decisions affect project visibility and actions.
+Defines users, roles, activation, project ownership, and how access decisions affect project visibility and actions.
 
 - [Project Registry](./context/project-registry.md)
 Defines how projects are registered, identified, owned, assigned, and persisted.
@@ -73,7 +75,7 @@ Defines source-control, validation, and CI/CD expectations.
 
 ## Relationship Overview
 
-`Access Control` governs who can see and control a `Project`, including admin user-management rules.
+`Access Control` governs who can see and control a `Project`, including admin user-management rules. The current permission model is role-based administration plus project ownership, not a separate generic permission table.
 
 `Project Registry` stores and normalizes the metadata needed for a project to exist inside OrchFlow, including project ownership assignments, editable project metadata and script paths, lifecycle action mappings, and lifecycle function configuration state.
 
@@ -95,6 +97,6 @@ Project reload workflows now let users explicitly reread one or more lifecycle s
 
 `Interface Layer` depends on the API-facing surface for data presentation and control actions across different client implementations, including guided operational readiness for lifecycle configuration, runtime diagnostics, and contextual API or validation error notices in the web workspace.
 
-`Persistence And Audit` supports all core modules by storing users, permissions, projects, lifecycle events, and filtered recent audit history for admin troubleshooting.
+`Persistence And Audit` supports all core modules by storing users, project ownership, projects, lifecycle events, and filtered recent audit history for admin troubleshooting.
 
 `DevOps And Delivery` governs how the project itself is built, reviewed, tested, and released.

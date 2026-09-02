@@ -24,8 +24,8 @@ At the current implementation stage, the operational surfaces already implemente
 
 When backend requests fail in the web workspace, the interface now shows contextual error notices that keep the operator-facing explanation together with available HTTP status, request method/path, and validation details returned by the API.
 
-- `member` users work with their permitted projects
-- `admin` users can manage all projects and user permissions
+- `member` users work with projects they own
+- `admin` users can manage all projects, user roles, activation state, and project ownership
 
 ### 2. Register A Project
 
@@ -162,7 +162,7 @@ The history view covers already recorded user registration, login, admin listing
 - AI-assisted analysis is optional and does not bypass user review
 - AI-assisted analysis must pass through explicit user authorization for inspection and file generation
 - LiteLLM may provide model connectivity, but OrchFlow controls which data and files are shared with the selected model
-- Permissions determine which users can view and control each project
+- Roles and project ownership determine which users can view and control each project
 
 ## Admin Workflow
 

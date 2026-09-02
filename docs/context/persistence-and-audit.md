@@ -19,7 +19,7 @@ The preferred initial persistence direction is `SQLite`.
 ## Target Stored Data
 
 - users
-- permissions
+- role and ownership authorization metadata
 - projects
 - project ownership metadata
 - lifecycle definitions
