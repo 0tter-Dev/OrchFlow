@@ -41,6 +41,29 @@ Expose the same core application behavior through both CLI and API without dupli
 
 External surfaces now include API and CLI workflows for updating project metadata and lifecycle script paths, manual mapping updates, explicit unconfigured-function decisions, explicit reload for one or more projects, AI-assisted improvement proposal workflows, and clear lifecycle execution rejection when an action is undefined, explicitly unconfigured, or part of a blocked project. The web operator surface now combines those contracts into a guided operational readiness panel for selected projects and preserves backend failure details in contextual error notices. Planned refinements include broader web operator experience polish.
 
+## Current API Inventory
+
+The current implemented API surface includes:
+
+- system: `GET /`, `GET /health`, `GET /system/config`, `GET /system/database`
+- authentication: `POST /auth/register`, `POST /auth/login`, `GET /auth/me`, `GET /auth/users`, `PATCH /auth/users/{user_id}`
+- audit: `GET /audit/events`
+- AI assistance: `GET /ai/status`, `GET /ai/gateway/health`, `GET /ai/models`, `POST /ai/context-manifests`, `GET /ai/context-manifests/{manifest_id}`, `POST /ai/analysis-proposals`, `GET /ai/analysis-proposals/{proposal_id}`, `POST /ai/analysis-proposals/{proposal_id}/review`, `POST /ai/analysis-proposals/{proposal_id}/apply`
+- projects: `POST /projects`, `GET /projects`, `GET /projects/{project_id}`, `PATCH /projects/{project_id}`, `PATCH /projects/{project_id}/lifecycle-configuration`, `POST /projects/{project_id}/reload`, `POST /projects/reload`, `POST /projects/{project_id}/owners/{user_id}`, `DELETE /projects/{project_id}/owners/{user_id}`
+- lifecycle and runtime: `POST /projects/{project_id}/lifecycle/{action}`, `GET /projects/{project_id}/runtime`
+
+## Current CLI Inventory
+
+The current implemented CLI surface includes:
+
+- system commands: `orchflow info`, `orchflow health`, `orchflow config`, `orchflow database`
+- authentication commands: `orchflow auth register`, `orchflow auth login`, `orchflow auth me`, `orchflow auth users`, `orchflow auth update-user`
+- project commands: `orchflow project register`, `orchflow project list`, `orchflow project show`, `orchflow project update`, `orchflow project configure-lifecycle`, `orchflow project reload`, `orchflow project reload-many`, `orchflow project add-owner`, `orchflow project remove-owner`
+- lifecycle commands: `orchflow lifecycle status`, `orchflow lifecycle start`, `orchflow lifecycle stop`, `orchflow lifecycle restart`
+- runtime command: `orchflow runtime inspect`
+- audit command: `orchflow audit events`
+- AI assistance commands: `orchflow ai status`, `orchflow ai health`, `orchflow ai models`, `orchflow ai manifest-create`, `orchflow ai manifest-show`, `orchflow ai proposal-create`, `orchflow ai proposal-show`, `orchflow ai proposal-review`, `orchflow ai proposal-apply`
+
 ## Main Relationships
 
 - depends on `Access Control`

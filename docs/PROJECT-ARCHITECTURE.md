@@ -14,7 +14,7 @@ The platform must centralize:
 - lifecycle control
 - runtime inspection
 - environment and local configuration management
-- user permissions
+- user roles and project ownership
 - operational history
 - external access through CLI, API, and interface layers
 
@@ -32,7 +32,7 @@ The AI assistance layer is optional and assistive. Its integration model uses `L
 - Expose runtime data such as ports, process identifiers, uptime, CPU, and memory
 - Support both command-line and programmatic access through mirrored external interfaces
 - Provide a simple visual interface for fast inspection and lifecycle control
-- Enforce authentication and authorization through application users and permissions
+- Enforce authentication and authorization through application users, roles, and project ownership
 - Establish a disciplined engineering foundation for Git, GitHub, testing, and CI
 
 ## Non-Goals For v0.3.18
@@ -49,8 +49,8 @@ These non-goals should not be treated as a reason to hard-couple the codebase ag
 
 ## Primary Actors
 
-- `member`: a regular user who can manage projects according to assigned permissions
-- `admin`: a privileged user with full platform access, including user visibility and permission management
+- `member`: a regular user who can manage projects they own
+- `admin`: a privileged user with full platform access, including user visibility, role management, and project ownership management
 
 ## Business Rules
 
@@ -58,7 +58,8 @@ These non-goals should not be treated as a reason to hard-couple the codebase ag
 
 - Each project must have a user-facing reference name
 - Each project must be associated with one or more authorized users
-- Ownership and permission rules must be enforced consistently across CLI, API, and interface channels
+- In the current implementation, project-level authorization is represented through ownership assignments plus the `admin` role, not through a separate generic permission table
+- Ownership and role-based access rules must be enforced consistently across CLI, API, and interface channels
 
 ### Lifecycle Control
 
@@ -139,7 +140,7 @@ The implementation should avoid speculative abstractions for possible future con
 ## Initial Domain Concepts
 
 - `User`
-- `Permission`
+- `Project Ownership`
 - `Project`
 - `Project Adapter`
 - `Project Lifecycle Script`
@@ -185,7 +186,7 @@ These interface clients should consume the API rather than bypassing the backend
 
 ## Persistence Direction
 
-`SQLite` is the initial persistence candidate because it supports a lightweight local-first workflow while still allowing robust enough storage for users, projects, permissions, lifecycle metadata, and audit events.
+`SQLite` is the initial persistence candidate because it supports a lightweight local-first workflow while still allowing robust enough storage for users, projects, ownership metadata, lifecycle metadata, and audit events.
 
 For `v0.3.18`, the selected backend persistence stack is `SQLite` with `SQLAlchemy` and `Alembic`.
 
