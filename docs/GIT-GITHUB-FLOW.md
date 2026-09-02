@@ -31,7 +31,7 @@ This means:
 - branches should be deleted after merge
 - work may be authored either by a human contributor or by an authorized AI agent using a dedicated repository identity
 
-This project should not adopt a heavy Git Flow model in `v0.3.17`.
+This project should not adopt a heavy Git Flow model in `v0.3.18`.
 
 The repository is still in an early product stage, so a simpler branch model reduces process weight and makes maintenance easier.
 
@@ -289,6 +289,8 @@ Git tags should use the format:
 
 The GitHub release title should match the tag version.
 
+Before publishing a release, maintainers should run the manual `OrchFlow - Release Validation` workflow with the intended tag. The workflow validates that the tag uses the documented format, matches the version in `pyproject.toml`, and produces a release-notes artifact from the Git commit history.
+
 ## Release Discipline
 
 Each release should include:
@@ -305,6 +307,8 @@ Before creating a release, confirm:
 - documentation is aligned
 - the repository is in a stable state
 - the version in project metadata matches the intended release
+- the manual release validation workflow passed for the intended tag
+- the generated release-notes artifact was reviewed
 
 ## Local Validation Before Pull Request
 
@@ -318,7 +322,7 @@ For the current backend baseline, the expected validation direction is:
 - `uv run alembic upgrade head`
 - `uv run pytest`
 
-The selected frontend package manager for `v0.3.17` is `pnpm`.
+The selected frontend package manager for `v0.3.18` is `pnpm`.
 
 The expected frontend validation direction is:
 
@@ -383,7 +387,7 @@ CI should continue evolving in stages.
 
 ### Stage 1
 
-The repository now has the backend and frontend quality baseline needed for `v0.3.17`.
+The repository now has the backend and frontend quality baseline needed for `v0.3.18`.
 
 ### Stage 2
 
@@ -398,9 +402,9 @@ As product workflows grow:
 
 Release automation:
 
-- version tag validation
-- changelog or release note generation support
-- release asset preparation if needed
+- version tag validation is available through a manual GitHub Actions workflow
+- release note generation support is available through a manual GitHub Actions artifact
+- release asset preparation remains future work if needed
 
 ## CD And DevOps Future Direction
 

@@ -24,6 +24,7 @@ Establish disciplined engineering workflows early so the codebase can evolve saf
 - semantic versioning
 - release hygiene
 - pull-request version bump discipline
+- manual tag validation and generated release-note artifacts
 
 ## Current Documentation Baseline
 
@@ -45,6 +46,7 @@ The repository now also includes:
 - a pull request template
 - issue templates for bugs, features, and focused tasks
 - a GitHub Actions workflow that validates backend quality, Alembic migrations, backend tests, frontend lint, frontend tests, and frontend build
+- a manual GitHub Actions release validation workflow that checks an intended release tag and uploads generated release notes
 - hardened Alembic migration validation that checks the revision graph and schema drift against SQLAlchemy metadata
 - backend OpenAPI contract coverage for authenticated operator routes and key response fields
 - focused AI API contract coverage for authentication, validation, safe gateway responses, proposal workflow response shapes, and application confirmations
@@ -58,6 +60,8 @@ The repository now also includes:
 - every pull request should evaluate and document the semantic version impact
 - version-bearing files should be updated in the same pull request when the change advances the system version
 - CI quality gates should be added early, even before full CD automation exists
+- release tags should be validated against project metadata before publication
+- generated release notes should remain reviewable artifacts rather than unreviewed publication output
 - migration validation and API contract checks should remain part of the backend validation baseline once persistence and HTTP routes exist
 - frontend lint, tests, and build should remain part of the validation baseline once web operator flows exist
 - GitHub configuration should enforce the documented review flow instead of relying on convention alone

@@ -145,6 +145,7 @@ At minimum, the project should prepare for:
 - automated tests
 - build verification
 - release tagging and changelog discipline
+- manual release tag validation and release-note artifact generation
 
 Deployment automation may be added later, but CI quality gates should be designed early.
 
@@ -167,7 +168,7 @@ The current implementation baseline is:
 
 ## Technology Decision Policy
 
-The core technology direction is now selected for `v0.3.17`.
+The core technology direction is now selected for `v0.3.18`.
 
 Future changes should still be evaluated according to:
 
