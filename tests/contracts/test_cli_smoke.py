@@ -42,7 +42,7 @@ def test_info_command_displays_bootstrap_metadata() -> None:
     result = runner.invoke(app, ["info"])
 
     assert result.exit_code == 0
-    assert "OrchFlow 0.3.19" in result.stdout
+    assert "OrchFlow 0.3.20" in result.stdout
     assert "stage: bootstrap" in result.stdout
 
 
@@ -96,6 +96,49 @@ def test_cli_auth_flow_registers_bootstrap_admin_and_lists_users(
     users_result = runner.invoke(app, ["auth", "users", "--token", token])
     assert users_result.exit_code == 0
     assert "role: admin" in users_result.stdout
+
+
+def test_cli_user_preferences_flow_is_available(isolated_environment: None) -> None:
+    runner.invoke(
+        app,
+        ["auth", "register", "--username", "preferences-user", "--password", "password123"],
+    )
+    login_result = runner.invoke(
+        app,
+        ["auth", "login", "--username", "preferences-user", "--password", "password123"],
+    )
+    token_line = next(
+        line for line in login_result.stdout.splitlines() if line.startswith("access_token: ")
+    )
+    token = token_line.removeprefix("access_token: ")
+
+    preferences_result = runner.invoke(app, ["auth", "preferences", "--token", token])
+
+    assert preferences_result.exit_code == 0
+    assert "locale: pt-BR" in preferences_result.stdout
+    assert "project_view_mode: list" in preferences_result.stdout
+    assert "status_refresh_interval_seconds: 30" in preferences_result.stdout
+
+    update_result = runner.invoke(
+        app,
+        [
+            "auth",
+            "update-preferences",
+            "--token",
+            token,
+            "--locale",
+            "en-US",
+            "--project-view-mode",
+            "table",
+            "--status-refresh-interval-seconds",
+            "45",
+        ],
+    )
+
+    assert update_result.exit_code == 0
+    assert "locale: en-US" in update_result.stdout
+    assert "project_view_mode: table" in update_result.stdout
+    assert "status_refresh_interval_seconds: 45" in update_result.stdout
 
 
 def test_cli_audit_history_flow_is_available(isolated_environment: None) -> None:

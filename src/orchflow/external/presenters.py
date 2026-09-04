@@ -21,6 +21,7 @@ from orchflow.domain.lifecycle_function_model import (
 )
 from orchflow.domain.project_registry import Project
 from orchflow.domain.runtime_inspection import RuntimeInspectionSnapshot
+from orchflow.domain.user_preferences import UserPreferences
 
 
 def render_user(user: User) -> str:
@@ -30,6 +31,17 @@ def render_user(user: User) -> str:
         f"username: {user.username}\n"
         f"role: {user.role.value}\n"
         f"is_active: {str(user.is_active).lower()}"
+    )
+
+
+def render_user_preferences(preferences: UserPreferences) -> str:
+    """Render user preferences into a simple CLI-friendly representation."""
+    return (
+        f"user_id: {preferences.user_id}\n"
+        f"locale: {preferences.locale.value}\n"
+        f"project_view_mode: {preferences.project_view_mode.value}\n"
+        "status_refresh_interval_seconds: "
+        f"{preferences.status_refresh_interval_seconds}"
     )
 
 

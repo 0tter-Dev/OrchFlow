@@ -53,6 +53,7 @@ function renderProjectListPanel(
     onRegisterProject: vi.fn(),
     onSearchQueryChange: vi.fn(),
     onSelectProject: vi.fn(),
+    projectViewMode: "list",
     projects: [],
     registrationMessage: null,
     searchQuery: "",
@@ -60,9 +61,9 @@ function renderProjectListPanel(
     ...overrides,
   };
 
-  render(<ProjectListPanel {...props} />);
+  const renderResult = render(<ProjectListPanel {...props} />);
 
-  return props;
+  return { props, ...renderResult };
 }
 
 describe("ProjectListPanel", () => {
@@ -155,6 +156,19 @@ describe("ProjectListPanel", () => {
     fireEvent.click(screen.getByRole("button", { name: /local-api/ }));
 
     expect(onSelectProject).toHaveBeenCalledWith(7);
+  });
+
+  it("renders project items with the preferred table display mode", () => {
+    const { container } = renderProjectListPanel({
+      projectViewMode: "table",
+      projects: managedProjects,
+      selectedProjectId: 7,
+    });
+
+    expect(container.querySelector(".project-list__items")).toHaveAttribute(
+      "data-view",
+      "table",
+    );
   });
 
   it("surfaces selected project readiness guidance", () => {

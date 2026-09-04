@@ -87,7 +87,8 @@ def test_alembic_upgrade_head_runs_against_local_sqlite(tmp_path: Path) -> None:
                 text(
                     "SELECT COUNT(*) FROM sqlite_master "
                     "WHERE type = 'table' AND name IN ("
-                    "'users', 'audit_events', 'lifecycle_function_decisions', "
+                    "'users', 'user_preferences', 'audit_events', "
+                    "'lifecycle_function_decisions', "
                     "'ai_authorized_context_manifests', 'ai_analysis_proposals', "
                     "'ai_analysis_proposal_reviews', "
                     "'ai_analysis_proposal_applications'"
@@ -96,7 +97,7 @@ def test_alembic_upgrade_head_runs_against_local_sqlite(tmp_path: Path) -> None:
             ).scalar_one()
     finally:
         engine.dispose()
-    assert table_count == 7
+    assert table_count == 8
 
 
 def test_alembic_revision_graph_has_single_base_and_head() -> None:
@@ -104,7 +105,7 @@ def test_alembic_revision_graph_has_single_base_and_head() -> None:
     script = ScriptDirectory.from_config(config)
 
     assert script.get_bases() == ["6bdc38282503"]
-    assert script.get_heads() == ["a3f2d9c8b1e7"]
+    assert script.get_heads() == ["b7c4e1d2a9f0"]
 
 
 def test_alembic_head_schema_matches_sqlalchemy_metadata(tmp_path: Path) -> None:

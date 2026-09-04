@@ -1,5 +1,7 @@
 import "./App.css";
 
+import { useEffect } from "react";
+
 import { AdminManagementPanel } from "../features/admin/components/AdminManagementPanel";
 import { useAdminManagement } from "../features/admin/hooks/useAdminManagement";
 import { AIAssistancePanel } from "../features/ai/components/AIAssistancePanel";
@@ -8,6 +10,8 @@ import { AuditEventsPanel } from "../features/audit/components/AuditEventsPanel"
 import { useAuditEvents } from "../features/audit/hooks/useAuditEvents";
 import { LoginPanel } from "../features/auth/components/LoginPanel";
 import { useAuthSession } from "../features/auth/hooks/useAuthSession";
+import { UserPreferencesPanel } from "../features/preferences/components/UserPreferencesPanel";
+import { useUserPreferences } from "../features/preferences/hooks/useUserPreferences";
 import { ProjectDetailPanel } from "../features/projects/components/ProjectDetailPanel";
 import { ProjectListPanel } from "../features/projects/components/ProjectListPanel";
 import { useProjectWorkspace } from "../features/projects/hooks/useProjectWorkspace";
@@ -21,6 +25,7 @@ export function App() {
   const authSession = useAuthSession();
   const adminManagement = useAdminManagement(authSession.token, authSession.currentUser);
   const auditEvents = useAuditEvents(authSession.token, authSession.currentUser);
+  const userPreferences = useUserPreferences(authSession.token);
   const projectWorkspace = useProjectWorkspace(authSession.token);
   const aiAssistance = useAIAssistance(
     authSession.token,
@@ -36,6 +41,30 @@ export function App() {
     ),
   );
   const { errorMessage, healthStatus, isLoading, lastUpdated, refresh } = useHealthStatus();
+  const preferences = userPreferences.preferences;
+  const refreshProjects = projectWorkspace.refresh;
+
+  useEffect(() => {
+    if (preferences === null) {
+      document.documentElement.lang = "pt-BR";
+      return;
+    }
+
+    document.documentElement.lang = preferences.locale;
+  }, [preferences]);
+
+  useEffect(() => {
+    if (authSession.currentUser === null || preferences === null) {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      refresh();
+      refreshProjects();
+    }, preferences.status_refresh_interval_seconds * 1000);
+
+    return () => window.clearInterval(intervalId);
+  }, [authSession.currentUser, preferences, refresh, refreshProjects]);
 
   return (
     <main className="app-shell">
@@ -112,6 +141,7 @@ export function App() {
               onRegisterProject={projectWorkspace.submitProjectRegistration}
               onSearchQueryChange={projectWorkspace.setSearchQuery}
               onSelectProject={projectWorkspace.selectProject}
+              projectViewMode={preferences?.project_view_mode ?? "list"}
               projects={projectWorkspace.projects}
               registrationMessage={projectWorkspace.registrationMessage}
               searchQuery={projectWorkspace.searchQuery}
@@ -150,6 +180,15 @@ export function App() {
                 isLoading={isLoading}
                 lastUpdated={lastUpdated}
                 onRefresh={refresh}
+              />
+              <UserPreferencesPanel
+                errorMessage={userPreferences.errorMessage}
+                isLoading={userPreferences.isLoading}
+                isSaving={userPreferences.isSaving}
+                message={userPreferences.message}
+                onRefresh={userPreferences.refresh}
+                onUpdate={userPreferences.update}
+                preferences={preferences}
               />
               <AdminManagementPanel
                 canManage={adminManagement.canManage}

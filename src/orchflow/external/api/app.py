@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Annotated, Literal
 
 from fastapi import FastAPI, Header, HTTPException, Query, status
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from orchflow.application.access_control import (
     AccessControlError,
@@ -66,6 +66,11 @@ from orchflow.application.services import (
     create_lifecycle_orchestration_service,
     create_project_registry_service,
     create_runtime_inspection_service,
+    create_user_preferences_service,
+)
+from orchflow.application.user_preferences import (
+    UpdateUserPreferencesCommand,
+    UserPreferencesError,
 )
 from orchflow.domain.access_control import AuditEvent, User, UserRole
 from orchflow.domain.lifecycle import LifecycleExecutionResult
@@ -75,6 +80,7 @@ from orchflow.domain.lifecycle_function_model import (
 )
 from orchflow.domain.project_registry import CanonicalLifecycleAction, MappingSource, Project
 from orchflow.domain.runtime_inspection import RuntimeInspectionSnapshot
+from orchflow.domain.user_preferences import ProjectViewMode, UserLocale, UserPreferences
 
 
 class StatusResponse(BaseModel):
@@ -129,6 +135,12 @@ class UpdateUserRequest(BaseModel):
     is_active: bool | None = None
 
 
+class UserPreferencesRequest(BaseModel):
+    locale: Literal["pt-BR", "en-US"] | None = None
+    project_view_mode: Literal["list", "table"] | None = None
+    status_refresh_interval_seconds: int | None = Field(default=None, ge=10, le=300)
+
+
 class LoginRequest(BaseModel):
     username: str
     password: str
@@ -138,6 +150,13 @@ class AccessTokenResponse(BaseModel):
     access_token: str
     token_type: str
     expires_in_seconds: int
+
+
+class UserPreferencesResponse(BaseModel):
+    user_id: int
+    locale: Literal["pt-BR", "en-US"]
+    project_view_mode: Literal["list", "table"]
+    status_refresh_interval_seconds: int
 
 
 class ProjectMappingRequest(BaseModel):
@@ -386,6 +405,17 @@ def _to_audit_event_response(event: AuditEvent) -> AuditEventResponse:
         target_id=event.target_id,
         details=event.details,
         created_at=event.created_at.isoformat(),
+    )
+
+
+def _to_user_preferences_response(
+    preferences: UserPreferences,
+) -> UserPreferencesResponse:
+    return UserPreferencesResponse(
+        user_id=preferences.user_id,
+        locale=preferences.locale.value,
+        project_view_mode=preferences.project_view_mode.value,
+        status_refresh_interval_seconds=preferences.status_refresh_interval_seconds,
     )
 
 
@@ -660,6 +690,7 @@ def _map_lifecycle_error(
 def create_app() -> FastAPI:
     bootstrap_service = create_bootstrap_service()
     access_control_service = create_access_control_service()
+    user_preferences_service = create_user_preferences_service()
     audit_history_service = create_audit_history_service()
     ai_assistance_service = create_ai_assistance_service()
     project_registry_service = create_project_registry_service()
@@ -742,6 +773,65 @@ def create_app() -> FastAPI:
         except AccessControlError as error:
             raise _map_access_control_error(error) from error
         return _to_user_response(user)
+
+    @app.get(
+        "/auth/me/preferences",
+        response_model=UserPreferencesResponse,
+        tags=["auth"],
+    )
+    def read_user_preferences(
+        authorization: str | None = Header(default=None),
+    ) -> UserPreferencesResponse:
+        token = _extract_bearer_token(authorization)
+        if token is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Missing bearer token.",
+            )
+        try:
+            preferences = user_preferences_service.get_preferences(token)
+        except AccessControlError as error:
+            raise _map_access_control_error(error) from error
+        return _to_user_preferences_response(preferences)
+
+    @app.patch(
+        "/auth/me/preferences",
+        response_model=UserPreferencesResponse,
+        tags=["auth"],
+    )
+    def update_user_preferences(
+        payload: UserPreferencesRequest,
+        authorization: str | None = Header(default=None),
+    ) -> UserPreferencesResponse:
+        token = _extract_bearer_token(authorization)
+        if token is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Missing bearer token.",
+            )
+        try:
+            preferences = user_preferences_service.update_preferences(
+                UpdateUserPreferencesCommand(
+                    token=token,
+                    locale=UserLocale(payload.locale) if payload.locale is not None else None,
+                    project_view_mode=(
+                        ProjectViewMode(payload.project_view_mode)
+                        if payload.project_view_mode is not None
+                        else None
+                    ),
+                    status_refresh_interval_seconds=(
+                        payload.status_refresh_interval_seconds
+                    ),
+                )
+            )
+        except AccessControlError as error:
+            raise _map_access_control_error(error) from error
+        except UserPreferencesError as error:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=str(error),
+            ) from error
+        return _to_user_preferences_response(preferences)
 
     @app.get("/auth/users", response_model=list[UserResponse], tags=["auth"])
     def list_users(authorization: str | None = Header(default=None)) -> list[UserResponse]:

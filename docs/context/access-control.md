@@ -36,6 +36,7 @@ Ensure that project visibility and lifecycle actions are restricted according to
 - admin user-management actions are audited
 - admin-only audit history filtering is implemented for actor, action, project, and time-window troubleshooting
 - project visibility and lifecycle access are enforced through the `admin` role or explicit project ownership
+- authenticated users can read and update their own web preferences through user-scoped contracts without requiring admin privileges
 
 ## Key Rules
 
@@ -45,6 +46,7 @@ Ensure that project visibility and lifecycle actions are restricted according to
 - at least one active admin user must remain available
 - the first registered user may become the bootstrap `admin` so the local-first installation can be initialized without a pre-provisioned account
 - API and CLI should expose the same authentication and authorization capabilities when those capabilities are intentionally available to operators
+- user preference access is scoped to the authenticated user and must not expose or mutate another user's preferences
 - a separate generic permission table is not part of the current implemented baseline
 
 ## Main Relationships

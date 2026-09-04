@@ -1,0 +1,140 @@
+.preferences-panel {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem;
+  border-radius: 24px;
+  background: rgba(8, 14, 25, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.preferences-panel__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.preferences-panel__eyebrow {
+  display: inline-flex;
+  margin-bottom: 0.35rem;
+  color: #99efe6;
+  font-size: 0.76rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.preferences-panel__title {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.preferences-panel__button,
+.preferences-panel__submit {
+  min-height: 2.75rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #f5efe2;
+  cursor: pointer;
+  font: inherit;
+  white-space: nowrap;
+}
+
+.preferences-panel__button:disabled,
+.preferences-panel__submit:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.preferences-panel__form {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.preferences-panel__field {
+  display: grid;
+  gap: 0.35rem;
+  color: rgba(245, 239, 226, 0.72);
+  font-size: 0.84rem;
+}
+
+.preferences-panel__field input,
+.preferences-panel__field select {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.72rem 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #f5efe2;
+  font: inherit;
+}
+
+.preferences-panel__field option {
+  color: #08101b;
+}
+
+.preferences-panel__mode {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.preferences-panel__mode legend {
+  margin-bottom: 0.35rem;
+  color: rgba(245, 239, 226, 0.72);
+  font-size: 0.84rem;
+}
+
+.preferences-panel__mode label {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 2.6rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.045);
+  color: rgba(245, 239, 226, 0.82);
+}
+
+.preferences-panel__mode input {
+  accent-color: #99efe6;
+}
+
+.preferences-panel__submit {
+  background: rgba(153, 239, 230, 0.14);
+  color: #c8fff9;
+  font-weight: 700;
+}
+
+.preferences-panel__notice,
+.preferences-panel__success {
+  padding: 0.95rem 1rem;
+  border-radius: 16px;
+  line-height: 1.7;
+}
+
+.preferences-panel__notice {
+  background: rgba(208, 72, 45, 0.14);
+  color: #ffd2c7;
+}
+
+.preferences-panel__success {
+  background: rgba(66, 168, 132, 0.14);
+  color: #bcffe4;
+}
+
+@media (max-width: 640px) {
+  .preferences-panel__header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .preferences-panel__button,
+  .preferences-panel__submit {
+    width: 100%;
+  }
+}

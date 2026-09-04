@@ -7,6 +7,7 @@ from orchflow.application.bootstrap import BootstrapStatusService
 from orchflow.application.lifecycle import LifecycleOrchestrationService
 from orchflow.application.project_registry import ProjectRegistryService
 from orchflow.application.runtime_inspection import RuntimeInspectionService
+from orchflow.application.user_preferences import UserPreferencesService
 from orchflow.infrastructure.ai.litellm_gateway import LiteLLMGatewayClient
 from orchflow.infrastructure.config.settings import AppSettings, get_settings
 from orchflow.infrastructure.persistence.ai_assistance_repository import (
@@ -17,6 +18,7 @@ from orchflow.infrastructure.persistence.project_registry_repository import (
 )
 from orchflow.infrastructure.persistence.repositories import (
     SqlAlchemyAuditHistoryRepository,
+    SqlAlchemyUserPreferencesRepository,
     SqlAlchemyUserRepository,
 )
 from orchflow.infrastructure.persistence.session import (
@@ -103,6 +105,18 @@ def create_audit_history_service(settings: AppSettings | None = None) -> AuditHi
     repository = SqlAlchemyAuditHistoryRepository(session_factory)
     access_control_service = create_access_control_service(current_settings)
     return AuditHistoryService(repository, access_control_service)
+
+
+def create_user_preferences_service(
+    settings: AppSettings | None = None,
+) -> UserPreferencesService:
+    """Create the user preferences application service."""
+    current_settings = settings or get_settings()
+    initialize_database(current_settings)
+    session_factory = create_session_factory(current_settings)
+    repository = SqlAlchemyUserPreferencesRepository(session_factory)
+    access_control_service = create_access_control_service(current_settings)
+    return UserPreferencesService(repository, access_control_service)
 
 
 def create_ai_assistance_service(

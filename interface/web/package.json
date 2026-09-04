@@ -1,7 +1,7 @@
 {
   "name": "orchflow-web",
   "private": true,
-  "version": "0.3.19",
+  "version": "0.3.20",
   "type": "module",
   "packageManager": "pnpm@11.19.0",
   "scripts": {

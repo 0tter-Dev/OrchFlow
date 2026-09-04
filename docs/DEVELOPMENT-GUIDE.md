@@ -168,7 +168,7 @@ The current implementation baseline is:
 
 ## Technology Decision Policy
 
-The core technology direction is now selected for `v0.3.19`.
+The core technology direction is now selected for `v0.3.20`.
 
 Future changes should still be evaluated according to:
 
