@@ -16,9 +16,67 @@ Implemented planning items should be removed from this document as work progress
 
 ## Next Implementation Roadmap
 
-The next implementation sequence should build on reload-aware and execution-gated lifecycle configuration before deeper LiteLLM-backed AI assistance. The ideal model now gives OrchFlow a stable reference for AI-assisted `.bat` improvement.
+The next implementation sequence should improve OrchFlow's own local initialization flow first, then reshape the web operator surface around daily project control, runtime visibility, and later dashboard growth. Each numbered step below is intended to fit one short-lived branch, one Conventional Commit, and one pull request.
 
-No upcoming Roadmap steps are currently defined. Add the next pull-request-sized step here before starting a new implementation cycle.
+1. `feat(devx): add Windows launcher bootstrap`
+
+   Objective: provide a Windows-first `orchflow-dev.bat` entrypoint that helps a newly cloned repository move from missing local setup to running `CLI`, `API`, and `web` surfaces with clear operator-facing checks.
+
+   Main scope: verify required local tools such as `uv`, Node/Corepack, and `pnpm`; create local `.env` files from committed examples without overwriting existing local files; install backend and web dependencies; run Alembic setup; validate basic CLI/API readiness; and start API plus Vite web development servers through explicit user-controlled steps.
+
+   Likely documentation updates: `docs/TO-DO.md`, `docs/STATUS.md`, `docs/USER-GUIDE.md`, `README.md`, and `docs/context/configuration-and-environment.md`.
+
+   Expected validation: launcher smoke test or static command-shape check where practical, `uv run ruff check .`, `uv run mypy src`, `uv run pytest`, and the relevant frontend install/build checks if the launcher touches web setup behavior.
+
+   Expected version decision: patch bump to `0.3.19`, because this adds a user-facing local setup workflow without changing OrchFlow's core product scope.
+
+2. `feat(preferences): add user web preferences`
+
+   Objective: persist lightweight per-user interface preferences so the web client can support future customization without relying only on browser-local state.
+
+   Main scope: add backend-owned user preference storage for locale, project view mode, and global status refresh interval; expose authenticated API and mirrored CLI access if intentionally surfaced; consume the preference contract from the web client; and keep defaults development-friendly.
+
+   Likely documentation updates: `docs/TO-DO.md`, `docs/STATUS.md`, `docs/USER-GUIDE.md`, `docs/INDEX.md` if relationships change, and `docs/context/access-control.md`, `docs/context/interface-layer.md`, and `docs/context/persistence-and-audit.md`.
+
+   Expected validation: Alembic migration validation, backend contract and integration tests for preference authorization and defaults, frontend tests for preference loading and updates, `uv run ruff check .`, `uv run mypy src`, `uv run pytest`, `pnpm lint`, `pnpm test`, and `pnpm build`.
+
+   Expected version decision: patch bump to `0.3.20`, because this adds a narrow authenticated preference capability and persistence contract inside the current `0.3.x` line.
+
+3. `feat(runtime): add batch runtime inspection`
+
+   Objective: let the web operator surface refresh status for visible projects without issuing only one selected-project runtime request at a time.
+
+   Main scope: add an application-level use case for inspecting multiple authorized projects, expose it through API and CLI, preserve role plus ownership checks, return compact per-project runtime summaries, and keep runtime snapshot persistence deferred unless a concrete history need is introduced.
+
+   Likely documentation updates: `docs/TO-DO.md`, `docs/STATUS.md`, `docs/USER-GUIDE.md`, `docs/INDEX.md` if relationships change, and `docs/context/runtime-inspection.md`, `docs/context/external-surfaces.md`, and `docs/context/interface-layer.md`.
+
+   Expected validation: backend authorization tests, API and CLI contract coverage for multi-project inspection, runtime inspection tests for partial failures or unsupported projects, `uv run ruff check .`, `uv run mypy src`, and `uv run pytest`.
+
+   Expected version decision: patch bump to `0.3.21`, because this expands an existing runtime capability through mirrored external surfaces without changing the local-first architecture.
+
+4. `feat(web): redesign operator workspace`
+
+   Objective: replace the current bootstrap-style web presentation with a practical daily operator workspace inspired by tools such as Docker Desktop while staying specific to OrchFlow's local `.bat` lifecycle model.
+
+   Main scope: remove hero-oriented presentation from the authenticated workspace; add a compact application shell with project navigation, toolbar, project list/table mode, lifecycle action buttons, runtime status summaries, readiness warnings, settings entrypoints, and simple `pt-BR` plus `en-US` text dictionaries; add `lucide-react` for recognizable action icons; and use backend preferences plus batch runtime inspection when available.
+
+   Likely documentation updates: `docs/TO-DO.md`, `docs/STATUS.md`, `docs/USER-GUIDE.md`, `README.md`, and `docs/context/interface-layer.md`.
+
+   Expected validation: critical web-flow tests for project selection, lifecycle action availability, readiness indicators, view-mode switching, locale switching, refresh interval behavior, and responsive layout basics; `pnpm lint`, `pnpm test`, and `pnpm build`; backend validation only if this PR touches shared contracts.
+
+   Expected version decision: patch bump to `0.3.22`, because this is a meaningful web UX improvement built on existing product capabilities inside the current milestone line.
+
+5. `feat(registry): add project unlink workflow`
+
+   Objective: let users remove a project from their OrchFlow workspace without deleting the local project folder or lifecycle `.bat` file.
+
+   Main scope: add a registry-owned unlink operation with authorization, audit events, API and CLI exposure, web action affordance, clear copy that the local files are preserved, and admin/member behavior aligned with the current ownership model.
+
+   Likely documentation updates: `docs/TO-DO.md`, `docs/STATUS.md`, `docs/USER-GUIDE.md`, `docs/INDEX.md` if relationships change, and `docs/context/project-registry.md`, `docs/context/external-surfaces.md`, `docs/context/interface-layer.md`, and `docs/context/persistence-and-audit.md`.
+
+   Expected validation: backend registry tests, authorization tests, API and CLI contract tests, web tests for unlink confirmation and list refresh, `uv run ruff check .`, `uv run mypy src`, `uv run pytest`, `pnpm lint`, `pnpm test`, and `pnpm build`.
+
+   Expected version decision: patch bump to `0.3.23`, because this adds a focused project registry capability with visible API, CLI, and web behavior.
 
 ## Cross-Cutting Rules
 
