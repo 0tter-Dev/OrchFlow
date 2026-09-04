@@ -75,7 +75,7 @@ Defines source-control, validation, and CI/CD expectations.
 
 ## Relationship Overview
 
-`Access Control` governs who can see and control a `Project`, including admin user-management rules. The current permission model is role-based administration plus project ownership, not a separate generic permission table.
+`Access Control` governs who can see and control a `Project`, including admin user-management rules and user-scoped preference access. The current permission model is role-based administration plus project ownership, not a separate generic permission table.
 
 `Project Registry` stores and normalizes the metadata needed for a project to exist inside OrchFlow, including project ownership assignments, editable project metadata and script paths, lifecycle action mappings, and lifecycle function configuration state.
 
@@ -95,8 +95,8 @@ Project reload workflows now let users explicitly reread one or more lifecycle s
 
 `External Surfaces` expose use cases from the core application without redefining business logic.
 
-`Interface Layer` depends on the API-facing surface for data presentation and control actions across different client implementations, including guided operational readiness for lifecycle configuration, runtime diagnostics, and contextual API or validation error notices in the web workspace.
+`Interface Layer` depends on the API-facing surface for data presentation and control actions across different client implementations, including backend-owned user preferences, guided operational readiness for lifecycle configuration, runtime diagnostics, and contextual API or validation error notices in the web workspace.
 
-`Persistence And Audit` supports all core modules by storing users, project ownership, projects, lifecycle events, and filtered recent audit history for admin troubleshooting.
+`Persistence And Audit` supports all core modules by storing users, user preferences, project ownership, projects, lifecycle events, and filtered recent audit history for admin troubleshooting.
 
 `DevOps And Delivery` governs how the project itself is built, reviewed, tested, and released.

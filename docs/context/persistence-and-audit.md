@@ -19,6 +19,7 @@ The preferred initial persistence direction is `SQLite`.
 ## Target Stored Data
 
 - users
+- user interface preferences
 - role and ownership authorization metadata
 - projects
 - project ownership metadata
@@ -34,6 +35,8 @@ The preferred initial persistence direction is `SQLite`.
 
 - audit events are persisted in local `SQLite` storage
 - access-control operations record user registration, login, and admin user listing events
+- per-user web preferences are persisted in local `SQLite` storage with backend defaults for locale, project display mode, and status refresh interval
+- preference changes record `user.preferences.update` audit events for the authenticated user when a submitted update changes stored behavior
 - project registry operations record project registration, list, and read events
 - project metadata, lifecycle script-path, and lifecycle configuration updates are persisted and audited through registry-owned workflows
 - registry reload operations and automatic mapping refreshes are audited
@@ -59,6 +62,7 @@ The preferred initial persistence direction is `SQLite`.
 - AI proposal approval and rejection decisions should be auditable
 - approved proposal applications should be auditable as file-write and mapping-persistence events owned by OrchFlow rather than LiteLLM
 - lifecycle action mapping changes should be auditable with user attribution
+- user preference changes should be auditable with user attribution while reads remain unaudited
 - project metadata and lifecycle script path changes should be auditable with user attribution
 - project reload and lifecycle configuration health changes should be auditable when they affect controllability or operator guidance
 - runtime snapshot persistence remains intentionally deferred after evaluation in the runtime maturity milestone; audit events and on-demand inspection remain the current history baseline

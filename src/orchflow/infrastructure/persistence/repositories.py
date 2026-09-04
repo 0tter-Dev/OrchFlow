@@ -11,8 +11,14 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from orchflow.application.access_control import UserRepository
 from orchflow.application.audit_history import AuditEventFilters, AuditHistoryRepository
+from orchflow.application.user_preferences import UserPreferencesRepository
 from orchflow.domain.access_control import AuditEvent, User, UserRole
-from orchflow.infrastructure.persistence.models import AuditEventModel, UserModel
+from orchflow.domain.user_preferences import ProjectViewMode, UserLocale, UserPreferences
+from orchflow.infrastructure.persistence.models import (
+    AuditEventModel,
+    UserModel,
+    UserPreferenceModel,
+)
 
 
 def _to_audit_event(model: AuditEventModel) -> AuditEvent:
@@ -39,6 +45,15 @@ def _to_user(model: UserModel) -> User:
         created_at=model.created_at,
         updated_at=model.updated_at,
         last_login_at=model.last_login_at,
+    )
+
+
+def _to_user_preferences(model: UserPreferenceModel) -> UserPreferences:
+    return UserPreferences(
+        user_id=model.user_id,
+        locale=UserLocale(model.locale),
+        project_view_mode=ProjectViewMode(model.project_view_mode),
+        status_refresh_interval_seconds=model.status_refresh_interval_seconds,
     )
 
 
@@ -209,6 +224,81 @@ class SqlAlchemyUserRepository(UserRepository):
             session.flush()
             session.refresh(model)
             return _to_user(model)
+
+    def record_audit_event(
+        self,
+        *,
+        actor_user_id: int | None,
+        action: str,
+        target_type: str,
+        target_id: str | None,
+        details: str | None,
+    ) -> None:
+        with self._session_scope() as session:
+            session.add(
+                AuditEventModel(
+                    actor_user_id=actor_user_id,
+                    action=action,
+                    target_type=target_type,
+                    target_id=target_id,
+                    details=details,
+                )
+            )
+
+
+class SqlAlchemyUserPreferencesRepository(UserPreferencesRepository):
+    """SQLAlchemy-backed repository for user-owned interface preferences."""
+
+    def __init__(self, session_factory: sessionmaker[Session]) -> None:
+        self._session_factory = session_factory
+
+    @contextmanager
+    def _session_scope(self) -> Iterator[Session]:
+        session = self._session_factory()
+        try:
+            yield session
+            session.commit()
+        except Exception:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
+    def get_preferences_by_user_id(self, user_id: int) -> UserPreferences | None:
+        with self._session_scope() as session:
+            model = (
+                session.execute(
+                    select(UserPreferenceModel).where(
+                        UserPreferenceModel.user_id == user_id
+                    )
+                )
+                .scalars()
+                .one_or_none()
+            )
+            return _to_user_preferences(model) if model else None
+
+    def upsert_preferences(self, preferences: UserPreferences) -> UserPreferences:
+        with self._session_scope() as session:
+            model = (
+                session.execute(
+                    select(UserPreferenceModel).where(
+                        UserPreferenceModel.user_id == preferences.user_id
+                    )
+                )
+                .scalars()
+                .one_or_none()
+            )
+            if model is None:
+                model = UserPreferenceModel(user_id=preferences.user_id)
+            model.locale = preferences.locale.value
+            model.project_view_mode = preferences.project_view_mode.value
+            model.status_refresh_interval_seconds = (
+                preferences.status_refresh_interval_seconds
+            )
+            session.add(model)
+            session.flush()
+            session.refresh(model)
+            return _to_user_preferences(model)
 
     def record_audit_event(
         self,

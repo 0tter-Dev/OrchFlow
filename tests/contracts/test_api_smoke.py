@@ -35,7 +35,7 @@ def test_root_returns_bootstrap_metadata() -> None:
     assert response.status_code == 200
     assert response.json() == {
         "name": "OrchFlow",
-        "version": "0.3.19",
+        "version": "0.3.20",
         "status": "ok",
         "stage": "bootstrap",
     }
@@ -99,6 +99,48 @@ def test_auth_flow_registers_bootstrap_admin_and_lists_users(
     users_response = client.get("/auth/users", headers={"Authorization": f"Bearer {token}"})
     assert users_response.status_code == 200
     assert len(users_response.json()) == 1
+
+
+def test_user_preferences_flow_is_exposed_in_api(isolated_environment: None) -> None:
+    client = TestClient(create_app())
+
+    client.post(
+        "/auth/register",
+        json={"username": "preferences-user", "password": "password123"},
+    )
+    login_response = client.post(
+        "/auth/login",
+        json={"username": "preferences-user", "password": "password123"},
+    )
+    token = login_response.json()["access_token"]
+
+    preferences_response = client.get(
+        "/auth/me/preferences",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    assert preferences_response.status_code == 200
+    assert preferences_response.json() == {
+        "user_id": 1,
+        "locale": "pt-BR",
+        "project_view_mode": "list",
+        "status_refresh_interval_seconds": 30,
+    }
+
+    update_response = client.patch(
+        "/auth/me/preferences",
+        headers={"Authorization": f"Bearer {token}"},
+        json={
+            "locale": "en-US",
+            "project_view_mode": "table",
+            "status_refresh_interval_seconds": 45,
+        },
+    )
+
+    assert update_response.status_code == 200
+    assert update_response.json()["locale"] == "en-US"
+    assert update_response.json()["project_view_mode"] == "table"
+    assert update_response.json()["status_refresh_interval_seconds"] == 45
 
 
 def test_audit_history_flow_is_exposed_in_api(isolated_environment: None) -> None:

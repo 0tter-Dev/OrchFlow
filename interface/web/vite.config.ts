@@ -4,6 +4,7 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   plugins: [react()],
   server: {
+    port: 5174,
     proxy: {
       "/orchflow-api": {
         rewrite: (path) => path.replace(/^\/orchflow-api/, ""),

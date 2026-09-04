@@ -39,6 +39,14 @@ When backend requests fail in the web workspace, the interface now shows context
 - `member` users work with projects they own
 - `admin` users can manage all projects, user roles, activation state, and project ownership
 
+Authenticated users can also inspect and update their own web preferences. The implemented preference set stores the operator locale, project display mode, and status refresh interval in the backend instead of relying only on browser-local state. Available commands and routes are:
+
+- `CLI`: `orchflow auth preferences --token <TOKEN>`
+- `CLI`: `orchflow auth update-preferences --token <TOKEN> --locale pt-BR --project-view-mode table --status-refresh-interval-seconds 45`
+- `API`: `GET /auth/me/preferences`
+- `API`: `PATCH /auth/me/preferences`
+- `web`: the preferences panel in the authenticated workspace
+
 ### 2. Register A Project
 
 The user chooses one of the supported registration paths.

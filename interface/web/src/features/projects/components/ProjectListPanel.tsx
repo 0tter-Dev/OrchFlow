@@ -5,6 +5,7 @@ import type { FormEvent } from "react";
 
 import { ErrorNotice } from "../../../shared/components/ErrorNotice";
 import type { UserSummary } from "../../../shared/types/auth";
+import type { ProjectViewMode } from "../../../shared/types/preferences";
 import type {
   CanonicalLifecycleAction,
   ProjectRegistrationInput,
@@ -20,6 +21,7 @@ type ProjectListPanelProps = {
   onRegisterProject: (registrationInput: ProjectRegistrationInput) => void;
   onSearchQueryChange: (searchQuery: string) => void;
   onSelectProject: (projectId: number) => void;
+  projectViewMode: ProjectViewMode;
   projects: ProjectSummary[];
   registrationMessage: string | null;
   searchQuery: string;
@@ -133,6 +135,7 @@ export function ProjectListPanel({
   onRegisterProject,
   onSearchQueryChange,
   onSelectProject,
+  projectViewMode,
   projects,
   registrationMessage,
   searchQuery,
@@ -297,7 +300,7 @@ export function ProjectListPanel({
           lifecycle `.bat` script to start operating it from this workspace.
         </div>
       ) : (
-        <div className="project-list__items">
+        <div className="project-list__items" data-view={projectViewMode}>
           {projects.map((project) => (
             <button
               className="project-list__item"

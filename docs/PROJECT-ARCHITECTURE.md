@@ -20,7 +20,7 @@ The platform must centralize:
 
 ## Core Principle
 
-In `v0.3.19`, every managed project must have a concrete lifecycle control definition based on a Windows `.bat` script. This script is the authoritative operational contract used by OrchFlow to control the project lifecycle.
+In `v0.3.20`, every managed project must have a concrete lifecycle control definition based on a Windows `.bat` script. This script is the authoritative operational contract used by OrchFlow to control the project lifecycle.
 
 The AI assistance layer is optional and assistive. Its integration model uses `LiteLLM` as the central gateway for connecting to local or configured AI models and agents, while OrchFlow keeps a dedicated adapter boundary responsible for context selection, file access control, authorization, validation, review workflow, and final user approval. The implemented boundary reports authenticated, audited LiteLLM configuration status, gateway health, model discovery, authorized context manifests, reviewable analysis proposals, proposal review decisions, explicit application of approved proposals, and web review/application controls. Proposal creation may send only manifest-approved context to LiteLLM and persists structured proposal data without writing `.bat` files. Proposal approval validates the candidate `.bat` script against first-argument dispatch, required canonical actions, and proposed mapping consistency. Proposal application is a separate confirmed step that writes or overwrites the lifecycle `.bat`, persists effective mappings as `ai_approved`, records a dedicated application record, and reuses Project Registry validation before the project becomes operational. LiteLLM may connect to providers such as local `Ollama` or other explicitly configured model backends, but it must not replace the explicit `.bat` script contract or OrchFlow's business rules.
 
@@ -35,7 +35,7 @@ The AI assistance layer is optional and assistive. Its integration model uses `L
 - Enforce authentication and authorization through application users, roles, and project ownership
 - Establish a disciplined engineering foundation for Git, GitHub, testing, and CI
 
-## Non-Goals For v0.3.19
+## Non-Goals For v0.3.20
 
 - Container orchestration
 - Multi-host orchestration
@@ -82,6 +82,12 @@ These non-goals should not be treated as a reason to hard-couple the codebase ag
 - Runtime inspection must not be implemented as a UI-only concern
 - users should be able to explicitly reload one or more registered projects so OrchFlow can reread lifecycle scripts, refresh detected functions, preserve valid user decisions, surface changed mappings, and audit configuration-health changes without relying on automatic filesystem watching
 
+### User Preferences
+
+- authenticated users should be able to persist lightweight interface preferences such as locale, project display mode, and status refresh interval
+- user preferences are scoped to the authenticated user and should be exposed through backend contracts consumed by interface clients
+- preference persistence must remain optional to operational control and must not affect project authorization or lifecycle execution rules
+
 ### AI Agent Assistance
 
 - AI analysis is optional
@@ -123,12 +129,13 @@ OrchFlow should:
 - inspect runtime state
 - load and validate environment configuration
 - persist relevant metadata and operational history
+- persist authenticated user preferences used by interface clients
 - authenticate users
 - authorize access to projects and actions
 - mediate optional AI-assisted project analysis and script generation
 - expose consistent operational capabilities through CLI, API, and interface adapters
 
-OrchFlow should not, in `v0.3.19`:
+OrchFlow should not, in `v0.3.20`:
 
 - behave as a container orchestrator
 - assume remote infrastructure control
@@ -153,6 +160,7 @@ The implementation should avoid speculative abstractions for possible future con
 - `Runtime Snapshot`
 - `Metric Snapshot`
 - `Lifecycle Event`
+- `User Preferences`
 - `AI Assistance Adapter`
 - `LiteLLM Gateway`
 - `AI Analysis Session`
@@ -186,9 +194,9 @@ These interface clients should consume the API rather than bypassing the backend
 
 ## Persistence Direction
 
-`SQLite` is the initial persistence candidate because it supports a lightweight local-first workflow while still allowing robust enough storage for users, projects, ownership metadata, lifecycle metadata, and audit events.
+`SQLite` is the initial persistence candidate because it supports a lightweight local-first workflow while still allowing robust enough storage for users, user preferences, projects, ownership metadata, lifecycle metadata, and audit events.
 
-For `v0.3.19`, the selected backend persistence stack is `SQLite` with `SQLAlchemy` and `Alembic`.
+For `v0.3.20`, the selected backend persistence stack is `SQLite` with `SQLAlchemy` and `Alembic`.
 
 ## Selected Technology Direction
 

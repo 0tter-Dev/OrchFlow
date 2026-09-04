@@ -19,6 +19,8 @@ def test_openapi_contract_exposes_current_operator_routes() -> None:
         ("/ai/status", "get"),
         ("/auth/login", "post"),
         ("/auth/me", "get"),
+        ("/auth/me/preferences", "get"),
+        ("/auth/me/preferences", "patch"),
         ("/auth/users", "get"),
         ("/auth/users/{user_id}", "patch"),
         ("/audit/events", "get"),
@@ -56,6 +58,16 @@ def test_project_openapi_contract_includes_ownership_metadata() -> None:
 
     assert "owner_user_ids" in project_properties
     assert "created_by_user_id" in project_properties
+
+
+def test_user_preferences_openapi_contract_includes_web_preferences() -> None:
+    schema = create_app().openapi()
+    preferences_schema = schema["components"]["schemas"]["UserPreferencesResponse"]
+    preferences_properties = preferences_schema["properties"]
+
+    assert "locale" in preferences_properties
+    assert "project_view_mode" in preferences_properties
+    assert "status_refresh_interval_seconds" in preferences_properties
 
 
 def test_project_openapi_contract_includes_lifecycle_configuration_metadata() -> None:

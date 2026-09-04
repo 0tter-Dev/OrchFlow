@@ -56,9 +56,15 @@ from orchflow.application.services import (
     create_lifecycle_orchestration_service,
     create_project_registry_service,
     create_runtime_inspection_service,
+    create_user_preferences_service,
+)
+from orchflow.application.user_preferences import (
+    UpdateUserPreferencesCommand,
+    UserPreferencesError,
 )
 from orchflow.domain.access_control import AccessToken, UserRole
 from orchflow.domain.project_registry import CanonicalLifecycleAction, MappingSource
+from orchflow.domain.user_preferences import ProjectViewMode, UserLocale
 from orchflow.external.presenters import (
     render_ai_analysis_proposal,
     render_ai_analysis_proposal_application,
@@ -73,6 +79,7 @@ from orchflow.external.presenters import (
     render_project_reload_result,
     render_runtime_snapshot,
     render_user,
+    render_user_preferences,
 )
 
 app = typer.Typer(
@@ -283,6 +290,44 @@ def me(token: str = typer.Option(...)) -> None:
     except AccessControlError as error:
         _exit_with_error(error)
     typer.echo(render_user(user))
+
+
+@auth_app.command("preferences")
+def preferences(token: str = typer.Option(...)) -> None:
+    """Show preferences for the currently authenticated user."""
+    service = create_user_preferences_service()
+    try:
+        current_preferences = service.get_preferences(token)
+    except AccessControlError as error:
+        _exit_with_error(error)
+    typer.echo(render_user_preferences(current_preferences))
+
+
+@auth_app.command("update-preferences")
+def update_preferences(
+    token: str = typer.Option(...),
+    locale: str | None = typer.Option(default=None),
+    project_view_mode: str | None = typer.Option(default=None),
+    status_refresh_interval_seconds: int | None = typer.Option(default=None),
+) -> None:
+    """Update preferences for the currently authenticated user."""
+    service = create_user_preferences_service()
+    try:
+        current_preferences = service.update_preferences(
+            UpdateUserPreferencesCommand(
+                token=token,
+                locale=UserLocale(locale) if locale is not None else None,
+                project_view_mode=(
+                    ProjectViewMode(project_view_mode)
+                    if project_view_mode is not None
+                    else None
+                ),
+                status_refresh_interval_seconds=status_refresh_interval_seconds,
+            )
+        )
+    except (AccessControlError, UserPreferencesError, ValueError) as error:
+        _exit_with_error(error)
+    typer.echo(render_user_preferences(current_preferences))
 
 
 @auth_app.command("users")
