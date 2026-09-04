@@ -12,6 +12,13 @@ Provide a clear, versioned, environment-based configuration contract for local d
 
 `in_progress`
 
+## Implemented Baseline
+
+- validated settings loading, path normalization, runtime directory creation, and disabled-by-default LiteLLM settings are implemented
+- `.env.example` and `interface/web/.env.example` define the current local configuration examples
+- `orchflow-dev.bat` can create local `.env` files from those committed examples when the target files do not already exist
+- the launcher preserves existing local `.env` files and reports missing required local tools instead of installing global software automatically
+
 ## Direction
 
 OrchFlow should adopt:
