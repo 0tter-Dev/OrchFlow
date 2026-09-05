@@ -29,6 +29,7 @@ def test_openapi_contract_exposes_current_operator_routes() -> None:
         ("/projects/reload", "post"),
         ("/projects/{project_id}", "get"),
         ("/projects/{project_id}", "patch"),
+        ("/projects/{project_id}", "delete"),
         ("/projects/{project_id}/lifecycle-configuration", "patch"),
         ("/projects/{project_id}/lifecycle/{action}", "post"),
         ("/projects/{project_id}/owners/{user_id}", "post"),
@@ -89,6 +90,20 @@ def test_project_reload_openapi_contract_includes_change_metadata() -> None:
     assert "previous_lifecycle_configuration_health" in reload_properties
     assert "current_lifecycle_configuration_health" in reload_properties
     assert "changed_actions" in reload_properties
+
+
+def test_project_unlink_openapi_contract_includes_file_preservation_flag() -> None:
+    schema = create_app().openapi()
+    unlink_schema = schema["components"]["schemas"]["ProjectUnlinkResponse"]
+    unlink_properties = unlink_schema["properties"]
+
+    assert "project_id" in unlink_properties
+    assert "reference_name" in unlink_properties
+    assert "project_root_path" in unlink_properties
+    assert "lifecycle_script_path" in unlink_properties
+    assert "local_files_preserved" in unlink_properties
+    assert "registry_entry_removed" in unlink_properties
+    assert "unlinked_owner_user_id" in unlink_properties
 
 
 def test_ai_assistance_openapi_contract_includes_safe_gateway_status() -> None:

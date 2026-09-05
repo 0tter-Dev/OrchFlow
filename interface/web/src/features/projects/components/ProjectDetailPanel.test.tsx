@@ -91,6 +91,7 @@ describe("ProjectDetailPanel", () => {
         errorMessage={null}
         isLoadingDetail={false}
         isReloadingProject={false}
+        isUnlinkingProject={false}
         isUpdatingProject={false}
         isUpdatingLifecycleConfiguration={false}
         lifecycleResult={null}
@@ -98,11 +99,13 @@ describe("ProjectDetailPanel", () => {
         onRefreshProject={vi.fn()}
         onReloadProject={vi.fn()}
         onRunLifecycleAction={vi.fn()}
+        onUnlinkProject={vi.fn()}
         onUpdateProject={vi.fn()}
         onUpdateLifecycleConfiguration={vi.fn()}
         projectUpdateMessage={null}
         runtimeSnapshot={runtimeSnapshot}
         selectedProject={selectedProject}
+        unlinkMessage={null}
       />,
     );
 
@@ -132,6 +135,7 @@ describe("ProjectDetailPanel", () => {
         errorMessage={null}
         isLoadingDetail={false}
         isReloadingProject={false}
+        isUnlinkingProject={false}
         isUpdatingProject={false}
         isUpdatingLifecycleConfiguration={false}
         lifecycleResult={null}
@@ -139,11 +143,13 @@ describe("ProjectDetailPanel", () => {
         onRefreshProject={vi.fn()}
         onReloadProject={vi.fn()}
         onRunLifecycleAction={onRunLifecycleAction}
+        onUnlinkProject={vi.fn()}
         onUpdateProject={vi.fn()}
         onUpdateLifecycleConfiguration={vi.fn()}
         projectUpdateMessage={null}
         runtimeSnapshot={runtimeSnapshot}
         selectedProject={selectedProject}
+        unlinkMessage={null}
       />,
     );
 
@@ -163,6 +169,7 @@ describe("ProjectDetailPanel", () => {
         errorMessage={null}
         isLoadingDetail={false}
         isReloadingProject={false}
+        isUnlinkingProject={false}
         isUpdatingProject={false}
         isUpdatingLifecycleConfiguration={false}
         lifecycleResult={null}
@@ -170,11 +177,13 @@ describe("ProjectDetailPanel", () => {
         onRefreshProject={vi.fn()}
         onReloadProject={vi.fn()}
         onRunLifecycleAction={vi.fn()}
+        onUnlinkProject={vi.fn()}
         onUpdateProject={vi.fn()}
         onUpdateLifecycleConfiguration={onUpdateLifecycleConfiguration}
         projectUpdateMessage={null}
         runtimeSnapshot={runtimeSnapshot}
         selectedProject={selectedProject}
+        unlinkMessage={null}
       />,
     );
 
@@ -215,6 +224,7 @@ describe("ProjectDetailPanel", () => {
         errorMessage={null}
         isLoadingDetail={false}
         isReloadingProject={false}
+        isUnlinkingProject={false}
         isUpdatingProject={false}
         isUpdatingLifecycleConfiguration={false}
         lifecycleResult={null}
@@ -222,11 +232,13 @@ describe("ProjectDetailPanel", () => {
         onRefreshProject={vi.fn()}
         onReloadProject={vi.fn()}
         onRunLifecycleAction={vi.fn()}
+        onUnlinkProject={vi.fn()}
         onUpdateProject={onUpdateProject}
         onUpdateLifecycleConfiguration={vi.fn()}
         projectUpdateMessage={null}
         runtimeSnapshot={runtimeSnapshot}
         selectedProject={selectedProject}
+        unlinkMessage={null}
       />,
     );
 
@@ -251,5 +263,44 @@ describe("ProjectDetailPanel", () => {
       project_root_path: "E:/Projects/edited",
       reference_name: "edited-project",
     });
+  });
+
+  it("confirms project unlink without implying local file deletion", () => {
+    const onUnlinkProject = vi.fn();
+
+    render(
+      <ProjectDetailPanel
+        activeAction={null}
+        configurationMessage={null}
+        currentUser={currentUser}
+        errorMessage={null}
+        isLoadingDetail={false}
+        isReloadingProject={false}
+        isUnlinkingProject={false}
+        isUpdatingProject={false}
+        isUpdatingLifecycleConfiguration={false}
+        lifecycleResult={null}
+        onLogout={vi.fn()}
+        onRefreshProject={vi.fn()}
+        onReloadProject={vi.fn()}
+        onRunLifecycleAction={vi.fn()}
+        onUnlinkProject={onUnlinkProject}
+        onUpdateProject={vi.fn()}
+        onUpdateLifecycleConfiguration={vi.fn()}
+        projectUpdateMessage={null}
+        runtimeSnapshot={runtimeSnapshot}
+        selectedProject={selectedProject}
+        unlinkMessage={null}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Unlink" }));
+
+    expect(screen.getByRole("dialog", { name: "Unlink project" })).toBeInTheDocument();
+    expect(screen.getByText(/The project folder and lifecycle script stay on disk/)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Confirm unlink" }));
+
+    expect(onUnlinkProject).toHaveBeenCalledOnce();
   });
 });

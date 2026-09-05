@@ -42,7 +42,7 @@ def test_info_command_displays_bootstrap_metadata() -> None:
     result = runner.invoke(app, ["info"])
 
     assert result.exit_code == 0
-    assert "OrchFlow 0.3.22" in result.stdout
+    assert "OrchFlow 0.3.23" in result.stdout
     assert "stage: bootstrap" in result.stdout
 
 
@@ -632,9 +632,19 @@ def test_cli_project_registry_flow_is_available(
     assert "reference_name: cli-project-renamed" in update_result.stdout
     assert "start: START (user_defined)" in update_result.stdout
 
+    unlink_result = runner.invoke(
+        app,
+        ["project", "unlink", "--token", token, "--project-id", project_id],
+    )
+    assert unlink_result.exit_code == 0
+    assert "reference_name: cli-project-renamed" in unlink_result.stdout
+    assert "local_files_preserved: true" in unlink_result.stdout
+    assert "registry_entry_removed: true" in unlink_result.stdout
+    assert replacement_script.exists()
+
     list_result = runner.invoke(app, ["project", "list", "--token", token])
     assert list_result.exit_code == 0
-    assert "reference_name: cli-project-renamed" in list_result.stdout
+    assert "reference_name: cli-project-renamed" not in list_result.stdout
 
 
 def test_cli_project_lifecycle_configuration_flow_is_available(

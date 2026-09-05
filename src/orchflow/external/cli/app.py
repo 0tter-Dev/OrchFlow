@@ -43,6 +43,7 @@ from orchflow.application.project_registry import (
     RegisterProjectCommand,
     ReloadProjectCommand,
     ReloadProjectsCommand,
+    UnlinkProjectCommand,
     UpdateLifecycleFunctionConfigurationCommand,
     UpdateProjectCommand,
     UpdateProjectOwnerCommand,
@@ -80,6 +81,7 @@ from orchflow.external.presenters import (
     render_lifecycle_result,
     render_project,
     render_project_reload_result,
+    render_project_unlink_result,
     render_runtime_snapshot,
     render_user,
     render_user_preferences,
@@ -472,6 +474,19 @@ def update_project(
     except (ProjectRegistryError, AccessControlError) as error:
         _exit_with_error(error)
     typer.echo(render_project(project))
+
+
+@project_app.command("unlink")
+def unlink_project(token: str = typer.Option(...), project_id: int = typer.Option(...)) -> None:
+    """Unlink a project from OrchFlow without deleting local files."""
+    service = create_project_registry_service()
+    try:
+        result = service.unlink_project(
+            UnlinkProjectCommand(token=token, project_id=project_id)
+        )
+    except (ProjectRegistryError, AccessControlError) as error:
+        _exit_with_error(error)
+    typer.echo(render_project_unlink_result(result))
 
 
 @project_app.command("configure-lifecycle")

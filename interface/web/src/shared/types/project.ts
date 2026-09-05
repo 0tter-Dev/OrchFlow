@@ -37,6 +37,16 @@ export type ProjectReloadResult = {
   project: ProjectSummary;
 };
 
+export type ProjectUnlinkResult = {
+  lifecycle_script_path: string;
+  local_files_preserved: boolean;
+  project_id: number;
+  project_root_path: string;
+  reference_name: string;
+  registry_entry_removed: boolean;
+  unlinked_owner_user_id: number | null;
+};
+
 export type ProjectRegistrationMappingInput = {
   canonical_action: CanonicalLifecycleAction;
   script_label: string;

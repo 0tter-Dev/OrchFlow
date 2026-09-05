@@ -36,6 +36,7 @@ Ensure that project visibility and lifecycle actions are restricted according to
 - admin user-management actions are audited
 - admin-only audit history filtering is implemented for actor, action, project, and time-window troubleshooting
 - project visibility and lifecycle access are enforced through the `admin` role or explicit project ownership
+- project unlink reuses the same visibility rule: non-admin owners can remove their own project relationship for shared projects, while admins can remove visible projects from the active registry
 - authenticated users can read and update their own web preferences through user-scoped contracts without requiring admin privileges
 
 ## Key Rules
