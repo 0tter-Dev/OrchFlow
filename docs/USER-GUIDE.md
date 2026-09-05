@@ -129,7 +129,9 @@ After registration, the user can inspect:
 - CPU and memory usage
 - inspection timestamp
 
-At the current implementation stage, these inspection capabilities are already exposed through `CLI`, `API`, and the authenticated `web` workspace. If a script has no `APP_PORT` but does define `APP_URL`, OrchFlow uses URL reachability as the runtime signal. If neither runtime hint exists, OrchFlow reports `unsupported` with an explanation instead of implying the project is stopped. URL timeout and reachability failures are included in the status explanation. The web project detail view now also surfaces operational readiness for the selected project, combining lifecycle script, lifecycle mapping, runtime diagnostics, and review-path state with direct actions for reload, mapping configuration, and runtime refresh.
+At the current implementation stage, these inspection capabilities are already exposed through `CLI`, `API`, and the authenticated `web` workspace. A user can inspect a single project with `orchflow runtime inspect --token <TOKEN> --project-id <ID>` or `GET /projects/{project_id}/runtime`, and can inspect multiple visible projects with `orchflow runtime inspect-many --token <TOKEN> --project-id <ID> --project-id <ID>` or `POST /projects/runtime-inspections`. Batch inspection reuses the same project visibility rules as single-project inspection.
+
+If a script has no `APP_PORT` but does define `APP_URL`, OrchFlow uses URL reachability as the runtime signal. If neither runtime hint exists, OrchFlow reports `unsupported` with an explanation instead of implying the project is stopped. URL timeout and reachability failures are included in the status explanation. The web project list now uses batch runtime inspection for visible projects, while the project detail view surfaces operational readiness for the selected project, combining lifecycle script, lifecycle mapping, runtime diagnostics, and review-path state with direct actions for reload, mapping configuration, and runtime refresh.
 
 ### 4. Control The Lifecycle
 

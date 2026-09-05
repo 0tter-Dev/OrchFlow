@@ -34,9 +34,10 @@ Expose the same core application behavior through both CLI and API without dupli
 
 ## Implemented Baseline
 
-- CLI and API both expose authentication, authenticated user preferences, project registry, non-AI project updates, configured-action lifecycle execution, runtime inspection, filtered admin audit history visibility, admin user updates, project owner management, manual lifecycle configuration, project reload, and AI assistance workflows. The web interface consumes existing contracts for user preferences, project editing, project configuration health, action gating, reload, mapping updates, AI proposal review/application, and audit troubleshooting.
+- CLI and API both expose authentication, authenticated user preferences, project registry, non-AI project updates, configured-action lifecycle execution, single and batch runtime inspection, filtered admin audit history visibility, admin user updates, project owner management, manual lifecycle configuration, project reload, and AI assistance workflows. The web interface consumes existing contracts for user preferences, project editing, project configuration health, action gating, reload, mapping updates, batch runtime status, AI proposal review/application, and audit troubleshooting.
 - lifecycle responses now include a summarized runtime status when inspection is available
 - direct runtime inspection is available through `GET /projects/{project_id}/runtime` and the mirrored CLI command `runtime inspect`, including status explanation, inspection timestamp, `APP_URL` reachability when available, `APP_URL`-only running detection, and clearer timeout or unsupported diagnostics
+- requested batch runtime inspection is available through `POST /projects/runtime-inspections` and the mirrored CLI command `runtime inspect-many`; both reuse project visibility rules, deduplicate repeated project IDs, and preserve requested order
 - the first `interface/web` operator flow now consumes these same contracts for sign-in, project visibility, runtime inspection, lifecycle controls, project registration, AI proposal review/application, filtered admin audit history, and richer API or validation error notices
 
 External surfaces now include API and CLI workflows for updating user preferences, project metadata and lifecycle script paths, manual mapping updates, explicit unconfigured-function decisions, explicit reload for one or more projects, AI-assisted improvement proposal workflows, and clear lifecycle execution rejection when an action is undefined, explicitly unconfigured, or part of a blocked project. The web operator surface now combines those contracts into a preference-aware guided operational readiness panel for selected projects and preserves backend failure details in contextual error notices. Planned refinements include broader web operator experience polish.
@@ -50,7 +51,7 @@ The current implemented API surface includes:
 - audit: `GET /audit/events`
 - AI assistance: `GET /ai/status`, `GET /ai/gateway/health`, `GET /ai/models`, `POST /ai/context-manifests`, `GET /ai/context-manifests/{manifest_id}`, `POST /ai/analysis-proposals`, `GET /ai/analysis-proposals/{proposal_id}`, `POST /ai/analysis-proposals/{proposal_id}/review`, `POST /ai/analysis-proposals/{proposal_id}/apply`
 - projects: `POST /projects`, `GET /projects`, `GET /projects/{project_id}`, `PATCH /projects/{project_id}`, `PATCH /projects/{project_id}/lifecycle-configuration`, `POST /projects/{project_id}/reload`, `POST /projects/reload`, `POST /projects/{project_id}/owners/{user_id}`, `DELETE /projects/{project_id}/owners/{user_id}`
-- lifecycle and runtime: `POST /projects/{project_id}/lifecycle/{action}`, `GET /projects/{project_id}/runtime`
+- lifecycle and runtime: `POST /projects/{project_id}/lifecycle/{action}`, `GET /projects/{project_id}/runtime`, `POST /projects/runtime-inspections`
 
 ## Current CLI Inventory
 
@@ -60,7 +61,7 @@ The current implemented CLI surface includes:
 - authentication commands: `orchflow auth register`, `orchflow auth login`, `orchflow auth me`, `orchflow auth preferences`, `orchflow auth update-preferences`, `orchflow auth users`, `orchflow auth update-user`
 - project commands: `orchflow project register`, `orchflow project list`, `orchflow project show`, `orchflow project update`, `orchflow project configure-lifecycle`, `orchflow project reload`, `orchflow project reload-many`, `orchflow project add-owner`, `orchflow project remove-owner`
 - lifecycle commands: `orchflow lifecycle status`, `orchflow lifecycle start`, `orchflow lifecycle stop`, `orchflow lifecycle restart`
-- runtime command: `orchflow runtime inspect`
+- runtime commands: `orchflow runtime inspect`, `orchflow runtime inspect-many`
 - audit command: `orchflow audit events`
 - AI assistance commands: `orchflow ai status`, `orchflow ai health`, `orchflow ai models`, `orchflow ai manifest-create`, `orchflow ai manifest-show`, `orchflow ai proposal-create`, `orchflow ai proposal-show`, `orchflow ai proposal-review`, `orchflow ai proposal-apply`
 

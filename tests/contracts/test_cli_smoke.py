@@ -42,7 +42,7 @@ def test_info_command_displays_bootstrap_metadata() -> None:
     result = runner.invoke(app, ["info"])
 
     assert result.exit_code == 0
-    assert "OrchFlow 0.3.20" in result.stdout
+    assert "OrchFlow 0.3.21" in result.stdout
     assert "stage: bootstrap" in result.stdout
 
 
@@ -1057,3 +1057,78 @@ def test_cli_runtime_inspection_flow_is_available(
     assert "application_reachable:" in runtime_result.stdout
     assert "status_reason:" in runtime_result.stdout
     assert "inspected_at:" in runtime_result.stdout
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="Windows-only runtime inspection")
+def test_cli_runtime_batch_inspection_flow_is_available(
+    isolated_environment: None,
+    tmp_path: Path,
+) -> None:
+    runner.invoke(
+        app,
+        ["auth", "register", "--username", "runtime-batch-admin", "--password", "password123"],
+    )
+    login_result = runner.invoke(
+        app,
+        ["auth", "login", "--username", "runtime-batch-admin", "--password", "password123"],
+    )
+    token_line = next(
+        line for line in login_result.stdout.splitlines() if line.startswith("access_token: ")
+    )
+    token = token_line.removeprefix("access_token: ")
+
+    project_ids: list[str] = []
+    for index, port in enumerate((49194, 49195)):
+        project_dir = tmp_path / f"cli-runtime-batch-project-{index}"
+        project_dir.mkdir()
+        lifecycle_script = project_dir / "control.bat"
+        lifecycle_script.write_text(
+            "@echo off\r\n"
+            f"set \"APP_PORT={port}\"\r\n"
+            "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
+            "if /I \"%~1\"==\"START\" echo start-ok & exit /b 0\r\n"
+            "if /I \"%~1\"==\"STOP\" echo stop-ok & exit /b 0\r\n"
+            "if /I \"%~1\"==\"RESTART\" echo restart-ok & exit /b 0\r\n"
+            "exit /b 0\r\n",
+            encoding="utf-8",
+        )
+        register_result = runner.invoke(
+            app,
+            [
+                "project",
+                "register",
+                "--token",
+                token,
+                "--reference-name",
+                f"cli-runtime-batch-project-{index}",
+                "--project-root-path",
+                str(project_dir),
+                "--lifecycle-script-path",
+                str(lifecycle_script),
+            ],
+        )
+        project_id_line = next(
+            line for line in register_result.stdout.splitlines() if line.startswith("id: ")
+        )
+        project_ids.append(project_id_line.removeprefix("id: "))
+
+    runtime_result = runner.invoke(
+        app,
+        [
+            "runtime",
+            "inspect-many",
+            "--token",
+            token,
+            "--project-id",
+            project_ids[0],
+            "--project-id",
+            project_ids[1],
+            "--project-id",
+            project_ids[0],
+        ],
+    )
+
+    assert runtime_result.exit_code == 0
+    assert runtime_result.stdout.count("project_id:") == 2
+    assert "known_port: 49194" in runtime_result.stdout
+    assert "known_port: 49195" in runtime_result.stdout

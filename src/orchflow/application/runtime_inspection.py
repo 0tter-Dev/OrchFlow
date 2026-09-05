@@ -22,6 +22,14 @@ class InspectRuntimeCommand:
     project_id: int
 
 
+@dataclass(frozen=True, slots=True)
+class InspectRuntimeBatchCommand:
+    """Input required to inspect many visible projects in sequence."""
+
+    token: str
+    project_ids: tuple[int, ...]
+
+
 class RuntimeInspector(Protocol):
     """Boundary used to inspect a project's runtime state."""
 
@@ -46,3 +54,19 @@ class RuntimeInspectionService:
         _ = self._current_user_resolver.get_current_user(command.token)
         project = self._project_registry_service.get_project(command.token, command.project_id)
         return self._inspector.inspect(project)
+
+    def inspect_runtime_batch(
+        self,
+        command: InspectRuntimeBatchCommand,
+    ) -> list[RuntimeInspectionSnapshot]:
+        """Inspect runtime data for many projects visible to the current user."""
+        _ = self._current_user_resolver.get_current_user(command.token)
+        snapshots: list[RuntimeInspectionSnapshot] = []
+        seen_project_ids: set[int] = set()
+        for project_id in command.project_ids:
+            if project_id in seen_project_ids:
+                continue
+            seen_project_ids.add(project_id)
+            project = self._project_registry_service.get_project(command.token, project_id)
+            snapshots.append(self._inspector.inspect(project))
+        return snapshots

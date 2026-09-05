@@ -12,9 +12,16 @@ from urllib.error import URLError
 
 import pytest
 
-from orchflow.application.access_control import LoginCommand, RegisterUserCommand
+from orchflow.application.access_control import (
+    AuthorizationError,
+    LoginCommand,
+    RegisterUserCommand,
+)
 from orchflow.application.project_registry import RegisterProjectCommand
-from orchflow.application.runtime_inspection import InspectRuntimeCommand
+from orchflow.application.runtime_inspection import (
+    InspectRuntimeBatchCommand,
+    InspectRuntimeCommand,
+)
 from orchflow.application.services import (
     create_access_control_service,
     create_project_registry_service,
@@ -226,6 +233,89 @@ def test_runtime_inspection_reports_unsupported_when_script_has_no_runtime_hints
     assert snapshot.application_url is None
     assert snapshot.application_reachable is None
     assert "No APP_PORT or APP_URL hint" in snapshot.status_reason
+
+
+def test_runtime_inspection_batch_returns_visible_projects_once(
+    isolated_environment: None,
+    tmp_path: Path,
+) -> None:
+    access_control_service = create_access_control_service()
+    project_registry_service = create_project_registry_service()
+    runtime_service = create_runtime_inspection_service()
+
+    access_control_service.register_user(
+        RegisterUserCommand(username="runtime-batch-admin", password="password123")
+    )
+    token = access_control_service.login(
+        LoginCommand(username="runtime-batch-admin", password="password123")
+    ).access_token
+
+    project_ids: list[int] = []
+    ports = [_find_free_port(), _find_free_port()]
+    for index, port in enumerate(ports):
+        project_dir = tmp_path / f"runtime-batch-project-{index}"
+        project_dir.mkdir()
+        lifecycle_script = project_dir / "control.bat"
+        _write_runtime_batch(lifecycle_script, port)
+        project = project_registry_service.register_project(
+            RegisterProjectCommand(
+                token=token,
+                reference_name=f"runtime-batch-project-{index}",
+                project_root_path=str(project_dir),
+                lifecycle_script_path=str(lifecycle_script),
+            )
+        )
+        project_ids.append(project.id)
+
+    snapshots = runtime_service.inspect_runtime_batch(
+        InspectRuntimeBatchCommand(
+            token=token,
+            project_ids=(project_ids[0], project_ids[1], project_ids[0]),
+        )
+    )
+
+    assert [snapshot.project_id for snapshot in snapshots] == project_ids
+    assert [snapshot.known_port for snapshot in snapshots] == ports
+
+
+def test_runtime_inspection_batch_reuses_project_visibility(
+    isolated_environment: None,
+    tmp_path: Path,
+) -> None:
+    access_control_service = create_access_control_service()
+    project_registry_service = create_project_registry_service()
+    runtime_service = create_runtime_inspection_service()
+
+    access_control_service.register_user(
+        RegisterUserCommand(username="runtime-batch-owner", password="password123")
+    )
+    owner_token = access_control_service.login(
+        LoginCommand(username="runtime-batch-owner", password="password123")
+    ).access_token
+    access_control_service.register_user(
+        RegisterUserCommand(username="runtime-batch-member", password="password123")
+    )
+    member_token = access_control_service.login(
+        LoginCommand(username="runtime-batch-member", password="password123")
+    ).access_token
+
+    project_dir = tmp_path / "runtime-batch-private-project"
+    project_dir.mkdir()
+    lifecycle_script = project_dir / "control.bat"
+    _write_runtime_batch(lifecycle_script, _find_free_port())
+    project = project_registry_service.register_project(
+        RegisterProjectCommand(
+            token=owner_token,
+            reference_name="runtime-batch-private-project",
+            project_root_path=str(project_dir),
+            lifecycle_script_path=str(lifecycle_script),
+        )
+    )
+
+    with pytest.raises(AuthorizationError, match="Project is not visible"):
+        runtime_service.inspect_runtime_batch(
+            InspectRuntimeBatchCommand(token=member_token, project_ids=(project.id,))
+        )
 
 
 def test_runtime_inspection_explains_app_url_timeout(

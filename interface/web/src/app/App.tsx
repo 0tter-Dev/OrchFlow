@@ -144,6 +144,7 @@ export function App() {
               projectViewMode={preferences?.project_view_mode ?? "list"}
               projects={projectWorkspace.projects}
               registrationMessage={projectWorkspace.registrationMessage}
+              runtimeSnapshotsByProjectId={projectWorkspace.runtimeSnapshotsByProjectId}
               searchQuery={projectWorkspace.searchQuery}
               selectedProjectId={projectWorkspace.selectedProjectId}
             />

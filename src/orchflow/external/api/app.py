@@ -57,7 +57,10 @@ from orchflow.application.project_registry import (
     UpdateProjectOwnerCommand,
     unconfigured_actions_for_project,
 )
-from orchflow.application.runtime_inspection import InspectRuntimeCommand
+from orchflow.application.runtime_inspection import (
+    InspectRuntimeBatchCommand,
+    InspectRuntimeCommand,
+)
 from orchflow.application.services import (
     create_access_control_service,
     create_ai_assistance_service,
@@ -189,6 +192,10 @@ class UpdateLifecycleFunctionConfigurationRequest(BaseModel):
 
 class ReloadProjectsRequest(BaseModel):
     project_ids: list[int]
+
+
+class RuntimeInspectionBatchRequest(BaseModel):
+    project_ids: list[int] = Field(min_length=1, max_length=100)
 
 
 class ProjectMappingResponse(BaseModel):
@@ -1487,5 +1494,31 @@ def create_app() -> FastAPI:
             InspectRuntimeCommand(token=token, project_id=project_id)
         )
         return _to_runtime_response(snapshot)
+
+    @app.post(
+        "/projects/runtime-inspections",
+        response_model=list[RuntimeInspectionResponse],
+        tags=["runtime"],
+    )
+    def inspect_runtime_batch(
+        payload: RuntimeInspectionBatchRequest,
+        authorization: str | None = Header(default=None),
+    ) -> list[RuntimeInspectionResponse]:
+        token = _extract_bearer_token(authorization)
+        if token is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Missing bearer token.",
+            )
+        try:
+            snapshots = runtime_service.inspect_runtime_batch(
+                InspectRuntimeBatchCommand(
+                    token=token,
+                    project_ids=tuple(payload.project_ids),
+                )
+            )
+        except (ProjectRegistryError, AuthorizationError) as error:
+            raise _map_project_registry_error(error) from error
+        return [_to_runtime_response(snapshot) for snapshot in snapshots]
 
     return app
