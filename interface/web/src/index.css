@@ -2,8 +2,8 @@
   font-family: "Aptos", "Segoe UI Variable Display", "Trebuchet MS", sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color: #f5efe2;
-  background: #0e1826;
+  color: #f7f2e8;
+  background: #151615;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -15,7 +15,7 @@
 }
 
 html {
-  background: #0e1826;
+  background: #151615;
 }
 
 body {

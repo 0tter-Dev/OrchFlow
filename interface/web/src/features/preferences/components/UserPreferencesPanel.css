@@ -2,9 +2,9 @@
   display: grid;
   gap: 1rem;
   padding: 1.25rem;
-  border-radius: 24px;
-  background: rgba(8, 14, 25, 0.72);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: #1d1f1d;
+  border: 1px solid #303230;
 }
 
 .preferences-panel__header {
@@ -17,9 +17,9 @@
 .preferences-panel__eyebrow {
   display: inline-flex;
   margin-bottom: 0.35rem;
-  color: #99efe6;
+  color: #d3a24f;
   font-size: 0.76rem;
-  letter-spacing: 0.1em;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 
@@ -32,10 +32,10 @@
 .preferences-panel__submit {
   min-height: 2.75rem;
   padding: 0.7rem 0.85rem;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.04);
-  color: #f5efe2;
+  border: 1px solid #3a3d39;
+  border-radius: 8px;
+  background: #262925;
+  color: #f7f2e8;
   cursor: pointer;
   font: inherit;
   white-space: nowrap;
@@ -55,7 +55,7 @@
 .preferences-panel__field {
   display: grid;
   gap: 0.35rem;
-  color: rgba(245, 239, 226, 0.72);
+  color: #c9c1b4;
   font-size: 0.84rem;
 }
 
@@ -64,15 +64,15 @@
   width: 100%;
   min-height: 2.75rem;
   padding: 0.72rem 0.8rem;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.05);
-  color: #f5efe2;
+  border: 1px solid #3a3d39;
+  border-radius: 8px;
+  background: #151615;
+  color: #f7f2e8;
   font: inherit;
 }
 
 .preferences-panel__field option {
-  color: #08101b;
+  color: #151615;
 }
 
 .preferences-panel__mode {
@@ -85,7 +85,7 @@
 
 .preferences-panel__mode legend {
   margin-bottom: 0.35rem;
-  color: rgba(245, 239, 226, 0.72);
+  color: #c9c1b4;
   font-size: 0.84rem;
 }
 
@@ -95,36 +95,36 @@
   gap: 0.55rem;
   min-height: 2.6rem;
   padding: 0.65rem 0.75rem;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.045);
-  color: rgba(245, 239, 226, 0.82);
+  border-radius: 8px;
+  background: #242724;
+  color: #d9d2c4;
 }
 
 .preferences-panel__mode input {
-  accent-color: #99efe6;
+  accent-color: #2f8f83;
 }
 
 .preferences-panel__submit {
-  background: rgba(153, 239, 230, 0.14);
-  color: #c8fff9;
+  background: #2f8f83;
+  color: #07110f;
   font-weight: 700;
 }
 
 .preferences-panel__notice,
 .preferences-panel__success {
   padding: 0.95rem 1rem;
-  border-radius: 16px;
+  border-radius: 8px;
   line-height: 1.7;
 }
 
 .preferences-panel__notice {
-  background: rgba(208, 72, 45, 0.14);
-  color: #ffd2c7;
+  background: rgba(143, 77, 61, 0.16);
+  color: #f2b3a3;
 }
 
 .preferences-panel__success {
-  background: rgba(66, 168, 132, 0.14);
-  color: #bcffe4;
+  background: rgba(47, 143, 131, 0.16);
+  color: #9ee4da;
 }
 
 @media (max-width: 640px) {

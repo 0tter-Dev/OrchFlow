@@ -2,9 +2,9 @@
   display: grid;
   gap: 1rem;
   padding: 1.35rem;
-  border-radius: 24px;
-  background: rgba(7, 14, 24, 0.68);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: #1d1f1d;
+  border: 1px solid #303230;
 }
 
 .admin-panel__header,
@@ -17,9 +17,9 @@
 }
 
 .admin-panel__eyebrow {
-  color: #99efe6;
+  color: #d3a24f;
   font-size: 0.76rem;
-  letter-spacing: 0.1em;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 
@@ -37,10 +37,10 @@
 .admin-panel__actions select {
   min-height: 2.5rem;
   padding: 0.62rem 0.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.04);
-  color: #f5efe2;
+  border: 1px solid #3a3d39;
+  border-radius: 8px;
+  background: #262925;
+  color: #f7f2e8;
   font: inherit;
 }
 
@@ -59,23 +59,23 @@
 .admin-panel__error,
 .admin-panel__success {
   padding: 0.95rem 1rem;
-  border-radius: 16px;
+  border-radius: 8px;
   line-height: 1.7;
 }
 
 .admin-panel__empty {
-  background: rgba(255, 255, 255, 0.05);
-  color: rgba(245, 239, 226, 0.74);
+  background: #242724;
+  color: #c9c1b4;
 }
 
 .admin-panel__error {
-  background: rgba(208, 72, 45, 0.14);
-  color: #ffd2c7;
+  background: rgba(143, 77, 61, 0.16);
+  color: #f2b3a3;
 }
 
 .admin-panel__success {
-  background: rgba(66, 168, 132, 0.14);
-  color: #bcffe4;
+  background: rgba(47, 143, 131, 0.16);
+  color: #9ee4da;
 }
 
 .admin-panel__users,
@@ -89,9 +89,9 @@
 .admin-panel__user,
 .admin-panel__owner {
   padding: 0.85rem 0.95rem;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: #242724;
+  border: 1px solid #303230;
 }
 
 .admin-panel__user div:first-child {
@@ -101,7 +101,7 @@
 
 .admin-panel__user span,
 .admin-panel__owner span {
-  color: rgba(245, 239, 226, 0.66);
+  color: #aaa397;
   font-size: 0.84rem;
 }
 
