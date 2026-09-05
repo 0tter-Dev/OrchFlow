@@ -2,16 +2,15 @@
   display: grid;
   gap: 1rem;
   padding: 1.5rem;
-  border-radius: 24px;
-  background: rgba(8, 14, 25, 0.72);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 22px 44px rgba(4, 9, 18, 0.24);
+  border-radius: 8px;
+  background: #1d1f1d;
+  border: 1px solid #303230;
 }
 
 .login-panel__eyebrow {
-  color: #ffbf93;
+  color: #d3a24f;
   font-size: 0.78rem;
-  letter-spacing: 0.1em;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 
@@ -22,7 +21,7 @@
 
 .login-panel__copy {
   margin: 0;
-  color: rgba(245, 239, 226, 0.72);
+  color: #c9c1b4;
   line-height: 1.7;
 }
 
@@ -37,21 +36,21 @@
 }
 
 .login-panel__field span {
-  color: rgba(245, 239, 226, 0.74);
+  color: #c9c1b4;
   font-size: 0.88rem;
 }
 
 .login-panel__field input {
   width: 100%;
   padding: 0.8rem 0.9rem;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.04);
-  color: #f5efe2;
+  border: 1px solid #3a3d39;
+  border-radius: 8px;
+  background: #151615;
+  color: #f7f2e8;
 }
 
 .login-panel__field input::placeholder {
-  color: rgba(245, 239, 226, 0.42);
+  color: #817a70;
 }
 
 .login-panel__actions {
@@ -62,9 +61,9 @@
 .login-panel__button {
   padding: 0.85rem 1rem;
   border: 0;
-  border-radius: 16px;
-  background: linear-gradient(135deg, #ea8448, #f3b55c);
-  color: #0d1520;
+  border-radius: 8px;
+  background: #2f8f83;
+  color: #07110f;
   font-weight: 800;
   cursor: pointer;
 }
@@ -76,14 +75,14 @@
 
 .login-panel__error {
   padding: 0.9rem 1rem;
-  border-radius: 16px;
-  background: rgba(208, 72, 45, 0.14);
-  color: #ffd2c7;
+  border-radius: 8px;
+  background: rgba(143, 77, 61, 0.16);
+  color: #f2b3a3;
 }
 
 .login-panel__hint {
   margin: 0;
-  color: rgba(245, 239, 226, 0.58);
+  color: #aaa397;
   font-size: 0.9rem;
   line-height: 1.65;
 }

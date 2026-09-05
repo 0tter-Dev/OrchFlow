@@ -2,9 +2,9 @@
   display: grid;
   gap: 1rem;
   padding: 1.25rem;
-  border-radius: 24px;
-  background: rgba(8, 14, 25, 0.76);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: #1d1f1d;
+  border: 1px solid #303230;
 }
 
 .project-list__header {
@@ -13,9 +13,9 @@
 }
 
 .project-list__eyebrow {
-  color: #99efe6;
+  color: #d3a24f;
   font-size: 0.76rem;
-  letter-spacing: 0.1em;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 
@@ -33,10 +33,10 @@
 
 .project-list__button {
   padding: 0.7rem 0.85rem;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.04);
-  color: #f5efe2;
+  border: 1px solid #3a3d39;
+  border-radius: 8px;
+  background: #262925;
+  color: #f7f2e8;
   cursor: pointer;
   min-height: 2.75rem;
   white-space: nowrap;
@@ -50,15 +50,15 @@
 .project-list__search {
   width: 100%;
   padding: 0.8rem 0.9rem;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.04);
-  color: #f5efe2;
+  border: 1px solid #3a3d39;
+  border-radius: 8px;
+  background: #151615;
+  color: #f7f2e8;
 }
 
 .project-list__status {
   margin: 0;
-  color: rgba(245, 239, 226, 0.64);
+  color: #aaa397;
   font-size: 0.92rem;
 }
 
@@ -66,9 +66,9 @@
   display: grid;
   gap: 0.35rem;
   padding: 0.9rem 1rem;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.045);
+  border-radius: 8px;
+  border: 1px solid #303230;
+  background: #242724;
   line-height: 1.55;
 }
 
@@ -77,23 +77,23 @@
 }
 
 .project-list__guidance span {
-  color: rgba(245, 239, 226, 0.68);
+  color: #c9c1b4;
   font-size: 0.86rem;
 }
 
 .project-list__guidance[data-tone="ready"] {
-  border-color: rgba(153, 239, 230, 0.28);
-  background: rgba(153, 239, 230, 0.08);
+  border-color: rgba(47, 143, 131, 0.45);
+  background: rgba(47, 143, 131, 0.14);
 }
 
 .project-list__guidance[data-tone="attention"] {
-  border-color: rgba(240, 212, 141, 0.28);
-  background: rgba(240, 212, 141, 0.08);
+  border-color: rgba(211, 162, 79, 0.45);
+  background: rgba(211, 162, 79, 0.12);
 }
 
 .project-list__guidance[data-tone="blocked"] {
-  border-color: rgba(208, 72, 45, 0.32);
-  background: rgba(208, 72, 45, 0.1);
+  border-color: rgba(143, 77, 61, 0.55);
+  background: rgba(143, 77, 61, 0.14);
 }
 
 .project-list__items {
@@ -109,9 +109,9 @@
   display: grid;
   gap: 0.45rem;
   padding: 0.95rem 1rem;
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.04);
+  border-radius: 8px;
+  border: 1px solid #303230;
+  background: #202220;
   cursor: pointer;
   text-align: left;
   color: inherit;
@@ -125,8 +125,8 @@
 }
 
 .project-list__item[data-selected="true"] {
-  border-color: rgba(243, 181, 92, 0.7);
-  background: rgba(243, 181, 92, 0.12);
+  border-color: rgba(47, 143, 131, 0.72);
+  background: rgba(47, 143, 131, 0.16);
 }
 
 .project-list__item strong {
@@ -143,54 +143,54 @@
 .project-list__runtime-status {
   width: fit-content;
   padding: 0.25rem 0.5rem;
-  border-radius: 999px;
+  border-radius: 8px;
   font-size: 0.72rem;
   font-weight: 800;
 }
 
 .project-list__health[data-health="complete"] {
-  background: rgba(153, 239, 230, 0.16);
-  color: #99efe6;
+  background: rgba(47, 143, 131, 0.22);
+  color: #9ee4da;
 }
 
 .project-list__health[data-health="partial"] {
-  background: rgba(240, 212, 141, 0.16);
-  color: #f0d48d;
+  background: rgba(211, 162, 79, 0.2);
+  color: #f1c978;
 }
 
 .project-list__health[data-health="blocked"] {
-  background: rgba(208, 72, 45, 0.18);
-  color: #ffd2c7;
+  background: rgba(143, 77, 61, 0.22);
+  color: #f2b3a3;
 }
 
 .project-list__runtime-status[data-status="running"] {
-  background: rgba(66, 168, 132, 0.16);
-  color: #bcffe4;
+  background: rgba(47, 143, 131, 0.22);
+  color: #9ee4da;
 }
 
 .project-list__runtime-status[data-status="stopped"] {
-  background: rgba(240, 212, 141, 0.16);
-  color: #f0d48d;
+  background: rgba(211, 162, 79, 0.2);
+  color: #f1c978;
 }
 
 .project-list__runtime-status[data-status="unsupported"] {
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(245, 239, 226, 0.72);
+  background: #2a2c29;
+  color: #c9c1b4;
 }
 
 .project-list__runtime-status[data-status="loading"] {
-  background: rgba(153, 239, 230, 0.1);
-  color: #99efe6;
+  background: rgba(47, 143, 131, 0.14);
+  color: #9ee4da;
 }
 
 .project-list__description {
-  color: rgba(245, 239, 226, 0.68);
+  color: #c9c1b4;
   line-height: 1.6;
 }
 
 .project-list__owners,
 .project-list__runtime-meta {
-  color: rgba(245, 239, 226, 0.52);
+  color: #aaa397;
   font-size: 0.82rem;
 }
 
@@ -206,32 +206,32 @@
 .project-list__error,
 .project-list__success {
   padding: 0.95rem 1rem;
-  border-radius: 16px;
+  border-radius: 8px;
   line-height: 1.7;
 }
 
 .project-list__empty {
-  background: rgba(255, 255, 255, 0.05);
-  color: rgba(245, 239, 226, 0.74);
+  background: #242724;
+  color: #c9c1b4;
 }
 
 .project-list__error {
-  background: rgba(208, 72, 45, 0.14);
-  color: #ffd2c7;
+  background: rgba(143, 77, 61, 0.16);
+  color: #f2b3a3;
 }
 
 .project-list__success {
-  background: rgba(66, 168, 132, 0.14);
-  color: #bcffe4;
+  background: rgba(47, 143, 131, 0.16);
+  color: #9ee4da;
 }
 
 .project-list__registration {
   display: grid;
   gap: 0.75rem;
   padding: 1rem;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: #202220;
+  border: 1px solid #303230;
 }
 
 .project-list__registration-header {
@@ -249,7 +249,7 @@
 .project-list__field {
   display: grid;
   gap: 0.35rem;
-  color: rgba(245, 239, 226, 0.72);
+  color: #c9c1b4;
   font-size: 0.84rem;
 }
 
@@ -257,10 +257,10 @@
 .project-list__field textarea {
   width: 100%;
   padding: 0.74rem 0.8rem;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.05);
-  color: #f5efe2;
+  border: 1px solid #3a3d39;
+  border-radius: 8px;
+  background: #151615;
+  color: #f7f2e8;
   font: inherit;
 }
 

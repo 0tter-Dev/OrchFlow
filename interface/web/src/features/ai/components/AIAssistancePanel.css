@@ -2,9 +2,9 @@
   display: grid;
   gap: 1rem;
   padding: 1.35rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid #303230;
   border-radius: 8px;
-  background: rgba(7, 14, 24, 0.68);
+  background: #1d1f1d;
 }
 
 .ai-panel__header,
@@ -16,9 +16,9 @@
 }
 
 .ai-panel__eyebrow {
-  color: #99efe6;
+  color: #d3a24f;
   font-size: 0.76rem;
-  letter-spacing: 0.1em;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 
@@ -38,7 +38,7 @@
 .ai-panel__confirmations label {
   display: grid;
   gap: 0.35rem;
-  color: rgba(245, 239, 226, 0.72);
+  color: #c9c1b4;
   font-size: 0.84rem;
 }
 
@@ -54,10 +54,10 @@
   min-width: 0;
   width: 100%;
   padding: 0.7rem 0.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid #3a3d39;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.04);
-  color: #f5efe2;
+  background: #151615;
+  color: #f7f2e8;
   font: inherit;
 }
 
@@ -81,15 +81,15 @@
 }
 
 .ai-panel__button {
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.04);
-  color: #f5efe2;
+  border: 1px solid #3a3d39;
+  background: #262925;
+  color: #f7f2e8;
 }
 
 .ai-panel__primary {
   border: 0;
-  background: #99efe6;
-  color: #0b1320;
+  background: #2f8f83;
+  color: #07110f;
 }
 
 .ai-panel__button:disabled,
@@ -112,18 +112,18 @@
 
 .ai-panel__empty,
 .ai-panel__status {
-  background: rgba(255, 255, 255, 0.05);
-  color: rgba(245, 239, 226, 0.74);
+  background: #242724;
+  color: #c9c1b4;
 }
 
 .ai-panel__error {
-  background: rgba(208, 72, 45, 0.14);
-  color: #ffd2c7;
+  background: rgba(143, 77, 61, 0.16);
+  color: #f2b3a3;
 }
 
 .ai-panel__success {
-  background: rgba(66, 168, 132, 0.14);
-  color: #bcffe4;
+  background: rgba(47, 143, 131, 0.16);
+  color: #9ee4da;
 }
 
 .ai-panel__review {
@@ -137,8 +137,8 @@
   margin: 0;
   padding: 1rem;
   border-radius: 8px;
-  background: #08111c;
-  color: #d7f8f1;
+  background: #121412;
+  color: #d8efe9;
   font-family: "Cascadia Code", "Consolas", monospace;
   font-size: 0.84rem;
   line-height: 1.55;

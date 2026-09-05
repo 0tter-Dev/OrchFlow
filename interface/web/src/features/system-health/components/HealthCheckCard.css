@@ -2,12 +2,9 @@
   display: grid;
   gap: 1rem;
   padding: 1.5rem;
-  border-radius: 24px;
-  background:
-    linear-gradient(145deg, rgba(16, 30, 46, 0.92), rgba(7, 15, 24, 0.88)),
-    linear-gradient(90deg, rgba(234, 132, 72, 0.16), rgba(94, 182, 174, 0.16));
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 22px 48px rgba(3, 8, 17, 0.28);
+  border-radius: 8px;
+  background: #1d1f1d;
+  border: 1px solid #303230;
 }
 
 .health-card__header {
@@ -20,9 +17,9 @@
 .health-card__eyebrow {
   display: inline-flex;
   margin-bottom: 0.35rem;
-  color: #ffbf93;
+  color: #d3a24f;
   font-size: 0.76rem;
-  letter-spacing: 0.1em;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 
@@ -34,9 +31,9 @@
 .health-card__button {
   padding: 0.7rem 1.05rem;
   border: 0;
-  border-radius: 999px;
-  background: #ea8448;
-  color: #08101b;
+  border-radius: 8px;
+  background: #2f8f83;
+  color: #07110f;
   font: inherit;
   font-weight: 700;
   cursor: pointer;
@@ -44,12 +41,6 @@
     transform 140ms ease,
     box-shadow 140ms ease,
     background 140ms ease;
-}
-
-.health-card__button:hover {
-  background: #f19863;
-  box-shadow: 0 10px 24px rgba(234, 132, 72, 0.24);
-  transform: translateY(-1px);
 }
 
 .health-card__surface {
@@ -66,27 +57,27 @@
 .health-card__label {
   display: block;
   margin-bottom: 0.3rem;
-  color: rgba(245, 239, 226, 0.64);
+  color: #aaa397;
   font-size: 0.82rem;
-  letter-spacing: 0.06em;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 
 .health-card__message {
   margin: 0;
   padding: 0.95rem 1rem;
-  border-radius: 16px;
-  background: rgba(94, 182, 174, 0.12);
-  color: #b2fff7;
+  border-radius: 8px;
+  background: rgba(47, 143, 131, 0.14);
+  color: #9ee4da;
 }
 
 .health-card__error {
   display: grid;
   gap: 0.3rem;
   padding: 1rem;
-  border-radius: 16px;
-  background: rgba(208, 72, 45, 0.16);
-  color: #ffd2c7;
+  border-radius: 8px;
+  background: rgba(143, 77, 61, 0.16);
+  color: #f2b3a3;
 }
 
 .health-card__metrics {
@@ -98,16 +89,17 @@
 
 .health-card__metrics div {
   padding: 1rem;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid #303230;
+  border-radius: 8px;
+  background: #242724;
 }
 
 .health-card__metrics dt {
   margin-bottom: 0.4rem;
-  color: rgba(245, 239, 226, 0.64);
+  color: #aaa397;
   font-size: 0.82rem;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0;
 }
 
 .health-card__metrics dd {
@@ -117,7 +109,7 @@
 }
 
 .health-card__metrics dd[data-status="ok"] {
-  color: #99efe6;
+  color: #9ee4da;
 }
 
 @media (max-width: 640px) {

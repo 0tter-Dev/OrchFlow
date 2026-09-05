@@ -18,8 +18,92 @@ import { useProjectWorkspace } from "../features/projects/hooks/useProjectWorksp
 import { HealthCheckCard } from "../features/system-health/components/HealthCheckCard";
 import { useHealthStatus } from "../features/system-health/hooks/useHealthStatus";
 import { getApiBaseUrl } from "../shared/config/env";
+import type { UserPreferences } from "../shared/types/preferences";
+import type { ProjectSummary, RuntimeInspectionSnapshot } from "../shared/types/project";
 
 const apiBaseUrl = getApiBaseUrl();
+
+type AppLocale = UserPreferences["locale"];
+
+const appCopy: Record<
+  AppLocale,
+  {
+    apiHealth: string;
+    attention: string;
+    commandCenter: string;
+    commandCenterDescription: string;
+    connectedAs: string;
+    guestFocus: string;
+    guestFocusCopy: string;
+    guestTitle: string;
+    lifecycleHealth: string;
+    noSelection: string;
+    projects: string;
+    refresh: string;
+    running: string;
+    system: string;
+    tools: string;
+    unknown: string;
+    workspace: string;
+  }
+> = {
+  "en-US": {
+    apiHealth: "API health",
+    attention: "Attention",
+    commandCenter: "Command center",
+    commandCenterDescription:
+      "Project navigation, runtime state, lifecycle actions, preferences, audit, and AI review stay in one compact operator surface.",
+    connectedAs: "Connected as",
+    guestFocus: "Local operator login",
+    guestFocusCopy:
+      "Sign in to open the project workspace, inspect visible runtime status, and operate configured lifecycle actions.",
+    guestTitle: "OrchFlow",
+    lifecycleHealth: "Lifecycle health",
+    noSelection: "No project selected",
+    projects: "Projects",
+    refresh: "Refresh",
+    running: "Running",
+    system: "System",
+    tools: "Tools",
+    unknown: "unknown",
+    workspace: "Workspace",
+  },
+  "pt-BR": {
+    apiHealth: "Saude da API",
+    attention: "Atencao",
+    commandCenter: "Centro de comando",
+    commandCenterDescription:
+      "Navegacao de projetos, runtime, lifecycle, preferencias, auditoria e revisao de IA ficam em uma superficie operacional compacta.",
+    connectedAs: "Conectado como",
+    guestFocus: "Login do operador local",
+    guestFocusCopy:
+      "Entre para abrir o workspace de projetos, inspecionar runtime visivel e operar acoes de lifecycle configuradas.",
+    guestTitle: "OrchFlow",
+    lifecycleHealth: "Saude do lifecycle",
+    noSelection: "Nenhum projeto selecionado",
+    projects: "Projetos",
+    refresh: "Atualizar",
+    running: "Rodando",
+    system: "Sistema",
+    tools: "Ferramentas",
+    unknown: "desconhecido",
+    workspace: "Workspace",
+  },
+};
+
+function countRunningProjects(
+  runtimeSnapshotsByProjectId: Record<number, RuntimeInspectionSnapshot>,
+): number {
+  return Object.values(runtimeSnapshotsByProjectId).filter(
+    (snapshot) => snapshot.status === "running",
+  ).length;
+}
+
+function countAttentionProjects(projects: ProjectSummary[]): number {
+  return projects.filter(
+    (project) => project.lifecycle_configuration_health !== "complete",
+  ).length;
+}
 
 export function App() {
   const authSession = useAuthSession();
@@ -42,16 +126,16 @@ export function App() {
   );
   const { errorMessage, healthStatus, isLoading, lastUpdated, refresh } = useHealthStatus();
   const preferences = userPreferences.preferences;
+  const locale = preferences?.locale ?? "pt-BR";
+  const copy = appCopy[locale];
   const refreshProjects = projectWorkspace.refresh;
+  const projectCount = projectWorkspace.projects.length;
+  const runningProjectCount = countRunningProjects(projectWorkspace.runtimeSnapshotsByProjectId);
+  const attentionProjectCount = countAttentionProjects(projectWorkspace.projects);
 
   useEffect(() => {
-    if (preferences === null) {
-      document.documentElement.lang = "pt-BR";
-      return;
-    }
-
-    document.documentElement.lang = preferences.locale;
-  }, [preferences]);
+    document.documentElement.lang = locale;
+  }, [locale]);
 
   useEffect(() => {
     if (authSession.currentUser === null || preferences === null) {
@@ -68,38 +152,41 @@ export function App() {
 
   return (
     <main className="app-shell">
-      <div className="app-frame">
-        <section className="hero">
-          <div className="hero__topline">
-            <span className="hero__eyebrow">OrchFlow Web Operator Surface</span>
-            <span className="hero__status">
-              <span className="hero__status-dot" data-status={healthStatus?.status ?? "unknown"} />
-              API health: {healthStatus?.status ?? (isLoading ? "loading" : "unknown")}
-            </span>
-          </div>
+      <header className="topbar">
+        <div className="topbar__brand">
+          <span className="topbar__mark" aria-hidden="true">
+            OF
+          </span>
           <div>
-            <h1 className="hero__title">Register and operate projects through the web flow.</h1>
-            <p className="hero__copy">
-              The web client now consumes the same backend contracts already stabilized in API and
-              CLI. This stage brings existing-project registration, project visibility, runtime
-              inspection, and lifecycle controls into one operator-focused workspace.
-            </p>
+            <strong>{copy.guestTitle}</strong>
+            <span>{copy.workspace}</span>
           </div>
+        </div>
+        <div className="topbar__status">
+          <span className="topbar__api" data-status={healthStatus?.status ?? "unknown"}>
+            {copy.apiHealth}: {healthStatus?.status ?? (isLoading ? "loading" : copy.unknown)}
+          </span>
+          {authSession.currentUser !== null ? (
+            <span className="topbar__user">
+              {copy.connectedAs} {authSession.currentUser.username}
+            </span>
+          ) : null}
+        </div>
+      </header>
 
-          <div className="hero__meta">
-            <article className="meta-card">
-              <span className="meta-card__label">API Base URL</span>
-              <strong className="meta-card__value">{apiBaseUrl}</strong>
-            </article>
-            <article className="meta-card">
-              <span className="meta-card__label">Current Focus</span>
-              <strong className="meta-card__value">Auth, projects, runtime, and lifecycle</strong>
-            </article>
+      {authSession.currentUser === null ? (
+        <section className="guest-workspace">
+          <div className="guest-workspace__intro">
+            <span className="workspace-eyebrow">{copy.guestFocus}</span>
+            <h1>{copy.guestTitle}</h1>
+            <p>{copy.guestFocusCopy}</p>
           </div>
-        </section>
-
-        {authSession.currentUser === null ? (
-          <section className="guest-layout">
+          <div className="guest-workspace__grid">
+            <LoginPanel
+              errorMessage={authSession.errorMessage}
+              isLoading={authSession.isLoading}
+              onSubmit={authSession.login}
+            />
             <HealthCheckCard
               apiBaseUrl={apiBaseUrl}
               errorMessage={errorMessage}
@@ -108,149 +195,169 @@ export function App() {
               lastUpdated={lastUpdated}
               onRefresh={refresh}
             />
+          </div>
+        </section>
+      ) : (
+        <section className="operator-workspace">
+          <ProjectListPanel
+            currentUser={authSession.currentUser}
+            errorMessage={projectWorkspace.errorMessage}
+            isLoading={projectWorkspace.isLoadingProjects}
+            isRegisteringProject={projectWorkspace.isRegisteringProject}
+            onRefresh={projectWorkspace.refresh}
+            onRegisterProject={projectWorkspace.submitProjectRegistration}
+            onSearchQueryChange={projectWorkspace.setSearchQuery}
+            onSelectProject={projectWorkspace.selectProject}
+            projectViewMode={preferences?.project_view_mode ?? "list"}
+            projects={projectWorkspace.projects}
+            registrationMessage={projectWorkspace.registrationMessage}
+            runtimeSnapshotsByProjectId={projectWorkspace.runtimeSnapshotsByProjectId}
+            searchQuery={projectWorkspace.searchQuery}
+            selectedProjectId={projectWorkspace.selectedProjectId}
+          />
 
-            <div className="support-panel">
-              <LoginPanel
-                errorMessage={authSession.errorMessage}
-                isLoading={authSession.isLoading}
-                onSubmit={authSession.login}
-              />
-              <aside className="support-panel__card">
-                <h2 className="support-panel__title">What this stage unlocks</h2>
-                <p className="support-panel__copy">
-                  Once authenticated, the web client moves beyond the bootstrap health-check and
-                  starts acting as a practical operator surface for already managed projects.
-                </p>
-                <ul className="support-panel__list">
-                  <li>Load the same authenticated project registry exposed by the API and CLI</li>
-                  <li>Inspect runtime state without leaving the browser</li>
-                  <li>Trigger `status`, `start`, `stop`, and `restart` from the same workspace</li>
-                  <li>Keep the frontend aligned with the documented local-first scope</li>
-                </ul>
+          <div className="operator-workspace__main">
+            <section className="command-bar" aria-label={copy.commandCenter}>
+              <div className="command-bar__summary">
+                <span className="workspace-eyebrow">{copy.commandCenter}</span>
+                <h1>{projectWorkspace.selectedProject?.reference_name ?? copy.noSelection}</h1>
+                <p>{copy.commandCenterDescription}</p>
+              </div>
+              <dl className="command-bar__metrics">
+                <div>
+                  <dt>{copy.projects}</dt>
+                  <dd>{projectCount}</dd>
+                </div>
+                <div>
+                  <dt>{copy.running}</dt>
+                  <dd>{runningProjectCount}</dd>
+                </div>
+                <div>
+                  <dt>{copy.attention}</dt>
+                  <dd>{attentionProjectCount}</dd>
+                </div>
+                <div>
+                  <dt>{copy.lifecycleHealth}</dt>
+                  <dd>{projectWorkspace.selectedProject?.lifecycle_configuration_health ?? "-"}</dd>
+                </div>
+              </dl>
+              <div className="command-bar__actions">
+                <button type="button" onClick={projectWorkspace.refresh}>
+                  {copy.refresh}
+                </button>
+                <button type="button" onClick={refresh}>
+                  {copy.system}
+                </button>
+              </div>
+            </section>
+
+            <div className="workspace-content">
+              <div className="workspace-content__primary">
+                <ProjectDetailPanel
+                  activeAction={projectWorkspace.activeAction}
+                  configurationMessage={projectWorkspace.configurationMessage}
+                  currentUser={authSession.currentUser}
+                  errorMessage={projectWorkspace.errorMessage}
+                  isLoadingDetail={projectWorkspace.isLoadingDetail}
+                  isReloadingProject={projectWorkspace.isReloadingProject}
+                  isUpdatingProject={projectWorkspace.isUpdatingProject}
+                  isUpdatingLifecycleConfiguration={
+                    projectWorkspace.isUpdatingLifecycleConfiguration
+                  }
+                  lifecycleResult={projectWorkspace.lifecycleResult}
+                  onLogout={authSession.logout}
+                  onRefreshProject={projectWorkspace.refresh}
+                  onReloadProject={projectWorkspace.reloadSelectedProject}
+                  onRunLifecycleAction={projectWorkspace.runLifecycleAction}
+                  onUpdateProject={projectWorkspace.updateSelectedProject}
+                  onUpdateLifecycleConfiguration={
+                    projectWorkspace.updateLifecycleConfiguration
+                  }
+                  projectUpdateMessage={projectWorkspace.projectUpdateMessage}
+                  runtimeSnapshot={projectWorkspace.runtimeSnapshot}
+                  selectedProject={projectWorkspace.selectedProject}
+                />
+              </div>
+
+              <aside className="workspace-content__rail" aria-label={copy.tools}>
+                <HealthCheckCard
+                  apiBaseUrl={apiBaseUrl}
+                  errorMessage={errorMessage}
+                  healthStatus={healthStatus}
+                  isLoading={isLoading}
+                  lastUpdated={lastUpdated}
+                  onRefresh={refresh}
+                />
+                <UserPreferencesPanel
+                  errorMessage={userPreferences.errorMessage}
+                  isLoading={userPreferences.isLoading}
+                  isSaving={userPreferences.isSaving}
+                  message={userPreferences.message}
+                  onRefresh={userPreferences.refresh}
+                  onUpdate={userPreferences.update}
+                  preferences={preferences}
+                />
+                <AdminManagementPanel
+                  canManage={adminManagement.canManage}
+                  currentUser={authSession.currentUser}
+                  errorMessage={adminManagement.errorMessage}
+                  isLoading={adminManagement.isLoading}
+                  isMutating={adminManagement.isMutating}
+                  onAddOwner={adminManagement.addOwner}
+                  onChangeUserActivation={adminManagement.changeUserActivation}
+                  onChangeUserRole={adminManagement.changeUserRole}
+                  onRefreshProject={projectWorkspace.refresh}
+                  onRefreshUsers={adminManagement.refreshUsers}
+                  onRemoveOwner={adminManagement.removeOwner}
+                  selectedProject={projectWorkspace.selectedProject}
+                  successMessage={adminManagement.successMessage}
+                  users={adminManagement.users}
+                />
+                <AIAssistancePanel
+                  canUseAIAssistance={aiAssistance.canUseAIAssistance}
+                  errorMessage={aiAssistance.errorMessage}
+                  isApplying={aiAssistance.isApplying}
+                  isCreatingProposal={aiAssistance.isCreatingProposal}
+                  isLoadingStatus={aiAssistance.isLoadingStatus}
+                  isReviewing={aiAssistance.isReviewing}
+                  message={aiAssistance.message}
+                  modelIds={aiModelIds}
+                  onApplyProposal={aiAssistance.applyProposal}
+                  onCreateProposal={(input) =>
+                    aiAssistance.createProposal(
+                      {
+                        exclude_patterns: input.excludePatterns,
+                        include_patterns: input.includePatterns,
+                        intended_operation: input.intendedOperation,
+                        max_file_size_bytes: input.maxFileSizeBytes,
+                        max_total_bytes: input.maxTotalBytes,
+                        selected_model: input.selectedModel,
+                      },
+                      input.userInstructions,
+                    )
+                  }
+                  onRefreshStatus={aiAssistance.refreshStatus}
+                  onReviewProposal={aiAssistance.reviewProposal}
+                  proposal={aiAssistance.proposal}
+                  readyForRequests={aiAssistance.status?.ready_for_requests ?? false}
+                  reviewDecision={aiAssistance.review?.decision ?? null}
+                  selectedProject={projectWorkspace.selectedProject}
+                  statusMessage={aiAssistance.status?.message ?? null}
+                />
+                <AuditEventsPanel
+                  canLoadAuditEvents={auditEvents.canLoadAuditEvents}
+                  errorMessage={auditEvents.errorMessage}
+                  events={auditEvents.events}
+                  filters={auditEvents.filters}
+                  isLoading={auditEvents.isLoading}
+                  onRefresh={auditEvents.refresh}
+                  onUpdateFilters={auditEvents.setFilters}
+                />
               </aside>
             </div>
-          </section>
-        ) : (
-          <section className="workspace-layout">
-            <ProjectListPanel
-              currentUser={authSession.currentUser}
-              errorMessage={projectWorkspace.errorMessage}
-              isLoading={projectWorkspace.isLoadingProjects}
-              isRegisteringProject={projectWorkspace.isRegisteringProject}
-              onRefresh={projectWorkspace.refresh}
-              onRegisterProject={projectWorkspace.submitProjectRegistration}
-              onSearchQueryChange={projectWorkspace.setSearchQuery}
-              onSelectProject={projectWorkspace.selectProject}
-              projectViewMode={preferences?.project_view_mode ?? "list"}
-              projects={projectWorkspace.projects}
-              registrationMessage={projectWorkspace.registrationMessage}
-              runtimeSnapshotsByProjectId={projectWorkspace.runtimeSnapshotsByProjectId}
-              searchQuery={projectWorkspace.searchQuery}
-              selectedProjectId={projectWorkspace.selectedProjectId}
-            />
-
-            <div className="support-panel">
-              <ProjectDetailPanel
-                activeAction={projectWorkspace.activeAction}
-                configurationMessage={projectWorkspace.configurationMessage}
-                currentUser={authSession.currentUser}
-                errorMessage={projectWorkspace.errorMessage}
-                isLoadingDetail={projectWorkspace.isLoadingDetail}
-                isReloadingProject={projectWorkspace.isReloadingProject}
-                isUpdatingProject={projectWorkspace.isUpdatingProject}
-                isUpdatingLifecycleConfiguration={
-                  projectWorkspace.isUpdatingLifecycleConfiguration
-                }
-                lifecycleResult={projectWorkspace.lifecycleResult}
-                onLogout={authSession.logout}
-                onRefreshProject={projectWorkspace.refresh}
-                onReloadProject={projectWorkspace.reloadSelectedProject}
-                onRunLifecycleAction={projectWorkspace.runLifecycleAction}
-                onUpdateProject={projectWorkspace.updateSelectedProject}
-                onUpdateLifecycleConfiguration={
-                  projectWorkspace.updateLifecycleConfiguration
-                }
-                projectUpdateMessage={projectWorkspace.projectUpdateMessage}
-                runtimeSnapshot={projectWorkspace.runtimeSnapshot}
-                selectedProject={projectWorkspace.selectedProject}
-              />
-              <HealthCheckCard
-                apiBaseUrl={apiBaseUrl}
-                errorMessage={errorMessage}
-                healthStatus={healthStatus}
-                isLoading={isLoading}
-                lastUpdated={lastUpdated}
-                onRefresh={refresh}
-              />
-              <UserPreferencesPanel
-                errorMessage={userPreferences.errorMessage}
-                isLoading={userPreferences.isLoading}
-                isSaving={userPreferences.isSaving}
-                message={userPreferences.message}
-                onRefresh={userPreferences.refresh}
-                onUpdate={userPreferences.update}
-                preferences={preferences}
-              />
-              <AdminManagementPanel
-                canManage={adminManagement.canManage}
-                currentUser={authSession.currentUser}
-                errorMessage={adminManagement.errorMessage}
-                isLoading={adminManagement.isLoading}
-                isMutating={adminManagement.isMutating}
-                onAddOwner={adminManagement.addOwner}
-                onChangeUserActivation={adminManagement.changeUserActivation}
-                onChangeUserRole={adminManagement.changeUserRole}
-                onRefreshProject={projectWorkspace.refresh}
-                onRefreshUsers={adminManagement.refreshUsers}
-                onRemoveOwner={adminManagement.removeOwner}
-                selectedProject={projectWorkspace.selectedProject}
-                successMessage={adminManagement.successMessage}
-                users={adminManagement.users}
-              />
-              <AIAssistancePanel
-                canUseAIAssistance={aiAssistance.canUseAIAssistance}
-                errorMessage={aiAssistance.errorMessage}
-                isApplying={aiAssistance.isApplying}
-                isCreatingProposal={aiAssistance.isCreatingProposal}
-                isLoadingStatus={aiAssistance.isLoadingStatus}
-                isReviewing={aiAssistance.isReviewing}
-                message={aiAssistance.message}
-                modelIds={aiModelIds}
-                onApplyProposal={aiAssistance.applyProposal}
-                onCreateProposal={(input) =>
-                  aiAssistance.createProposal(
-                    {
-                      exclude_patterns: input.excludePatterns,
-                      include_patterns: input.includePatterns,
-                      intended_operation: input.intendedOperation,
-                      max_file_size_bytes: input.maxFileSizeBytes,
-                      max_total_bytes: input.maxTotalBytes,
-                      selected_model: input.selectedModel,
-                    },
-                    input.userInstructions,
-                  )
-                }
-                onRefreshStatus={aiAssistance.refreshStatus}
-                onReviewProposal={aiAssistance.reviewProposal}
-                proposal={aiAssistance.proposal}
-                readyForRequests={aiAssistance.status?.ready_for_requests ?? false}
-                reviewDecision={aiAssistance.review?.decision ?? null}
-                selectedProject={projectWorkspace.selectedProject}
-                statusMessage={aiAssistance.status?.message ?? null}
-              />
-              <AuditEventsPanel
-                canLoadAuditEvents={auditEvents.canLoadAuditEvents}
-                errorMessage={auditEvents.errorMessage}
-                events={auditEvents.events}
-                filters={auditEvents.filters}
-                isLoading={auditEvents.isLoading}
-                onRefresh={auditEvents.refresh}
-                onUpdateFilters={auditEvents.setFilters}
-              />
-            </div>
-          </section>
-        )}
-      </div>
+          </div>
+        </section>
+      )}
     </main>
   );
 }
