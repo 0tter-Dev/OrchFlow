@@ -166,6 +166,18 @@ The update path reuses lifecycle script validation, preserves audit details, and
 
 The authenticated web workspace now exposes project settings from the project detail view. Operators can update the reference name, optional description, project root path, and lifecycle script path through the same backend update contract, while lifecycle mappings remain editable through the lifecycle configuration dialog.
 
+### 4.2. Unlink A Registered Project
+
+When a user no longer wants a project visible through OrchFlow, the implemented unlink workflow removes the OrchFlow registry relationship without deleting the local project folder or lifecycle `.bat` file.
+
+Available commands include:
+
+- `CLI`: `orchflow project unlink --token <TOKEN> --project-id <ID>`
+- `API`: `DELETE /projects/{project_id}`
+- `web`: the project detail view includes an unlink confirmation that shows the preserved project folder and lifecycle script path before applying the change
+
+If a project has multiple owners and the current non-admin user is one of them, unlinking removes only that user's ownership relationship and keeps the project registered for remaining owners. If unlinking would leave no owner, or an admin unlinks a project, OrchFlow removes the project from the active local registry. In every case, local files remain on disk and a `project.unlink` audit event records the action.
+
 ### 5. Review History
 
 The user can review recent lifecycle activity and operational outcomes to understand what happened and when.
@@ -176,7 +188,7 @@ At the current implementation stage, recent audit history is available to authen
 - `API`: `GET /audit/events?limit=25&project_id=<ID>&actor_user_id=<ID>&action=project.register&created_from=<ISO_DATETIME>&created_to=<ISO_DATETIME>`
 - `web`: the audit history panel in the authenticated operator workspace, including compact filters for limit, actor, action, project, and time window
 
-The history view covers already recorded user registration, login, admin listing, project registration, project listing, project reads, lifecycle action events, project updates, ownership changes, AI assistance events, and audit list activity. Admins can narrow the view by actor, action, project target, and time window for troubleshooting.
+The history view covers already recorded user registration, login, admin listing, project registration, project listing, project reads, lifecycle action events, project updates, project unlink, ownership changes, AI assistance events, and audit list activity. Admins can narrow the view by actor, action, project target, and time window for troubleshooting.
 
 ## Operating Expectations
 

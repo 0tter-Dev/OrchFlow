@@ -48,10 +48,12 @@ from orchflow.application.project_registry import (
     ProjectOwnershipError,
     ProjectRegistryError,
     ProjectReloadResult,
+    ProjectUnlinkResult,
     ProjectValidationError,
     RegisterProjectCommand,
     ReloadProjectCommand,
     ReloadProjectsCommand,
+    UnlinkProjectCommand,
     UpdateLifecycleFunctionConfigurationCommand,
     UpdateProjectCommand,
     UpdateProjectOwnerCommand,
@@ -231,6 +233,16 @@ class ProjectReloadResponse(BaseModel):
     previous_lifecycle_configuration_health: Literal["complete", "partial", "blocked"]
     current_lifecycle_configuration_health: Literal["complete", "partial", "blocked"]
     changed_actions: list[Literal["status", "start", "stop", "restart"]]
+
+
+class ProjectUnlinkResponse(BaseModel):
+    project_id: int
+    reference_name: str
+    project_root_path: str
+    lifecycle_script_path: str
+    local_files_preserved: bool
+    registry_entry_removed: bool
+    unlinked_owner_user_id: int | None
 
 
 class LifecycleExecutionResponse(BaseModel):
@@ -611,6 +623,18 @@ def _to_project_reload_response(result: ProjectReloadResult) -> ProjectReloadRes
         previous_lifecycle_configuration_health=result.previous_health.value,
         current_lifecycle_configuration_health=result.current_health.value,
         changed_actions=[action.value for action in result.changed_actions],
+    )
+
+
+def _to_project_unlink_response(result: ProjectUnlinkResult) -> ProjectUnlinkResponse:
+    return ProjectUnlinkResponse(
+        project_id=result.project_id,
+        reference_name=result.reference_name,
+        project_root_path=result.project_root_path,
+        lifecycle_script_path=result.lifecycle_script_path,
+        local_files_preserved=True,
+        registry_entry_removed=result.registry_entry_removed,
+        unlinked_owner_user_id=result.unlinked_owner_user_id,
     )
 
 
@@ -1310,6 +1334,29 @@ def create_app() -> FastAPI:
         except (ProjectRegistryError, AuthorizationError) as error:
             raise _map_project_registry_error(error) from error
         return _to_project_response(project)
+
+    @app.delete(
+        "/projects/{project_id}",
+        response_model=ProjectUnlinkResponse,
+        tags=["projects"],
+    )
+    def unlink_project(
+        project_id: int,
+        authorization: str | None = Header(default=None),
+    ) -> ProjectUnlinkResponse:
+        token = _extract_bearer_token(authorization)
+        if token is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Missing bearer token.",
+            )
+        try:
+            result = project_registry_service.unlink_project(
+                UnlinkProjectCommand(token=token, project_id=project_id)
+            )
+        except (ProjectRegistryError, AuthorizationError) as error:
+            raise _map_project_registry_error(error) from error
+        return _to_project_unlink_response(result)
 
     @app.patch(
         "/projects/{project_id}/lifecycle-configuration",

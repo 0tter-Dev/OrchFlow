@@ -35,7 +35,7 @@ def test_root_returns_bootstrap_metadata() -> None:
     assert response.status_code == 200
     assert response.json() == {
         "name": "OrchFlow",
-        "version": "0.3.22",
+        "version": "0.3.23",
         "status": "ok",
         "stage": "bootstrap",
     }
@@ -631,6 +631,23 @@ def test_project_registry_flow_is_exposed_in_api(
             "configured_by_user_id": 1,
         }
     ]
+
+    unlink_response = client.delete(
+        f"/projects/{project_id}",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert unlink_response.status_code == 200
+    unlink_payload = unlink_response.json()
+    assert unlink_payload["project_id"] == project_id
+    assert unlink_payload["reference_name"] == "api-project-renamed"
+    assert unlink_payload["local_files_preserved"] is True
+    assert unlink_payload["registry_entry_removed"] is True
+    assert unlink_payload["unlinked_owner_user_id"] is None
+    assert replacement_script.exists()
+
+    final_list_response = client.get("/projects", headers={"Authorization": f"Bearer {token}"})
+    assert final_list_response.status_code == 200
+    assert final_list_response.json() == []
 
 
 def test_project_registry_api_exposes_partial_lifecycle_configuration(

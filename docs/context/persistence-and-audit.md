@@ -39,6 +39,7 @@ The preferred initial persistence direction is `SQLite`.
 - preference changes record `user.preferences.update` audit events for the authenticated user when a submitted update changes stored behavior
 - project registry operations record project registration, list, and read events
 - project metadata, lifecycle script-path, and lifecycle configuration updates are persisted and audited through registry-owned workflows
+- project unlink records `project.unlink` audit events and removes active registry-owned project records only when unlinking removes the registry entry
 - registry reload operations and automatic mapping refreshes are audited
 - current registration persists automatically detected preferred mappings as imported lifecycle action mappings
 - manual mapping decisions and explicit unconfigured-function decisions are persisted with actor metadata and audited through project lifecycle configuration update events
@@ -64,6 +65,7 @@ The preferred initial persistence direction is `SQLite`.
 - lifecycle action mapping changes should be auditable with user attribution
 - user preference changes should be auditable with user attribution while reads remain unaudited
 - project metadata and lifecycle script path changes should be auditable with user attribution
+- project unlink should be auditable with user attribution and should preserve local project folders plus lifecycle `.bat` files
 - project reload and lifecycle configuration health changes should be auditable when they affect controllability or operator guidance
 - runtime snapshot persistence remains intentionally deferred after evaluation in the runtime maturity milestone; audit events plus single-project and batch on-demand inspection remain the current history baseline
 - the system should prioritize practical local reliability over premature complexity
