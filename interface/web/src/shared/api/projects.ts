@@ -6,6 +6,7 @@ import type {
   ProjectRegistrationInput,
   ProjectReloadResult,
   ProjectSummary,
+  ProjectUnlinkResult,
   ProjectUpdateInput,
   RuntimeInspectionSnapshot,
 } from "../types/project";
@@ -37,6 +38,13 @@ export function updateProject(
   return requestJson<ProjectSummary>(`/projects/${projectId}`, {
     body: payload,
     method: "PATCH",
+    token,
+  });
+}
+
+export function unlinkProject(token: string, projectId: number): Promise<ProjectUnlinkResult> {
+  return requestJson<ProjectUnlinkResult>(`/projects/${projectId}`, {
+    method: "DELETE",
     token,
   });
 }

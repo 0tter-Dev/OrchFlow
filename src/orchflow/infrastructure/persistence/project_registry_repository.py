@@ -18,6 +18,10 @@ from orchflow.domain.project_registry import (
     Project,
 )
 from orchflow.infrastructure.persistence.models import (
+    AIAnalysisProposalApplicationModel,
+    AIAnalysisProposalModel,
+    AIAnalysisProposalReviewModel,
+    AIAuthorizedContextManifestModel,
     AuditEventModel,
     LifecycleActionMappingModel,
     LifecycleFunctionDecisionModel,
@@ -295,6 +299,95 @@ class SqlAlchemyProjectRegistryRepository(ProjectRegistryRepository):
             if user.role is UserRole.ADMIN or user.id in project.owner_user_ids:
                 return project
             return None
+
+    def unlink_project(self, project_id: int) -> bool:
+        with self._session_scope() as session:
+            model = session.get(ProjectModel, project_id)
+            if model is None:
+                return False
+
+            proposal_ids = tuple(
+                session.execute(
+                    select(AIAnalysisProposalModel.id).where(
+                        AIAnalysisProposalModel.project_id == project_id
+                    )
+                )
+                .scalars()
+                .all()
+            )
+            if proposal_ids:
+                for application in (
+                    session.execute(
+                        select(AIAnalysisProposalApplicationModel).where(
+                            AIAnalysisProposalApplicationModel.proposal_id.in_(proposal_ids)
+                        )
+                    )
+                    .scalars()
+                    .all()
+                ):
+                    session.delete(application)
+                for review in (
+                    session.execute(
+                        select(AIAnalysisProposalReviewModel).where(
+                            AIAnalysisProposalReviewModel.proposal_id.in_(proposal_ids)
+                        )
+                    )
+                    .scalars()
+                    .all()
+                ):
+                    session.delete(review)
+                for proposal in (
+                    session.execute(
+                        select(AIAnalysisProposalModel).where(
+                            AIAnalysisProposalModel.id.in_(proposal_ids)
+                        )
+                    )
+                    .scalars()
+                    .all()
+                ):
+                    session.delete(proposal)
+
+            for manifest in (
+                session.execute(
+                    select(AIAuthorizedContextManifestModel).where(
+                        AIAuthorizedContextManifestModel.project_id == project_id
+                    )
+                )
+                .scalars()
+                .all()
+            ):
+                session.delete(manifest)
+            for mapping in (
+                session.execute(
+                    select(LifecycleActionMappingModel).where(
+                        LifecycleActionMappingModel.project_id == project_id
+                    )
+                )
+                .scalars()
+                .all()
+            ):
+                session.delete(mapping)
+            for decision in (
+                session.execute(
+                    select(LifecycleFunctionDecisionModel).where(
+                        LifecycleFunctionDecisionModel.project_id == project_id
+                    )
+                )
+                .scalars()
+                .all()
+            ):
+                session.delete(decision)
+            for owner in (
+                session.execute(
+                    select(ProjectOwnerModel).where(ProjectOwnerModel.project_id == project_id)
+                )
+                .scalars()
+                .all()
+            ):
+                session.delete(owner)
+
+            session.delete(model)
+            return True
 
     def add_project_owner(self, *, project_id: int, user_id: int) -> Project | None:
         with self._session_scope() as session:

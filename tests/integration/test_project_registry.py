@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 
 from orchflow.application.access_control import LoginCommand, RegisterUserCommand
+from orchflow.application.audit_history import AuditEventFilters, ListAuditEventsCommand
 from orchflow.application.project_registry import (
     ProjectConflictError,
     ProjectMappingInput,
@@ -15,12 +16,14 @@ from orchflow.application.project_registry import (
     RegisterProjectCommand,
     ReloadProjectCommand,
     ReloadProjectsCommand,
+    UnlinkProjectCommand,
     UpdateLifecycleFunctionConfigurationCommand,
     UpdateProjectCommand,
     UpdateProjectOwnerCommand,
 )
 from orchflow.application.services import (
     create_access_control_service,
+    create_audit_history_service,
     create_project_registry_service,
 )
 from orchflow.domain.project_registry import CanonicalLifecycleAction, MappingSource
@@ -364,6 +367,120 @@ def test_user_can_update_project_metadata_and_lifecycle_script(
         decision.canonical_action
         for decision in updated_project.lifecycle_function_decisions
     ) == (CanonicalLifecycleAction.STOP,)
+
+
+def test_user_can_unlink_project_without_deleting_local_files(
+    isolated_environment: None,
+    tmp_path: Path,
+) -> None:
+    access_control_service = create_access_control_service()
+    audit_history_service = create_audit_history_service()
+    project_registry_service = create_project_registry_service()
+
+    access_control_service.register_user(
+        RegisterUserCommand(username="project-unlink-user", password="password123")
+    )
+    token = access_control_service.login(
+        LoginCommand(username="project-unlink-user", password="password123")
+    ).access_token
+
+    project_dir = tmp_path / "project-unlink"
+    project_dir.mkdir()
+    lifecycle_script = project_dir / "control.bat"
+    _write_dispatch_batch(lifecycle_script)
+    project = project_registry_service.register_project(
+        RegisterProjectCommand(
+            token=token,
+            reference_name="project-unlink",
+            project_root_path=str(project_dir),
+            lifecycle_script_path=str(lifecycle_script),
+        )
+    )
+
+    result = project_registry_service.unlink_project(
+        UnlinkProjectCommand(token=token, project_id=project.id)
+    )
+
+    assert result.project_id == project.id
+    assert result.reference_name == "project-unlink"
+    assert project_registry_service.list_projects(token) == []
+    assert project_dir.exists()
+    assert lifecycle_script.exists()
+
+    unlink_events = audit_history_service.list_recent_events(
+        ListAuditEventsCommand(
+            token=token,
+            limit=10,
+            filters=AuditEventFilters(action="project.unlink", project_id=project.id),
+        )
+    )
+    assert len(unlink_events) == 1
+    assert "reference_name:project-unlink" in (unlink_events[0].details or "")
+
+    replacement = project_registry_service.register_project(
+        RegisterProjectCommand(
+            token=token,
+            reference_name="project-unlink",
+            project_root_path=str(project_dir),
+            lifecycle_script_path=str(lifecycle_script),
+        )
+    )
+    assert replacement.reference_name == "project-unlink"
+    assert project_registry_service.list_projects(token)[0].id == replacement.id
+
+
+def test_owner_unlink_keeps_shared_project_registered_for_remaining_owners(
+    isolated_environment: None,
+    tmp_path: Path,
+) -> None:
+    access_control_service = create_access_control_service()
+    project_registry_service = create_project_registry_service()
+
+    admin = access_control_service.register_user(
+        RegisterUserCommand(username="shared-admin", password="password123")
+    )
+    member = access_control_service.register_user(
+        RegisterUserCommand(username="shared-member", password="password123")
+    )
+    admin_token = access_control_service.login(
+        LoginCommand(username="shared-admin", password="password123")
+    ).access_token
+    member_token = access_control_service.login(
+        LoginCommand(username="shared-member", password="password123")
+    ).access_token
+
+    project_dir = tmp_path / "shared-unlink"
+    project_dir.mkdir()
+    lifecycle_script = project_dir / "control.bat"
+    _write_dispatch_batch(lifecycle_script)
+    project = project_registry_service.register_project(
+        RegisterProjectCommand(
+            token=admin_token,
+            reference_name="shared-unlink",
+            project_root_path=str(project_dir),
+            lifecycle_script_path=str(lifecycle_script),
+        )
+    )
+    project_registry_service.add_project_owner(
+        UpdateProjectOwnerCommand(
+            token=admin_token,
+            project_id=project.id,
+            user_id=member.id,
+        )
+    )
+
+    result = project_registry_service.unlink_project(
+        UnlinkProjectCommand(token=member_token, project_id=project.id)
+    )
+
+    assert result.registry_entry_removed is False
+    assert result.unlinked_owner_user_id == member.id
+    assert project_registry_service.list_projects(member_token) == []
+    remaining_projects = project_registry_service.list_projects(admin_token)
+    assert len(remaining_projects) == 1
+    assert remaining_projects[0].owner_user_ids == (admin.id,)
+    assert project_dir.exists()
+    assert lifecycle_script.exists()
 
 
 def test_project_update_rejects_duplicate_reference_name(

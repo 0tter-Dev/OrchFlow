@@ -91,6 +91,14 @@ class UpdateProjectCommand:
 
 
 @dataclass(frozen=True, slots=True)
+class UnlinkProjectCommand:
+    """Input required to unlink a project from OrchFlow."""
+
+    token: str
+    project_id: int
+
+
+@dataclass(frozen=True, slots=True)
 class ReloadProjectCommand:
     """Input required to reload lifecycle function detection for one project."""
 
@@ -114,6 +122,18 @@ class ProjectReloadResult:
     previous_health: ProjectConfigurationHealth
     current_health: ProjectConfigurationHealth
     changed_actions: tuple[CanonicalLifecycleAction, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class ProjectUnlinkResult:
+    """Result returned after removing a project from the local registry."""
+
+    project_id: int
+    reference_name: str
+    project_root_path: str
+    lifecycle_script_path: str
+    registry_entry_removed: bool
+    unlinked_owner_user_id: int | None
 
 
 @dataclass(frozen=True, slots=True)
@@ -167,6 +187,8 @@ class ProjectRegistryRepository(Protocol):
     def list_projects_for_user(self, user: User) -> list[Project]: ...
 
     def get_project_for_user(self, project_id: int, user: User) -> Project | None: ...
+
+    def unlink_project(self, project_id: int) -> bool: ...
 
     def add_project_owner(self, *, project_id: int, user_id: int) -> Project | None: ...
 
@@ -268,6 +290,56 @@ class ProjectRegistryService:
             details=f"reference_name:{project.reference_name}",
         )
         return project
+
+    def unlink_project(self, command: UnlinkProjectCommand) -> ProjectUnlinkResult:
+        """Remove a visible project from the local registry without touching local files."""
+        actor = self._current_user_resolver.get_current_user(command.token)
+        project = self._repository.get_project_for_user(command.project_id, actor)
+        if project is None:
+            raise AuthorizationError("Project is not visible to the current user.")
+
+        result = ProjectUnlinkResult(
+            project_id=project.id,
+            reference_name=project.reference_name,
+            project_root_path=project.project_root_path,
+            lifecycle_script_path=project.lifecycle_script_path,
+            registry_entry_removed=(
+                actor.role is UserRole.ADMIN
+                or actor.id not in project.owner_user_ids
+                or len(project.owner_user_ids) <= 1
+            ),
+            unlinked_owner_user_id=(
+                actor.id
+                if actor.role is not UserRole.ADMIN
+                and actor.id in project.owner_user_ids
+                and len(project.owner_user_ids) > 1
+                else None
+            ),
+        )
+        if result.unlinked_owner_user_id is not None:
+            updated_project = self._repository.remove_project_owner(
+                project_id=project.id,
+                user_id=result.unlinked_owner_user_id,
+            )
+            if updated_project is None:
+                raise AuthorizationError("Project is not visible to the current user.")
+        elif not self._repository.unlink_project(project.id):
+            raise AuthorizationError("Project is not visible to the current user.")
+
+        self._repository.record_audit_event(
+            actor_user_id=actor.id,
+            action="project.unlink",
+            target_type="project",
+            target_id=str(project.id),
+            details=(
+                f"reference_name:{project.reference_name};"
+                f"registry_entry_removed:{str(result.registry_entry_removed).lower()};"
+                f"unlinked_owner_user_id:{result.unlinked_owner_user_id or 'none'};"
+                f"project_root_path:{project.project_root_path};"
+                f"lifecycle_script_path:{project.lifecycle_script_path}"
+            ),
+        )
+        return result
 
     def add_project_owner(self, command: UpdateProjectOwnerCommand) -> Project:
         """Add a project owner as an authenticated admin."""

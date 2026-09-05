@@ -11,6 +11,7 @@ from orchflow.application.ai_assistance import (
 )
 from orchflow.application.project_registry import (
     ProjectReloadResult,
+    ProjectUnlinkResult,
     unconfigured_actions_for_project,
 )
 from orchflow.domain.access_control import AuditEvent, User
@@ -264,6 +265,19 @@ def render_project_reload_result(result: ProjectReloadResult) -> str:
         f"current_lifecycle_configuration_health: {result.current_health.value}\n"
         f"changed_actions: {changed_actions}\n"
         f"{render_project(result.project)}"
+    )
+
+
+def render_project_unlink_result(result: ProjectUnlinkResult) -> str:
+    """Render a project unlink result for CLI output."""
+    return (
+        f"project_id: {result.project_id}\n"
+        f"reference_name: {result.reference_name}\n"
+        f"project_root_path: {result.project_root_path}\n"
+        f"lifecycle_script_path: {result.lifecycle_script_path}\n"
+        "local_files_preserved: true\n"
+        f"registry_entry_removed: {str(result.registry_entry_removed).lower()}\n"
+        f"unlinked_owner_user_id: {result.unlinked_owner_user_id or ''}"
     )
 
 

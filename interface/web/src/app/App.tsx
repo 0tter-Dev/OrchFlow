@@ -260,6 +260,7 @@ export function App() {
                   errorMessage={projectWorkspace.errorMessage}
                   isLoadingDetail={projectWorkspace.isLoadingDetail}
                   isReloadingProject={projectWorkspace.isReloadingProject}
+                  isUnlinkingProject={projectWorkspace.isUnlinkingProject}
                   isUpdatingProject={projectWorkspace.isUpdatingProject}
                   isUpdatingLifecycleConfiguration={
                     projectWorkspace.isUpdatingLifecycleConfiguration
@@ -269,6 +270,7 @@ export function App() {
                   onRefreshProject={projectWorkspace.refresh}
                   onReloadProject={projectWorkspace.reloadSelectedProject}
                   onRunLifecycleAction={projectWorkspace.runLifecycleAction}
+                  onUnlinkProject={projectWorkspace.unlinkSelectedProject}
                   onUpdateProject={projectWorkspace.updateSelectedProject}
                   onUpdateLifecycleConfiguration={
                     projectWorkspace.updateLifecycleConfiguration
@@ -276,6 +278,7 @@ export function App() {
                   projectUpdateMessage={projectWorkspace.projectUpdateMessage}
                   runtimeSnapshot={projectWorkspace.runtimeSnapshot}
                   selectedProject={projectWorkspace.selectedProject}
+                  unlinkMessage={projectWorkspace.unlinkMessage}
                 />
               </div>
 

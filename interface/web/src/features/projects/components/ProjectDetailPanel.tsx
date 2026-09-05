@@ -24,6 +24,7 @@ type ProjectDetailPanelProps = {
   errorMessage: string | null;
   isLoadingDetail: boolean;
   isReloadingProject: boolean;
+  isUnlinkingProject: boolean;
   isUpdatingProject: boolean;
   isUpdatingLifecycleConfiguration: boolean;
   lifecycleResult: LifecycleExecutionSnapshot | null;
@@ -31,11 +32,13 @@ type ProjectDetailPanelProps = {
   onReloadProject: () => void;
   onRunLifecycleAction: (action: CanonicalLifecycleAction) => void;
   onRefreshProject: () => void;
+  onUnlinkProject: () => void;
   onUpdateProject: (projectInput: ProjectUpdateInput) => void;
   onUpdateLifecycleConfiguration: (configurationInput: ProjectLifecycleConfigurationInput) => void;
   projectUpdateMessage: string | null;
   runtimeSnapshot: RuntimeInspectionSnapshot | null;
   selectedProject: ProjectSummary | null;
+  unlinkMessage: string | null;
 };
 
 type MappingFormState = Record<
@@ -123,6 +126,7 @@ export function ProjectDetailPanel({
   errorMessage,
   isLoadingDetail,
   isReloadingProject,
+  isUnlinkingProject,
   isUpdatingProject,
   isUpdatingLifecycleConfiguration,
   lifecycleResult,
@@ -130,11 +134,13 @@ export function ProjectDetailPanel({
   onReloadProject,
   onRefreshProject,
   onRunLifecycleAction,
+  onUnlinkProject,
   onUpdateProject,
   onUpdateLifecycleConfiguration,
   projectUpdateMessage,
   runtimeSnapshot,
   selectedProject,
+  unlinkMessage,
 }: ProjectDetailPanelProps) {
   const [isProjectEditOpen, setIsProjectEditOpen] = useState(false);
   const [projectEditFormState, setProjectEditFormState] = useState<ProjectEditFormState | null>(
@@ -142,6 +148,7 @@ export function ProjectDetailPanel({
   );
   const [isMappingPanelOpen, setIsMappingPanelOpen] = useState(false);
   const [mappingFormState, setMappingFormState] = useState<MappingFormState | null>(null);
+  const [isUnlinkDialogOpen, setIsUnlinkDialogOpen] = useState(false);
 
   useEffect(() => {
     if (selectedProject === null) {
@@ -149,6 +156,7 @@ export function ProjectDetailPanel({
       setIsProjectEditOpen(false);
       setMappingFormState(null);
       setIsMappingPanelOpen(false);
+      setIsUnlinkDialogOpen(false);
       return;
     }
     setProjectEditFormState(buildProjectEditFormState(selectedProject));
@@ -158,6 +166,9 @@ export function ProjectDetailPanel({
   if (selectedProject === null) {
     return (
       <section className="project-detail">
+        {unlinkMessage !== null ? (
+          <div className="project-detail__success">{unlinkMessage}</div>
+        ) : null}
         <div className="project-detail__placeholder">
           Sign in and choose a project from the registry panel to inspect lifecycle metadata,
           runtime information, and the first web lifecycle actions.
@@ -258,6 +269,11 @@ export function ProjectDetailPanel({
     setIsProjectEditOpen(false);
   }
 
+  function confirmProjectUnlink() {
+    onUnlinkProject();
+    setIsUnlinkDialogOpen(false);
+  }
+
   return (
     <section className="project-detail">
       <header className="project-detail__header">
@@ -289,6 +305,9 @@ export function ProjectDetailPanel({
       ) : null}
       {projectUpdateMessage !== null ? (
         <div className="project-detail__success">{projectUpdateMessage}</div>
+      ) : null}
+      {unlinkMessage !== null ? (
+        <div className="project-detail__success">{unlinkMessage}</div>
       ) : null}
 
       <section
@@ -328,6 +347,14 @@ export function ProjectDetailPanel({
             type="button"
           >
             Edit project
+          </button>
+          <button
+            className="project-detail__danger-action"
+            disabled={isUnlinkingProject}
+            onClick={() => setIsUnlinkDialogOpen(true)}
+            type="button"
+          >
+            {isUnlinkingProject ? "Unlinking..." : "Unlink"}
           </button>
           <button className="project-detail__secondary-action" disabled type="button">
             AI improvement
@@ -652,6 +679,52 @@ export function ProjectDetailPanel({
                 </button>
               </div>
             </form>
+          </section>
+        </div>
+      ) : null}
+
+      {isUnlinkDialogOpen ? (
+        <div className="project-detail__modal-backdrop" role="presentation">
+          <section
+            aria-labelledby="project-unlink-title"
+            className="project-detail__modal project-detail__modal--narrow"
+            role="dialog"
+          >
+            <div className="project-detail__modal-header">
+              <h3 id="project-unlink-title">Unlink project</h3>
+              <button
+                className="project-detail__secondary-action"
+                onClick={() => setIsUnlinkDialogOpen(false)}
+                type="button"
+              >
+                Close
+              </button>
+            </div>
+            <p className="project-detail__copy">
+              Remove <strong>{selectedProject.reference_name}</strong> from OrchFlow's local
+              registry. The project folder and lifecycle script stay on disk.
+            </p>
+            <div className="project-detail__unlink-summary">
+              <span>{selectedProject.project_root_path}</span>
+              <span>{selectedProject.lifecycle_script_path}</span>
+            </div>
+            <div className="project-detail__modal-actions">
+              <button
+                className="project-detail__secondary-action"
+                onClick={() => setIsUnlinkDialogOpen(false)}
+                type="button"
+              >
+                Cancel
+              </button>
+              <button
+                className="project-detail__danger-action"
+                disabled={isUnlinkingProject}
+                onClick={confirmProjectUnlink}
+                type="button"
+              >
+                {isUnlinkingProject ? "Unlinking..." : "Confirm unlink"}
+              </button>
+            </div>
           </section>
         </div>
       ) : null}

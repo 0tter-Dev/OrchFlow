@@ -9,6 +9,7 @@ import {
   listProjects,
   registerProject,
   reloadProject,
+  unlinkProject,
   updateProject,
   updateProjectLifecycleConfiguration,
 } from "../../../shared/api/projects";
@@ -30,12 +31,14 @@ type ProjectWorkspaceState = {
   isLoadingDetail: boolean;
   isLoadingProjects: boolean;
   isRegisteringProject: boolean;
+  isUnlinkingProject: boolean;
   isUpdatingProject: boolean;
   isUpdatingLifecycleConfiguration: boolean;
   lifecycleResult: LifecycleExecutionSnapshot | null;
   projectUpdateMessage: string | null;
   projects: ProjectSummary[];
   registrationMessage: string | null;
+  unlinkMessage: string | null;
   runtimeSnapshot: RuntimeInspectionSnapshot | null;
   runtimeSnapshotsByProjectId: Record<number, RuntimeInspectionSnapshot>;
   searchQuery: string;
@@ -51,12 +54,14 @@ const initialState: ProjectWorkspaceState = {
   isLoadingDetail: false,
   isLoadingProjects: false,
   isRegisteringProject: false,
+  isUnlinkingProject: false,
   isUpdatingProject: false,
   isUpdatingLifecycleConfiguration: false,
   lifecycleResult: null,
   projectUpdateMessage: null,
   projects: [],
   registrationMessage: null,
+  unlinkMessage: null,
   runtimeSnapshot: null,
   runtimeSnapshotsByProjectId: {},
   searchQuery: "",
@@ -221,6 +226,7 @@ export function useProjectWorkspace(token: string | null) {
         errorMessage: null,
         isRegisteringProject: true,
         registrationMessage: null,
+        unlinkMessage: null,
       }));
 
       try {
@@ -374,6 +380,61 @@ export function useProjectWorkspace(token: string | null) {
     }
   });
 
+  const unlinkSelectedProject = useEffectEvent(async () => {
+    if (token === null || state.selectedProjectId === null) {
+      return;
+    }
+    const selectedProjectId = state.selectedProjectId;
+
+    setState((currentState) => ({
+      ...currentState,
+      errorMessage: null,
+      isUnlinkingProject: true,
+      unlinkMessage: null,
+    }));
+
+    try {
+      const result = await unlinkProject(token, selectedProjectId);
+      const projects = await listProjects(token);
+      const runtimeSnapshots =
+        projects.length === 0
+          ? []
+          : await getRuntimeSnapshots(
+              token,
+              projects.map((project) => project.id),
+            );
+      const runtimeSnapshotsByProjectId = mapRuntimeSnapshotsByProjectId(runtimeSnapshots);
+      const nextSelectedProject = projects[0] ?? null;
+
+      setState((currentState) => ({
+        ...currentState,
+        configurationMessage: null,
+        errorMessage: null,
+        isUnlinkingProject: false,
+        lifecycleResult: null,
+        projects,
+        projectUpdateMessage: null,
+        runtimeSnapshot:
+          nextSelectedProject === null
+            ? null
+            : runtimeSnapshotsByProjectId[nextSelectedProject.id] ?? null,
+        runtimeSnapshotsByProjectId,
+        selectedProject: nextSelectedProject,
+        selectedProjectId: nextSelectedProject?.id ?? null,
+        unlinkMessage: result.registry_entry_removed
+          ? `${result.reference_name} removed from OrchFlow. Local project files were preserved.`
+          : `${result.reference_name} unlinked from your user. Local project files were preserved.`,
+      }));
+    } catch (error) {
+      setState((currentState) => ({
+        ...currentState,
+        errorMessage: formatErrorMessage(error, "Unable to unlink the project."),
+        isUnlinkingProject: false,
+        unlinkMessage: null,
+      }));
+    }
+  });
+
   const reloadSelectedProject = useEffectEvent(async () => {
     if (token === null || state.selectedProjectId === null) {
       return;
@@ -439,6 +500,7 @@ export function useProjectWorkspace(token: string | null) {
     isLoadingDetail: state.isLoadingDetail,
     isLoadingProjects: state.isLoadingProjects,
     isRegisteringProject: state.isRegisteringProject,
+    isUnlinkingProject: state.isUnlinkingProject,
     isUpdatingProject: state.isUpdatingProject,
     isUpdatingLifecycleConfiguration: state.isUpdatingLifecycleConfiguration,
     lifecycleResult: state.lifecycleResult,
@@ -456,6 +518,8 @@ export function useProjectWorkspace(token: string | null) {
     selectedProjectId: state.selectedProjectId,
     setSearchQuery,
     submitProjectRegistration,
+    unlinkMessage: state.unlinkMessage,
+    unlinkSelectedProject,
     updateLifecycleConfiguration,
     updateSelectedProject,
   };
