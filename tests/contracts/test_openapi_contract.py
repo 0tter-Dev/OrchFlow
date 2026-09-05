@@ -35,6 +35,7 @@ def test_openapi_contract_exposes_current_operator_routes() -> None:
         ("/projects/{project_id}/owners/{user_id}", "delete"),
         ("/projects/{project_id}/reload", "post"),
         ("/projects/{project_id}/runtime", "get"),
+        ("/projects/runtime-inspections", "post"),
     ]
 
     for path, method in expected_operations:

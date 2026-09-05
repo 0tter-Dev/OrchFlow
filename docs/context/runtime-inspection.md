@@ -28,6 +28,7 @@ Expose practical operational facts for local project control and troubleshooting
 - the first version should focus on useful local operational facts rather than deep telemetry
 - the first implemented version should prioritize Windows-local inspection derived from the managed `.bat` contract
 - API and CLI should expose the same inspection capability whenever it is available to operators
+- batch inspection should reuse the same per-project authorization rules as direct inspection and should not create a separate visibility shortcut
 
 ## Implemented Baseline
 
@@ -39,7 +40,8 @@ Expose practical operational facts for local project control and troubleshooting
 - feeds web operational readiness so selected projects can surface runtime diagnostics beside direct refresh actions
 - checks basic `APP_URL` reachability when an application URL is available and reports timeout or connection failure details in the status explanation
 - exposes the inspection timestamp with the runtime snapshot
-- is available as a direct inspection use case and as a post-lifecycle validation step
+- is available as a direct inspection use case, a requested multi-project batch inspection use case, and as a post-lifecycle validation step
+- batch inspection accepts explicit project identifiers, deduplicates repeated IDs, preserves the requested project order, and inspects only projects visible to the authenticated operator
 - does not persist runtime snapshots yet; snapshot persistence was evaluated during runtime maturity work and remains deferred until there is a concrete review or history need beyond audit events and on-demand inspection
 
 ## Main Relationships

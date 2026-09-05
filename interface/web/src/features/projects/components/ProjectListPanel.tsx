@@ -10,6 +10,7 @@ import type {
   CanonicalLifecycleAction,
   ProjectRegistrationInput,
   ProjectSummary,
+  RuntimeInspectionSnapshot,
 } from "../../../shared/types/project";
 
 type ProjectListPanelProps = {
@@ -24,6 +25,7 @@ type ProjectListPanelProps = {
   projectViewMode: ProjectViewMode;
   projects: ProjectSummary[];
   registrationMessage: string | null;
+  runtimeSnapshotsByProjectId: Record<number, RuntimeInspectionSnapshot>;
   searchQuery: string;
   selectedProjectId: number | null;
 };
@@ -138,6 +140,7 @@ export function ProjectListPanel({
   projectViewMode,
   projects,
   registrationMessage,
+  runtimeSnapshotsByProjectId,
   searchQuery,
   selectedProjectId,
 }: ProjectListPanelProps) {
@@ -301,29 +304,45 @@ export function ProjectListPanel({
         </div>
       ) : (
         <div className="project-list__items" data-view={projectViewMode}>
-          {projects.map((project) => (
-            <button
-              className="project-list__item"
-              data-selected={selectedProjectId === project.id}
-              key={project.id}
-              onClick={() => onSelectProject(project.id)}
-              type="button"
-            >
-              <strong>{project.reference_name}</strong>
-              <span
-                className="project-list__health"
-                data-health={project.lifecycle_configuration_health}
+          {projects.map((project) => {
+            const runtimeSnapshot = runtimeSnapshotsByProjectId[project.id];
+            return (
+              <button
+                className="project-list__item"
+                data-selected={selectedProjectId === project.id}
+                key={project.id}
+                onClick={() => onSelectProject(project.id)}
+                type="button"
               >
-                {project.lifecycle_configuration_health}
-              </span>
-              <span className="project-list__description">
-                {project.description ?? "No description registered for this project yet."}
-              </span>
-              <span className="project-list__owners">
-                Owners: {project.owner_user_ids.join(", ")}
-              </span>
-            </button>
-          ))}
+                <strong>{project.reference_name}</strong>
+                <span className="project-list__badges">
+                  <span
+                    className="project-list__health"
+                    data-health={project.lifecycle_configuration_health}
+                  >
+                    {project.lifecycle_configuration_health}
+                  </span>
+                  <span
+                    className="project-list__runtime-status"
+                    data-status={runtimeSnapshot?.status ?? "loading"}
+                  >
+                    {runtimeSnapshot?.status ?? "runtime loading"}
+                  </span>
+                </span>
+                <span className="project-list__description">
+                  {project.description ?? "No description registered for this project yet."}
+                </span>
+                <span className="project-list__owners">
+                  Owners: {project.owner_user_ids.join(", ")}
+                </span>
+                <span className="project-list__runtime-meta">
+                  {runtimeSnapshot?.known_port
+                    ? `Port ${runtimeSnapshot.known_port}`
+                    : "No runtime port"}
+                </span>
+              </button>
+            );
+          })}
         </div>
       )}
     </aside>

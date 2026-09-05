@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import type { UserSummary } from "../../../shared/types/auth";
-import type { ProjectSummary } from "../../../shared/types/project";
+import type { ProjectSummary, RuntimeInspectionSnapshot } from "../../../shared/types/project";
 import { ProjectListPanel } from "./ProjectListPanel";
 
 const currentUser: UserSummary = {
@@ -26,6 +26,18 @@ const managedProjects: ProjectSummary[] = [
     reference_name: "local-api",
   },
 ];
+
+const runtimeSnapshot: RuntimeInspectionSnapshot = {
+  application_reachable: false,
+  application_url: "http://localhost:49194",
+  inspected_at: "2026-09-04T12:00:00Z",
+  known_port: 49194,
+  process_snapshots: [],
+  project_id: 7,
+  status: "stopped",
+  status_reason: "No listener found for APP_PORT 49194.",
+  uptime_seconds: null,
+};
 
 const completeProjects: ProjectSummary[] = [
   {
@@ -56,6 +68,7 @@ function renderProjectListPanel(
     projectViewMode: "list",
     projects: [],
     registrationMessage: null,
+    runtimeSnapshotsByProjectId: {},
     searchQuery: "",
     selectedProjectId: null,
     ...overrides,
@@ -150,12 +163,24 @@ describe("ProjectListPanel", () => {
 
     expect(screen.getByText("1 project(s) visible")).toBeInTheDocument();
     expect(screen.getByText("partial")).toBeInTheDocument();
+    expect(screen.getByText("runtime loading")).toBeInTheDocument();
     expect(screen.getByText("Local API controlled by an existing script")).toBeInTheDocument();
     expect(screen.getByText("Owners: 1, 2")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /local-api/ }));
 
     expect(onSelectProject).toHaveBeenCalledWith(7);
+  });
+
+  it("renders batch runtime inspection status for visible projects", () => {
+    renderProjectListPanel({
+      projects: managedProjects,
+      runtimeSnapshotsByProjectId: { 7: runtimeSnapshot },
+      selectedProjectId: 7,
+    });
+
+    expect(screen.getByText("stopped")).toBeInTheDocument();
+    expect(screen.getByText("Port 49194")).toBeInTheDocument();
   });
 
   it("renders project items with the preferred table display mode", () => {

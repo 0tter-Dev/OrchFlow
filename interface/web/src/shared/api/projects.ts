@@ -100,6 +100,17 @@ export function getRuntimeSnapshot(
   return requestJson<RuntimeInspectionSnapshot>(`/projects/${projectId}/runtime`, { token });
 }
 
+export function getRuntimeSnapshots(
+  token: string,
+  projectIds: number[],
+): Promise<RuntimeInspectionSnapshot[]> {
+  return requestJson<RuntimeInspectionSnapshot[]>("/projects/runtime-inspections", {
+    body: { project_ids: projectIds },
+    method: "POST",
+    token,
+  });
+}
+
 export function executeLifecycleAction(
   token: string,
   projectId: number,

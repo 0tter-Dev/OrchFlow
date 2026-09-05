@@ -5,6 +5,7 @@ import {
   executeLifecycleAction,
   getProject,
   getRuntimeSnapshot,
+  getRuntimeSnapshots,
   listProjects,
   registerProject,
   reloadProject,
@@ -36,6 +37,7 @@ type ProjectWorkspaceState = {
   projects: ProjectSummary[];
   registrationMessage: string | null;
   runtimeSnapshot: RuntimeInspectionSnapshot | null;
+  runtimeSnapshotsByProjectId: Record<number, RuntimeInspectionSnapshot>;
   searchQuery: string;
   selectedProject: ProjectSummary | null;
   selectedProjectId: number | null;
@@ -56,6 +58,7 @@ const initialState: ProjectWorkspaceState = {
   projects: [],
   registrationMessage: null,
   runtimeSnapshot: null,
+  runtimeSnapshotsByProjectId: {},
   searchQuery: "",
   selectedProject: null,
   selectedProjectId: null,
@@ -65,6 +68,13 @@ function replaceProjectInList(projects: ProjectSummary[], project: ProjectSummar
   return projects.map((currentProject) =>
     currentProject.id === project.id ? project : currentProject,
   );
+}
+
+function mapRuntimeSnapshotsByProjectId(snapshots: RuntimeInspectionSnapshot[]) {
+  return snapshots.reduce<Record<number, RuntimeInspectionSnapshot>>((runtimeMap, snapshot) => {
+    runtimeMap[snapshot.project_id] = snapshot;
+    return runtimeMap;
+  }, {});
 }
 
 export function useProjectWorkspace(token: string | null) {
@@ -88,6 +98,10 @@ export function useProjectWorkspace(token: string | null) {
         errorMessage: null,
         isLoadingDetail: false,
         runtimeSnapshot,
+        runtimeSnapshotsByProjectId: {
+          ...currentState.runtimeSnapshotsByProjectId,
+          [projectId]: runtimeSnapshot,
+        },
         selectedProject,
         selectedProjectId: projectId,
       }));
@@ -109,6 +123,14 @@ export function useProjectWorkspace(token: string | null) {
 
     try {
       const projects = await listProjects(sessionToken);
+      const runtimeSnapshots =
+        projects.length === 0
+          ? []
+          : await getRuntimeSnapshots(
+              sessionToken,
+              projects.map((project) => project.id),
+            );
+      const runtimeSnapshotsByProjectId = mapRuntimeSnapshotsByProjectId(runtimeSnapshots);
       const nextSelectedProjectId =
         projects.find((project) => project.id === state.selectedProjectId)?.id ??
         projects[0]?.id ??
@@ -119,7 +141,12 @@ export function useProjectWorkspace(token: string | null) {
         errorMessage: null,
         isLoadingProjects: false,
         projects,
-        runtimeSnapshot: nextSelectedProjectId === null ? null : currentState.runtimeSnapshot,
+        runtimeSnapshot:
+          nextSelectedProjectId === null
+            ? null
+            : runtimeSnapshotsByProjectId[nextSelectedProjectId] ??
+              currentState.runtimeSnapshot,
+        runtimeSnapshotsByProjectId,
         selectedProject:
           nextSelectedProjectId === null
             ? null
@@ -213,6 +240,10 @@ export function useProjectWorkspace(token: string | null) {
           projects,
           registrationMessage: `${registeredProject.reference_name} registered successfully.`,
           runtimeSnapshot,
+          runtimeSnapshotsByProjectId: {
+            ...currentState.runtimeSnapshotsByProjectId,
+            [registeredProject.id]: runtimeSnapshot,
+          },
           selectedProject,
           selectedProjectId: registeredProject.id,
         }));
@@ -231,6 +262,7 @@ export function useProjectWorkspace(token: string | null) {
     if (token === null || state.selectedProjectId === null) {
       return;
     }
+    const selectedProjectId = state.selectedProjectId;
 
     setState((currentState) => ({
       ...currentState,
@@ -239,16 +271,20 @@ export function useProjectWorkspace(token: string | null) {
     }));
 
     try {
-      const lifecycleResult = await executeLifecycleAction(token, state.selectedProjectId, action);
+      const lifecycleResult = await executeLifecycleAction(token, selectedProjectId, action);
       const [selectedProject, runtimeSnapshot] = await Promise.all([
-        getProject(token, state.selectedProjectId),
-        getRuntimeSnapshot(token, state.selectedProjectId),
+        getProject(token, selectedProjectId),
+        getRuntimeSnapshot(token, selectedProjectId),
       ]);
       setState((currentState) => ({
         ...currentState,
         activeAction: null,
         lifecycleResult,
         runtimeSnapshot,
+        runtimeSnapshotsByProjectId: {
+          ...currentState.runtimeSnapshotsByProjectId,
+          [selectedProjectId]: runtimeSnapshot,
+        },
         selectedProject,
       }));
     } catch (error) {
@@ -321,6 +357,10 @@ export function useProjectWorkspace(token: string | null) {
         projectUpdateMessage: `${selectedProject.reference_name} updated.`,
         projects: replaceProjectInList(currentState.projects, selectedProject),
         runtimeSnapshot,
+        runtimeSnapshotsByProjectId: {
+          ...currentState.runtimeSnapshotsByProjectId,
+          [selectedProject.id]: runtimeSnapshot,
+        },
         selectedProject,
         selectedProjectId: selectedProject.id,
       }));
@@ -409,6 +449,7 @@ export function useProjectWorkspace(token: string | null) {
     refresh,
     runLifecycleAction,
     runtimeSnapshot: state.runtimeSnapshot,
+    runtimeSnapshotsByProjectId: state.runtimeSnapshotsByProjectId,
     searchQuery: state.searchQuery,
     selectProject,
     selectedProject: state.selectedProject,

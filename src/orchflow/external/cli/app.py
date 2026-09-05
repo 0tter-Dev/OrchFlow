@@ -47,7 +47,10 @@ from orchflow.application.project_registry import (
     UpdateProjectCommand,
     UpdateProjectOwnerCommand,
 )
-from orchflow.application.runtime_inspection import InspectRuntimeCommand
+from orchflow.application.runtime_inspection import (
+    InspectRuntimeBatchCommand,
+    InspectRuntimeCommand,
+)
 from orchflow.application.services import (
     create_access_control_service,
     create_ai_assistance_service,
@@ -623,6 +626,24 @@ def inspect_runtime(token: str = typer.Option(...), project_id: int = typer.Opti
     except (ProjectRegistryError, AccessControlError) as error:
         _exit_with_error(error)
     typer.echo(render_runtime_snapshot(snapshot))
+
+
+@runtime_app.command("inspect-many")
+def inspect_runtime_many(
+    token: Annotated[str, typer.Option()],
+    project_id: Annotated[list[int], typer.Option()],
+) -> None:
+    """Inspect runtime data for many visible projects in sequence."""
+    service = create_runtime_inspection_service()
+    try:
+        snapshots = service.inspect_runtime_batch(
+            InspectRuntimeBatchCommand(token=token, project_ids=tuple(project_id))
+        )
+    except (ProjectRegistryError, AccessControlError) as error:
+        _exit_with_error(error)
+    for snapshot in snapshots:
+        typer.echo(render_runtime_snapshot(snapshot))
+        typer.echo("")
 
 
 @audit_app.command("events")

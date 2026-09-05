@@ -35,7 +35,7 @@ def test_root_returns_bootstrap_metadata() -> None:
     assert response.status_code == 200
     assert response.json() == {
         "name": "OrchFlow",
-        "version": "0.3.20",
+        "version": "0.3.21",
         "status": "ok",
         "stage": "bootstrap",
     }
@@ -1029,3 +1029,57 @@ def test_runtime_inspection_is_exposed_in_api(
     assert payload["inspected_at"]
     assert "APP_PORT 49190" in payload["status_reason"]
     assert payload["status"] in {"running", "stopped"}
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="Windows-only runtime inspection")
+def test_runtime_batch_inspection_is_exposed_in_api(
+    isolated_environment: None,
+    tmp_path: Path,
+) -> None:
+    client = TestClient(create_app())
+    client.post(
+        "/auth/register",
+        json={"username": "runtime-batch-admin", "password": "password123"},
+    )
+    login_response = client.post(
+        "/auth/login",
+        json={"username": "runtime-batch-admin", "password": "password123"},
+    )
+    token = login_response.json()["access_token"]
+
+    project_ids: list[int] = []
+    for index, port in enumerate((49192, 49193)):
+        project_dir = tmp_path / f"api-runtime-batch-project-{index}"
+        project_dir.mkdir()
+        lifecycle_script = project_dir / "control.bat"
+        lifecycle_script.write_text(
+            "@echo off\r\n"
+            f"set \"APP_PORT={port}\"\r\n"
+            "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
+            "if /I \"%~1\"==\"START\" echo start-ok & exit /b 0\r\n"
+            "if /I \"%~1\"==\"STOP\" echo stop-ok & exit /b 0\r\n"
+            "if /I \"%~1\"==\"RESTART\" echo restart-ok & exit /b 0\r\n"
+            "exit /b 0\r\n",
+            encoding="utf-8",
+        )
+        register_response = client.post(
+            "/projects",
+            headers={"Authorization": f"Bearer {token}"},
+            json={
+                "reference_name": f"api-runtime-batch-project-{index}",
+                "project_root_path": str(project_dir),
+                "lifecycle_script_path": str(lifecycle_script),
+            },
+        )
+        project_ids.append(register_response.json()["id"])
+
+    runtime_response = client.post(
+        "/projects/runtime-inspections",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"project_ids": [project_ids[0], project_ids[1], project_ids[0]]},
+    )
+
+    assert runtime_response.status_code == 200
+    payload = runtime_response.json()
+    assert [snapshot["project_id"] for snapshot in payload] == project_ids
+    assert [snapshot["known_port"] for snapshot in payload] == [49192, 49193]

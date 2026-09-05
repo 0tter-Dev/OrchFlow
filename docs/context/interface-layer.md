@@ -36,7 +36,7 @@ Provide a clean separation between the backend core and multiple user-facing cli
 - interface clients should remain consumers of platform capabilities, not their owners
 - interface clients should rely on the API-facing surface rather than bypassing application boundaries
 - the `interface/` folder should act as a physical boundary between the backend core and client implementations
-- visual complexity should remain secondary to operational clarity in `v0.3.20`
+- visual complexity should remain secondary to operational clarity in `v0.3.21`
 - interface clients should communicate lifecycle configuration health without blocking partially configured projects
 - interface clients should preserve API failure context in operator-facing error states, including HTTP status, request method/path, and validation details when available
 - interface preferences should be loaded and saved through authenticated API contracts rather than being treated as web-only local state
@@ -59,8 +59,9 @@ The exact visual component is not fixed. A warning indicator, details popover, m
 - `interface/web` now exists as the first concrete interface client
 - the web client is bootstrapped with `React`, `TypeScript`, `Vite`, and `pnpm`
 - the web client now consumes authenticated API flows through a shared client boundary
-- the current web baseline includes session loading, login, persisted user preferences, project registration for existing `.bat` scripts, project listing, project details, project metadata and path editing, refined runtime visibility with reachability and status explanations, operational readiness guidance, lifecycle controls, AI proposal review/application, filtered recent audit history visibility for admins, user role/activation management, and project owner management
+- the current web baseline includes session loading, login, persisted user preferences, project registration for existing `.bat` scripts, project listing with batch runtime status, project details, project metadata and path editing, refined runtime visibility with reachability and status explanations, operational readiness guidance, lifecycle controls, AI proposal review/application, filtered recent audit history visibility for admins, user role/activation management, and project owner management
 - the web workspace now includes a preferences panel for locale, project list/table display mode, and status refresh interval; the selected project display mode is applied to the project list, the locale updates the document language, and the refresh interval drives periodic health/project refreshes while broader i18n remains planned for later operator-workspace refinements
+- the project list now requests runtime snapshots for the visible project set in a single API call and displays each project's current runtime status and known port alongside lifecycle configuration health
 - project editing is now available through backend API and CLI contracts and through the web project detail view
 - AI proposal review/application is now available through the web operator workspace using the existing authenticated AI assistance API contracts
 - operational readiness now gives selected projects a compact lifecycle/runtime checklist with direct actions for reload, mapping configuration, and runtime refresh

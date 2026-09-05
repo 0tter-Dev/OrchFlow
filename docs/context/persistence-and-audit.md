@@ -65,7 +65,7 @@ The preferred initial persistence direction is `SQLite`.
 - user preference changes should be auditable with user attribution while reads remain unaudited
 - project metadata and lifecycle script path changes should be auditable with user attribution
 - project reload and lifecycle configuration health changes should be auditable when they affect controllability or operator guidance
-- runtime snapshot persistence remains intentionally deferred after evaluation in the runtime maturity milestone; audit events and on-demand inspection remain the current history baseline
+- runtime snapshot persistence remains intentionally deferred after evaluation in the runtime maturity milestone; audit events plus single-project and batch on-demand inspection remain the current history baseline
 - the system should prioritize practical local reliability over premature complexity
 - the initial persistence bootstrap should provide a real migration path early, even before the first business entities are fully implemented
 - migration tests should catch accidental branch heads and schema drift before persistence changes are reviewed
