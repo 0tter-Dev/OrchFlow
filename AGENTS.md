@@ -18,6 +18,8 @@ Files inside `docs/context/` are feature-level context documents. AI agents must
 
 If an AI agent determines from `docs/INDEX.md`, `docs/STATUS.md`, or another root-level `docs/` document that more feature context may be needed, the agent must ask the requesting user for explicit authorization before reading the relevant file inside `docs/context/`.
 
+Mechanical current-version updates inside `docs/context/` during an approved project version bump do not require separate context-document authorization, as long as the agent does not read or alter feature-specific context beyond the version reference required for synchronization.
+
 If two documents appear to conflict, the Project Architecture and Development Guide take priority until the maintainers explicitly revise the documentation.
 
 Before any alteration, AI agents must ground their understanding in the applicable root-level documentation under `docs/`. Documentation is the baseline for implementation decisions, not an optional post-change check.
@@ -27,7 +29,7 @@ Before any alteration, AI agents must ground their understanding in the applicab
 Agents must:
 
 - preserve the local-first purpose of the project
-- keep `.bat` lifecycle scripts as the concrete operational base for managed projects in `v0.3.5`
+- keep `.bat` lifecycle scripts as the concrete operational base for managed projects in `v0.3.24`
 - preserve the ideal lifecycle function model as the reference for project mapping, configuration health, warnings, blocking rules, reload, and AI-assisted `.bat` improvement
 - treat the AI assistance layer as optional assistance mediated by OrchFlow, not as the authoritative lifecycle controller
 - treat `LiteLLM` as the central LLM/model gateway, while keeping OrchFlow responsible for allowed context, file access, review-driven flow, validation, and final user approval
@@ -35,7 +37,7 @@ Agents must:
 - prefer small, explicit, reviewable changes
 - keep documentation and implementation aligned
 - update all relevant documentation when meaningful implementation work is performed, especially code changes
-- after any relevant code change, re-evaluate the root-level documentation and any explicitly authorized, scope-relevant context documentation to update the documentation affected by the change
+- after any relevant code change, re-evaluate the root-level documentation and any explicitly authorized, scope-relevant context documentation to update the documentation affected by the change; mechanical context-document version reference updates are allowed during approved version bumps
 - keep `docs/TO-DO.md` limited to upcoming planned steps instead of retaining items that are already implemented
 - avoid placeholder shared abstractions or generic kernel layers unless they serve a clear current purpose
 - use Conventional Commits for agent-authored commits and align each commit with the semantic version decision documented for the pull request
@@ -89,6 +91,8 @@ AI agents must not treat documentation updates as optional cleanup. If code beha
 
 Every pull request must also evaluate and update the system version according to the change being proposed. Version updates must keep project metadata, runtime version exposure, tests, lockfiles, and documentation aligned with the semantic versioning guidance in `docs/GIT-GITHUB-FLOW.md` and `docs/DEVELOPMENT-GUIDE.md`.
 
+When a pull request performs an approved project version bump, AI agents may update only the required current-version references inside `docs/context/` without requesting separate context-document authorization. Any substantive context change still requires explicit authorization for the relevant context scope.
+
 Every agent-authored commit must use the Conventional Commit format documented in `docs/GIT-GITHUB-FLOW.md`. For Roadmap work, agents must choose the commit type and scope from the actual change area, such as `feat(ai)` for AI assistance and LiteLLM milestones, `fix(api)` for API corrections, `docs(roadmap)` for documentation-only Roadmap changes, or `ci(validation)` for validation workflow changes.
 
 ## Code Delivery Workflow
@@ -98,7 +102,7 @@ For code-changing work such as a fix, chore, refactor, test change, or feature, 
 The expected agent-driven delivery sequence is:
 
 1. read the applicable root-level documentation under `docs/`
-2. request explicit authorization before reading any needed `docs/context/` file
+2. request explicit authorization before reading any needed `docs/context/` file, except for mechanical current-version reference updates during an approved version bump
 3. make the focused code and documentation changes
 4. run the relevant local validation commands for the changed backend and/or frontend scope
 5. inspect the resulting diff and working tree status

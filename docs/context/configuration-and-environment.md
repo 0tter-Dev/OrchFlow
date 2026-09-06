@@ -16,8 +16,9 @@ Provide a clear, versioned, environment-based configuration contract for local d
 
 - validated settings loading, path normalization, runtime directory creation, and disabled-by-default LiteLLM settings are implemented
 - `.env.example` and `interface/web/.env.example` define the current local configuration examples
-- `orchflow-dev.bat` can create local `.env` files from those committed examples when the target files do not already exist
-- the launcher preserves existing local `.env` files and reports missing required local tools instead of installing global software automatically
+- `orchflow-setup.bat` can create local `.env` files from those committed examples when the target files do not already exist as part of its setup/check flow
+- `orchflow-control.bat` provides day-to-day API plus web startup after setup, while `orchflow-dev.bat` remains a combined entrypoint for both setup and control paths
+- the launchers preserve existing local `.env` files and report missing required local tools instead of installing global software automatically
 
 ## Direction
 

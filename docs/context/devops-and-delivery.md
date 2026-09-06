@@ -25,7 +25,7 @@ Establish disciplined engineering workflows early so the codebase can evolve saf
 - release hygiene
 - pull-request version bump discipline
 - manual tag validation and generated release-note artifacts
-- Windows-first local development launcher for cloned repository setup and startup
+- Windows-first local development launchers for cloned repository setup and day-to-day startup
 
 ## Current Documentation Baseline
 
@@ -53,7 +53,9 @@ The repository now also includes:
 - focused AI API contract coverage for authentication, validation, safe gateway responses, proposal workflow response shapes, and application confirmations
 - version consistency contract coverage for synchronized package metadata, runtime version exposure, lockfiles, smoke tests, and current-version documentation references
 - frontend critical-flow coverage for registering and selecting managed projects from the web operator surface
-- `orchflow-dev.bat`, a Windows-first local development launcher that checks prerequisites, prepares missing local `.env` files from committed examples, installs backend and web dependencies, runs migrations, validates bootstrap CLI status, and starts API plus web development servers through explicit menu actions
+- `orchflow-setup.bat`, a Windows-first setup launcher with a compact menu for setup/check flow, API plus web startup, and exit
+- `orchflow-control.bat`, a day-to-day control launcher that starts the local API plus web client without presenting setup actions as routine controls
+- `orchflow-dev.bat`, a combined launcher that delegates to the setup and control launchers for contributors who want both responsibility sets in one entrypoint
 
 ## Key Rules
 

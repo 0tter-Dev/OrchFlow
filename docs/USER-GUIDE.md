@@ -12,15 +12,27 @@ A user wants to bring a local project under OrchFlow control so they can start, 
 
 ### 0. Start OrchFlow Locally
 
-On Windows development machines, a user who has just cloned OrchFlow can start from the repository-root launcher:
+On Windows development machines, a user who has just cloned OrchFlow can start from the repository-root setup launcher:
+
+```bat
+orchflow-setup.bat
+```
+
+The setup launcher keeps the first-run menu simple: `[1] Check environment, prerequisites, and dependencies`, `[2] Start API and Web`, and `[3] Exit`. The setup/check flow checks required local tools, creates local environment files from `.env.example` and `interface/web/.env.example` when they do not already exist, installs backend and web dependencies, runs database migrations, and validates bootstrap CLI commands.
+
+For day-to-day local startup after setup, the user can run:
+
+```bat
+orchflow-control.bat
+```
+
+The combined development entrypoint remains available for contributors who want setup and local control paths in one menu:
 
 ```bat
 orchflow-dev.bat
 ```
 
-The launcher guides the user through checking required local tools, creating local environment files from `.env.example` and `interface/web/.env.example` when they do not already exist, installing backend and web dependencies, running database migrations, validating bootstrap CLI commands, and starting the API plus web development servers.
-
-The launcher preserves existing local `.env` files and does not install missing global tools automatically. If `uv`, Node/Corepack, or `pnpm` is missing, it reports the missing prerequisite so the user can install or enable it explicitly.
+The launchers preserve existing local `.env` files and do not install missing global tools automatically. If `uv`, Node, or Corepack is missing, the setup/check flow reports the missing prerequisite so the user can install or enable it explicitly. Corepack is used to enable `pnpm` before web dependencies are installed.
 
 ### 1. Sign In
 
