@@ -71,7 +71,7 @@ Future-oriented extensibility is acceptable when it does not add speculative imp
 - `docs/TO-DO.md` Roadmap steps should be granular enough for one branch and one pull request; broader themes should be split into ordered steps before implementation starts
 - Changes to established foundations such as the selected stack, business rules, scope boundaries, or non-goals require explicit user approval before they are applied
 
-For AI agents, root-level documentation under `docs/` is the required baseline before any alteration. AI agents must not consult `docs/context/` by default; they may read or update context documents only when the requesting user explicitly authorizes that scope.
+For AI agents, root-level documentation under `docs/` is the required baseline before any alteration. AI agents must not consult `docs/context/` by default; they may read or update context documents only when the requesting user explicitly authorizes that scope. Mechanical current-version reference updates inside `docs/context/` during an approved project version bump do not require separate context-document authorization, but substantive context review or content changes still do.
 
 After any relevant code change, AI agents must re-evaluate the related documentation and update the documents affected by the change. If a context document appears relevant but has not been authorized, the agent must ask for authorization before consulting it.
 
@@ -168,7 +168,7 @@ The current implementation baseline is:
 
 ## Technology Decision Policy
 
-The core technology direction is now selected for `v0.3.23`.
+The core technology direction is now selected for `v0.3.24`.
 
 Future changes should still be evaluated according to:
 
