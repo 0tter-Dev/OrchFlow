@@ -16,7 +16,101 @@ Implemented planning items should be removed from this document as work progress
 
 ## Next Implementation Roadmap
 
-No upcoming Roadmap steps are currently defined.
+1. `docs(roadmap): add launcher, web UX, and installer planning`
+
+   Objective: register the next launcher, web authentication UX, health refresh, brand, and installer planning sequence so implementation can continue through small reviewed pull requests.
+
+   Main scope: documentation-only roadmap update; no runtime, API, CLI, or web behavior changes.
+
+   Likely documents to update: `docs/TO-DO.md`.
+
+   Expected validation: documentation diff review and working-tree status check.
+
+   Planned semantic decision: no version bump because this is planning documentation only and does not change implemented behavior, public contracts, dependencies, or operational workflows.
+
+2. `feat(devx): split Windows setup and control launchers`
+
+   Objective: reduce cloned-repository startup friction by separating preparation from day-to-day local control while preserving a combined development entrypoint.
+
+   Main scope: introduce `OrchFlow-setup.bat` for setup/startup guidance, introduce `OrchFlow-control.bat` for local runtime control, and keep `OrchFlow-dev.bat` as the combined launcher that exposes both responsibility sets. The setup menu should stay simple and English-only: `[1] Check environment, prerequisites, and dependencies`, `[2] Start API and Web`, and `[3] Exit`. CLI validation should remain part of the setup/check flow rather than appearing as a separate persistent service.
+
+   Likely documents to update: `docs/STATUS.md`, `docs/USER-GUIDE.md`, `docs/context/configuration-and-environment.md`, and `docs/context/devops-and-delivery.md`.
+
+   Expected validation: inspect the batch menu flow manually on Windows, verify missing-prerequisite messages, verify `.env` preparation still preserves existing files, verify API plus web startup still works, and run the relevant backend/frontend validation required by the actual diff.
+
+   Planned semantic decision: patch bump from `0.3.23` to `0.3.24`, because the Windows local development workflow changes without altering core product contracts.
+
+3. `feat(devx): add PID-based local process control`
+
+   Objective: let Windows users check, start, stop, and restart the local OrchFlow API and web processes without relying only on manually managed terminal windows.
+
+   Main scope: make `OrchFlow-control.bat` support an English-only menu with `[1] Check status`, `[2] Start`, `[3] Stop`, `[4] Restart`, and `[5] Exit`; track API and web processes with PID files under the runtime directory; stop only processes started by the OrchFlow control flow; and read host/port values from the existing environment/configuration direction where practical so future localhost, LAN, or DNS use does not require hardcoded batch edits.
+
+   Likely documents to update: `docs/STATUS.md`, `docs/USER-GUIDE.md`, `docs/context/configuration-and-environment.md`, and `docs/context/devops-and-delivery.md`.
+
+   Expected validation: verify PID files are created, status reports correctly for running/stopped processes, stop does not target unrelated processes, restart replaces the tracked processes, configured host/port values are honored, and relevant backend/frontend checks pass.
+
+   Planned semantic decision: patch bump from `0.3.24` to `0.3.25`, because this adds local developer/runtime control capability around the existing OrchFlow process model.
+
+4. `feat(web-auth): redesign unauthenticated login flow`
+
+   Objective: make the first web screen a focused, understandable authentication surface for new and returning local operators.
+
+   Main scope: replace the unauthenticated mixed workspace with a centered login experience containing the OrchFlow name and future logo/icon placement, remove the topbar and `System probe` from the unauthenticated screen, rename `Open operator session` to `Login`, add a `Create account` path backed by the existing `POST /auth/register` API contract, keep public account creation role-neutral so the backend continues to make the first user `admin` and later unauthenticated users `member`, and keep visible copy English-only for this step.
+
+   Likely documents to update: `docs/STATUS.md`, `docs/USER-GUIDE.md`, `docs/context/access-control.md`, and `docs/context/interface-layer.md`.
+
+   Expected validation: frontend lint, tests, and build; focused web tests for login errors, account creation, first-user/admin messaging, returning to or entering the authenticated workspace, and absence of the unauthenticated topbar/system probe.
+
+   Planned semantic decision: patch bump from `0.3.25` to `0.3.26`, because this adds a web account-creation flow and changes the user-facing authentication experience while reusing the existing backend contract.
+
+5. `fix(web-health): stabilize health refresh UX`
+
+   Objective: remove distracting health-status flicker while preserving useful API status feedback for authenticated operators.
+
+   Main scope: preserve the latest known health snapshot during refresh attempts, avoid clearing health details during transient loading or error states, keep the unauthenticated screen free of the full health probe, and continue to use the existing authenticated status refresh preference without changing its backend validation range.
+
+   Likely documents to update: `docs/STATUS.md`, `docs/USER-GUIDE.md`, and `docs/context/interface-layer.md`.
+
+   Expected validation: frontend lint, tests, and build; focused tests proving refresh keeps prior health data visible, manual review that the unauthenticated screen no longer flickers, and verification that authenticated auto-refresh still follows the saved preference.
+
+   Planned semantic decision: patch bump from `0.3.26` to `0.3.27`, because this is a user-facing web UX fix with no API contract change.
+
+6. `feat(web-ui): add accessible UI primitives and icons`
+
+   Objective: establish a consistent, accessible UI interaction foundation for future web operator controls without turning the interface into a heavy design-system rewrite.
+
+   Main scope: add `lucide-react` for consistent operational icons and Radix Primitives for accessible dialogs, alert dialogs, toasts, dropdowns, tabs, tooltips, or popovers as needed by actual web flows; introduce only small shared wrappers when they serve current screens; keep styling owned by OrchFlow CSS; and document `TanStack Table` as a planned but not yet selected option for a later advanced project table experience.
+
+   Likely documents to update: `docs/STATUS.md`, `docs/USER-GUIDE.md`, `docs/context/interface-layer.md`, and frontend package metadata/lockfile.
+
+   Expected validation: frontend lint, tests, and build; focused interaction tests for any introduced dialog, toast, dropdown, tab, tooltip, or icon-driven controls; and dependency review confirming the bundle remains aligned with the lightweight React/Vite direction.
+
+   Planned semantic decision: patch bump from `0.3.27` to `0.3.28`, because this introduces frontend dependencies and user-facing UI primitives without changing backend contracts.
+
+7. `docs(brand): define OrchFlow visual identity direction`
+
+   Objective: define a low-risk visual identity reference before adding real logo assets to login, browser tab, desktop packaging, or other surfaces.
+
+   Main scope: document the preferred logo concept as an original `OF` monogram where the `O` suggests a local flow/cycle and the `F` suggests an operational control path with small nodes; keep the work descriptive only; avoid Docker, Kubernetes, cloud, container, whale, ship, or other motifs that could create confusion or copyright/trademark risk.
+
+   Likely documents to update: `docs/TO-DO.md`, `docs/context/interface-layer.md`, and a future brand/design note if the project adds one.
+
+   Expected validation: documentation diff review only.
+
+   Planned semantic decision: no version bump if the PR remains descriptive documentation only; patch bump if it introduces user-visible assets or interface changes.
+
+8. `docs(installer): outline Windows installer and release matrix`
+
+   Objective: capture installer and release-shape possibilities without committing the project to a desktop stack or packaging model before the web and launcher flows stabilize.
+
+   Main scope: document the future discussion around a Windows-first bootstrap `.exe`, full-project `.zip` releases, and optional release models such as `CLI only`, `CLI + API`, `CLI + API + Web`, `CLI + API + Desktop App`, and `All included`; keep the first recommended direction as a lightweight bootstrap that reuses the explicit setup/control scripts; leave Tauri, Electron, and other desktop-shell choices undecided until a dedicated evaluation step.
+
+   Likely documents to update: `docs/TO-DO.md`, `docs/USER-GUIDE.md`, `docs/context/devops-and-delivery.md`, and possibly `docs/PROJECT-ARCHITECTURE.md` only if the approved plan changes product scope.
+
+   Expected validation: documentation diff review only.
+
+   Planned semantic decision: no version bump if the PR remains planning documentation only; patch bump if it changes documented release workflow expectations.
 
 ## Cross-Cutting Rules
 
