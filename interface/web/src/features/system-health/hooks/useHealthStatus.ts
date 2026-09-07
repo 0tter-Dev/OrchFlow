@@ -38,12 +38,11 @@ export function useHealthStatus() {
       });
     } catch (error) {
       const message = formatErrorMessage(error, "Unable to reach the OrchFlow API.");
-      setState({
+      setState((currentState) => ({
+        ...currentState,
         errorMessage: message,
-        healthStatus: null,
         isLoading: false,
-        lastUpdated: new Date(),
-      });
+      }));
     }
   });
 

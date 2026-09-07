@@ -52,7 +52,7 @@ The unauthenticated web screen is a focused account surface for local operators.
 
 Public web account creation is role-neutral. The browser submits only the account credentials; the backend decides the role by the access-control rules, where the first local user becomes the bootstrap `admin` and later unauthenticated sign-ups become `member` users unless an admin changes their role later.
 
-After sign-in, the authenticated web surface opens as a compact operator workspace with a top status bar, project navigation, quick command metrics, selected-project details, runtime diagnostics, preferences, admin tools, AI review, and audit panels. The top-level shell uses the authenticated locale preference for basic `pt-BR` and `en-US` workspace labels while the broader interface translation remains an incremental follow-up.
+After sign-in, the authenticated web surface opens as a compact operator workspace with a top status bar, project navigation, quick command metrics, selected-project details, runtime diagnostics, preferences, admin tools, AI review, and audit panels. The top API status preserves the latest known health snapshot while refreshes are running or transiently failing, so the authenticated workspace does not flicker to an unknown state during routine polling. The top-level shell uses the authenticated locale preference for basic `pt-BR` and `en-US` workspace labels while the broader interface translation remains an incremental follow-up.
 
 When backend requests fail in the web workspace, the interface now shows contextual error notices that keep the operator-facing explanation together with available HTTP status, request method/path, and validation details returned by the API.
 
