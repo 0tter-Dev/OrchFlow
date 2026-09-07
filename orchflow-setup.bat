@@ -4,9 +4,7 @@ setlocal enabledelayedexpansion
 set "ROOT_DIR=%~dp0"
 if "%ROOT_DIR:~-1%"=="\" set "ROOT_DIR=%ROOT_DIR:~0,-1%"
 set "WEB_DIR=%ROOT_DIR%\interface\web"
-set "API_HOST=localhost"
-set "API_PORT=8000"
-set "WEB_URL=http://localhost:5174"
+set "CONTROL_LAUNCHER=%ROOT_DIR%\orchflow-control.bat"
 
 if /I "%~1"=="check" goto RUN_CHECK_FROM_ARGUMENT
 if /I "%~1"=="start-all" goto RUN_START_FROM_ARGUMENT
@@ -170,30 +168,9 @@ if errorlevel 1 exit /b 1
 call uv run orchflow database
 exit /b %ERRORLEVEL%
 
-:START_API
-echo.
-echo Starting OrchFlow API at http://%API_HOST%:%API_PORT% ...
-call :REQUIRE_TOOL uv "Install uv from https://docs.astral.sh/uv/"
-if errorlevel 1 exit /b 1
-start "OrchFlow API" cmd /k "cd /d ""%ROOT_DIR%"" && uv run uvicorn orchflow.external.api.app:create_app --factory --host %API_HOST% --port %API_PORT% --reload"
-exit /b 0
-
-:START_WEB
-echo.
-echo Starting OrchFlow web client at %WEB_URL% ...
-call :REQUIRE_TOOL pnpm "Run corepack enable from the setup check before starting the web client."
-if errorlevel 1 exit /b 1
-start "OrchFlow Web" cmd /k "cd /d ""%WEB_DIR%"" && pnpm dev"
-exit /b 0
-
 :START_ALL
-call :START_API
-if errorlevel 1 exit /b 1
-call :START_WEB
-if errorlevel 1 exit /b 1
-timeout /t 3 >nul
-start "" "%WEB_URL%"
-exit /b 0
+call "%CONTROL_LAUNCHER%" start
+exit /b %ERRORLEVEL%
 
 :RUN_SETUP_CHECK
 call :CHECK_PREREQUISITES

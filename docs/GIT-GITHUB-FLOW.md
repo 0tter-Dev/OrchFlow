@@ -31,7 +31,7 @@ This means:
 - branches should be deleted after merge
 - work may be authored either by a human contributor or by an authorized AI agent using a dedicated repository identity
 
-This project should not adopt a heavy Git Flow model in `v0.3.24`.
+This project should not adopt a heavy Git Flow model in `v0.3.25`.
 
 The repository is still in an early product stage, so a simpler branch model reduces process weight and makes maintenance easier.
 
@@ -50,6 +50,8 @@ Rules:
 ### Working Branches
 
 Every implementation, documentation, test, refactor, or CI task should use a short-lived branch created from `main`.
+
+Before implementing a numbered Roadmap step from `docs/TO-DO.md`, contributors and AI agents must verify the remote `main` branch state, update local `main` from the remote repository, and create the working branch from that synchronized baseline. This check keeps each Roadmap pull request based on the latest merged PRs instead of an older local checkout.
 
 Recommended naming patterns:
 
@@ -120,15 +122,16 @@ Avoid mixing unrelated concerns such as:
 The expected lifecycle for each change is:
 
 1. define or confirm the scope through an issue, roadmap item, or explicit task
-2. create a short-lived branch from `main`
-3. implement the focused change
-4. update tests and documentation as needed
-5. validate locally before opening the pull request
-6. open a pull request into `main`
-7. pass CI checks
-8. receive at least one review
-9. merge with squash merge
-10. delete the branch
+2. for Roadmap work, verify remote `main`, update local `main`, and confirm the branch will start from that synchronized baseline
+3. create a short-lived branch from `main`
+4. implement the focused change
+5. update tests and documentation as needed
+6. validate locally before opening the pull request
+7. open a pull request into `main`
+8. pass CI checks
+9. receive at least one review
+10. merge with squash merge
+11. delete the branch
 
 For agent-driven code changes, the agent must complete the local implementation, documentation alignment, validation, diff review, branch creation, commit, push, and pull request creation itself when the user has explicitly enabled or requested that delivery mode. The pull request remains the handoff point for human review and merge.
 
@@ -322,7 +325,7 @@ For the current backend baseline, the expected validation direction is:
 - `uv run alembic upgrade head`
 - `uv run pytest`
 
-The selected frontend package manager for `v0.3.24` is `pnpm`.
+The selected frontend package manager for `v0.3.25` is `pnpm`.
 
 The expected frontend validation direction is:
 
@@ -387,7 +390,7 @@ CI should continue evolving in stages.
 
 ### Stage 1
 
-The repository now has the backend and frontend quality baseline needed for `v0.3.24`.
+The repository now has the backend and frontend quality baseline needed for `v0.3.25`.
 
 ### Stage 2
 

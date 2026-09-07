@@ -25,7 +25,7 @@ Establish disciplined engineering workflows early so the codebase can evolve saf
 - release hygiene
 - pull-request version bump discipline
 - manual tag validation and generated release-note artifacts
-- Windows-first local development launchers for cloned repository setup and day-to-day startup
+- Windows-first local development launchers for cloned repository setup and day-to-day status/start/stop/restart control
 
 ## Current Documentation Baseline
 
@@ -41,6 +41,7 @@ This baseline defines:
 - staged CI direction
 - future CD and DevOps sequencing
 - expected GitHub repository settings
+- the requirement to synchronize local `main` with remote `main` before starting any Roadmap implementation branch
 
 The repository now also includes:
 
@@ -54,7 +55,7 @@ The repository now also includes:
 - version consistency contract coverage for synchronized package metadata, runtime version exposure, lockfiles, smoke tests, and current-version documentation references
 - frontend critical-flow coverage for registering and selecting managed projects from the web operator surface
 - `orchflow-setup.bat`, a Windows-first setup launcher with a compact menu for setup/check flow, API plus web startup, and exit
-- `orchflow-control.bat`, a day-to-day control launcher that starts the local API plus web client without presenting setup actions as routine controls
+- `orchflow-control.bat`, a day-to-day control launcher that checks status, starts, stops, and restarts the local API plus web client through PID files and process metadata under the runtime directory without presenting setup actions as routine controls
 - `orchflow-dev.bat`, a combined launcher that delegates to the setup and control launchers for contributors who want both responsibility sets in one entrypoint
 
 ## Key Rules
@@ -70,6 +71,7 @@ The repository now also includes:
 - frontend lint, tests, and build should remain part of the validation baseline once web operator flows exist
 - GitHub configuration should enforce the documented review flow instead of relying on convention alone
 - agent-authored pull requests are acceptable when they remain reviewable, traceable, and constrained by a human merge authority
+- before any Roadmap implementation branch is created, local `main` should be updated from the verified remote `main` state so the pull request is based on the latest merged work
 
 ## Main Relationships
 

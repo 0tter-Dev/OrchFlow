@@ -26,6 +26,8 @@ For day-to-day local startup after setup, the user can run:
 orchflow-control.bat
 ```
 
+The control launcher uses a focused routine-operations menu: `[1] Check status`, `[2] Start`, `[3] Stop`, `[4] Restart`, and `[5] Exit`. It tracks the local OrchFlow API and web client with PID files and process metadata under `ORCHFLOW_RUNTIME_DIR`, writes generated service commands and startup logs in the same runtime area, and stops only processes it previously started and tracked. The launcher reads `ORCHFLOW_API_HOST`, `ORCHFLOW_API_PORT`, `ORCHFLOW_WEB_HOST`, `ORCHFLOW_WEB_PORT`, and `ORCHFLOW_WEB_URL` from local environment configuration, with process environment variables overriding `.env` values.
+
 The combined development entrypoint remains available for contributors who want setup and local control paths in one menu:
 
 ```bat
