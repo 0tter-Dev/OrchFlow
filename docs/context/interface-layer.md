@@ -45,6 +45,7 @@ Provide a clean separation between the backend core and multiple user-facing cli
 - authenticated health refresh should preserve the latest known API snapshot during loading or transient error states instead of clearing visible status details
 - shared web UI primitives should stay small and flow-driven; Radix primitives and icons should be introduced only where current screens need accessible interaction structure or clearer command affordance
 - `TanStack Table` remains a planned option for a later advanced project table experience and is not part of the current selected dependency baseline
+- future logo, favicon, installer, desktop, or branded interface work should follow the original `OF` monogram direction in `docs/BRAND-IDENTITY.md`
 - interface clients should communicate lifecycle configuration health without blocking partially configured projects
 - interface clients should preserve API failure context in operator-facing error states, including HTTP status, request method/path, and validation details when available
 - interface preferences should be loaded and saved through authenticated API contracts rather than being treated as web-only local state
