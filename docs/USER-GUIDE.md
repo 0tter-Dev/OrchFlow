@@ -48,7 +48,7 @@ At the current implementation stage, the operational surfaces already implemente
 
 `CLI` and `API` remain the reference backend delivery surfaces, and the `web` interface now mirrors the first practical operator workflow on top of those same contracts, including registration of existing projects with compatible `.bat` lifecycle scripts.
 
-The unauthenticated web screen is a focused account surface for local operators. It shows the OrchFlow identity, a `Login` path for returning users, and a `Create account` path backed by the same registration contract as the API. The full workspace chrome, top status bar, and system health probe are shown only after authentication.
+The unauthenticated web screen is a focused account surface for local operators. It shows the OrchFlow identity, Radix-backed `Login` and `Create account` tabs with operational icons, and a `Create account` path backed by the same registration contract as the API. The full workspace chrome, top status bar, and system health probe are shown only after authentication.
 
 Public web account creation is role-neutral. The browser submits only the account credentials; the backend decides the role by the access-control rules, where the first local user becomes the bootstrap `admin` and later unauthenticated sign-ups become `member` users unless an admin changes their role later.
 
