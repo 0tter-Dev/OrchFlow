@@ -31,6 +31,9 @@ Shows how a user is expected to interact with OrchFlow through a realistic end-t
 - [Git And GitHub Flow](./GIT-GITHUB-FLOW.md)
 Defines the repository workflow, pull request discipline, versioning model, CI direction, and GitHub configuration standard.
 
+- [Brand Identity](./BRAND-IDENTITY.md)
+Defines the current original `OF` monogram direction and visual identity constraints for future logo, favicon, installer, desktop, and interface branding work.
+
 - `docs/context/`
 Contains feature-oriented context documents that describe purpose, scope, planned behavior, interactions, and implementation status.
 
