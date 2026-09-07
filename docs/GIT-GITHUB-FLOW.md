@@ -456,10 +456,17 @@ For a solo-maintainer repository, the recommended practical setup is:
 
 The preferred identity model for agent-driven work is:
 
-- one dedicated GitHub user for repository automation and AI-authored pull requests
+- one dedicated GitHub user for repository automation and AI-authored pull requests; the current default for OrchFlow is `0tter-Dev-AI`
 - repository-local Git `user.name` and `user.email` configuration matching that identity
 - repository-scoped authentication for `git` and `gh`
 - no reliance on the machine-global Git identity for agent-authored work
+
+For OrchFlow, the current default AI-agent Git author identity is:
+
+- `user.name`: `0tter-Dev-AI`
+- `user.email`: `otter.dev.ai@gmail.com`
+
+The local Git remote authentication path should resolve to the same authorized account before pushing branches. If an SSH host alias resolves to a different GitHub identity, agents should update the repository-local remote configuration or use the authenticated `gh` Git credential path instead of pushing with the wrong account.
 
 Recommended setup sequence:
 

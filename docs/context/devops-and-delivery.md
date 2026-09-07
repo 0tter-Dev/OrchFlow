@@ -57,6 +57,7 @@ The repository now also includes:
 - `orchflow-setup.bat`, a Windows-first setup launcher with a compact menu for setup/check flow, API plus web startup, and exit
 - `orchflow-control.bat`, a day-to-day control launcher that checks status, starts, stops, and restarts the local API plus web client through PID files and process metadata under the runtime directory without presenting setup actions as routine controls
 - `orchflow-dev.bat`, a combined launcher that delegates to the setup and control launchers for contributors who want both responsibility sets in one entrypoint
+- `0tter-Dev-AI <otter.dev.ai@gmail.com>` as the current default repository-specific Git author identity for AI-agent pull requests
 
 ## Key Rules
 
@@ -71,6 +72,7 @@ The repository now also includes:
 - frontend lint, tests, and build should remain part of the validation baseline once web operator flows exist
 - GitHub configuration should enforce the documented review flow instead of relying on convention alone
 - agent-authored pull requests are acceptable when they remain reviewable, traceable, and constrained by a human merge authority
+- agent-authored branch pushes should use a Git remote authentication path that resolves to the same authorized AI-agent account documented for repository authorship
 - before any Roadmap implementation branch is created, local `main` should be updated from the verified remote `main` state so the pull request is based on the latest merged work
 
 ## Main Relationships

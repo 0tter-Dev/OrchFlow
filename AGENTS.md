@@ -151,5 +151,7 @@ When the documented agent-driven Git workflow is enabled, agents must:
 
 - use short-lived branches and pull requests exactly as defined in `docs/GIT-GITHUB-FLOW.md`
 - use the repository-specific Git identity configured for OrchFlow instead of the machine-global identity
+- use `0tter-Dev-AI <otter.dev.ai@gmail.com>` as the default repository-specific Git author identity for AI-agent work unless maintainers explicitly replace that identity
+- ensure the Git remote authentication path resolves to the same authorized AI-agent account before pushing branches
 - avoid merging their own pull requests
 - leave final review and merge authority to a human maintainer with repository admin access
