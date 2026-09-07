@@ -1,7 +1,7 @@
 import { startTransition, useEffect, useEffectEvent, useState } from "react";
 
 import { formatErrorMessage } from "../../../shared/api/errors";
-import { getCurrentUser, loginUser } from "../../../shared/api/auth";
+import { getCurrentUser, loginUser, registerUser } from "../../../shared/api/auth";
 import type { UserSummary } from "../../../shared/types/auth";
 
 const AUTH_TOKEN_STORAGE_KEY = "orchflow.auth.token";
@@ -90,6 +90,29 @@ export function useAuthSession() {
     }
   });
 
+  const createAccount = useEffectEvent(async (username: string, password: string) => {
+    setState((currentState) => ({
+      ...currentState,
+      errorMessage: null,
+      isLoading: true,
+    }));
+
+    try {
+      await registerUser({ password, username });
+      const payload = await loginUser({ password, username });
+      window.localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, payload.access_token);
+      await hydrateFromToken(payload.access_token);
+    } catch (error) {
+      const message = formatErrorMessage(error, "Unable to create the account.");
+      setState({
+        currentUser: null,
+        errorMessage: message,
+        isLoading: false,
+        token: null,
+      });
+    }
+  });
+
   function logout() {
     window.localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
     setState({
@@ -101,6 +124,7 @@ export function useAuthSession() {
   }
 
   return {
+    createAccount,
     currentUser: state.currentUser,
     errorMessage: state.errorMessage,
     isLoading: state.isLoading,

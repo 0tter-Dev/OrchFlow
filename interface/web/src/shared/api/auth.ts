@@ -6,8 +6,20 @@ type LoginPayload = {
   username: string;
 };
 
+type RegisterUserPayload = {
+  password: string;
+  username: string;
+};
+
 export function loginUser(payload: LoginPayload): Promise<AccessTokenPayload> {
   return requestJson<AccessTokenPayload>("/auth/login", {
+    body: payload,
+    method: "POST",
+  });
+}
+
+export function registerUser(payload: RegisterUserPayload): Promise<UserSummary> {
+  return requestJson<UserSummary>("/auth/register", {
     body: payload,
     method: "POST",
   });

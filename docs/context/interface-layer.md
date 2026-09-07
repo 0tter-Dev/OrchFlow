@@ -21,6 +21,7 @@ Provide a clean separation between the backend core and multiple user-facing cli
 ## Focus Areas
 
 - project listing
+- focused unauthenticated authentication entry
 - project details
 - runtime metrics display
 - lifecycle controls
@@ -37,7 +38,8 @@ Provide a clean separation between the backend core and multiple user-facing cli
 - interface clients should remain consumers of platform capabilities, not their owners
 - interface clients should rely on the API-facing surface rather than bypassing application boundaries
 - the `interface/` folder should act as a physical boundary between the backend core and client implementations
-- visual complexity should remain secondary to operational clarity in `v0.3.25`; the web workspace should feel like a dense operator tool rather than a marketing or bootstrap page
+- visual complexity should remain secondary to operational clarity in `v0.3.26`; the web workspace should feel like a dense operator tool rather than a marketing or bootstrap page
+- unauthenticated web screens should stay focused on authentication and account creation instead of rendering the authenticated workspace chrome, top status bar, or system health probe
 - interface clients should communicate lifecycle configuration health without blocking partially configured projects
 - interface clients should preserve API failure context in operator-facing error states, including HTTP status, request method/path, and validation details when available
 - interface preferences should be loaded and saved through authenticated API contracts rather than being treated as web-only local state
@@ -60,7 +62,7 @@ The exact visual component is not fixed. A warning indicator, details popover, m
 - `interface/web` now exists as the first concrete interface client
 - the web client is bootstrapped with `React`, `TypeScript`, `Vite`, and `pnpm`
 - the web client now consumes authenticated API flows through a shared client boundary
-- the current web baseline includes session loading, login, a compact daily operator workspace shell, persisted user preferences, project registration for existing `.bat` scripts, project listing with batch runtime status, project details, project metadata and path editing, project unlink confirmation that preserves local files, refined runtime visibility with reachability and status explanations, operational readiness guidance, lifecycle controls, AI proposal review/application, filtered recent audit history visibility for admins, user role/activation management, and project owner management
+- the current web baseline includes a focused unauthenticated `Login` and `Create account` screen, session loading, a compact daily operator workspace shell after authentication, persisted user preferences, project registration for existing `.bat` scripts, project listing with batch runtime status, project details, project metadata and path editing, project unlink confirmation that preserves local files, refined runtime visibility with reachability and status explanations, operational readiness guidance, lifecycle controls, AI proposal review/application, filtered recent audit history visibility for admins, user role/activation management, and project owner management
 - the web workspace now includes a preferences panel for locale, project list/table display mode, and status refresh interval; the selected project display mode is applied to the project list, the locale updates the document language, and the refresh interval drives periodic health/project refreshes while broader i18n remains planned for later operator-workspace refinements
 - the top-level web shell now uses lightweight `pt-BR` and `en-US` dictionaries for workspace labels and command metrics while deeper component translation remains planned for later i18n work
 - the project list now requests runtime snapshots for the visible project set in a single API call and displays each project's current runtime status and known port alongside lifecycle configuration health
