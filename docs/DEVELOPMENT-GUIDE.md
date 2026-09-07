@@ -165,11 +165,12 @@ The current implementation baseline is:
 - quality tooling: `ruff` and `mypy`
 - frontend package manager: `pnpm`
 - initial web interface layer: `React`, `TypeScript`, and `Vite`
+- web UI primitives and icons: Radix Tabs, Radix Tooltip, and `lucide-react` for current flow-driven controls
 - AI/model gateway: `LiteLLM`, isolated behind the OrchFlow AI assistance adapter
 
 ## Technology Decision Policy
 
-The core technology direction is now selected for `v0.3.27`.
+The core technology direction is now selected for `v0.3.28`.
 
 Future changes should still be evaluated according to:
 

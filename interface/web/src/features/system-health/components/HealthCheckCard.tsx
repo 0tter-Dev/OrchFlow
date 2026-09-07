@@ -1,3 +1,5 @@
+import { RefreshCw } from "lucide-react";
+
 import type { SystemHealthSnapshot } from "../../../shared/types/system";
 import "./HealthCheckCard.css";
 import { ErrorNotice } from "../../../shared/components/ErrorNotice";
@@ -42,6 +44,7 @@ export function HealthCheckCard({
           <h2 className="health-card__title">Backend status</h2>
         </div>
         <button className="health-card__button" type="button" onClick={onRefresh}>
+          <RefreshCw aria-hidden="true" size={15} strokeWidth={2.4} />
           {isRefreshingSnapshot ? "Refreshing..." : "Refresh"}
         </button>
       </header>

@@ -29,6 +29,10 @@
 }
 
 .health-card__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
   padding: 0.7rem 1.05rem;
   border: 0;
   border-radius: 8px;
@@ -41,6 +45,10 @@
     transform 140ms ease,
     box-shadow 140ms ease,
     background 140ms ease;
+}
+
+.health-card__button svg {
+  flex: 0 0 auto;
 }
 
 .health-card__surface {

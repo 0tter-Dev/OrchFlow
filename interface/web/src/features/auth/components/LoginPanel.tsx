@@ -1,7 +1,10 @@
+import * as Tabs from "@radix-ui/react-tabs";
+import { LoaderCircle, LogIn, UserPlus } from "lucide-react";
 import { FormEvent, useState } from "react";
 
 import "./LoginPanel.css";
 import { ErrorNotice } from "../../../shared/components/ErrorNotice";
+import { Tooltip } from "../../../shared/components/Tooltip";
 
 type AuthMode = "login" | "create";
 
@@ -35,9 +38,15 @@ export function LoginPanel({
   return (
     <section className="login-panel" aria-label="OrchFlow authentication">
       <header className="login-panel__header">
-        <span className="login-panel__mark" aria-hidden="true">
-          OF
-        </span>
+        <Tooltip content="OrchFlow local operator workspace">
+          <button
+            aria-label="OrchFlow local operator workspace"
+            className="login-panel__mark"
+            type="button"
+          >
+            OF
+          </button>
+        </Tooltip>
         <span className="login-panel__eyebrow">Local operator access</span>
         <h1 className="login-panel__title">OrchFlow</h1>
         <p className="login-panel__copy">
@@ -46,26 +55,30 @@ export function LoginPanel({
         </p>
       </header>
 
-      <div className="login-panel__mode" role="tablist" aria-label="Authentication mode">
-        <button
-          aria-selected={mode === "login"}
-          className="login-panel__mode-button"
-          onClick={() => setMode("login")}
-          role="tab"
-          type="button"
-        >
-          Login
-        </button>
-        <button
-          aria-selected={mode === "create"}
-          className="login-panel__mode-button"
-          onClick={() => setMode("create")}
-          role="tab"
-          type="button"
-        >
-          Create account
-        </button>
-      </div>
+      <Tabs.Root
+        className="login-panel__tabs"
+        value={mode}
+        onValueChange={(value) => setMode(value as AuthMode)}
+      >
+        <Tabs.List className="login-panel__mode" aria-label="Authentication mode">
+          <Tabs.Trigger
+            className="login-panel__mode-button"
+            onClick={() => setMode("login")}
+            value="login"
+          >
+            <LogIn aria-hidden="true" size={16} strokeWidth={2.4} />
+            <span>Login</span>
+          </Tabs.Trigger>
+          <Tabs.Trigger
+            className="login-panel__mode-button"
+            onClick={() => setMode("create")}
+            value="create"
+          >
+            <UserPlus aria-hidden="true" size={16} strokeWidth={2.4} />
+            <span>Create account</span>
+          </Tabs.Trigger>
+        </Tabs.List>
+      </Tabs.Root>
 
       <form className="login-panel__form" onSubmit={handleSubmit}>
         <label className="login-panel__field">
@@ -93,6 +106,28 @@ export function LoginPanel({
 
         <div className="login-panel__actions">
           <button className="login-panel__button" disabled={isLoading} type="submit">
+            {isLoading ? (
+              <LoaderCircle
+                aria-hidden="true"
+                className="login-panel__button-icon login-panel__button-icon--spin"
+                size={17}
+                strokeWidth={2.4}
+              />
+            ) : mode === "create" ? (
+              <UserPlus
+                aria-hidden="true"
+                className="login-panel__button-icon"
+                size={17}
+                strokeWidth={2.4}
+              />
+            ) : (
+              <LogIn
+                aria-hidden="true"
+                className="login-panel__button-icon"
+                size={17}
+                strokeWidth={2.4}
+              />
+            )}
             {isLoading ? "Working..." : mode === "create" ? "Create account" : "Login"}
           </button>
           {errorMessage !== null ? (

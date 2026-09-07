@@ -20,12 +20,20 @@
   width: 3rem;
   height: 3rem;
   place-items: center;
+  padding: 0;
   border: 1px solid rgba(158, 228, 218, 0.25);
   border-radius: 8px;
   background: #2f8f83;
   color: #07110f;
+  cursor: help;
+  font-family: inherit;
   font-size: 0.86rem;
   font-weight: 900;
+}
+
+.login-panel__mark:focus-visible {
+  outline: 2px solid #f0c36a;
+  outline-offset: 3px;
 }
 
 .login-panel__eyebrow {
@@ -58,6 +66,10 @@
 }
 
 .login-panel__mode-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
   min-height: 2.25rem;
   border: 0;
   border-radius: 6px;
@@ -67,9 +79,13 @@
   font-weight: 800;
 }
 
-.login-panel__mode-button[aria-selected="true"] {
+.login-panel__mode-button[data-state="active"] {
   background: #2f8f83;
   color: #07110f;
+}
+
+.login-panel__mode-button svg {
+  flex: 0 0 auto;
 }
 
 .login-panel__form {
@@ -106,6 +122,10 @@
 }
 
 .login-panel__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
   min-height: 2.75rem;
   padding: 0.85rem 1rem;
   border: 0;
@@ -116,9 +136,23 @@
   cursor: pointer;
 }
 
+.login-panel__button-icon {
+  flex: 0 0 auto;
+}
+
+.login-panel__button-icon--spin {
+  animation: login-panel-spin 0.9s linear infinite;
+}
+
 .login-panel__button:disabled {
   cursor: wait;
   opacity: 0.7;
+}
+
+@keyframes login-panel-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .login-panel__error {
