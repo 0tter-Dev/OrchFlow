@@ -1,10 +1,31 @@
 .login-panel {
   display: grid;
-  gap: 1rem;
-  padding: 1.5rem;
+  width: 100%;
+  gap: 1.15rem;
+  padding: 1.35rem;
   border-radius: 8px;
   background: #1d1f1d;
   border: 1px solid #303230;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.22);
+}
+
+.login-panel__header {
+  display: grid;
+  gap: 0.45rem;
+  justify-items: start;
+}
+
+.login-panel__mark {
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  place-items: center;
+  border: 1px solid rgba(158, 228, 218, 0.25);
+  border-radius: 8px;
+  background: #2f8f83;
+  color: #07110f;
+  font-size: 0.86rem;
+  font-weight: 900;
 }
 
 .login-panel__eyebrow {
@@ -15,14 +36,40 @@
 }
 
 .login-panel__title {
-  margin: 0.15rem 0 0;
-  font-size: 1.4rem;
+  margin: 0;
+  font-size: 2rem;
+  line-height: 1.05;
 }
 
 .login-panel__copy {
   margin: 0;
   color: #c9c1b4;
-  line-height: 1.7;
+  line-height: 1.6;
+}
+
+.login-panel__mode {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.35rem;
+  padding: 0.25rem;
+  border: 1px solid #333734;
+  border-radius: 8px;
+  background: #151615;
+}
+
+.login-panel__mode-button {
+  min-height: 2.25rem;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #c9c1b4;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.login-panel__mode-button[aria-selected="true"] {
+  background: #2f8f83;
+  color: #07110f;
 }
 
 .login-panel__form {
@@ -59,6 +106,7 @@
 }
 
 .login-panel__button {
+  min-height: 2.75rem;
   padding: 0.85rem 1rem;
   border: 0;
   border-radius: 8px;
@@ -83,6 +131,16 @@
 .login-panel__hint {
   margin: 0;
   color: #aaa397;
-  font-size: 0.9rem;
+  font-size: 0.86rem;
   line-height: 1.65;
+}
+
+@media (max-width: 520px) {
+  .login-panel {
+    padding: 1rem;
+  }
+
+  .login-panel__title {
+    font-size: 1.7rem;
+  }
 }

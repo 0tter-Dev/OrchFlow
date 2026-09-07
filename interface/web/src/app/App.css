@@ -5,6 +5,13 @@
   background: #151615;
 }
 
+.app-shell--auth {
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: #171917;
+}
+
 .topbar {
   position: sticky;
   top: 0;
@@ -71,39 +78,24 @@
   color: #9ee4da;
 }
 
-.guest-workspace,
 .operator-workspace {
   width: min(1480px, calc(100% - 2rem));
   margin: 0 auto;
   padding: 1rem 0 2rem;
 }
 
-.guest-workspace {
-  display: grid;
-  gap: 1rem;
-}
-
-.guest-workspace__intro,
 .command-bar {
   border: 1px solid #303230;
   border-radius: 8px;
   background: #1d1f1d;
 }
 
-.guest-workspace__intro {
-  display: grid;
-  gap: 0.45rem;
-  padding: 1rem;
-}
-
-.guest-workspace__intro h1,
 .command-bar h1 {
   margin: 0;
   font-size: 1.55rem;
   line-height: 1.15;
 }
 
-.guest-workspace__intro p,
 .command-bar p {
   max-width: 56rem;
   margin: 0;
@@ -111,10 +103,11 @@
   line-height: 1.55;
 }
 
-.guest-workspace__grid {
+.auth-screen {
   display: grid;
-  gap: 1rem;
-  grid-template-columns: minmax(320px, 0.9fr) minmax(0, 1.1fr);
+  width: min(100%, 460px);
+  min-height: calc(100vh - 2rem);
+  place-items: center;
 }
 
 .operator-workspace {
@@ -243,12 +236,10 @@
     flex-direction: column;
   }
 
-  .guest-workspace,
   .operator-workspace {
     width: min(100% - 1rem, 1480px);
   }
 
-  .guest-workspace__grid,
   .command-bar__metrics {
     grid-template-columns: 1fr;
   }

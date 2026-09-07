@@ -48,7 +48,11 @@ At the current implementation stage, the operational surfaces already implemente
 
 `CLI` and `API` remain the reference backend delivery surfaces, and the `web` interface now mirrors the first practical operator workflow on top of those same contracts, including registration of existing projects with compatible `.bat` lifecycle scripts.
 
-The authenticated web surface opens as a compact operator workspace with a top status bar, project navigation, quick command metrics, selected-project details, runtime diagnostics, preferences, admin tools, AI review, and audit panels. The top-level shell uses the authenticated locale preference for basic `pt-BR` and `en-US` workspace labels while the broader interface translation remains an incremental follow-up.
+The unauthenticated web screen is a focused account surface for local operators. It shows the OrchFlow identity, a `Login` path for returning users, and a `Create account` path backed by the same registration contract as the API. The full workspace chrome, top status bar, and system health probe are shown only after authentication.
+
+Public web account creation is role-neutral. The browser submits only the account credentials; the backend decides the role by the access-control rules, where the first local user becomes the bootstrap `admin` and later unauthenticated sign-ups become `member` users unless an admin changes their role later.
+
+After sign-in, the authenticated web surface opens as a compact operator workspace with a top status bar, project navigation, quick command metrics, selected-project details, runtime diagnostics, preferences, admin tools, AI review, and audit panels. The top-level shell uses the authenticated locale preference for basic `pt-BR` and `en-US` workspace labels while the broader interface translation remains an incremental follow-up.
 
 When backend requests fail in the web workspace, the interface now shows contextual error notices that keep the operator-facing explanation together with available HTTP status, request method/path, and validation details returned by the API.
 
