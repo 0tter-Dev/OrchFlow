@@ -30,6 +30,10 @@ export function HealthCheckCard({
   lastUpdated,
   onRefresh,
 }: HealthCheckCardProps) {
+  const hasHealthSnapshot = healthStatus !== null;
+  const isInitialLoad = isLoading && !hasHealthSnapshot;
+  const isRefreshingSnapshot = isLoading && hasHealthSnapshot;
+
   return (
     <section className="health-card">
       <header className="health-card__header">
@@ -38,7 +42,7 @@ export function HealthCheckCard({
           <h2 className="health-card__title">Backend status</h2>
         </div>
         <button className="health-card__button" type="button" onClick={onRefresh}>
-          Refresh
+          {isRefreshingSnapshot ? "Refreshing..." : "Refresh"}
         </button>
       </header>
 
@@ -54,8 +58,12 @@ export function HealthCheckCard({
           </div>
         </div>
 
-        {isLoading ? (
+        {isInitialLoad ? (
           <p className="health-card__message">Inspecting the OrchFlow API health endpoint...</p>
+        ) : null}
+
+        {isRefreshingSnapshot ? (
+          <p className="health-card__message">Refreshing latest API status...</p>
         ) : null}
 
         {errorMessage !== null ? (
@@ -66,7 +74,7 @@ export function HealthCheckCard({
           />
         ) : null}
 
-        {healthStatus !== null ? (
+        {hasHealthSnapshot ? (
           <dl className="health-card__metrics">
             <div>
               <dt>Name</dt>

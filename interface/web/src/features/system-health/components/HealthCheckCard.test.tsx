@@ -45,4 +45,39 @@ describe("HealthCheckCard", () => {
     expect(screen.getByText("Unable to reach the OrchFlow API.")).toBeInTheDocument();
     expect(screen.getByText("API unavailable")).toBeInTheDocument();
   });
+
+  it("keeps the latest health snapshot visible while refreshing", () => {
+    render(
+      <HealthCheckCard
+        apiBaseUrl="http://localhost:8000"
+        errorMessage={null}
+        healthStatus={snapshot}
+        isLoading={true}
+        lastUpdated={new Date("2026-08-24T12:00:00Z")}
+        onRefresh={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText("Refreshing latest API status...")).toBeInTheDocument();
+    expect(screen.getByText("ok")).toBeInTheDocument();
+    expect(screen.getByText("bootstrap")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Refreshing..." })).toBeInTheDocument();
+  });
+
+  it("keeps the latest health snapshot visible with a refresh error", () => {
+    render(
+      <HealthCheckCard
+        apiBaseUrl="http://localhost:8000"
+        errorMessage="Transient network failure"
+        healthStatus={snapshot}
+        isLoading={false}
+        lastUpdated={new Date("2026-08-24T12:00:00Z")}
+        onRefresh={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText("Transient network failure")).toBeInTheDocument();
+    expect(screen.getByText("ok")).toBeInTheDocument();
+    expect(screen.getByText("0.2.9")).toBeInTheDocument();
+  });
 });
