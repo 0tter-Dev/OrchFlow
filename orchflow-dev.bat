@@ -36,7 +36,7 @@ pause
 goto MENU
 
 :MENU_START
-call "%SETUP_LAUNCHER%" start-all
+call "%CONTROL_LAUNCHER%" start
 pause
 goto MENU
 

@@ -69,6 +69,7 @@ Future-oriented extensibility is acceptable when it does not add speculative imp
 - Pull requests must include a semantic version decision and must update all version-bearing files when the change requires a version bump
 - `docs/TO-DO.md` should remain focused on the next planned steps and should not retain work that is already implemented
 - `docs/TO-DO.md` Roadmap steps should be granular enough for one branch and one pull request; broader themes should be split into ordered steps before implementation starts
+- Before implementing any `docs/TO-DO.md` Roadmap step, contributors and AI agents must verify the remote `main` branch state, update local `main` from the remote repository, and create the work branch from that synchronized baseline
 - Changes to established foundations such as the selected stack, business rules, scope boundaries, or non-goals require explicit user approval before they are applied
 
 For AI agents, root-level documentation under `docs/` is the required baseline before any alteration. AI agents must not consult `docs/context/` by default; they may read or update context documents only when the requesting user explicitly authorizes that scope. Mechanical current-version reference updates inside `docs/context/` during an approved project version bump do not require separate context-document authorization, but substantive context review or content changes still do.
@@ -119,7 +120,7 @@ The project should adopt tests progressively in the following order:
 
 When an AI agent is allowed to execute Git operations for this repository, it should do so only through the documented repository workflow, using `git` and `gh` through the CLI, a repository-specific Git identity, and leaving review and merge authority to a human maintainer.
 
-For code-changing agent work, the expected delivery path is: implement the focused change, update the relevant documentation, run the relevant backend and/or frontend validations, inspect the diff, create a specific short-lived branch, commit with a Conventional Commit message, push, and open a pull request into `main`.
+For code-changing agent work, the expected delivery path is: verify and update local `main` from the remote when the change implements a Roadmap step, create a specific short-lived branch from that synchronized baseline, implement the focused change, update the relevant documentation, run the relevant backend and/or frontend validations, inspect the diff, commit with a Conventional Commit message, push, and open a pull request into `main`.
 
 Pull request descriptions should use `.github/PULL_REQUEST_TEMPLATE.md` as the standard repository template. Contributors and AI agents should fill that structure when creating PRs, including the summary, decision notes, validation checklist, documentation checklist, and review notes that apply to the change.
 
@@ -168,7 +169,7 @@ The current implementation baseline is:
 
 ## Technology Decision Policy
 
-The core technology direction is now selected for `v0.3.24`.
+The core technology direction is now selected for `v0.3.25`.
 
 Future changes should still be evaluated according to:
 

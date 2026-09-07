@@ -29,7 +29,7 @@ Before any alteration, AI agents must ground their understanding in the applicab
 Agents must:
 
 - preserve the local-first purpose of the project
-- keep `.bat` lifecycle scripts as the concrete operational base for managed projects in `v0.3.24`
+- keep `.bat` lifecycle scripts as the concrete operational base for managed projects in `v0.3.25`
 - preserve the ideal lifecycle function model as the reference for project mapping, configuration health, warnings, blocking rules, reload, and AI-assisted `.bat` improvement
 - treat the AI assistance layer as optional assistance mediated by OrchFlow, not as the authoritative lifecycle controller
 - treat `LiteLLM` as the central LLM/model gateway, while keeping OrchFlow responsible for allowed context, file access, review-driven flow, validation, and final user approval
@@ -39,6 +39,7 @@ Agents must:
 - update all relevant documentation when meaningful implementation work is performed, especially code changes
 - after any relevant code change, re-evaluate the root-level documentation and any explicitly authorized, scope-relevant context documentation to update the documentation affected by the change; mechanical context-document version reference updates are allowed during approved version bumps
 - keep `docs/TO-DO.md` limited to upcoming planned steps instead of retaining items that are already implemented
+- before implementing any `docs/TO-DO.md` Roadmap step, verify the remote `main` branch state, update local `main` from the remote repository, and create the work branch from that synchronized baseline
 - avoid placeholder shared abstractions or generic kernel layers unless they serve a clear current purpose
 - use Conventional Commits for agent-authored commits and align each commit with the semantic version decision documented for the pull request
 - follow the documented repository workflow for human-driven and agent-driven pull request delivery
@@ -101,12 +102,12 @@ For code-changing work such as a fix, chore, refactor, test change, or feature, 
 
 The expected agent-driven delivery sequence is:
 
-1. read the applicable root-level documentation under `docs/`
-2. request explicit authorization before reading any needed `docs/context/` file, except for mechanical current-version reference updates during an approved version bump
-3. make the focused code and documentation changes
-4. run the relevant local validation commands for the changed backend and/or frontend scope
-5. inspect the resulting diff and working tree status
-6. create a short-lived branch specific to the change
+1. for Roadmap work, verify the remote `main` branch state, update local `main` from the remote repository, and create the work branch from that synchronized baseline
+2. read the applicable root-level documentation under `docs/`
+3. request explicit authorization before reading any needed `docs/context/` file, except for mechanical current-version reference updates during an approved version bump
+4. make the focused code and documentation changes
+5. run the relevant local validation commands for the changed backend and/or frontend scope
+6. inspect the resulting diff and working tree status
 7. commit the validated change with an appropriate Conventional Commit message
 8. push the branch to the remote repository
 9. open a pull request into `main`
@@ -150,5 +151,7 @@ When the documented agent-driven Git workflow is enabled, agents must:
 
 - use short-lived branches and pull requests exactly as defined in `docs/GIT-GITHUB-FLOW.md`
 - use the repository-specific Git identity configured for OrchFlow instead of the machine-global identity
+- use `0tter-Dev-AI <otter.dev.ai@gmail.com>` as the default repository-specific Git author identity for AI-agent work unless maintainers explicitly replace that identity
+- ensure the Git remote authentication path resolves to the same authorized AI-agent account before pushing branches
 - avoid merging their own pull requests
 - leave final review and merge authority to a human maintainer with repository admin access
