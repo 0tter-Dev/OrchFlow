@@ -13,14 +13,14 @@ if /I "%~1"=="restart" goto RUN_RESTART_FROM_ARGUMENT
 :MENU
 cls
 echo ============================================
-echo        OrchFlow Control Launcher
+echo              OrchFlow - Control
 echo ============================================
 echo.
 echo   [1] Check status
 echo   [2] Start
 echo   [3] Stop
 echo   [4] Restart
-echo   [5] Exit
+echo   [0] Exit
 echo.
 set /p "ACTION=Choose an option: "
 
@@ -28,7 +28,7 @@ if "%ACTION%"=="1" goto MENU_STATUS
 if "%ACTION%"=="2" goto MENU_START
 if "%ACTION%"=="3" goto MENU_STOP
 if "%ACTION%"=="4" goto MENU_RESTART
-if "%ACTION%"=="5" goto EXIT
+if "%ACTION%"=="0" goto EXIT
 
 echo Unsupported option: %ACTION%
 pause

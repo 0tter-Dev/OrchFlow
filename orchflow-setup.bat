@@ -12,18 +12,18 @@ if /I "%~1"=="start-all" goto RUN_START_FROM_ARGUMENT
 :MENU
 cls
 echo ============================================
-echo        OrchFlow Setup Launcher
+echo              OrchFlow - Setup
 echo ============================================
 echo.
 echo   [1] Check environment, prerequisites, and dependencies
 echo   [2] Start API and Web
-echo   [3] Exit
+echo   [0] Exit
 echo.
 set /p "ACTION=Choose an option: "
 
 if "%ACTION%"=="1" goto MENU_CHECK
 if "%ACTION%"=="2" goto MENU_START
-if "%ACTION%"=="3" goto EXIT
+if "%ACTION%"=="0" goto EXIT
 
 echo Unsupported option: %ACTION%
 pause

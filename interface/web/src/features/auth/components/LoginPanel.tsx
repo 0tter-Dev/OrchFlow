@@ -1,10 +1,9 @@
 import * as Tabs from "@radix-ui/react-tabs";
-import { LoaderCircle, LogIn, UserPlus } from "lucide-react";
+import { Eye, EyeOff, LoaderCircle, LogIn, UserPlus } from "lucide-react";
 import { FormEvent, useState } from "react";
 
 import "./LoginPanel.css";
 import { ErrorNotice } from "../../../shared/components/ErrorNotice";
-import { Tooltip } from "../../../shared/components/Tooltip";
 
 type AuthMode = "login" | "create";
 
@@ -13,6 +12,7 @@ type LoginPanelProps = {
   isLoading: boolean;
   onCreateAccount: (username: string, password: string) => void;
   onSubmit: (username: string, password: string) => void;
+  statusMessage: string | null;
 };
 
 export function LoginPanel({
@@ -20,8 +20,10 @@ export function LoginPanel({
   isLoading,
   onCreateAccount,
   onSubmit,
+  statusMessage,
 }: LoginPanelProps) {
   const [mode, setMode] = useState<AuthMode>("login");
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
@@ -38,21 +40,7 @@ export function LoginPanel({
   return (
     <section className="login-panel" aria-label="OrchFlow authentication">
       <header className="login-panel__header">
-        <Tooltip content="OrchFlow local operator workspace">
-          <button
-            aria-label="OrchFlow local operator workspace"
-            className="login-panel__mark"
-            type="button"
-          >
-            OF
-          </button>
-        </Tooltip>
-        <span className="login-panel__eyebrow">Local operator access</span>
         <h1 className="login-panel__title">OrchFlow</h1>
-        <p className="login-panel__copy">
-          Sign in to control registered projects, inspect runtime state, and review local
-          lifecycle activity from one operator workspace.
-        </p>
       </header>
 
       <Tabs.Root
@@ -60,7 +48,10 @@ export function LoginPanel({
         value={mode}
         onValueChange={(value) => setMode(value as AuthMode)}
       >
-        <Tabs.List className="login-panel__mode" aria-label="Authentication mode">
+        <Tabs.List
+          className="login-panel__mode"
+          aria-label="Authentication mode"
+        >
           <Tabs.Trigger
             className="login-panel__mode-button"
             onClick={() => setMode("login")}
@@ -94,18 +85,36 @@ export function LoginPanel({
 
         <label className="login-panel__field">
           <span>Password</span>
-          <input
-            autoComplete={mode === "create" ? "new-password" : "current-password"}
-            name="password"
-            onChange={(event) => setPassword(event.target.value)}
-            placeholder="password123"
-            type="password"
-            value={password}
-          />
+          <span className="login-panel__password-control">
+            <input
+              autoComplete={mode === "create" ? "new-password" : "current-password"}
+              name="password"
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder="password123"
+              type={isPasswordVisible ? "text" : "password"}
+              value={password}
+            />
+            <button
+              aria-label={isPasswordVisible ? "Hide password" : "Show password"}
+              className="login-panel__password-toggle"
+              onClick={() => setIsPasswordVisible((currentValue) => !currentValue)}
+              type="button"
+            >
+              {isPasswordVisible ? (
+                <EyeOff aria-hidden="true" size={17} strokeWidth={2.4} />
+              ) : (
+                <Eye aria-hidden="true" size={17} strokeWidth={2.4} />
+              )}
+            </button>
+          </span>
         </label>
 
         <div className="login-panel__actions">
-          <button className="login-panel__button" disabled={isLoading} type="submit">
+          <button
+            className="login-panel__button"
+            disabled={isLoading}
+            type="submit"
+          >
             {isLoading ? (
               <LoaderCircle
                 aria-hidden="true"
@@ -128,22 +137,28 @@ export function LoginPanel({
                 strokeWidth={2.4}
               />
             )}
-            {isLoading ? "Working..." : mode === "create" ? "Create account" : "Login"}
+            {isLoading
+              ? statusMessage ?? "Working..."
+              : mode === "create"
+                ? "Create account"
+                : "Login"}
           </button>
+          {statusMessage !== null ? (
+            <p className="login-panel__status" role="status">
+              {statusMessage}
+            </p>
+          ) : null}
           {errorMessage !== null ? (
             <ErrorNotice
               className="login-panel__error"
               message={errorMessage}
-              title={mode === "create" ? "Account creation failed" : "Login failed"}
+              title={
+                mode === "create" ? "Account creation failed" : "Login failed"
+              }
             />
           ) : null}
         </div>
       </form>
-
-      <p className="login-panel__hint">
-        Account creation is role-neutral. The first local user becomes the bootstrap admin;
-        later public sign-ups enter as members unless an admin changes their role.
-      </p>
     </section>
   );
 }
