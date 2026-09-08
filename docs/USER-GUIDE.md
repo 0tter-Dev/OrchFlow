@@ -36,6 +36,8 @@ orchflow-dev.bat
 
 The launchers preserve existing local `.env` files and do not install missing global tools automatically. If `uv`, Node, or Corepack is missing, the setup/check flow reports the missing prerequisite so the user can install or enable it explicitly. Corepack is used to enable `pnpm` before web dependencies are installed.
 
+Future installer and packaged release options are tracked in [Installer And Releases](./INSTALLER-AND-RELEASES.md). At the current implementation stage, that document is planning guidance only: users should still rely on the repository launchers above for local setup and routine process control.
+
 ### 1. Sign In
 
 The user signs in with an existing OrchFlow account through one of the available operational surfaces.

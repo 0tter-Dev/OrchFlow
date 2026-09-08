@@ -34,6 +34,9 @@ Defines the repository workflow, pull request discipline, versioning model, CI d
 - [Brand Identity](./BRAND-IDENTITY.md)
 Defines the current original `OF` monogram direction and visual identity constraints for future logo, favicon, installer, desktop, and interface branding work.
 
+- [Installer And Releases](./INSTALLER-AND-RELEASES.md)
+Defines the current planning direction for future Windows bootstrap installers, archive releases, release-shape options, and desktop-shell evaluation.
+
 - `docs/context/`
 Contains feature-oriented context documents that describe purpose, scope, planned behavior, interactions, and implementation status.
 
