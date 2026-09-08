@@ -12,47 +12,14 @@
 .login-panel__header {
   display: grid;
   gap: 0.45rem;
-  justify-items: start;
-}
-
-.login-panel__mark {
-  display: grid;
-  width: 3rem;
-  height: 3rem;
-  place-items: center;
-  padding: 0;
-  border: 1px solid rgba(158, 228, 218, 0.25);
-  border-radius: 8px;
-  background: #2f8f83;
-  color: #07110f;
-  cursor: help;
-  font-family: inherit;
-  font-size: 0.86rem;
-  font-weight: 900;
-}
-
-.login-panel__mark:focus-visible {
-  outline: 2px solid #f0c36a;
-  outline-offset: 3px;
-}
-
-.login-panel__eyebrow {
-  color: #d3a24f;
-  font-size: 0.78rem;
-  letter-spacing: 0;
-  text-transform: uppercase;
+  justify-items: center;
 }
 
 .login-panel__title {
   margin: 0;
   font-size: 2rem;
   line-height: 1.05;
-}
-
-.login-panel__copy {
-  margin: 0;
-  color: #c9c1b4;
-  line-height: 1.6;
+  text-align: center;
 }
 
 .login-panel__mode {
@@ -112,6 +79,39 @@
   color: #f7f2e8;
 }
 
+.login-panel__password-control {
+  position: relative;
+  display: block;
+}
+
+.login-panel__password-control input {
+  padding-right: 3rem;
+}
+
+.login-panel__password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 0.45rem;
+  display: inline-flex;
+  width: 2.1rem;
+  height: 2.1rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #c9c1b4;
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.login-panel__password-toggle:hover,
+.login-panel__password-toggle:focus-visible {
+  background: #262925;
+  color: #f7f2e8;
+}
+
 .login-panel__field input::placeholder {
   color: #817a70;
 }
@@ -162,11 +162,12 @@
   color: #f2b3a3;
 }
 
-.login-panel__hint {
+.login-panel__status {
   margin: 0;
-  color: #aaa397;
+  color: #9ee4da;
   font-size: 0.86rem;
-  line-height: 1.65;
+  line-height: 1.5;
+  text-align: center;
 }
 
 @media (max-width: 520px) {

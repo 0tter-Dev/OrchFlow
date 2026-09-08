@@ -11,6 +11,7 @@ vi.mock("../features/auth/hooks/useAuthSession", () => ({
     isLoading: false,
     login: vi.fn(),
     logout: vi.fn(),
+    statusMessage: null,
     token: null,
   }),
 }));

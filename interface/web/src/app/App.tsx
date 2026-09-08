@@ -350,6 +350,7 @@ export function App() {
             isLoading={authSession.isLoading}
             onCreateAccount={authSession.createAccount}
             onSubmit={authSession.login}
+            statusMessage={authSession.statusMessage}
           />
         </section>
       </main>

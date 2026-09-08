@@ -18,7 +18,7 @@ On Windows development machines, a user who has just cloned OrchFlow can start f
 orchflow-setup.bat
 ```
 
-The setup launcher keeps the first-run menu simple: `[1] Check environment, prerequisites, and dependencies`, `[2] Start API and Web`, and `[3] Exit`. The setup/check flow checks required local tools, creates local environment files from `.env.example` and `interface/web/.env.example` when they do not already exist, installs backend and web dependencies, runs database migrations, and validates bootstrap CLI commands.
+The setup launcher keeps the first-run menu simple: `[1] Check environment, prerequisites, and dependencies`, `[2] Start API and Web`, and `[0] Exit`. The setup/check flow checks required local tools, creates local environment files from `.env.example` and `interface/web/.env.example` when they do not already exist, installs backend and web dependencies, runs database migrations, and validates bootstrap CLI commands.
 
 For day-to-day local startup after setup, the user can run:
 
@@ -26,7 +26,7 @@ For day-to-day local startup after setup, the user can run:
 orchflow-control.bat
 ```
 
-The control launcher uses a focused routine-operations menu: `[1] Check status`, `[2] Start`, `[3] Stop`, `[4] Restart`, and `[5] Exit`. It tracks the local OrchFlow API and web client with PID files and process metadata under `ORCHFLOW_RUNTIME_DIR`, writes generated service commands and startup logs in the same runtime area, and stops only processes it previously started and tracked. The launcher reads `ORCHFLOW_API_HOST`, `ORCHFLOW_API_PORT`, `ORCHFLOW_WEB_HOST`, `ORCHFLOW_WEB_PORT`, and `ORCHFLOW_WEB_URL` from local environment configuration, with process environment variables overriding `.env` values.
+The control launcher uses a focused routine-operations menu: `[1] Check status`, `[2] Start`, `[3] Stop`, `[4] Restart`, and `[0] Exit`. It tracks the local OrchFlow API and web client with PID files and process metadata under `ORCHFLOW_RUNTIME_DIR`, writes generated service commands and startup logs in the same runtime area, and stops only processes it previously started and tracked. The launcher reads `ORCHFLOW_API_HOST`, `ORCHFLOW_API_PORT`, `ORCHFLOW_WEB_HOST`, `ORCHFLOW_WEB_PORT`, and `ORCHFLOW_WEB_URL` from local environment configuration, with process environment variables overriding `.env` values.
 
 The combined development entrypoint remains available for contributors who want setup and local control paths in one menu:
 
@@ -50,9 +50,9 @@ At the current implementation stage, the operational surfaces already implemente
 
 `CLI` and `API` remain the reference backend delivery surfaces, and the `web` interface now mirrors the first practical operator workflow on top of those same contracts, including registration of existing projects with compatible `.bat` lifecycle scripts.
 
-The unauthenticated web screen is a focused account surface for local operators. It shows the OrchFlow identity, Radix-backed `Login` and `Create account` tabs with operational icons, and a `Create account` path backed by the same registration contract as the API. The full workspace chrome, top status bar, and system health probe are shown only after authentication.
+The unauthenticated web screen is a focused account surface for local operators. It shows the OrchFlow identity, Radix-backed `Login` and `Create account` tabs with operational icons, visible auth progress/error feedback, password visibility control, and a `Create account` path backed by the same registration contract as the API. The full workspace chrome, top status bar, and system health probe are shown only after authentication.
 
-Public web account creation is role-neutral. The browser submits only the account credentials; the backend decides the role by the access-control rules, where the first local user becomes the bootstrap `admin` and later unauthenticated sign-ups become `member` users unless an admin changes their role later.
+Public web account creation is role-neutral. The browser submits only the account credentials; the backend decides the role by the access-control rules, where the first local user becomes the bootstrap `admin` and later unauthenticated sign-ups become `member` users unless an admin changes their role later. After account creation succeeds, the web client automatically signs in with the newly created credentials and opens the same authenticated workspace used by direct login.
 
 After sign-in, the authenticated web surface opens as a compact operator workspace with a top status bar, project navigation, quick command metrics, selected-project details, runtime diagnostics, preferences, admin tools, AI review, and audit panels. The top API status preserves the latest known health snapshot while refreshes are running or transiently failing, so the authenticated workspace does not flicker to an unknown state during routine polling. The top-level shell uses the authenticated locale preference for basic `pt-BR` and `en-US` workspace labels while the broader interface translation remains an incremental follow-up.
 

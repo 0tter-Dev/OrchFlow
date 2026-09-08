@@ -51,10 +51,10 @@ def test_windows_setup_launcher_covers_core_setup_and_runtime_commands() -> None
 def test_windows_setup_launcher_keeps_simple_setup_menu_and_cli_validation_scope() -> None:
     text = _launcher_text(SETUP_LAUNCHER)
 
-    assert "OrchFlow Setup Launcher" in text
+    assert "OrchFlow - Setup" in text
     assert "[1] Check environment, prerequisites, and dependencies" in text
     assert "[2] Start API and Web" in text
-    assert "[3] Exit" in text
+    assert "[0] Exit" in text
     assert "Validating OrchFlow CLI and bootstrap status" in text
     assert 'if "%ACTION%"=="4"' not in text
     assert "if \"%ACTION%\"==\"1\" call :CHECK_PREREQUISITES & pause & goto MENU" not in text
@@ -73,12 +73,12 @@ def test_windows_dev_launcher_delegates_to_setup_and_control_launchers() -> None
 def test_windows_control_launcher_exposes_pid_based_process_menu() -> None:
     text = _launcher_text(CONTROL_LAUNCHER)
 
-    assert "OrchFlow Control Launcher" in text
+    assert "OrchFlow - Control" in text
     assert "[1] Check status" in text
     assert "[2] Start" in text
     assert "[3] Stop" in text
     assert "[4] Restart" in text
-    assert "[5] Exit" in text
+    assert "[0] Exit" in text
     assert 'set "CONTROL_SCRIPT=%ROOT_DIR%\\scripts\\orchflow-local-process-control.ps1"' in text
     assert 'powershell -NoProfile -ExecutionPolicy Bypass -File "%CONTROL_SCRIPT%" %~1' in text
     assert 'call "%SETUP_LAUNCHER%" start-all' not in text

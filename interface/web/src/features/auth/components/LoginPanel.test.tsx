@@ -13,6 +13,7 @@ describe("LoginPanel", () => {
         isLoading={false}
         onCreateAccount={vi.fn()}
         onSubmit={onSubmit}
+        statusMessage={null}
       />,
     );
 
@@ -36,6 +37,7 @@ describe("LoginPanel", () => {
         isLoading={false}
         onCreateAccount={onCreateAccount}
         onSubmit={vi.fn()}
+        statusMessage={null}
       />,
     );
 
@@ -49,7 +51,6 @@ describe("LoginPanel", () => {
     fireEvent.click(screen.getByRole("button", { name: "Create account" }));
 
     expect(onCreateAccount).toHaveBeenCalledWith("first-admin", "password123");
-    expect(screen.getByText(/first local user becomes the bootstrap admin/i)).toBeInTheDocument();
   });
 
   it("renders an error message when login fails", () => {
@@ -59,9 +60,51 @@ describe("LoginPanel", () => {
         isLoading={false}
         onCreateAccount={vi.fn()}
         onSubmit={vi.fn()}
+        statusMessage={null}
       />,
     );
 
     expect(screen.getByText("Invalid credentials.")).toBeInTheDocument();
+  });
+
+  it("shows session progress feedback while the request is running", () => {
+    render(
+      <LoginPanel
+        errorMessage={null}
+        isLoading={true}
+        onCreateAccount={vi.fn()}
+        onSubmit={vi.fn()}
+        statusMessage="Account created. Signing in..."
+      />,
+    );
+
+    expect(screen.getByRole("status")).toHaveTextContent("Account created. Signing in...");
+    expect(
+      screen.getByRole("button", { name: "Account created. Signing in..." }),
+    ).toBeDisabled();
+  });
+
+  it("toggles password visibility", () => {
+    render(
+      <LoginPanel
+        errorMessage={null}
+        isLoading={false}
+        onCreateAccount={vi.fn()}
+        onSubmit={vi.fn()}
+        statusMessage={null}
+      />,
+    );
+
+    const passwordInput = screen.getByLabelText("Password");
+
+    expect(passwordInput).toHaveAttribute("type", "password");
+
+    fireEvent.click(screen.getByRole("button", { name: "Show password" }));
+
+    expect(passwordInput).toHaveAttribute("type", "text");
+
+    fireEvent.click(screen.getByRole("button", { name: "Hide password" }));
+
+    expect(passwordInput).toHaveAttribute("type", "password");
   });
 });

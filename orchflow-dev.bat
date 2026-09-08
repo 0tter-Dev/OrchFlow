@@ -9,14 +9,14 @@ set "CONTROL_LAUNCHER=%ROOT_DIR%\orchflow-control.bat"
 :MENU
 cls
 echo ============================================
-echo        OrchFlow Local Dev Launcher
+echo                   OrchFlow
 echo ============================================
 echo.
 echo   [1] Check environment, prerequisites, and dependencies
 echo   [2] Start API and Web
 echo   [3] Open setup launcher
 echo   [4] Open control launcher
-echo   [5] Exit
+echo   [0] Exit
 echo.
 set /p "ACTION=Choose an option: "
 
@@ -24,7 +24,7 @@ if "%ACTION%"=="1" goto MENU_CHECK
 if "%ACTION%"=="2" goto MENU_START
 if "%ACTION%"=="3" goto MENU_SETUP
 if "%ACTION%"=="4" goto MENU_CONTROL
-if "%ACTION%"=="5" goto EXIT
+if "%ACTION%"=="0" goto EXIT
 
 echo Unsupported option: %ACTION%
 pause
