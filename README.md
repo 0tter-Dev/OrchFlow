@@ -26,6 +26,8 @@ In `v0.3.28`, OrchFlow is designed around a concrete execution base: each manage
 - [Feature Status](./docs/STATUS.md)
 - [Development Guide](./docs/DEVELOPMENT-GUIDE.md)
 - [User Guide](./docs/USER-GUIDE.md)
+- [Brand Identity](./docs/BRAND-IDENTITY.md)
+- [Installer And Releases](./docs/INSTALLER-AND-RELEASES.md)
 - [To-Do](./docs/TO-DO.md)
 - [Agent Rules](./AGENTS.md)
 
