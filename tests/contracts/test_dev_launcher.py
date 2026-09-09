@@ -8,6 +8,10 @@ TOOLS_DIR = ROOT / "tools" / "windows"
 DEV_LAUNCHER = TOOLS_DIR / "orchflow-dev.bat"
 SETUP_LAUNCHER = TOOLS_DIR / "orchflow-setup.bat"
 CONTROL_LAUNCHER = TOOLS_DIR / "orchflow-control.bat"
+BOOTSTRAP_BUILD = TOOLS_DIR / "build-bootstrap.bat"
+BOOTSTRAP_DIR = TOOLS_DIR / "bootstrap"
+BOOTSTRAP_PROJECT = BOOTSTRAP_DIR / "OrchFlow.Bootstrap.csproj"
+BOOTSTRAP_SOURCE = BOOTSTRAP_DIR / "Program.cs"
 CONTROL_SCRIPT = ROOT / "scripts" / "orchflow-local-process-control.ps1"
 
 
@@ -20,6 +24,9 @@ def test_windows_launchers_use_single_root_entrypoint_and_tools_directory() -> N
     assert DEV_LAUNCHER.exists()
     assert SETUP_LAUNCHER.exists()
     assert CONTROL_LAUNCHER.exists()
+    assert BOOTSTRAP_BUILD.exists()
+    assert BOOTSTRAP_PROJECT.exists()
+    assert BOOTSTRAP_SOURCE.exists()
     assert CONTROL_SCRIPT.exists()
     assert not (ROOT / "orchflow-dev.bat").exists()
     assert not (ROOT / "orchflow-setup.bat").exists()
@@ -133,6 +140,64 @@ def test_windows_process_control_script_tracks_owned_local_processes() -> None:
         "Write-ProcessMetadata",
         "Rolling back API start because Web did not start.",
         "taskkill /PID $trackedPid /T /F",
+    ]
+
+    for fragment in expected_fragments:
+        assert fragment in text
+
+
+def test_windows_bootstrap_build_script_publishes_reviewable_executable() -> None:
+    text = _launcher_text(BOOTSTRAP_BUILD)
+
+    assert 'set "PROJECT_FILE=%TOOLS_DIR%\\bootstrap\\OrchFlow.Bootstrap.csproj"' in text
+    assert 'set "OUTPUT_DIR=%ROOT_DIR%\\dist\\windows"' in text
+    assert "where dotnet" in text
+    assert (
+        'dotnet publish "%PROJECT_FILE%" --configuration Release --runtime win-x64 '
+        '--output "%OUTPUT_DIR%"'
+    ) in text
+    assert '"%OUTPUT_DIR%\\orchflow-bootstrap.exe"' in text
+
+
+def test_windows_bootstrap_delegates_to_documented_launchers() -> None:
+    text = _launcher_text(BOOTSTRAP_SOURCE)
+
+    expected_fragments = [
+        "orchflow.bat",
+        "tools\", \"windows",
+        "orchflow-setup.bat",
+        "orchflow-control.bat",
+        'RunLauncherStep("Run setup checks", paths.SetupLauncher, "check")',
+        'RunLauncherStep("Start local API and web", paths.ControlLauncher, "start")',
+        'RunLauncherStep("Check local API/web status", paths.ControlLauncher, "status")',
+        "cmd.exe",
+        "where.exe",
+        "/d /c call",
+    ]
+
+    for fragment in expected_fragments:
+        assert fragment in text
+
+
+def test_windows_bootstrap_validates_prerequisites_and_resolves_web_url() -> None:
+    text = _launcher_text(BOOTSTRAP_SOURCE)
+
+    expected_fragments = [
+        'CheckTool("uv"',
+        'CheckTool("node"',
+        'CheckTool("corepack"',
+        "ORCHFLOW_WEB_URL",
+        "ORCHFLOW_WEB_HOST",
+        "ORCHFLOW_WEB_PORT",
+        "DefaultWebHost",
+        "DefaultWebPort",
+        "http://",
+        "UseShellExecute = true",
+        "--check-only",
+        "--no-browser",
+        "--pause-on-exit",
+        "--status",
+        "--repo",
     ]
 
     for fragment in expected_fragments:

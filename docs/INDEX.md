@@ -35,7 +35,7 @@ Defines the repository workflow, pull request discipline, versioning model, CI d
 Defines the current original `OF` monogram direction and visual identity constraints for future logo, favicon, installer, desktop, and interface branding work.
 
 - [Installer And Releases](./INSTALLER-AND-RELEASES.md)
-Defines the current planning direction for future Windows bootstrap installers, archive releases, release-shape options, and desktop-shell evaluation.
+Defines the current Windows bootstrap executable prototype plus planning direction for future packaged installers, archive releases, release-shape options, and desktop-shell evaluation.
 
 - `docs/context/`
 Contains feature-oriented context documents that describe purpose, scope, planned behavior, interactions, and implementation status.
