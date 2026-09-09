@@ -34,6 +34,90 @@ That bootstrap should:
 
 The bootstrap should act as a user-friendly entrypoint over the documented local-first workflow, not as a separate orchestration layer.
 
+## Windows Bootstrap Executable Plan
+
+The first bootstrap executable should be a thin Windows helper around the repository launchers. Its job is to make first startup easier for users who are not comfortable choosing scripts manually, while keeping the implementation reviewable and subordinate to the existing `.bat` flow.
+
+### Responsibilities
+
+The bootstrap executable should:
+
+- locate the OrchFlow repository root from its own directory or from a user-selected folder
+- verify that `orchflow.bat` exists before attempting startup
+- verify required local prerequisites: `uv`, Node.js, and Corepack
+- report missing prerequisites with short, actionable messages
+- call `orchflow.bat` or its documented delegated flows instead of reimplementing setup logic
+- run the equivalent of checks plus startup through the existing launcher path
+- open the local web interface after startup succeeds
+- preserve existing `.env`, `interface/web/.env`, `data/`, `runtime/`, and user-owned project files
+- return a non-zero exit code when prerequisite checks, setup, or startup fail
+
+### Delegation Model
+
+The bootstrap should treat `orchflow.bat` as the user-facing startup contract.
+
+The executable may call:
+
+- `orchflow.bat` for the standard interactive path
+- `tools/windows/orchflow-setup.bat check` for non-interactive setup/check validation
+- `tools/windows/orchflow-control.bat start` for startup after successful checks
+- `tools/windows/orchflow-control.bat status` for optional post-start diagnostics
+
+The executable should not duplicate dependency installation, migration, process control, PID tracking, or environment-file creation logic. Those responsibilities remain inside the existing launchers and PowerShell process-control script.
+
+### User Experience
+
+The first prototype can be intentionally simple. It should provide:
+
+- a visible startup status sequence for prerequisite checks, setup/check execution, API/web startup, and browser opening
+- clear failure messages that include the failed step and the launcher command that failed
+- a final success message with the local web URL
+- a way to leave the terminal/window open long enough for users to read failures
+
+The bootstrap should open `ORCHFLOW_WEB_URL` when configured. If that value is absent, it should use `ORCHFLOW_WEB_HOST` and `ORCHFLOW_WEB_PORT`, falling back to `http://localhost:5174`, matching `orchflow.bat`.
+
+### Explicit Non-Goals
+
+The first bootstrap executable must not:
+
+- install global software automatically
+- download Python, Node.js, AI models, or provider runtimes
+- replace `orchflow.bat` as the documented startup contract
+- start, stop, or restart registered user projects directly
+- bypass `tools/windows/orchflow-control.bat` for API/web process ownership
+- implement container, cloud, remote, or multi-host orchestration
+- introduce Tauri, Electron, or another desktop shell decision by implication
+- require administrator privileges for normal startup
+
+### Prototype Implementation Shape
+
+The next implementation PR should choose the smallest practical Windows-native path that can be built and reviewed in this repository. A small source file plus a documented build command is preferable to a large packaging framework.
+
+The prototype should include:
+
+- source for the bootstrap executable under a reviewable repository path
+- a documented local build command
+- a generated executable only if the repository release-artifact policy explicitly allows committing that artifact
+- tests or contract checks for the documented commands and expected launcher paths where practical
+- README and user-guide updates explaining when to use the executable versus `orchflow.bat`
+
+### Validation For The Prototype PR
+
+The prototype PR should validate:
+
+- executable build succeeds on Windows
+- missing-prerequisite reporting remains clear
+- setup/check delegation reaches `tools/windows/orchflow-setup.bat check`
+- startup delegation reaches `tools/windows/orchflow-control.bat start`
+- browser URL resolution matches `orchflow.bat`
+- existing local `.env` files are not overwritten
+- backend validation remains green
+- frontend validation remains green when web build or startup assumptions change
+
+### Release Artifact Expectations
+
+Until a later release workflow is approved, the bootstrap executable should be treated as a local build output or review artifact, not an automatically published release. If a PR produces a binary artifact, reviewers should verify how it was built and whether it belongs in Git, in a GitHub Actions artifact, or only in a future release.
+
 ## Candidate Release Shapes
 
 Future releases may be discussed in these shapes:
