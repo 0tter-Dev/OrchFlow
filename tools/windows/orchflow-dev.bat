@@ -1,10 +1,11 @@
 @echo off
 setlocal
 
-set "ROOT_DIR=%~dp0"
-if "%ROOT_DIR:~-1%"=="\" set "ROOT_DIR=%ROOT_DIR:~0,-1%"
-set "SETUP_LAUNCHER=%ROOT_DIR%\orchflow-setup.bat"
-set "CONTROL_LAUNCHER=%ROOT_DIR%\orchflow-control.bat"
+set "TOOLS_DIR=%~dp0"
+if "%TOOLS_DIR:~-1%"=="\" set "TOOLS_DIR=%TOOLS_DIR:~0,-1%"
+for %%I in ("%TOOLS_DIR%\..\..") do set "ROOT_DIR=%%~fI"
+set "SETUP_LAUNCHER=%TOOLS_DIR%\orchflow-setup.bat"
+set "CONTROL_LAUNCHER=%TOOLS_DIR%\orchflow-control.bat"
 
 :MENU
 cls

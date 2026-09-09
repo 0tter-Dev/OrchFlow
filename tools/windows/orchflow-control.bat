@@ -1,8 +1,9 @@
 @echo off
 setlocal
 
-set "ROOT_DIR=%~dp0"
-if "%ROOT_DIR:~-1%"=="\" set "ROOT_DIR=%ROOT_DIR:~0,-1%"
+set "TOOLS_DIR=%~dp0"
+if "%TOOLS_DIR:~-1%"=="\" set "TOOLS_DIR=%TOOLS_DIR:~0,-1%"
+for %%I in ("%TOOLS_DIR%\..\..") do set "ROOT_DIR=%%~fI"
 set "CONTROL_SCRIPT=%ROOT_DIR%\scripts\orchflow-local-process-control.ps1"
 
 if /I "%~1"=="status" goto RUN_STATUS_FROM_ARGUMENT

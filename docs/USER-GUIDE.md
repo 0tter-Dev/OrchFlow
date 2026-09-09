@@ -12,27 +12,31 @@ A user wants to bring a local project under OrchFlow control so they can start, 
 
 ### 0. Start OrchFlow Locally
 
-On Windows development machines, a user who has just cloned OrchFlow can start from the repository-root setup launcher:
+On Windows development machines, a user who has just cloned OrchFlow can start from the repository-root launcher:
 
 ```bat
-orchflow-setup.bat
+orchflow.bat
+```
+
+The unified launcher keeps the main startup menu simple: `[1] Run checks and start OrchFlow`, `[2] Open in browser`, `[3] Go to Setup menu`, `[4] Go to Control menu`, and `[0] Exit`. Option `[1]` runs the setup/check flow first and starts the local API plus web client only if those checks pass. Option `[2]` opens the configured `ORCHFLOW_WEB_URL`, or falls back to `ORCHFLOW_WEB_HOST` plus `ORCHFLOW_WEB_PORT` from local configuration.
+
+For direct setup access, the user can run:
+
+```bat
+tools\windows\orchflow-setup.bat
 ```
 
 The setup launcher keeps the first-run menu simple: `[1] Check environment, prerequisites, and dependencies`, `[2] Start API and Web`, and `[0] Exit`. The setup/check flow checks required local tools, creates local environment files from `.env.example` and `interface/web/.env.example` when they do not already exist, installs backend and web dependencies, runs database migrations, and validates bootstrap CLI commands.
 
-For day-to-day local startup after setup, the user can run:
+For direct process control, the user can run:
 
 ```bat
-orchflow-control.bat
+tools\windows\orchflow-control.bat
 ```
 
 The control launcher uses a focused routine-operations menu: `[1] Check status`, `[2] Start`, `[3] Stop`, `[4] Restart`, and `[0] Exit`. It tracks the local OrchFlow API and web client with PID files and process metadata under `ORCHFLOW_RUNTIME_DIR`, writes generated service commands and startup logs in the same runtime area, and stops only processes it previously started and tracked. The launcher reads `ORCHFLOW_API_HOST`, `ORCHFLOW_API_PORT`, `ORCHFLOW_WEB_HOST`, `ORCHFLOW_WEB_PORT`, and `ORCHFLOW_WEB_URL` from local environment configuration, with process environment variables overriding `.env` values.
 
-The combined development entrypoint remains available for contributors who want setup and local control paths in one menu:
-
-```bat
-orchflow-dev.bat
-```
+The combined development entrypoint remains available at `tools\windows\orchflow-dev.bat` for contributors who want setup and local control paths in one menu.
 
 The launchers preserve existing local `.env` files and do not install missing global tools automatically. If `uv`, Node, or Corepack is missing, the setup/check flow reports the missing prerequisite so the user can install or enable it explicitly. Corepack is used to enable `pnpm` before web dependencies are installed.
 

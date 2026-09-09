@@ -1,10 +1,11 @@
 @echo off
 setlocal enabledelayedexpansion
 
-set "ROOT_DIR=%~dp0"
-if "%ROOT_DIR:~-1%"=="\" set "ROOT_DIR=%ROOT_DIR:~0,-1%"
+set "TOOLS_DIR=%~dp0"
+if "%TOOLS_DIR:~-1%"=="\" set "TOOLS_DIR=%TOOLS_DIR:~0,-1%"
+for %%I in ("%TOOLS_DIR%\..\..") do set "ROOT_DIR=%%~fI"
 set "WEB_DIR=%ROOT_DIR%\interface\web"
-set "CONTROL_LAUNCHER=%ROOT_DIR%\orchflow-control.bat"
+set "CONTROL_LAUNCHER=%TOOLS_DIR%\orchflow-control.bat"
 
 if /I "%~1"=="check" goto RUN_CHECK_FROM_ARGUMENT
 if /I "%~1"=="start-all" goto RUN_START_FROM_ARGUMENT
