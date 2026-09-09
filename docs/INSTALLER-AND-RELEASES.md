@@ -4,15 +4,16 @@
 
 This document captures the current planning direction for future OrchFlow installer and release packaging work.
 
-It is intentionally descriptive. It does not introduce a current release artifact, installer implementation, desktop shell decision, automated packaging workflow, or change to the existing local development launchers.
+It is intentionally descriptive. It does not introduce a current release artifact, installer implementation, desktop shell decision, or automated packaging workflow.
 
 ## Current Baseline
 
-OrchFlow currently supports Windows-first local development through repository-root launchers:
+OrchFlow currently supports Windows-first local development through one repository-root launcher plus auxiliary launchers:
 
-- `orchflow-setup.bat` for first-run setup, prerequisite checks, dependency installation, migrations, bootstrap validation, and API plus web startup
-- `orchflow-control.bat` for routine status, start, stop, and restart of the local API plus web client through PID files and process metadata
-- `orchflow-dev.bat` as the combined contributor entrypoint
+- `orchflow.bat` as the single root entrypoint for checks plus startup, browser opening, setup menu access, and control menu access
+- `tools/windows/orchflow-setup.bat` for first-run setup, prerequisite checks, dependency installation, migrations, bootstrap validation, and API plus web startup
+- `tools/windows/orchflow-control.bat` for routine status, start, stop, and restart of the local API plus web client through PID files and process metadata
+- `tools/windows/orchflow-dev.bat` as the combined contributor entrypoint
 
 These scripts remain the concrete operational base for the current project stage. Future installer work should reuse and wrap these explicit flows rather than replacing them with hidden lifecycle behavior.
 
@@ -24,8 +25,9 @@ That bootstrap should:
 
 - help a user start from a downloaded or cloned OrchFlow repository
 - verify required local prerequisites instead of silently installing global software
-- reuse `orchflow-setup.bat` for setup/check behavior
-- reuse `orchflow-control.bat` for day-to-day API and web process control
+- reuse `orchflow.bat` as the documented user-facing startup path
+- reuse `tools/windows/orchflow-setup.bat` for setup/check behavior
+- reuse `tools/windows/orchflow-control.bat` for day-to-day API and web process control
 - preserve local `.env` files and user-owned project files
 - report missing tools and failed setup steps clearly
 - avoid taking over project lifecycle actions beyond the documented OrchFlow launchers

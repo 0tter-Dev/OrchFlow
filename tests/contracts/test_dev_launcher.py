@@ -3,9 +3,11 @@
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-DEV_LAUNCHER = ROOT / "orchflow-dev.bat"
-SETUP_LAUNCHER = ROOT / "orchflow-setup.bat"
-CONTROL_LAUNCHER = ROOT / "orchflow-control.bat"
+MAIN_LAUNCHER = ROOT / "orchflow.bat"
+TOOLS_DIR = ROOT / "tools" / "windows"
+DEV_LAUNCHER = TOOLS_DIR / "orchflow-dev.bat"
+SETUP_LAUNCHER = TOOLS_DIR / "orchflow-setup.bat"
+CONTROL_LAUNCHER = TOOLS_DIR / "orchflow-control.bat"
 CONTROL_SCRIPT = ROOT / "scripts" / "orchflow-local-process-control.ps1"
 
 
@@ -13,11 +15,35 @@ def _launcher_text(path: Path) -> str:
     return path.read_text(encoding="utf-8")
 
 
-def test_windows_launchers_are_available_at_repository_root() -> None:
+def test_windows_launchers_use_single_root_entrypoint_and_tools_directory() -> None:
+    assert MAIN_LAUNCHER.exists()
     assert DEV_LAUNCHER.exists()
     assert SETUP_LAUNCHER.exists()
     assert CONTROL_LAUNCHER.exists()
     assert CONTROL_SCRIPT.exists()
+    assert not (ROOT / "orchflow-dev.bat").exists()
+    assert not (ROOT / "orchflow-setup.bat").exists()
+    assert not (ROOT / "orchflow-control.bat").exists()
+
+
+def test_windows_root_launcher_exposes_unified_menu_and_delegates_to_tools() -> None:
+    text = _launcher_text(MAIN_LAUNCHER)
+
+    assert "OrchFlow" in text
+    assert "[1] Run checks and start OrchFlow" in text
+    assert "[2] Open in browser" in text
+    assert "[3] Go to Setup menu" in text
+    assert "[4] Go to Control menu" in text
+    assert "[0] Exit" in text
+    assert 'set "TOOLS_DIR=%ROOT_DIR%\\tools\\windows"' in text
+    assert 'call "%SETUP_LAUNCHER%" check' in text
+    assert 'call "%CONTROL_LAUNCHER%" start' in text
+    assert 'call "%SETUP_LAUNCHER%"' in text
+    assert 'call "%CONTROL_LAUNCHER%"' in text
+    assert 'start "" "%WEB_URL%"' in text
+    assert "ORCHFLOW_WEB_URL" in text
+    assert "ORCHFLOW_WEB_HOST" in text
+    assert "ORCHFLOW_WEB_PORT" in text
 
 
 def test_windows_setup_launcher_preserves_existing_env_files() -> None:
@@ -63,8 +89,9 @@ def test_windows_setup_launcher_keeps_simple_setup_menu_and_cli_validation_scope
 def test_windows_dev_launcher_delegates_to_setup_and_control_launchers() -> None:
     text = _launcher_text(DEV_LAUNCHER)
 
-    assert 'set "SETUP_LAUNCHER=%ROOT_DIR%\\orchflow-setup.bat"' in text
-    assert 'set "CONTROL_LAUNCHER=%ROOT_DIR%\\orchflow-control.bat"' in text
+    assert 'for %%I in ("%TOOLS_DIR%\\..\\..") do set "ROOT_DIR=%%~fI"' in text
+    assert 'set "SETUP_LAUNCHER=%TOOLS_DIR%\\orchflow-setup.bat"' in text
+    assert 'set "CONTROL_LAUNCHER=%TOOLS_DIR%\\orchflow-control.bat"' in text
     assert 'call "%SETUP_LAUNCHER%" check' in text
     assert 'call "%CONTROL_LAUNCHER%" start' in text
     assert 'call "%CONTROL_LAUNCHER%"' in text
@@ -79,6 +106,7 @@ def test_windows_control_launcher_exposes_pid_based_process_menu() -> None:
     assert "[3] Stop" in text
     assert "[4] Restart" in text
     assert "[0] Exit" in text
+    assert 'for %%I in ("%TOOLS_DIR%\\..\\..") do set "ROOT_DIR=%%~fI"' in text
     assert 'set "CONTROL_SCRIPT=%ROOT_DIR%\\scripts\\orchflow-local-process-control.ps1"' in text
     assert 'powershell -NoProfile -ExecutionPolicy Bypass -File "%CONTROL_SCRIPT%" %~1' in text
     assert 'call "%SETUP_LAUNCHER%" start-all' not in text
