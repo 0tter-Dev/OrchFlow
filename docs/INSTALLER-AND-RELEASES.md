@@ -34,45 +34,47 @@ That bootstrap should:
 
 The bootstrap should act as a user-friendly entrypoint over the documented local-first workflow, not as a separate orchestration layer.
 
-## Windows Bootstrap Executable Plan
+## Windows Bootstrap Executable Prototype
 
-The first bootstrap executable should be a thin Windows helper around the repository launchers. Its job is to make first startup easier for users who are not comfortable choosing scripts manually, while keeping the implementation reviewable and subordinate to the existing `.bat` flow.
+The first bootstrap executable prototype is a thin Windows helper around the repository launchers. Its job is to make first startup easier for users who are not comfortable choosing scripts manually, while keeping the implementation reviewable and subordinate to the existing `.bat` flow.
 
 ### Responsibilities
 
-The bootstrap executable should:
+The bootstrap executable:
 
-- locate the OrchFlow repository root from its own directory or from a user-selected folder
+- lives as reviewable source under `tools/windows/bootstrap/`
+- is built locally with `tools/windows/build-bootstrap.bat`
+- outputs `dist/windows/orchflow-bootstrap.exe` as an ignored local artifact
+- locates the OrchFlow repository root from its own directory, the current directory, parent folders, or `--repo <path>`
 - verify that `orchflow.bat` exists before attempting startup
 - verify required local prerequisites: `uv`, Node.js, and Corepack
 - report missing prerequisites with short, actionable messages
-- call `orchflow.bat` or its documented delegated flows instead of reimplementing setup logic
+- call documented delegated flows instead of reimplementing setup logic
 - run the equivalent of checks plus startup through the existing launcher path
-- open the local web interface after startup succeeds
-- preserve existing `.env`, `interface/web/.env`, `data/`, `runtime/`, and user-owned project files
-- return a non-zero exit code when prerequisite checks, setup, or startup fail
+- open the local web interface after startup succeeds unless `--no-browser` is passed
+- preserve existing `.env`, `interface/web/.env`, `data/`, `runtime/`, and user-owned project files by delegating environment and process ownership to the launchers
+- return a non-zero exit code when prerequisite checks, setup, startup, status, or browser opening fail
 
 ### Delegation Model
 
 The bootstrap should treat `orchflow.bat` as the user-facing startup contract.
 
-The executable may call:
+The executable calls:
 
-- `orchflow.bat` for the standard interactive path
 - `tools/windows/orchflow-setup.bat check` for non-interactive setup/check validation
 - `tools/windows/orchflow-control.bat start` for startup after successful checks
-- `tools/windows/orchflow-control.bat status` for optional post-start diagnostics
+- `tools/windows/orchflow-control.bat status` for status-only mode and post-start diagnostics
 
 The executable should not duplicate dependency installation, migration, process control, PID tracking, or environment-file creation logic. Those responsibilities remain inside the existing launchers and PowerShell process-control script.
 
 ### User Experience
 
-The first prototype can be intentionally simple. It should provide:
+The first prototype is intentionally simple. It provides:
 
-- a visible startup status sequence for prerequisite checks, setup/check execution, API/web startup, and browser opening
+- a visible startup status sequence for prerequisite checks, setup/check execution, API/web startup, status diagnostics, and browser opening
 - clear failure messages that include the failed step and the launcher command that failed
 - a final success message with the local web URL
-- a way to leave the terminal/window open long enough for users to read failures
+- command options for `--check-only`, `--status`, `--no-browser`, `--pause-on-exit`, `--repo <path>`, and `--help`
 
 The bootstrap should open `ORCHFLOW_WEB_URL` when configured. If that value is absent, it should use `ORCHFLOW_WEB_HOST` and `ORCHFLOW_WEB_PORT`, falling back to `http://localhost:5174`, matching `orchflow.bat`.
 
@@ -91,19 +93,19 @@ The first bootstrap executable must not:
 
 ### Prototype Implementation Shape
 
-The next implementation PR should choose the smallest practical Windows-native path that can be built and reviewed in this repository. A small source file plus a documented build command is preferable to a large packaging framework.
+The implemented prototype uses the smallest practical Windows-native path that can be built and reviewed in this repository: a small .NET console project plus a documented build command, without adding Tauri, Electron, or a large packaging framework.
 
-The prototype should include:
+The prototype includes:
 
-- source for the bootstrap executable under a reviewable repository path
-- a documented local build command
-- a generated executable only if the repository release-artifact policy explicitly allows committing that artifact
-- tests or contract checks for the documented commands and expected launcher paths where practical
+- source for the bootstrap executable under `tools/windows/bootstrap/`
+- a documented local build command through `tools/windows/build-bootstrap.bat`
+- no committed generated executable; `dist/windows/orchflow-bootstrap.exe` is a local build artifact covered by existing ignore rules
+- contract checks for the documented build command, prerequisite checks, launcher paths, URL resolution, and executable options
 - README and user-guide updates explaining when to use the executable versus `orchflow.bat`
 
 ### Validation For The Prototype PR
 
-The prototype PR should validate:
+The prototype PR validates:
 
 - executable build succeeds on Windows
 - missing-prerequisite reporting remains clear
@@ -173,4 +175,4 @@ Future installer and release work should:
 
 ## Current Status
 
-This document is planning guidance only. Current local development and validation flows remain defined by the existing launchers, GitHub Actions validation workflow, manual release validation workflow, and release discipline documented in `docs/GIT-GITHUB-FLOW.md`.
+This document is planning guidance plus the current bootstrap prototype reference. Current local development and validation flows remain defined by the existing launchers, GitHub Actions validation workflow, manual release validation workflow, and release discipline documented in `docs/GIT-GITHUB-FLOW.md`; the generated bootstrap executable remains a local build artifact until a later release workflow promotes it.

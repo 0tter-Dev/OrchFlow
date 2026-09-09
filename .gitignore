@@ -51,6 +51,8 @@ interface/web/coverage/
 interface/web/.vite/
 interface/web/.cache/
 *.tsbuildinfo
+tools/windows/bootstrap/bin/
+tools/windows/bootstrap/obj/
 
 # Test artifacts
 test-results/
