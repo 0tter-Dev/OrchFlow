@@ -48,10 +48,10 @@ List the checks you ran locally.
 - [ ] Version-bearing files updated, or no version bump required
 - [ ] `docs/STATUS.md` reviewed
 - [ ] `docs/INDEX.md` reviewed
-- [ ] `docs/TO-DO.md` updated
-- [ ] Relevant file in `docs/context/` reviewed
-- [ ] `docs/GIT-GITHUB-FLOW.md` reviewed when workflow or delivery rules changed
-- [ ] `docs/USER-GUIDE.md` reviewed when user-facing behavior changed
+- [ ] `docs/ROADMAP.md` and relevant plan updated
+- [ ] Relevant capability document reviewed
+- [ ] `docs/guides/git-and-github-flow.md` reviewed when workflow or delivery rules changed
+- [ ] `docs/guides/user-guide.md` reviewed when user-facing behavior changed
 - [ ] No documentation update was required
 
 ## Review Notes

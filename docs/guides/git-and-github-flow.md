@@ -31,7 +31,7 @@ This means:
 - branches should be deleted after merge
 - work may be authored either by a human contributor or by an authorized AI agent using a dedicated repository identity
 
-This project should not adopt a heavy Git Flow model in `v0.3.31`.
+This project should not adopt a heavy Git Flow model in `v0.3.32`.
 
 The repository is still in an early product stage, so a simpler branch model reduces process weight and makes maintenance easier.
 
@@ -51,7 +51,7 @@ Rules:
 
 Every implementation, documentation, test, refactor, or CI task should use a short-lived branch created from `main`.
 
-Before implementing a numbered Roadmap step from `docs/TO-DO.md`, contributors and AI agents must verify the remote `main` branch state, update local `main` from the remote repository, and create the working branch from that synchronized baseline. This check keeps each Roadmap pull request based on the latest merged PRs instead of an older local checkout.
+Before implementing a numbered Roadmap step from `docs/ROADMAP.md`, contributors and AI agents must verify the remote `main` branch state, update local `main` from the remote repository, and create the working branch from that synchronized baseline. This check keeps each Roadmap pull request based on the latest merged PRs instead of an older local checkout.
 
 Recommended naming patterns:
 
@@ -102,7 +102,7 @@ This is a future exception flow, not the normal path for current development.
 
 Each branch should solve one coherent problem.
 
-Roadmap items in `docs/TO-DO.md` should be written at the same granularity as pull requests. A numbered roadmap step should normally map to one short-lived branch, one coherent Conventional Commit change unit, and one pull request. If a roadmap theme would require multiple pull requests, split it into smaller ordered steps before implementation starts.
+Roadmap items in `docs/ROADMAP.md` should be written at the same granularity as pull requests. A numbered roadmap step should normally map to one short-lived branch, one coherent Conventional Commit change unit, and one pull request. If a roadmap theme would require multiple pull requests, split it into smaller ordered steps before implementation starts.
 
 Good examples:
 
@@ -325,7 +325,7 @@ For the current backend baseline, the expected validation direction is:
 - `uv run alembic upgrade head`
 - `uv run pytest`
 
-The selected frontend package manager for `v0.3.31` is `pnpm`.
+The selected frontend package manager for `v0.3.32` is `pnpm`.
 
 The expected frontend validation direction is:
 
@@ -347,14 +347,14 @@ Changes should update documentation whenever they alter:
 - module behavior
 - implementation status
 
-Before making changes, AI agents must read the applicable root-level documentation under `docs/`. They must not consult `docs/context/` unless the requesting user explicitly authorizes the specific feature context and the file is within the scope of the task. Mechanical current-version reference updates inside `docs/context/` are allowed without separate context authorization when they are part of an approved project version bump and do not change feature-specific content.
+Before making changes, AI agents must read the applicable root-level documentation under `docs/`. They must not consult `docs/capabilities/` unless the requesting user explicitly authorizes the specific feature context and the file is within the scope of the task. Mechanical current-version reference updates inside `docs/capabilities/` are allowed without separate context authorization when they are part of an approved project version bump and do not change feature-specific content.
 
 At minimum, contributors should evaluate whether the change requires updates to:
 
 - `docs/STATUS.md`
 - `docs/INDEX.md`
-- the relevant file in `docs/context/` for human contributors, or for AI agents only after explicit user authorization
-- `docs/USER-GUIDE.md`
+- the relevant file in `docs/capabilities/` for human contributors, or for AI agents only after explicit user authorization
+- `docs/guides/user-guide.md`
 - this document
 - project version references and metadata according to the versioning model
 
@@ -390,7 +390,7 @@ CI should continue evolving in stages.
 
 ### Stage 1
 
-The repository now has the backend and frontend quality baseline needed for `v0.3.31`.
+The repository now has the backend and frontend quality baseline needed for `v0.3.32`.
 
 ### Stage 2
 

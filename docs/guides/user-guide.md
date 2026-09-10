@@ -48,7 +48,7 @@ tools\windows\build-bootstrap.bat
 
 The generated `dist\windows\orchflow-bootstrap.exe` verifies the required local tools, runs `tools\windows\orchflow-setup.bat check`, starts and checks the local API plus web client through `tools\windows\orchflow-control.bat`, and opens the configured web URL after successful startup. It can also run `--check-only`, `--status`, `--no-browser`, `--pause-on-exit`, or `--repo <path>`. The executable is a local build artifact and remains subordinate to the documented launcher flow.
 
-Future installer and packaged release options are tracked in [Installer And Releases](./INSTALLER-AND-RELEASES.md). At the current implementation stage, the bootstrap executable is still a prototype build output: users should continue treating `orchflow.bat` and the auxiliary launchers as the operational base for local setup and routine process control.
+Future installer and packaged release options are tracked in [Installer And Releases](./installer-and-releases.md). At the current implementation stage, the bootstrap executable is still a prototype build output: users should continue treating `orchflow.bat` and the auxiliary launchers as the operational base for local setup and routine process control.
 
 ### 1. Sign In
 

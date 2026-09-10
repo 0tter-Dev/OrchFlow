@@ -40,12 +40,12 @@ Provide a clean separation between the backend core and multiple user-facing cli
 - interface clients should remain consumers of platform capabilities, not their owners
 - interface clients should rely on the API-facing surface rather than bypassing application boundaries
 - the `interface/` folder should act as a physical boundary between the backend core and client implementations
-- visual complexity should remain secondary to operational clarity in `v0.3.31`; the web workspace should feel like a dense operator tool rather than a marketing or bootstrap page
+- visual complexity should remain secondary to operational clarity in `v0.3.32`; the web workspace should feel like a dense operator tool rather than a marketing or bootstrap page
 - unauthenticated web screens should stay focused on authentication and account creation instead of rendering the authenticated workspace chrome, top status bar, or system health probe
 - authenticated health refresh should preserve the latest known API snapshot during loading or transient error states instead of clearing visible status details
 - shared web UI primitives should stay small and flow-driven; Radix primitives and icons should be introduced only where current screens need accessible interaction structure or clearer command affordance
 - `TanStack Table` remains a planned option for a later advanced project table experience and is not part of the current selected dependency baseline
-- future logo, favicon, installer, desktop, or branded interface work should follow the original `OF` monogram direction in `docs/BRAND-IDENTITY.md`
+- future logo, favicon, installer, desktop, or branded interface work should follow the original `OF` monogram direction in `docs/reference/brand-identity.md`
 - interface clients should communicate lifecycle configuration health without blocking partially configured projects
 - interface clients should preserve API failure context in operator-facing error states, including HTTP status, request method/path, and validation details when available
 - interface preferences should be loaded and saved through authenticated API contracts rather than being treated as web-only local state
