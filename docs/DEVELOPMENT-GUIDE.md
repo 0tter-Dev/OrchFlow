@@ -61,18 +61,18 @@ Future-oriented extensibility is acceptable when it does not add speculative imp
 ## Documentation Rules
 
 - New features must be reflected in `docs/STATUS.md`
-- Feature behavior belongs in the relevant file under `docs/context/`
+- Feature behavior belongs in its canonical file under `docs/capabilities/`
 - Scope or policy changes belong in `docs/PROJECT-ARCHITECTURE.md`
 - Cross-feature relationship changes belong in `docs/INDEX.md`
-- User-facing workflow changes should be reflected in `docs/USER-GUIDE.md`
+- User-facing workflow changes should be reflected in `docs/guides/user-guide.md`
 - Relevant documentation should be updated alongside meaningful implementation changes, especially code changes
 - Pull requests must include a semantic version decision and must update all version-bearing files when the change requires a version bump
-- `docs/TO-DO.md` should remain focused on the next planned steps and should not retain work that is already implemented
-- `docs/TO-DO.md` Roadmap steps should be granular enough for one branch and one pull request; broader themes should be split into ordered steps before implementation starts
-- Before implementing any `docs/TO-DO.md` Roadmap step, contributors and AI agents must verify the remote `main` branch state, update local `main` from the remote repository, and create the work branch from that synchronized baseline
+- `docs/ROADMAP.md` should remain a concise index; detailed upcoming work belongs in `docs/plans/backlog/` and completed work in `docs/plans/completed/`
+- active plans should be granular enough for one branch and one pull request; broader themes should be split into ordered plans before implementation starts
+- Before implementing an active plan, contributors and AI agents must verify the remote `main` branch state, update local `main` from the remote repository, and create the work branch from that synchronized baseline
 - Changes to established foundations such as the selected stack, business rules, scope boundaries, or non-goals require explicit user approval before they are applied
 
-For AI agents, root-level documentation under `docs/` is the required baseline before any alteration. AI agents must not consult `docs/context/` by default; they may read or update context documents only when the requesting user explicitly authorizes that scope. Mechanical current-version reference updates inside `docs/context/` during an approved project version bump do not require separate context-document authorization, but substantive context review or content changes still do.
+For AI agents, the root documentation baseline and the active-plan authorization model are defined in `AGENTS.md` and `docs/DOCUMENTATION-GUIDE.md`. Capability access is limited to exact paths authorized by an explicitly user-approved active plan, unless the user separately authorizes additional context.
 
 After any relevant code change, AI agents must re-evaluate the related documentation and update the documents affected by the change. If a context document appears relevant but has not been authorized, the agent must ask for authorization before consulting it.
 
@@ -128,7 +128,7 @@ Every pull request should explicitly state the version bump decision. If the cha
 
 Every roadmap step should be treated as a release-relevant change unit. Before implementation starts, contributors and AI agents should identify the expected Conventional Commit type and the likely semantic version impact. After implementation, the final commit and pull request must confirm that decision against the actual diff.
 
-Roadmap planning should use one-PR granularity by default. If the next planned theme cannot be completed as a focused pull request, update `docs/TO-DO.md` first to split it into smaller sequential steps.
+Roadmap planning should use one-PR granularity by default. If the next planned theme cannot be completed as a focused pull request, split it into smaller sequential plan documents before implementation.
 
 Examples:
 
@@ -170,7 +170,7 @@ The current implementation baseline is:
 
 ## Technology Decision Policy
 
-The core technology direction is now selected for `v0.3.31`.
+The core technology direction is now selected for `v0.3.32`.
 
 Future changes should still be evaluated according to:
 

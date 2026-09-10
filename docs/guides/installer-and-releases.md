@@ -170,9 +170,9 @@ Future installer and release work should:
 - keep release artifacts reviewable before publication
 - keep generated release notes as review artifacts unless a later workflow explicitly promotes them to published release notes
 - avoid selecting Tauri, Electron, or another desktop shell by implication
-- align future branded installer assets with `docs/BRAND-IDENTITY.md`
-- document any new release workflow expectations in `docs/GIT-GITHUB-FLOW.md`
+- align future branded installer assets with `docs/reference/brand-identity.md`
+- document any new release workflow expectations in `docs/guides/git-and-github-flow.md`
 
 ## Current Status
 
-This document is planning guidance plus the current bootstrap prototype reference. Current local development and validation flows remain defined by the existing launchers, GitHub Actions validation workflow, manual release validation workflow, and release discipline documented in `docs/GIT-GITHUB-FLOW.md`; the generated bootstrap executable remains a local build artifact until a later release workflow promotes it.
+This document is planning guidance plus the current bootstrap prototype reference. Current local development and validation flows remain defined by the existing launchers, GitHub Actions validation workflow, manual release validation workflow, and release discipline documented in `docs/guides/git-and-github-flow.md`; the generated bootstrap executable remains a local build artifact until a later release workflow promotes it.
