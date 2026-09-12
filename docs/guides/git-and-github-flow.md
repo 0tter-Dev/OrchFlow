@@ -133,7 +133,7 @@ The expected lifecycle for each change is:
 10. merge with squash merge
 11. delete the branch
 
-For agent-driven code changes, the agent must complete the local implementation, documentation alignment, validation, diff review, branch creation, commit, push, and pull request creation itself when the user has explicitly enabled or requested that delivery mode. The pull request remains the handoff point for human review and merge.
+For agent-driven code changes, the agent must complete the local implementation, documentation alignment, validation, diff review, branch creation, commit, push, and pull request creation itself when the user has explicitly enabled or requested that delivery mode. A plan is an explicit enablement when it is active, records the user's approval, and sets `requires_pull_request: true`; the authorization is limited to that plan's scope and declared capability context. The pull request remains the handoff point for human review and merge.
 
 After a pull request is merged and the remote branch is deleted, contributors and agents should prune stale remote-tracking references and delete the corresponding local branch once `main` has been updated. This keeps the local repository aligned with GitHub without affecting the merged history.
 

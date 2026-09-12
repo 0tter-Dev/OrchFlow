@@ -23,7 +23,9 @@ Each capability has one canonical `README.md`. Companion files exist only for in
 
 ## Plan Lifecycle And Context Authorization
 
-Plans move from `backlog` to `active` only after explicit user approval. An active plan authorizes only the exact paths in `authorized_capabilities`; it never expands product scope or replaces approval required for architectural decisions. Completed plans retain their outcome, validation, version decision, commit, and pull request when applicable.
+Plans move from `backlog` to `active` only after explicit user approval recorded in the plan body. An active plan authorizes only the exact paths in `authorized_capabilities`; it never expands product scope or replaces approval required for architectural decisions.
+
+`requires_pull_request` defines the delivery obligation of an approved active plan. When it is `true`, the recorded approval authorizes the agent to complete the standard scoped delivery sequence — synchronized branch, implementation, validation, Conventional Commit, push, and pull request — without a second authorization for those Git actions. The plan remains active until that pull request exists. When it is `false`, no pull request is created unless the user separately requests one. Completed plans retain their outcome, validation, version decision, commit, and pull request references when applicable.
 
 ## Decision Records
 

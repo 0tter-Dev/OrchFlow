@@ -74,6 +74,8 @@ Future-oriented extensibility is acceptable when it does not add speculative imp
 
 For AI agents, the root documentation baseline and the active-plan authorization model are defined in `AGENTS.md` and `docs/DOCUMENTATION-GUIDE.md`. Capability access is limited to exact paths authorized by an explicitly user-approved active plan, unless the user separately authorizes additional context.
 
+For a user-approved active plan, `requires_pull_request: true` requires the full scoped delivery sequence: branch from synchronized `main`, implementation, validation, Conventional Commit, push, and pull request. That recorded plan approval is sufficient for those routine delivery actions; it does not replace approvals required for scope, architecture, contracts, dependencies, authentication, authorization, or unlisted capability context.
+
 After any relevant code change, AI agents must re-evaluate the related documentation and update the documents affected by the change. If a context document appears relevant but has not been authorized, the agent must ask for authorization before consulting it.
 
 ## Naming Rules
