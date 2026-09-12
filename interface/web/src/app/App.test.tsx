@@ -1,7 +1,9 @@
 import { render, screen } from "@testing-library/react";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { App } from "./App";
+import { createWorkspaceQueryClient } from "./query-client";
 import { workspaceNavigationItems } from "./workspace-navigation";
 
 vi.mock("../features/auth/hooks/useAuthSession", () => ({
@@ -23,7 +25,11 @@ describe("App unauthenticated shell", () => {
   });
 
   it("renders the focused authentication surface without workspace chrome", () => {
-    render(<App />);
+    render(
+      <QueryClientProvider client={createWorkspaceQueryClient()}>
+        <App />
+      </QueryClientProvider>,
+    );
 
     expect(screen.getByRole("heading", { name: "OrchFlow" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Login" })).toBeInTheDocument();

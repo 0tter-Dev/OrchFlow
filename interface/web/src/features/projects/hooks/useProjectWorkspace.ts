@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { startTransition, useDeferredValue, useEffect, useEffectEvent, useState } from "react";
 
 import { formatErrorMessage } from "../../../shared/api/errors";
@@ -22,6 +23,7 @@ import type {
   ProjectUpdateInput,
   RuntimeInspectionSnapshot,
 } from "../../../shared/types/project";
+import { workspaceQueryKeys } from "../../../app/query-client";
 
 type ProjectWorkspaceState = {
   activeAction: CanonicalLifecycleAction | null;
@@ -83,8 +85,15 @@ function mapRuntimeSnapshotsByProjectId(snapshots: RuntimeInspectionSnapshot[]) 
 }
 
 export function useProjectWorkspace(token: string | null) {
+  const queryClient = useQueryClient();
   const [state, setState] = useState<ProjectWorkspaceState>(initialState);
   const deferredSearchQuery = useDeferredValue(state.searchQuery);
+
+  const invalidateProjects = useEffectEvent((sessionToken: string) => {
+    void queryClient.invalidateQueries({
+      queryKey: workspaceQueryKeys.projects(sessionToken),
+    });
+  });
 
   const refreshSelectedProject = useEffectEvent(async (projectId: number, sessionToken: string) => {
     setState((currentState) => ({
@@ -127,7 +136,10 @@ export function useProjectWorkspace(token: string | null) {
     }));
 
     try {
-      const projects = await listProjects(sessionToken);
+      const projects = await queryClient.fetchQuery({
+        queryKey: workspaceQueryKeys.projects(sessionToken),
+        queryFn: () => listProjects(sessionToken),
+      });
       const runtimeSnapshots =
         projects.length === 0
           ? []
@@ -231,6 +243,7 @@ export function useProjectWorkspace(token: string | null) {
 
       try {
         const registeredProject = await registerProject(token, registrationInput);
+        invalidateProjects(token);
         const [projects, runtimeSnapshot] = await Promise.all([
           listProjects(token),
           getRuntimeSnapshot(token, registeredProject.id),
@@ -278,6 +291,7 @@ export function useProjectWorkspace(token: string | null) {
 
     try {
       const lifecycleResult = await executeLifecycleAction(token, selectedProjectId, action);
+      invalidateProjects(token);
       const [selectedProject, runtimeSnapshot] = await Promise.all([
         getProject(token, selectedProjectId),
         getRuntimeSnapshot(token, selectedProjectId),
@@ -321,6 +335,7 @@ export function useProjectWorkspace(token: string | null) {
           state.selectedProjectId,
           configurationInput,
         );
+        invalidateProjects(token);
         setState((currentState) => ({
           ...currentState,
           configurationMessage: "Lifecycle configuration updated.",
@@ -354,6 +369,7 @@ export function useProjectWorkspace(token: string | null) {
 
     try {
       const selectedProject = await updateProject(token, state.selectedProjectId, projectInput);
+      invalidateProjects(token);
       const runtimeSnapshot = await getRuntimeSnapshot(token, selectedProject.id);
       setState((currentState) => ({
         ...currentState,
@@ -395,6 +411,7 @@ export function useProjectWorkspace(token: string | null) {
 
     try {
       const result = await unlinkProject(token, selectedProjectId);
+      invalidateProjects(token);
       const projects = await listProjects(token);
       const runtimeSnapshots =
         projects.length === 0
@@ -449,6 +466,7 @@ export function useProjectWorkspace(token: string | null) {
 
     try {
       const result = await reloadProject(token, state.selectedProjectId);
+      invalidateProjects(token);
       const changedActions = result.changed_actions.join(", ");
       setState((currentState) => ({
         ...currentState,
