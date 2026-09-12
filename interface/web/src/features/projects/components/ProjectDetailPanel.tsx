@@ -291,6 +291,7 @@ export function ProjectDetailPanel({
         <button className="project-detail__logout" onClick={onLogout} type="button">
           End session
         </button>
+
       </header>
 
       {errorMessage !== null ? (

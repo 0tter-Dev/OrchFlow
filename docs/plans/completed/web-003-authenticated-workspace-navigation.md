@@ -1,6 +1,6 @@
 ---
 id: web-003
-status: backlog
+status: completed
 type: feat
 requires_pull_request: true
 expected_version_impact: patch
@@ -25,7 +25,7 @@ Introduce `react-router` and replace the single long authenticated workspace wit
 
 ## Context
 
-Current capabilities are presented in one dense workspace, which makes projects, AI, audit, preferences, and administration harder to discover and operate.
+Current capabilities are presented in one dense workspace, which makes projects, AI, audit, preferences, and administration harder to discover and operate. The requesting user explicitly approved activation and implementation on 2026-09-12. This plan authorizes only `capabilities/web-operator-workspace/README.md` as feature context.
 
 ## Decisions
 
@@ -53,4 +53,10 @@ Update the web capability, user guide, status dashboard, and version references 
 
 ## Outcome
 
-Backlog candidate; not started.
+Implemented and delivered through [PR #58](https://github.com/0tter-Dev/OrchFlow/pull/58).
+
+- Added `react-router` with focused routes for overview, projects, AI assistance, activity, settings, profile, and administration.
+- Kept administrative navigation role-aware and backend authorization authoritative.
+- Updated the web capability, user guide, status dashboard, and current-version references for `0.3.33`.
+- Validated with frontend lint, 46 frontend tests, production build, backend Ruff and mypy checks, and 150 backend tests using a workspace-local temporary directory.
+- Commit: `a95ca13` (`feat(web): add authenticated workspace navigation`).
