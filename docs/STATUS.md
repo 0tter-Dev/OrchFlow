@@ -15,9 +15,9 @@ OrchFlow is in the `v0.3.32` implementation stage as of `2026-09-10`. The produc
 | Project registry | implemented | [Project Registry](./capabilities/project-registry/README.md) | — |
 | Runtime inspection | implemented | [Runtime Inspection](./capabilities/runtime-inspection/README.md) | — |
 | Persistence and audit | implemented | [Persistence And Audit](./capabilities/persistence-and-audit/README.md) | — |
-| Web operator workspace | in_progress | [Web Operator Workspace](./capabilities/web-operator-workspace/README.md) | — |
+| Web operator workspace | in_progress | [Web Operator Workspace](./capabilities/web-operator-workspace/README.md) | [web-002](./plans/backlog/web-002-react-runtime-compatibility-update.md) |
 | External surfaces | in_progress | [External Surfaces](./reference/external-surfaces.md) | — |
-| Delivery and releases | in_progress | [Git And GitHub Flow](./guides/git-and-github-flow.md) | — |
+| Delivery and releases | in_progress | [Git And GitHub Flow](./guides/git-and-github-flow.md) | [deps-001](./plans/backlog/deps-001-central-dependency-maintenance-assessment.md) |
 
 ## Recent Governance Work
 

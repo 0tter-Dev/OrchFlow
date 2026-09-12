@@ -38,7 +38,7 @@ The control launcher uses a focused routine-operations menu: `[1] Check status`,
 
 The combined development entrypoint remains available at `tools\windows\orchflow-dev.bat` for contributors who want setup and local control paths in one menu.
 
-The launchers preserve existing local `.env` files and do not install missing global tools automatically. If `uv`, Node, or Corepack is missing, the setup/check flow reports the missing prerequisite so the user can install or enable it explicitly. Corepack is used to enable `pnpm` before web dependencies are installed.
+The launchers preserve existing local `.env` files and do not install missing global tools automatically. If `uv`, Node, or Corepack is missing, the setup/check flow reports the missing prerequisite so the user can install it explicitly. Corepack invokes the project-pinned `pnpm` directly, without attempting to write global Node.js shims.
 
 Users who want an experimental executable entrypoint can build it locally:
 

@@ -68,8 +68,7 @@ def test_windows_setup_launcher_covers_core_setup_and_runtime_commands() -> None
 
     expected_commands = [
         "uv sync --dev",
-        "corepack enable",
-        "pnpm install",
+        "corepack pnpm install",
         "uv run alembic upgrade head",
         "uv run orchflow info",
         "uv run orchflow health",
@@ -134,7 +133,7 @@ def test_windows_process_control_script_tracks_owned_local_processes() -> None:
         "ORCHFLOW_WEB_PORT",
         "ORCHFLOW_WEB_URL",
         "uv run uvicorn orchflow.external.api.app:create_app --factory",
-        "pnpm dev --host",
+        "corepack pnpm dev --host",
         "--strictPort",
         "Get-NetTCPConnection",
         "Write-ProcessMetadata",

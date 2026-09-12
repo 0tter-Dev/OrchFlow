@@ -383,7 +383,7 @@ $apiCommandLines = @(
     "uv run uvicorn orchflow.external.api.app:create_app --factory --host $($config.ORCHFLOW_API_HOST) --port $($config.ORCHFLOW_API_PORT) --reload >> `"$apiLogFile`" 2>&1"
 )
 $webCommandLines = @(
-    "pnpm dev --host $($config.ORCHFLOW_WEB_HOST) --port $($config.ORCHFLOW_WEB_PORT) --strictPort >> `"$webLogFile`" 2>&1"
+    "corepack pnpm dev --host $($config.ORCHFLOW_WEB_HOST) --port $($config.ORCHFLOW_WEB_PORT) --strictPort >> `"$webLogFile`" 2>&1"
 )
 
 switch ($Action) {
@@ -396,9 +396,9 @@ switch ($Action) {
     }
     "run-web" {
         $ErrorActionPreference = "Continue"
-        Require-Tool -Name "pnpm" -Hint "Run corepack enable from the setup check before starting the web client."
+        Require-Tool -Name "corepack" -Hint "Install a Node.js version that includes Corepack."
         Set-Location -LiteralPath $WebDir
-        & pnpm dev --host $config.ORCHFLOW_WEB_HOST --port $config.ORCHFLOW_WEB_PORT --strictPort
+        & corepack pnpm dev --host $config.ORCHFLOW_WEB_HOST --port $config.ORCHFLOW_WEB_PORT --strictPort
         exit $LASTEXITCODE
     }
     "status" {
@@ -420,7 +420,7 @@ switch ($Action) {
         if (-not $apiOk) {
             exit 1
         }
-        $webOk = Start-TrackedProcess -Name "Web" -PidFile $webPidFile -MetadataFile $webMetadataFile -RequiredTool "pnpm" -ToolHint "Run corepack enable from the setup check before starting the web client." -CommandFile $webCommandFile -WorkingDirectory $WebDir -CommandLines $webCommandLines -Port $config.ORCHFLOW_WEB_PORT -LogFile $webLogFile
+        $webOk = Start-TrackedProcess -Name "Web" -PidFile $webPidFile -MetadataFile $webMetadataFile -RequiredTool "corepack" -ToolHint "Install a Node.js version that includes Corepack." -CommandFile $webCommandFile -WorkingDirectory $WebDir -CommandLines $webCommandLines -Port $config.ORCHFLOW_WEB_PORT -LogFile $webLogFile
         if (-not $webOk) {
             Write-Host "Rolling back API start because Web did not start."
             Stop-TrackedProcess -Name "API" -PidFile $apiPidFile -MetadataFile $apiMetadataFile | Out-Null
@@ -448,7 +448,7 @@ switch ($Action) {
         if (-not $startApiOk) {
             exit 1
         }
-        $startWebOk = Start-TrackedProcess -Name "Web" -PidFile $webPidFile -MetadataFile $webMetadataFile -RequiredTool "pnpm" -ToolHint "Run corepack enable from the setup check before starting the web client." -CommandFile $webCommandFile -WorkingDirectory $WebDir -CommandLines $webCommandLines -Port $config.ORCHFLOW_WEB_PORT -LogFile $webLogFile
+        $startWebOk = Start-TrackedProcess -Name "Web" -PidFile $webPidFile -MetadataFile $webMetadataFile -RequiredTool "corepack" -ToolHint "Install a Node.js version that includes Corepack." -CommandFile $webCommandFile -WorkingDirectory $WebDir -CommandLines $webCommandLines -Port $config.ORCHFLOW_WEB_PORT -LogFile $webLogFile
         if (-not $startWebOk) {
             exit 1
         }

@@ -10,8 +10,33 @@ No plan is currently active.
 
 ## Backlog
 
-No product roadmap item is queued. Add one focused, pull-request-sized plan before implementation begins.
+### Web foundation and dependency maintenance
+
+1. [web-002: React runtime compatibility update](./plans/backlog/web-002-react-runtime-compatibility-update.md)
+2. [web-003: authenticated workspace navigation](./plans/backlog/web-003-authenticated-workspace-navigation.md)
+3. [web-004: API-backed workspace state](./plans/backlog/web-004-api-backed-workspace-state.md)
+4. [web-005: focused project workspace flows](./plans/backlog/web-005-focused-project-workspace-flows.md)
+5. [web-006: local path-selection contract](./plans/backlog/web-006-local-path-selection-contract.md)
+6. [web-007: local path-selection workflow](./plans/backlog/web-007-local-path-selection-workflow.md)
+7. [web-008: guided project forms](./plans/backlog/web-008-guided-project-forms.md)
+8. [web-009: accessible operational feedback](./plans/backlog/web-009-accessible-operational-feedback.md)
+
+### Deferred web capabilities and toolchain migrations
+
+9. [web-010: advanced operational tables](./plans/backlog/web-010-advanced-operational-tables.md)
+10. [web-011: workspace internationalization](./plans/backlog/web-011-workspace-internationalization.md)
+11. [web-012: critical browser workflow tests](./plans/backlog/web-012-critical-browser-workflow-tests.md)
+12. [web-013: Vite toolchain migration](./plans/backlog/web-013-vite-toolchain-migration.md)
+13. [web-014: ESLint toolchain migration](./plans/backlog/web-014-eslint-toolchain-migration.md)
+
+### Central dependency and runtime evaluations
+
+14. [deps-001: central dependency maintenance assessment](./plans/backlog/deps-001-central-dependency-maintenance-assessment.md)
+15. [deps-002: pnpm 12 migration](./plans/backlog/deps-002-pnpm-12-migration.md)
+16. [deps-003: Node.js and Corepack runtime support](./plans/backlog/deps-003-node-corepack-runtime-support.md)
+
+The listed plans are backlog candidates. They do not authorize implementation, dependency installation, capability access, public API changes, or product-scope changes until explicitly approved and moved to `plans/active/`.
 
 ## Completed Plans
 
-See [documentation governance modularization](./plans/completed/docs-001-documentation-governance.md). Historical work completed before this documentation model remains traceable through Git history, releases, and [Feature Status](./STATUS.md).
+See [web-001 compatible web dependency maintenance](./plans/completed/web-001-compatible-web-dependency-maintenance.md) and [documentation governance modularization](./plans/completed/docs-001-documentation-governance.md). Historical work completed before this documentation model remains traceable through Git history, releases, and [Feature Status](./STATUS.md).
