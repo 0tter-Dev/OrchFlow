@@ -51,4 +51,4 @@ Updated the Roadmap and status dashboard to record completion and identify `web-
 
 ## Outcome
 
-Completed on 2026-09-12. Version decision: no bump; this is a compatible runtime maintenance change with no user-visible behavior, supported workflow, or public-contract change. Commit: not created. Pull request: not created.
+Completed on 2026-09-12. Version decision: no bump; this is a compatible runtime maintenance change with no user-visible behavior, supported workflow, or public-contract change. Delivery commit: `7bc33b09337fe08bbdec607fba9b20871c527f63`. Pull request: [#57](https://github.com/0tter-Dev/OrchFlow/pull/57).
