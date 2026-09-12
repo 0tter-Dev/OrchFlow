@@ -1,6 +1,6 @@
 ---
 id: web-005
-status: backlog
+status: active
 type: feat
 requires_pull_request: true
 expected_version_impact: patch
@@ -27,7 +27,7 @@ Separate project discovery, detail, registration, editing, lifecycle configurati
 
 ## Context
 
-Project operations currently compete for attention in one continuous surface.
+Project operations currently compete for attention in one continuous surface. The requesting user explicitly approved activation and implementation on 2026-09-12. This plan authorizes only `capabilities/web-operator-workspace/README.md`, `capabilities/project-registry/README.md`, and `capabilities/lifecycle-management/README.md` as feature context.
 
 ## Decisions
 
@@ -55,4 +55,4 @@ Update the owning capabilities, user guide, status, and version references as re
 
 ## Outcome
 
-Backlog candidate; not started.
+Implementation complete and validated locally; pull request delivery is pending.

@@ -84,6 +84,8 @@ describe("ProjectListPanel", () => {
     const onRegisterProject = vi.fn();
     renderProjectListPanel({ onRegisterProject });
 
+    fireEvent.click(screen.getByRole("button", { name: "Register project" }));
+
     fireEvent.change(screen.getByLabelText("Name"), {
       target: { value: "local-api" },
     });
