@@ -85,6 +85,7 @@ The exact visual component is not fixed. A warning indicator, details popover, m
 - web API failures now surface richer operator-facing notices that preserve status context and FastAPI validation messages from the shared API client
 - the web client keeps the backend contract stable during local development by using a proxy-friendly API base URL convention
 - frontend lint, test, and build scripts are established so later feature work can focus on real operator flows
+- project discovery now supports ordering by name, lifecycle readiness, or runtime state, while registration opens as a focused on-demand flow instead of competing with list inspection
 
 ## Main Relationships
 

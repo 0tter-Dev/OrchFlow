@@ -47,6 +47,8 @@ type ProjectGuidance = {
   title: string;
 };
 
+type ProjectSort = "name" | "readiness" | "runtime";
+
 const initialRegistrationFormState: ProjectRegistrationFormState = {
   description: "",
   lifecycle_script_path: "",
@@ -147,6 +149,8 @@ export function ProjectListPanel({
   const [formState, setFormState] = useState<ProjectRegistrationFormState>(
     initialRegistrationFormState,
   );
+  const [isRegistrationOpen, setIsRegistrationOpen] = useState(false);
+  const [sort, setSort] = useState<ProjectSort>("name");
 
   function updateFormField(field: keyof ProjectRegistrationFormState, value: string) {
     setFormState((currentState) => ({
@@ -168,6 +172,17 @@ export function ProjectListPanel({
   }
 
   const guidance = buildProjectGuidance(projects, selectedProjectId);
+  const sortedProjects = [...projects].sort((left, right) => {
+    if (sort === "readiness") {
+      return left.lifecycle_configuration_health.localeCompare(right.lifecycle_configuration_health);
+    }
+    if (sort === "runtime") {
+      return (runtimeSnapshotsByProjectId[left.id]?.status ?? "unknown").localeCompare(
+        runtimeSnapshotsByProjectId[right.id]?.status ?? "unknown",
+      );
+    }
+    return left.reference_name.localeCompare(right.reference_name);
+  });
 
   return (
     <aside className="project-list">
@@ -188,6 +203,14 @@ export function ProjectListPanel({
         <p className="project-list__status">
           {isLoading ? "Loading project registry..." : `${projects.length} project(s) visible`}
         </p>
+        <label className="project-list__sort">
+          <span>Sort by</span>
+          <select onChange={(event) => setSort(event.target.value as ProjectSort)} value={sort}>
+            <option value="name">Name</option>
+            <option value="readiness">Lifecycle readiness</option>
+            <option value="runtime">Runtime status</option>
+          </select>
+        </label>
       </header>
 
       <section
@@ -209,7 +232,15 @@ export function ProjectListPanel({
         <div className="project-list__success">{registrationMessage}</div>
       ) : null}
 
-      <form className="project-list__registration" onSubmit={submitRegistration}>
+      <button
+        className="project-list__button"
+        onClick={() => setIsRegistrationOpen((isOpen) => !isOpen)}
+        type="button"
+      >
+        {isRegistrationOpen ? "Close registration" : "Register project"}
+      </button>
+
+      {isRegistrationOpen ? <form className="project-list__registration" onSubmit={submitRegistration}>
         <div className="project-list__registration-header">
           <h3 className="project-list__registration-title">Register existing project</h3>
           <button
@@ -295,16 +326,16 @@ export function ProjectListPanel({
             />
           </label>
         </div>
-      </form>
+      </form> : null}
 
-      {projects.length === 0 ? (
+      {sortedProjects.length === 0 ? (
         <div className="project-list__empty">
           No managed project is visible here yet. Register an existing project with a compatible
           lifecycle `.bat` script to start operating it from this workspace.
         </div>
       ) : (
         <div className="project-list__items" data-view={projectViewMode}>
-          {projects.map((project) => {
+          {sortedProjects.map((project) => {
             const runtimeSnapshot = runtimeSnapshotsByProjectId[project.id];
             return (
               <button

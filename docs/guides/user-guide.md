@@ -109,7 +109,7 @@ Manual lifecycle configuration currently replaces the function configuration set
 
 If the selected script only exposes an interactive menu or labels without a usable dispatch path, OrchFlow should guide the user to map available functions manually or improve the script before it can become operationally controllable.
 
-The authenticated web workspace now exposes this existing-script registration flow directly. The form collects project reference name, optional description, project root path, lifecycle script path, and optional lifecycle action mappings for scripts that use identifiers different from `STATUS`, `START`, `STOP`, or `RESTART`.
+The authenticated web workspace now exposes this existing-script registration flow directly. Operators can filter and order visible projects before opening the focused registration flow. The form collects project reference name, optional description, project root path, lifecycle script path, and optional lifecycle action mappings for scripts that use identifiers different from `STATUS`, `START`, `STOP`, or `RESTART`.
 
 The web project list now guides the operator through the current onboarding state: registering the first project, selecting an existing visible project, reviewing a partial or blocked lifecycle configuration, or continuing with a project whose lifecycle mappings are complete.
 
