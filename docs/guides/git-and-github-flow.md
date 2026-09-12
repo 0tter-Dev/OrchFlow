@@ -329,11 +329,10 @@ The selected frontend package manager for `v0.3.32` is `pnpm`.
 
 The expected frontend validation direction is:
 
-- `corepack enable`
-- `pnpm install`
-- `pnpm lint`
-- `pnpm test`
-- `pnpm build`
+- `corepack pnpm install`
+- `corepack pnpm lint`
+- `corepack pnpm test`
+- `corepack pnpm build`
 
 The backend contract suite includes version consistency tests that compare the current project version across package metadata, runtime version exposure, lockfiles, smoke tests, and current-version documentation references. The persistence integration suite validates the Alembic revision graph and compares the migrated schema against SQLAlchemy metadata to catch drift before review.
 

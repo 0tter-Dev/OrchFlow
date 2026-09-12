@@ -131,12 +131,7 @@ call uv sync --dev
 if errorlevel 1 exit /b 1
 
 pushd "%WEB_DIR%" || exit /b 1
-call corepack enable
-if errorlevel 1 (
-  popd
-  exit /b 1
-)
-call pnpm install
+call corepack pnpm install
 if errorlevel 1 (
   popd
   exit /b 1
