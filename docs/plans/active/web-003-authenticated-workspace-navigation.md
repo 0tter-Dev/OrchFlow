@@ -1,6 +1,6 @@
 ---
 id: web-003
-status: backlog
+status: active
 type: feat
 requires_pull_request: true
 expected_version_impact: patch
@@ -25,7 +25,7 @@ Introduce `react-router` and replace the single long authenticated workspace wit
 
 ## Context
 
-Current capabilities are presented in one dense workspace, which makes projects, AI, audit, preferences, and administration harder to discover and operate.
+Current capabilities are presented in one dense workspace, which makes projects, AI, audit, preferences, and administration harder to discover and operate. The requesting user explicitly approved activation and implementation on 2026-09-12. This plan authorizes only `capabilities/web-operator-workspace/README.md` as feature context.
 
 ## Decisions
 
@@ -53,4 +53,4 @@ Update the web capability, user guide, status dashboard, and version references 
 
 ## Outcome
 
-Backlog candidate; not started.
+Implementation complete and validated locally; pull request delivery is pending.

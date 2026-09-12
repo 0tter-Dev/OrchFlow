@@ -6,7 +6,7 @@ OrchFlow manages local Windows projects and needs an explicit, reviewable execut
 
 ## Decision
 
-Keep Windows `.bat` lifecycle scripts as the authoritative managed-project contract in `v0.3.32`.
+Keep Windows `.bat` lifecycle scripts as the authoritative managed-project contract in `v0.3.33`.
 
 ## Consequences
 
