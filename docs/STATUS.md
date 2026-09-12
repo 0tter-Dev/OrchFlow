@@ -2,7 +2,7 @@
 
 ## Current Project Stage
 
-OrchFlow is in the `v0.3.33` implementation stage as of `2026-09-12`. The product baseline is implemented; `web-004` is actively consolidating API-backed workspace state.
+OrchFlow is in the `v0.3.33` implementation stage as of `2026-09-12`. The product baseline is implemented; API-backed workspace state is established, with `web-005` next in the backlog.
 
 ## Capability Dashboard
 
@@ -15,7 +15,7 @@ OrchFlow is in the `v0.3.33` implementation stage as of `2026-09-12`. The produc
 | Project registry | implemented | [Project Registry](./capabilities/project-registry/README.md) | — |
 | Runtime inspection | implemented | [Runtime Inspection](./capabilities/runtime-inspection/README.md) | — |
 | Persistence and audit | implemented | [Persistence And Audit](./capabilities/persistence-and-audit/README.md) | — |
-| Web operator workspace | in_progress | [Web Operator Workspace](./capabilities/web-operator-workspace/README.md) | [web-004](./plans/active/web-004-api-backed-workspace-state.md) |
+| Web operator workspace | in_progress | [Web Operator Workspace](./capabilities/web-operator-workspace/README.md) | [web-005](./plans/backlog/web-005-focused-project-workspace-flows.md) |
 | External surfaces | in_progress | [External Surfaces](./reference/external-surfaces.md) | — |
 | Delivery and releases | in_progress | [Git And GitHub Flow](./guides/git-and-github-flow.md) | [deps-001](./plans/backlog/deps-001-central-dependency-maintenance-assessment.md) |
 
