@@ -1,6 +1,6 @@
 ---
 id: web-004
-status: backlog
+status: active
 type: refactor
 requires_pull_request: true
 expected_version_impact: none
@@ -23,7 +23,7 @@ Adopt `@tanstack/react-query` for server state while preserving current operatio
 
 ## Context
 
-Health, project lists, refreshes, and mutations currently need consistent caching, invalidation, retry, and latest-known-good behavior.
+Health, project lists, refreshes, and mutations currently need consistent caching, invalidation, retry, and latest-known-good behavior. The requesting user explicitly approved activation and implementation on 2026-09-12. This plan authorizes only `capabilities/web-operator-workspace/README.md` as feature context.
 
 ## Decisions
 
@@ -51,4 +51,4 @@ Update the web capability and status only if observable refresh behavior changes
 
 ## Outcome
 
-Backlog candidate; not started.
+Implementation complete and validated locally; pull request delivery is pending.
