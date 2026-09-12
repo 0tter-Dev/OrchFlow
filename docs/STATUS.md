@@ -2,7 +2,7 @@
 
 ## Current Project Stage
 
-OrchFlow is in the `v0.3.33` implementation stage as of `2026-09-12`. The product baseline is implemented; authenticated web navigation is organized into focused routes under the active `web-003` delivery.
+OrchFlow is in the `v0.3.33` implementation stage as of `2026-09-12`. The product baseline is implemented; authenticated web navigation is now organized into focused routes, with `web-004` next in the backlog.
 
 ## Capability Dashboard
 
