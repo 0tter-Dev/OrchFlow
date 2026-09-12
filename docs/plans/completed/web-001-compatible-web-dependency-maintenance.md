@@ -51,4 +51,4 @@ Updated the Roadmap and status dashboard to record completion and identify `web-
 
 ## Outcome
 
-Completed on 2026-09-12. Version decision: no bump; this is a compatible dependency-only maintenance change with no user-visible behavior, supported workflow, or public-contract change. Commit: not created. Pull request: not created.
+Completed on 2026-09-12. Version decision: no bump for `web-001`; this is a compatible dependency-only maintenance change with no user-visible behavior, supported workflow, or public-contract change. Delivery commit: `f6e1a55d4d1ca75441ab7f2e487353d034ce30e6`. Pull request: [#56](https://github.com/0tter-Dev/OrchFlow/pull/56).
