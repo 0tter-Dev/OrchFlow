@@ -12,13 +12,13 @@ Every listed item is one delivery plan and results in one pull request. Research
 
 ## Active Plans
 
-| Sequence | Plan | Priority | Dependencies |
-| --- | --- | --- | --- |
-| 5 | [web-011: workspace internationalization](./plans/active/web-011-workspace-internationalization.md) | medium | — |
+No plan is currently active.
 
 ## Plans Awaiting Review
 
-No plan is currently awaiting review.
+| Sequence | Plan | Priority | Dependencies |
+| --- | --- | --- | --- |
+| 5 | [web-011: workspace internationalization](./plans/review/web-011-workspace-internationalization.md) | medium | — |
 
 ## Backlog
 

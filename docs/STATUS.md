@@ -2,7 +2,7 @@
 
 ## Current Project Stage
 
-OrchFlow is in the `v0.3.36` implementation stage as of `2026-09-13`. Advanced operational tables are implemented, and workspace internationalization is in active delivery.
+OrchFlow is in the `v0.3.36` implementation stage as of `2026-09-13`. Advanced operational tables are implemented, and workspace internationalization is awaiting delivery review.
 
 ## Capability Dashboard
 
@@ -15,7 +15,7 @@ OrchFlow is in the `v0.3.36` implementation stage as of `2026-09-13`. Advanced o
 | Project registry | implemented | [Project Registry](./capabilities/project-registry/README.md) | — |
 | Runtime inspection | implemented | [Runtime Inspection](./capabilities/runtime-inspection/README.md) | — |
 | Persistence and audit | implemented | [Persistence And Audit](./capabilities/persistence-and-audit/README.md) | — |
-| Web operator workspace | in_progress | [Web Operator Workspace](./capabilities/web-operator-workspace/README.md) | [web-011](./plans/active/web-011-workspace-internationalization.md) |
+| Web operator workspace | in_progress | [Web Operator Workspace](./capabilities/web-operator-workspace/README.md) | [web-011](./plans/review/web-011-workspace-internationalization.md) |
 | External surfaces | in_progress | [External Surfaces](./reference/external-surfaces.md) | — |
 | Delivery and releases | in_progress | [Git And GitHub Flow](./guides/git-and-github-flow.md) | [deps-001](./plans/backlog/deps-001-central-dependency-maintenance-assessment.md) |
 
