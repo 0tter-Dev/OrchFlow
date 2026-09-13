@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { axe } from "vitest-axe";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { UserSummary } from "../../../shared/types/auth";
@@ -158,6 +159,12 @@ describe("ProjectListPanel", () => {
         "Connect an existing lifecycle .bat script so OrchFlow can import its first project.",
       ),
     ).toBeInTheDocument();
+  });
+
+  it("has no detectable accessibility violations in the registration flow", async () => {
+    const { container } = renderProjectListPanel();
+    fireEvent.click(screen.getByRole("button", { name: "Register project" }));
+    expect((await axe(container)).violations).toEqual([]);
   });
 
   it("guides project selection when projects are visible", () => {

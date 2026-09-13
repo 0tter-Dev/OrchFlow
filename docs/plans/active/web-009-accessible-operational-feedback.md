@@ -1,6 +1,6 @@
 ---
 id: web-009
-status: backlog
+status: active
 type: test
 requires_pull_request: true
 expected_version_impact: none
@@ -57,4 +57,4 @@ Update the web capability and status if operator-visible behavior changes.
 
 ## Outcome
 
-Backlog candidate; not started.
+Approved by the user in this thread on 2026-09-13 to begin implementation and deliver one pull request. Delivery is in progress.
