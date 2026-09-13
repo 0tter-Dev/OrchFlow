@@ -1,10 +1,10 @@
 ---
 id: web-010
-status: active
+status: completed
 type: feat
 requires_pull_request: true
 expected_version_impact: patch
-actual_version_impact: pending
+actual_version_impact: patch
 priority: medium
 sequence: 4
 depends_on: []
@@ -57,4 +57,4 @@ Update user guidance, capability status, and version references if implemented.
 
 ## Outcome
 
-Approved by the user in this thread on 2026-09-13 to begin implementation and deliver one pull request. Delivery is in progress.
+Implemented through [PR #67](https://github.com/0tter-Dev/OrchFlow/pull/67), merged on 2026-09-13. The implementation added the accessible operational project table using the legacy-compatible TanStack Table API, with sorting and filtering retained as client presentation behavior. Version `0.3.34` advanced to `0.3.35`; the merge commit is `f487f3fb54565ab37fb3a3e5d921628551e29f68`. Validation completed with frontend lint, 49 frontend tests, and frontend build.

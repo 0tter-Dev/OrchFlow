@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import i18n from "../../../app/i18n";
 import type { UserPreferences } from "../../../shared/types/preferences";
 import { UserPreferencesPanel } from "./UserPreferencesPanel";
 
@@ -31,27 +32,35 @@ function renderUserPreferencesPanel(
 }
 
 describe("UserPreferencesPanel", () => {
+  beforeEach(async () => {
+    await i18n.changeLanguage("pt-BR");
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
   it("renders current authenticated user preferences", () => {
     renderUserPreferencesPanel();
 
-    expect(screen.getByText("User display settings")).toBeInTheDocument();
-    expect(screen.getByLabelText("Language")).toHaveValue("pt-BR");
-    expect(screen.getByLabelText("List")).toBeChecked();
-    expect(screen.getByLabelText("Status refresh interval")).toHaveValue(30);
+    expect(screen.getByText("Configurações de exibição")).toBeInTheDocument();
+    expect(screen.getByLabelText("Idioma")).toHaveValue("pt-BR");
+    expect(screen.getByLabelText("Lista")).toBeChecked();
+    expect(screen.getByLabelText("Intervalo de atualização de status")).toHaveValue(30);
   });
 
   it("submits a partial preference update payload through the panel", () => {
     const onUpdate = vi.fn();
     renderUserPreferencesPanel({ onUpdate });
 
-    fireEvent.change(screen.getByLabelText("Language"), {
+    fireEvent.change(screen.getByLabelText("Idioma"), {
       target: { value: "en-US" },
     });
-    fireEvent.click(screen.getByLabelText("Table"));
-    fireEvent.change(screen.getByLabelText("Status refresh interval"), {
+    fireEvent.click(screen.getByLabelText("Tabela"));
+    fireEvent.change(screen.getByLabelText("Intervalo de atualização de status"), {
       target: { value: "45" },
     });
-    fireEvent.click(screen.getByRole("button", { name: "Save preferences" }));
+    fireEvent.click(screen.getByRole("button", { name: "Salvar preferências" }));
 
     expect(onUpdate).toHaveBeenCalledWith({
       locale: "en-US",
@@ -68,5 +77,16 @@ describe("UserPreferencesPanel", () => {
 
     expect(screen.getByText("Preferences saved.")).toBeInTheDocument();
     expect(screen.getByText("Unable to save")).toBeInTheDocument();
+  });
+
+  it("renders translated preference controls when the persisted locale is English", async () => {
+    await i18n.changeLanguage("en-US");
+    renderUserPreferencesPanel({
+      preferences: { ...preferences, locale: "en-US" },
+    });
+
+    expect(screen.getByText("User display settings")).toBeInTheDocument();
+    expect(screen.getByLabelText("Language")).toHaveValue("en-US");
+    expect(screen.getByRole("button", { name: "Save preferences" })).toBeInTheDocument();
   });
 });

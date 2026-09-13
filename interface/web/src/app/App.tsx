@@ -2,6 +2,7 @@ import "./App.css";
 
 import { useEffect } from "react";
 import { BrowserRouter, Navigate, NavLink, Route, Routes } from "react-router";
+import { useTranslation } from "react-i18next";
 
 import { AdminManagementPanel } from "../features/admin/components/AdminManagementPanel";
 import { useAdminManagement } from "../features/admin/hooks/useAdminManagement";
@@ -22,27 +23,10 @@ import { getApiBaseUrl } from "../shared/config/env";
 import type { UserSummary } from "../shared/types/auth";
 import type { UserPreferences } from "../shared/types/preferences";
 import type { ProjectSummary, RuntimeInspectionSnapshot } from "../shared/types/project";
+import "./i18n";
 import { workspaceNavigationItems } from "./workspace-navigation";
 
 const apiBaseUrl = getApiBaseUrl();
-type AppLocale = UserPreferences["locale"];
-
-const appCopy: Record<AppLocale, Record<string, string>> = {
-  "en-US": {
-    activity: "Activity", admin: "Admin", ai: "AI assistance", apiHealth: "API health", attention: "Attention",
-    commandCenter: "Command center", commandCenterDescription: "Project navigation, runtime state, lifecycle actions, preferences, audit, and AI review are available through focused workspace sections.",
-    connectedAs: "Connected as", guestTitle: "OrchFlow", lifecycleHealth: "Lifecycle health", noSelection: "No project selected",
-    overview: "Overview", profile: "Profile", projects: "Projects", refresh: "Refresh", running: "Running",
-    settings: "Settings", signOut: "Sign out", system: "System", tools: "Tools", unknown: "unknown", workspace: "Workspace",
-  },
-  "pt-BR": {
-    activity: "Atividade", admin: "Administracao", ai: "Assistencia de IA", apiHealth: "Saude da API", attention: "Atencao",
-    commandCenter: "Centro de comando", commandCenterDescription: "Navegacao de projetos, runtime, lifecycle, preferencias, auditoria e revisao de IA estao disponiveis em secoes focadas da workspace.",
-    connectedAs: "Conectado como", guestTitle: "OrchFlow", lifecycleHealth: "Saude do lifecycle", noSelection: "Nenhum projeto selecionado",
-    overview: "Visao geral", profile: "Perfil", projects: "Projetos", refresh: "Atualizar", running: "Rodando",
-    settings: "Configuracoes", signOut: "Sair", system: "Sistema", tools: "Ferramentas", unknown: "desconhecido", workspace: "Workspace",
-  },
-};
 
 function countRunningProjects(snapshots: Record<number, RuntimeInspectionSnapshot>): number {
   return Object.values(snapshots).filter((snapshot) => snapshot.status === "running").length;
@@ -55,6 +39,7 @@ function countAttentionProjects(projects: ProjectSummary[]): number {
 type AuthenticatedWorkspaceProps = { currentUser: UserSummary; onLogout: () => void; token: string };
 
 function AuthenticatedWorkspace({ currentUser, onLogout, token }: AuthenticatedWorkspaceProps) {
+  const { i18n, t } = useTranslation();
   const adminManagement = useAdminManagement(token, currentUser);
   const auditEvents = useAuditEvents(token, currentUser);
   const userPreferences = useUserPreferences(token);
@@ -64,10 +49,18 @@ function AuthenticatedWorkspace({ currentUser, onLogout, token }: AuthenticatedW
   const { errorMessage, healthStatus, isLoading, lastUpdated, refresh } = useHealthStatus();
   const preferences = userPreferences.preferences;
   const locale = preferences?.locale ?? "pt-BR";
-  const copy = appCopy[locale];
+  const copy = {
+    activity: t("workspace.activity"), admin: t("workspace.admin"), ai: t("workspace.ai"), apiHealth: t("workspace.apiHealth"), attention: t("workspace.attention"),
+    commandCenter: t("workspace.commandCenter"), commandCenterDescription: t("workspace.commandCenterDescription"), connectedAs: t("workspace.connectedAs"), guestTitle: t("workspace.guestTitle"), lifecycleHealth: t("workspace.lifecycleHealth"), noSelection: t("workspace.noSelection"),
+    overview: t("workspace.overview"), profile: t("workspace.profile"), projects: t("workspace.projects"), refresh: t("workspace.refresh"), running: t("workspace.running"),
+    settings: t("workspace.settings"), signOut: t("workspace.signOut"), system: t("workspace.system"), tools: t("workspace.tools"), unknown: t("workspace.unknown"), workspace: t("workspace.workspace"),
+  };
   const modelIds = Array.from(new Set([aiAssistance.modelCatalog?.default_model, ...(aiAssistance.modelCatalog?.models.map((model) => model.id) ?? [])].filter((modelId): modelId is string => Boolean(modelId))));
 
-  useEffect(() => { document.documentElement.lang = locale; }, [locale]);
+  useEffect(() => {
+    void i18n.changeLanguage(locale);
+    document.documentElement.lang = locale;
+  }, [i18n, locale]);
   useEffect(() => {
     if (preferences === null) return;
     const intervalId = window.setInterval(() => { refresh(); refreshProjects(); }, preferences.status_refresh_interval_seconds * 1000);

@@ -2,6 +2,7 @@ import "./UserPreferencesPanel.css";
 
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
+import { useTranslation } from "react-i18next";
 
 import { ErrorNotice } from "../../../shared/components/ErrorNotice";
 import type {
@@ -10,6 +11,7 @@ import type {
   UserPreferences,
   UserPreferencesUpdate,
 } from "../../../shared/types/preferences";
+import "../../../app/i18n";
 
 type UserPreferencesPanelProps = {
   errorMessage: string | null;
@@ -56,6 +58,7 @@ export function UserPreferencesPanel({
   onUpdate,
   preferences,
 }: UserPreferencesPanelProps) {
+  const { t } = useTranslation();
   const [formState, setFormState] = useState<UserPreferencesFormState>(
     formStateFromPreferences(preferences),
   );
@@ -87,11 +90,11 @@ export function UserPreferencesPanel({
     <section className="preferences-panel">
       <header className="preferences-panel__header">
         <div>
-          <span className="preferences-panel__eyebrow">Workspace preferences</span>
-          <h2 className="preferences-panel__title">User display settings</h2>
+          <span className="preferences-panel__eyebrow">{t("workspace.preferencesWorkspace")}</span>
+          <h2 className="preferences-panel__title">{t("workspace.preferencesTitle")}</h2>
         </div>
         <button className="preferences-panel__button" onClick={onRefresh} type="button">
-          Refresh
+          {t("workspace.preferencesRefresh")}
         </button>
       </header>
 
@@ -99,26 +102,26 @@ export function UserPreferencesPanel({
         <ErrorNotice
           className="preferences-panel__notice"
           message={errorMessage}
-          title="Preferences need attention"
+          title={t("workspace.preferencesError")}
         />
       ) : null}
       {message !== null ? <div className="preferences-panel__success">{message}</div> : null}
 
       <form className="preferences-panel__form" onSubmit={submitPreferences}>
         <label className="preferences-panel__field">
-          <span>Language</span>
+          <span>{t("workspace.preferencesLanguage")}</span>
           <select
             disabled={isLoading || isSaving}
             onChange={(event) => updateField("locale", event.target.value as UserLocale)}
             value={formState.locale}
           >
-            <option value="pt-BR">Portuguese (Brazil)</option>
-            <option value="en-US">English (US)</option>
+            <option value="pt-BR">{t("workspace.preferencesPortuguese")}</option>
+            <option value="en-US">{t("workspace.preferencesEnglish")}</option>
           </select>
         </label>
 
         <fieldset className="preferences-panel__mode">
-          <legend>Project display</legend>
+          <legend>{t("workspace.preferencesProjectDisplay")}</legend>
           <label>
             <input
               checked={formState.project_view_mode === "list"}
@@ -127,7 +130,7 @@ export function UserPreferencesPanel({
               onChange={() => updateField("project_view_mode", "list")}
               type="radio"
             />
-            <span>List</span>
+            <span>{t("workspace.preferencesList")}</span>
           </label>
           <label>
             <input
@@ -137,12 +140,12 @@ export function UserPreferencesPanel({
               onChange={() => updateField("project_view_mode", "table")}
               type="radio"
             />
-            <span>Table</span>
+            <span>{t("workspace.preferencesTable")}</span>
           </label>
         </fieldset>
 
         <label className="preferences-panel__field">
-          <span>Status refresh interval</span>
+          <span>{t("workspace.preferencesStatusRefreshInterval")}</span>
           <input
             disabled={isLoading || isSaving}
             max={300}
@@ -156,7 +159,7 @@ export function UserPreferencesPanel({
         </label>
 
         <button className="preferences-panel__submit" disabled={isLoading || isSaving} type="submit">
-          {isSaving ? "Saving..." : "Save preferences"}
+          {isSaving ? t("workspace.preferencesSaving") : t("workspace.preferencesSave")}
         </button>
       </form>
     </section>
