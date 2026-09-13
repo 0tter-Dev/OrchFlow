@@ -42,6 +42,7 @@ from orchflow.application.audit_history import (
     ListAuditEventsCommand,
 )
 from orchflow.application.lifecycle import ExecuteLifecycleCommand, LifecycleOrchestrationError
+from orchflow.application.local_path_selection import LocalPathSelectionError
 from orchflow.application.project_registry import (
     ProjectConflictError,
     ProjectMappingInput,
@@ -69,6 +70,7 @@ from orchflow.application.services import (
     create_audit_history_service,
     create_bootstrap_service,
     create_lifecycle_orchestration_service,
+    create_local_path_selection_service,
     create_project_registry_service,
     create_runtime_inspection_service,
     create_user_preferences_service,
@@ -198,6 +200,15 @@ class ReloadProjectsRequest(BaseModel):
 
 class RuntimeInspectionBatchRequest(BaseModel):
     project_ids: list[int] = Field(min_length=1, max_length=100)
+
+
+class LocalPathSelectionRequest(BaseModel):
+    kind: Literal["project_root", "lifecycle_script"]
+
+
+class LocalPathSelectionResponse(BaseModel):
+    status: Literal["selected", "cancelled"]
+    path: str | None = None
 
 
 class ProjectMappingResponse(BaseModel):
@@ -559,8 +570,7 @@ def _to_ai_analysis_proposal_application_response(
 
 def _to_project_response(project: Project) -> ProjectResponse:
     configured_script_labels = {
-        mapping.canonical_action: mapping.script_label
-        for mapping in project.action_mappings
+        mapping.canonical_action: mapping.script_label for mapping in project.action_mappings
     }
     lifecycle_function_configurations = build_lifecycle_function_configurations(
         configured_script_labels,
@@ -610,9 +620,7 @@ def _to_lifecycle_response(result: LifecycleExecutionResult) -> LifecycleExecuti
         stderr=result.stderr,
         succeeded=result.succeeded,
         runtime_status=(
-            result.runtime_snapshot.status
-            if result.runtime_snapshot is not None
-            else None
+            result.runtime_snapshot.status if result.runtime_snapshot is not None else None
         ),
     )
 
@@ -727,6 +735,7 @@ def create_app() -> FastAPI:
     project_registry_service = create_project_registry_service()
     lifecycle_service = create_lifecycle_orchestration_service()
     runtime_service = create_runtime_inspection_service()
+    local_path_selection_service = create_local_path_selection_service()
 
     app = FastAPI(
         title="OrchFlow API",
@@ -755,6 +764,35 @@ def create_app() -> FastAPI:
             bootstrap_service.get_database_status(),
             from_attributes=True,
         )
+
+    @app.post(
+        "/local-path-selection",
+        response_model=LocalPathSelectionResponse,
+        tags=["local"],
+    )
+    def select_local_path(
+        payload: LocalPathSelectionRequest,
+        authorization: str | None = Header(default=None),
+    ) -> LocalPathSelectionResponse:
+        token = _extract_bearer_token(authorization)
+        if token is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Missing bearer token.",
+            )
+        try:
+            result = local_path_selection_service.select_path(
+                token=token,
+                kind=payload.kind,
+            )
+        except AuthorizationError as error:
+            raise _map_project_registry_error(error) from error
+        except LocalPathSelectionError as error:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=str(error),
+            ) from error
+        return LocalPathSelectionResponse(status=result.status, path=result.path)
 
     @app.post(
         "/auth/register",
@@ -850,9 +888,7 @@ def create_app() -> FastAPI:
                         if payload.project_view_mode is not None
                         else None
                     ),
-                    status_refresh_interval_seconds=(
-                        payload.status_refresh_interval_seconds
-                    ),
+                    status_refresh_interval_seconds=(payload.status_refresh_interval_seconds),
                 )
             )
         except AccessControlError as error:
@@ -952,9 +988,7 @@ def create_app() -> FastAPI:
                 detail="Missing bearer token.",
             )
         try:
-            ai_status = ai_assistance_service.get_status(
-                GetAIAssistanceStatusCommand(token=token)
-            )
+            ai_status = ai_assistance_service.get_status(GetAIAssistanceStatusCommand(token=token))
         except AccessControlError as error:
             raise _map_access_control_error(error) from error
         return _to_ai_assistance_status_response(ai_status)
@@ -996,9 +1030,7 @@ def create_app() -> FastAPI:
                 detail="Missing bearer token.",
             )
         try:
-            catalog = ai_assistance_service.list_models(
-                ListAIAssistanceModelsCommand(token=token)
-            )
+            catalog = ai_assistance_service.list_models(ListAIAssistanceModelsCommand(token=token))
         except AccessControlError as error:
             raise _map_access_control_error(error) from error
         return _to_ai_assistance_model_catalog_response(catalog)
@@ -1310,9 +1342,7 @@ def create_app() -> FastAPI:
                     mappings=(
                         tuple(
                             ProjectMappingInput(
-                                canonical_action=CanonicalLifecycleAction(
-                                    mapping.canonical_action
-                                ),
+                                canonical_action=CanonicalLifecycleAction(mapping.canonical_action),
                                 script_label=mapping.script_label,
                                 source=MappingSource.USER_DEFINED,
                             )
@@ -1388,8 +1418,7 @@ def create_app() -> FastAPI:
                         for mapping in payload.mappings
                     ),
                     unconfigured_actions=tuple(
-                        CanonicalLifecycleAction(action)
-                        for action in payload.unconfigured_actions
+                        CanonicalLifecycleAction(action) for action in payload.unconfigured_actions
                     ),
                 )
             )

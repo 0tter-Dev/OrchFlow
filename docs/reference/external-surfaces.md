@@ -44,9 +44,9 @@ External surfaces now include API and CLI workflows for updating user preference
 
 ## Current API Inventory
 
-### Planned Local Path Selection Contract
+### Local Path Selection Contract
 
-`POST /local-path-selection` is reserved for a local-only authenticated future workflow. Request: `{ "kind": "project_root" | "lifecycle_script" }`. Success returns `{ "status": "selected", "path": "<absolute local path>" }`; user cancellation returns `{ "status": "cancelled" }`. The endpoint must never accept a caller-supplied path, return directory listings, operate remotely, or bypass audit and access-control rules. Its Windows-native dialog implementation is deferred to `web-007`.
+`POST /local-path-selection` is an authenticated local-only workflow. Request: `{ "kind": "project_root" | "lifecycle_script" }`. Success returns `{ "status": "selected", "path": "<absolute local path>" }`; user cancellation returns `{ "status": "cancelled", "path": null }`. The endpoint never accepts a caller-supplied path or returns directory listings, rejects non-local API hosts and invalid selections, and audits selection, cancellation, rejection, and failure without storing selected paths in audit details.
 
 The current implemented API surface includes:
 

@@ -10,6 +10,7 @@ import {
   listProjects,
   registerProject,
   reloadProject,
+  selectLocalPath,
   unlinkProject,
   updateProject,
   updateProjectLifecycleConfiguration,
@@ -23,6 +24,7 @@ import type {
   ProjectUpdateInput,
   RuntimeInspectionSnapshot,
 } from "../../../shared/types/project";
+import type { LocalPathSelectionKind } from "../../../shared/api/projects";
 import { workspaceQueryKeys } from "../../../app/query-client";
 
 type ProjectWorkspaceState = {
@@ -497,6 +499,22 @@ export function useProjectWorkspace(token: string | null) {
     await refreshProjects(token);
   });
 
+  const selectPath = useEffectEvent(async (kind: LocalPathSelectionKind) => {
+    if (token === null) {
+      return null;
+    }
+    try {
+      const result = await selectLocalPath(token, kind);
+      return result.status === "selected" ? result.path : null;
+    } catch (error) {
+      setState((currentState) => ({
+        ...currentState,
+        errorMessage: formatErrorMessage(error, "Unable to select a local path."),
+      }));
+      return null;
+    }
+  });
+
   const visibleProjects = state.projects.filter((project) => {
     if (deferredSearchQuery.trim().length === 0) {
       return true;
@@ -531,6 +549,7 @@ export function useProjectWorkspace(token: string | null) {
     runtimeSnapshot: state.runtimeSnapshot,
     runtimeSnapshotsByProjectId: state.runtimeSnapshotsByProjectId,
     searchQuery: state.searchQuery,
+    selectPath,
     selectProject,
     selectedProject: state.selectedProject,
     selectedProjectId: state.selectedProjectId,

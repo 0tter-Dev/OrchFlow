@@ -20,7 +20,7 @@ The platform must centralize:
 
 ## Core Principle
 
-In `v0.3.34`, every managed project must have a concrete lifecycle control definition based on a Windows `.bat` script. This script is the authoritative operational contract used by OrchFlow to control the project lifecycle.
+In `v0.3.35`, every managed project must have a concrete lifecycle control definition based on a Windows `.bat` script. This script is the authoritative operational contract used by OrchFlow to control the project lifecycle.
 
 OrchFlow may unlink a project from its local registry or from a user's ownership relationship, but that operation must not delete the managed project folder or lifecycle `.bat` file.
 
@@ -37,7 +37,7 @@ The AI assistance layer is optional and assistive. Its integration model uses `L
 - Enforce authentication and authorization through application users, roles, and project ownership
 - Establish a disciplined engineering foundation for Git, GitHub, testing, and CI
 
-## Non-Goals For v0.3.34
+## Non-Goals For v0.3.35
 
 - Container orchestration
 - Multi-host orchestration
@@ -125,7 +125,7 @@ These non-goals should not be treated as a reason to hard-couple the codebase ag
 
 ### Local Path Selection
 
-When a local web operator needs a project folder or lifecycle script path, the browser must request it from an authenticated local OrchFlow API. The API may invoke a native Windows dialog only on the same machine, returns only the selected absolute path, and records selection, cancellation, rejection, and failure audit events without storing arbitrary directory listings. The service must reject non-local deployment modes, unauthenticated callers, unsupported picker kinds, and paths outside the local host. Native dialog implementation and web controls are deferred to the separately approved `web-007` plan.
+When a local web operator needs a project folder or lifecycle script path, the browser must request it from an authenticated local OrchFlow API. The API may invoke a native Windows dialog only on the same machine, returns only the selected absolute path, and records selection, cancellation, rejection, and failure audit events without storing arbitrary directory listings. The service must reject non-local deployment modes, unauthenticated callers, unsupported picker kinds, and paths outside the local host. The `web-007` delivery implements this native dialog workflow and its web controls.
 
 OrchFlow should:
 
@@ -141,7 +141,7 @@ OrchFlow should:
 - mediate optional AI-assisted project analysis and script generation
 - expose consistent operational capabilities through CLI, API, and interface adapters
 
-OrchFlow should not, in `v0.3.34`:
+OrchFlow should not, in `v0.3.35`:
 
 - behave as a container orchestrator
 - assume remote infrastructure control
@@ -202,7 +202,7 @@ These interface clients should consume the API rather than bypassing the backend
 
 `SQLite` is the initial persistence candidate because it supports a lightweight local-first workflow while still allowing robust enough storage for users, user preferences, projects, ownership metadata, lifecycle metadata, and audit events.
 
-For `v0.3.34`, the selected backend persistence stack is `SQLite` with `SQLAlchemy` and `Alembic`.
+For `v0.3.35`, the selected backend persistence stack is `SQLite` with `SQLAlchemy` and `Alembic`.
 
 ## Selected Technology Direction
 

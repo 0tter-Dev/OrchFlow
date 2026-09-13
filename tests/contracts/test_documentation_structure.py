@@ -60,12 +60,13 @@ def test_plan_directory_matches_declared_status() -> None:
 
 
 def test_backlog_sequence_and_dependencies_are_consistent() -> None:
-    backlog = [
+    pending_plans = [
         plan
-        for plan in (ROOT / "docs/plans/backlog").glob("*.md")
+        for status in ("backlog", "active", "review")
+        for plan in (ROOT / "docs/plans" / status).glob("*.md")
         if plan.name != "README.md"
     ]
-    metadata = {plan: plan.read_text(encoding="utf-8") for plan in backlog}
+    metadata = {plan: plan.read_text(encoding="utf-8") for plan in pending_plans}
     identifiers = {
         re.search(r"^id: ([^\n]+)$", text, flags=re.MULTILINE).group(1): plan
         for plan, text in metadata.items()
@@ -75,7 +76,7 @@ def test_backlog_sequence_and_dependencies_are_consistent() -> None:
         for plan, text in metadata.items()
     }
 
-    assert sorted(sequences.values()) == list(range(1, len(backlog) + 1))
+    assert sorted(sequences.values()) == list(range(1, len(pending_plans) + 1))
 
     roadmap = (ROOT / "docs/ROADMAP.md").read_text(encoding="utf-8")
     for plan, text in metadata.items():

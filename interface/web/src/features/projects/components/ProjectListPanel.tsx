@@ -18,6 +18,7 @@ type ProjectListPanelProps = {
   errorMessage: string | null;
   isLoading: boolean;
   isRegisteringProject: boolean;
+  onPickLocalPath?: (kind: "project_root" | "lifecycle_script") => Promise<string | null>;
   onRefresh: () => void;
   onRegisterProject: (registrationInput: ProjectRegistrationInput) => void;
   onSearchQueryChange: (searchQuery: string) => void;
@@ -136,6 +137,7 @@ export function ProjectListPanel({
   isLoading,
   isRegisteringProject,
   onRefresh,
+  onPickLocalPath,
   onRegisterProject,
   onSearchQueryChange,
   onSelectProject,
@@ -157,6 +159,16 @@ export function ProjectListPanel({
       ...currentState,
       [field]: value,
     }));
+  }
+
+  async function pickPath(kind: "project_root" | "lifecycle_script") {
+    const path = await onPickLocalPath?.(kind);
+    if (path != null) {
+      updateFormField(
+        kind === "project_root" ? "project_root_path" : "lifecycle_script_path",
+        path,
+      );
+    }
   }
 
   function submitRegistration(event: FormEvent<HTMLFormElement>) {
@@ -274,22 +286,12 @@ export function ProjectListPanel({
 
         <label className="project-list__field">
           <span>Project root path</span>
-          <input
-            required
-            onChange={(event) => updateFormField("project_root_path", event.target.value)}
-            placeholder="E:\\Projects\\local-api"
-            value={formState.project_root_path}
-          />
+          <div className="project-list__path-input"><input required onChange={(event) => updateFormField("project_root_path", event.target.value)} placeholder="E:\\Projects\\local-api" value={formState.project_root_path} /><button onClick={() => void pickPath("project_root")} type="button">Browse</button></div>
         </label>
 
         <label className="project-list__field">
           <span>Lifecycle script path</span>
-          <input
-            required
-            onChange={(event) => updateFormField("lifecycle_script_path", event.target.value)}
-            placeholder="E:\\Projects\\local-api\\control.bat"
-            value={formState.lifecycle_script_path}
-          />
+          <div className="project-list__path-input"><input required onChange={(event) => updateFormField("lifecycle_script_path", event.target.value)} placeholder="E:\\Projects\\local-api\\control.bat" value={formState.lifecycle_script_path} /><button onClick={() => void pickPath("lifecycle_script")} type="button">Browse</button></div>
         </label>
 
         <div className="project-list__mapping-grid" aria-label="Lifecycle action mappings">

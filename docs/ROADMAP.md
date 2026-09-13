@@ -14,11 +14,16 @@ Every listed item is one delivery plan and results in one pull request. Research
 
 No plan is currently active.
 
+## Plans Awaiting Review
+
+| Sequence | Plan | Priority | Dependencies |
+| --- | --- | --- | --- |
+| 1 | [web-007: local path-selection workflow](./plans/review/web-007-local-path-selection-workflow.md) | high | — |
+
 ## Backlog
 
 | Sequence | Plan | Priority | Dependencies |
 | --- | --- | --- | --- |
-| 1 | [web-007: local path-selection workflow](./plans/backlog/web-007-local-path-selection-workflow.md) | high | — |
 | 2 | [web-008: guided project forms](./plans/backlog/web-008-guided-project-forms.md) | high | web-007 |
 | 3 | [web-009: accessible operational feedback](./plans/backlog/web-009-accessible-operational-feedback.md) | medium | web-008 |
 | 4 | [web-010: advanced operational tables](./plans/backlog/web-010-advanced-operational-tables.md) | medium | — |
