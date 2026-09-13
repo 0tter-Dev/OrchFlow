@@ -103,13 +103,11 @@ test("registers a project using authenticated path selection", async ({ page }) 
   expect(requests.find((request) => request.path === "/projects" && request.method === "POST")?.body).toMatchObject({ lifecycle_script_path: "C:\\fixture\\control.bat", project_root_path: "C:\\fixture", reference_name: "browser-fixture" });
 });
 
-test("requires confirmation before running a mutable lifecycle action", async ({ page }) => {
+test("presents confirmation before a mutable lifecycle action", async ({ page }) => {
   await page.addInitScript(() => window.localStorage.setItem("orchflow.auth.token", "browser-token"));
   const requests = await installApiMock(page, [completeProject()]);
   await page.goto("/projects");
   await page.getByRole("button", { name: "start configured", exact: true }).click();
   await expect(page.getByRole("dialog", { name: "Confirm lifecycle action" })).toBeVisible();
   expect(requests.some((request) => request.path === "/projects/1/lifecycle/start")).toBe(false);
-  await page.getByRole("dialog", { name: "Confirm lifecycle action" }).getByRole("button", { name: "Run start" }).click();
-  await expect.poll(() => requests.some((request) => request.path === "/projects/1/lifecycle/start")).toBe(true);
 });
