@@ -1,7 +1,9 @@
 import "./ProjectListPanel.css";
 
-import { useState } from "react";
-import type { FormEvent } from "react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import * as Select from "@radix-ui/react-select";
+import { z } from "zod";
 
 import { ErrorNotice } from "../../../shared/components/ErrorNotice";
 import type { UserSummary } from "../../../shared/types/auth";
@@ -60,6 +62,27 @@ const initialRegistrationFormState: ProjectRegistrationFormState = {
   project_root_path: "",
   reference_name: "",
 };
+
+const registrationDraftKey = "orchflow.project-registration-draft";
+const registrationSchema = z.object({
+  description: z.string(),
+  lifecycle_script_path: z.string().trim().min(1, "Choose or enter a lifecycle script path."),
+  map_restart: z.string(),
+  map_start: z.string(),
+  map_status: z.string(),
+  map_stop: z.string(),
+  project_root_path: z.string().trim().min(1, "Choose or enter a project root path."),
+  reference_name: z.string().trim().min(1, "Enter a project reference name."),
+});
+
+function loadRegistrationDraft(): ProjectRegistrationFormState {
+  try {
+    const draft = window.localStorage.getItem(registrationDraftKey);
+    return draft === null ? initialRegistrationFormState : { ...initialRegistrationFormState, ...JSON.parse(draft) };
+  } catch {
+    return initialRegistrationFormState;
+  }
+}
 
 function buildMappings(formState: ProjectRegistrationFormState) {
   const mappingValues: [CanonicalLifecycleAction, string][] = [
@@ -148,32 +171,36 @@ export function ProjectListPanel({
   searchQuery,
   selectedProjectId,
 }: ProjectListPanelProps) {
-  const [formState, setFormState] = useState<ProjectRegistrationFormState>(
-    initialRegistrationFormState,
-  );
+  const registrationForm = useForm<ProjectRegistrationFormState>({ defaultValues: loadRegistrationDraft() });
   const [isRegistrationOpen, setIsRegistrationOpen] = useState(false);
   const [sort, setSort] = useState<ProjectSort>("name");
 
-  function updateFormField(field: keyof ProjectRegistrationFormState, value: string) {
-    setFormState((currentState) => ({
-      ...currentState,
-      [field]: value,
-    }));
-  }
+  useEffect(() => {
+    const subscription = registrationForm.watch((draft) => {
+      window.localStorage.setItem(registrationDraftKey, JSON.stringify(draft));
+    });
+    return () => subscription.unsubscribe();
+  }, [registrationForm]);
 
   async function pickPath(kind: "project_root" | "lifecycle_script") {
     const path = await onPickLocalPath?.(kind);
     if (path != null) {
-      updateFormField(
+      registrationForm.setValue(
         kind === "project_root" ? "project_root_path" : "lifecycle_script_path",
         path,
+        { shouldDirty: true, shouldValidate: true },
       );
     }
   }
 
-  function submitRegistration(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
+  function submitRegistration(formState: ProjectRegistrationFormState) {
+    const parsed = registrationSchema.safeParse(formState);
+    if (!parsed.success) {
+      for (const issue of parsed.error.issues) {
+        registrationForm.setError(issue.path[0] as keyof ProjectRegistrationFormState, { message: issue.message });
+      }
+      return;
+    }
     onRegisterProject({
       description: formState.description.trim() || null,
       lifecycle_script_path: formState.lifecycle_script_path.trim(),
@@ -215,14 +242,17 @@ export function ProjectListPanel({
         <p className="project-list__status">
           {isLoading ? "Loading project registry..." : `${projects.length} project(s) visible`}
         </p>
-        <label className="project-list__sort">
+        <div className="project-list__sort">
           <span>Sort by</span>
-          <select onChange={(event) => setSort(event.target.value as ProjectSort)} value={sort}>
-            <option value="name">Name</option>
-            <option value="readiness">Lifecycle readiness</option>
-            <option value="runtime">Runtime status</option>
-          </select>
-        </label>
+          <Select.Root onValueChange={(value) => setSort(value as ProjectSort)} value={sort}>
+            <Select.Trigger aria-label="Sort projects"><Select.Value /></Select.Trigger>
+            <Select.Portal><Select.Content className="project-list__select-content"><Select.Viewport>
+              <Select.Item value="name"><Select.ItemText>Name</Select.ItemText></Select.Item>
+              <Select.Item value="readiness"><Select.ItemText>Lifecycle readiness</Select.ItemText></Select.Item>
+              <Select.Item value="runtime"><Select.ItemText>Runtime status</Select.ItemText></Select.Item>
+            </Select.Viewport></Select.Content></Select.Portal>
+          </Select.Root>
+        </div>
       </header>
 
       <section
@@ -252,7 +282,7 @@ export function ProjectListPanel({
         {isRegistrationOpen ? "Close registration" : "Register project"}
       </button>
 
-      {isRegistrationOpen ? <form className="project-list__registration" onSubmit={submitRegistration}>
+      {isRegistrationOpen ? <form className="project-list__registration" noValidate onSubmit={registrationForm.handleSubmit(submitRegistration)}>
         <div className="project-list__registration-header">
           <h3 className="project-list__registration-title">Register existing project</h3>
           <button
@@ -267,64 +297,61 @@ export function ProjectListPanel({
         <label className="project-list__field">
           <span>Name</span>
           <input
-            required
-            onChange={(event) => updateFormField("reference_name", event.target.value)}
+            aria-invalid={registrationForm.formState.errors.reference_name !== undefined}
+            {...registrationForm.register("reference_name")}
             placeholder="orchflow-local-api"
-            value={formState.reference_name}
           />
+          {registrationForm.formState.errors.reference_name ? <span role="alert">{registrationForm.formState.errors.reference_name.message}</span> : null}
         </label>
 
         <label className="project-list__field">
           <span>Description</span>
           <textarea
-            onChange={(event) => updateFormField("description", event.target.value)}
+            {...registrationForm.register("description")}
             placeholder="Local API project managed by an existing control.bat script"
             rows={3}
-            value={formState.description}
           />
         </label>
 
         <label className="project-list__field">
           <span>Project root path</span>
-          <div className="project-list__path-input"><input required onChange={(event) => updateFormField("project_root_path", event.target.value)} placeholder="E:\\Projects\\local-api" value={formState.project_root_path} /><button onClick={() => void pickPath("project_root")} type="button">Browse</button></div>
+          <div className="project-list__path-input"><input aria-invalid={registrationForm.formState.errors.project_root_path !== undefined} {...registrationForm.register("project_root_path")} placeholder="E:\\Projects\\local-api" /><button onClick={() => void pickPath("project_root")} type="button">Browse</button></div>
+          {registrationForm.formState.errors.project_root_path ? <span role="alert">{registrationForm.formState.errors.project_root_path.message}</span> : null}
         </label>
 
         <label className="project-list__field">
           <span>Lifecycle script path</span>
-          <div className="project-list__path-input"><input required onChange={(event) => updateFormField("lifecycle_script_path", event.target.value)} placeholder="E:\\Projects\\local-api\\control.bat" value={formState.lifecycle_script_path} /><button onClick={() => void pickPath("lifecycle_script")} type="button">Browse</button></div>
+          <div className="project-list__path-input"><input aria-invalid={registrationForm.formState.errors.lifecycle_script_path !== undefined} {...registrationForm.register("lifecycle_script_path")} placeholder="E:\\Projects\\local-api\\control.bat" /><button onClick={() => void pickPath("lifecycle_script")} type="button">Browse</button></div>
+          {registrationForm.formState.errors.lifecycle_script_path ? <span role="alert">{registrationForm.formState.errors.lifecycle_script_path.message}</span> : null}
         </label>
 
         <div className="project-list__mapping-grid" aria-label="Lifecycle action mappings">
           <label className="project-list__field">
             <span>Status mapping</span>
             <input
-              onChange={(event) => updateFormField("map_status", event.target.value)}
+              {...registrationForm.register("map_status")}
               placeholder="STATUS"
-              value={formState.map_status}
             />
           </label>
           <label className="project-list__field">
             <span>Start mapping</span>
             <input
-              onChange={(event) => updateFormField("map_start", event.target.value)}
+              {...registrationForm.register("map_start")}
               placeholder="INICIAR"
-              value={formState.map_start}
             />
           </label>
           <label className="project-list__field">
             <span>Stop mapping</span>
             <input
-              onChange={(event) => updateFormField("map_stop", event.target.value)}
+              {...registrationForm.register("map_stop")}
               placeholder="PARAR"
-              value={formState.map_stop}
             />
           </label>
           <label className="project-list__field">
             <span>Restart mapping</span>
             <input
-              onChange={(event) => updateFormField("map_restart", event.target.value)}
+              {...registrationForm.register("map_restart")}
               placeholder="REINICIAR"
-              value={formState.map_restart}
             />
           </label>
         </div>

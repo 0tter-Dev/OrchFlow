@@ -12,19 +12,18 @@ Every listed item is one delivery plan and results in one pull request. Research
 
 ## Active Plans
 
-No plan is currently active.
+| Sequence | Plan | Priority | Dependencies |
+| --- | --- | --- | --- |
+| 2 | [web-008: guided project forms](./plans/active/web-008-guided-project-forms.md) | high | web-007 |
 
 ## Plans Awaiting Review
 
-| Sequence | Plan | Priority | Dependencies |
-| --- | --- | --- | --- |
-| 1 | [web-007: local path-selection workflow](./plans/review/web-007-local-path-selection-workflow.md) | high | — |
+No plan is currently awaiting review.
 
 ## Backlog
 
 | Sequence | Plan | Priority | Dependencies |
 | --- | --- | --- | --- |
-| 2 | [web-008: guided project forms](./plans/backlog/web-008-guided-project-forms.md) | high | web-007 |
 | 3 | [web-009: accessible operational feedback](./plans/backlog/web-009-accessible-operational-feedback.md) | medium | web-008 |
 | 4 | [web-010: advanced operational tables](./plans/backlog/web-010-advanced-operational-tables.md) | medium | — |
 | 5 | [web-011: workspace internationalization](./plans/backlog/web-011-workspace-internationalization.md) | medium | — |
@@ -39,4 +38,4 @@ The listed plans are backlog candidates. They do not authorize implementation, d
 
 ## Completed Plans
 
-See [web-006 local path-selection contract](./plans/completed/web-006-local-path-selection-contract.md), [web-005 focused project workspace flows](./plans/completed/web-005-focused-project-workspace-flows.md), [web-004 API-backed workspace state](./plans/completed/web-004-api-backed-workspace-state.md), [web-003 authenticated workspace navigation](./plans/completed/web-003-authenticated-workspace-navigation.md), [web-002 React runtime compatibility update](./plans/completed/web-002-react-runtime-compatibility-update.md), [web-001 compatible web dependency maintenance](./plans/completed/web-001-compatible-web-dependency-maintenance.md), and [documentation governance modularization](./plans/completed/docs-001-documentation-governance.md). Historical work completed before this documentation model remains traceable through Git history, releases, and [Feature Status](./STATUS.md).
+See [web-007 local path-selection workflow](./plans/completed/web-007-local-path-selection-workflow.md), [web-006 local path-selection contract](./plans/completed/web-006-local-path-selection-contract.md), [web-005 focused project workspace flows](./plans/completed/web-005-focused-project-workspace-flows.md), [web-004 API-backed workspace state](./plans/completed/web-004-api-backed-workspace-state.md), [web-003 authenticated workspace navigation](./plans/completed/web-003-authenticated-workspace-navigation.md), [web-002 React runtime compatibility update](./plans/completed/web-002-react-runtime-compatibility-update.md), [web-001 compatible web dependency maintenance](./plans/completed/web-001-compatible-web-dependency-maintenance.md), and [documentation governance modularization](./plans/completed/docs-001-documentation-governance.md). Historical work completed before this documentation model remains traceable through Git history, releases, and [Feature Status](./STATUS.md).

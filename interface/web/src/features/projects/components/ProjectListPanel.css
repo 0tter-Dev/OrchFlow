@@ -70,13 +70,23 @@
   font-size: 0.82rem;
 }
 
-.project-list__sort select {
+.project-list__sort button,
+.project-list__select-content {
   min-height: 2.2rem;
   padding: 0.35rem 0.5rem;
   border: 1px solid #3a3d39;
   border-radius: 6px;
   background: #151615;
   color: #f7f2e8;
+}
+
+.project-list__select-content {
+  z-index: 10;
+}
+
+.project-list__select-content [role="option"] {
+  cursor: pointer;
+  padding: 0.5rem 0.7rem;
 }
 
 .project-list__guidance {

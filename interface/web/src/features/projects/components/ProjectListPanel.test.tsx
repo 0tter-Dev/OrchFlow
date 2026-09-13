@@ -1,5 +1,5 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { UserSummary } from "../../../shared/types/auth";
 import type { ProjectSummary, RuntimeInspectionSnapshot } from "../../../shared/types/project";
@@ -80,7 +80,11 @@ function renderProjectListPanel(
 }
 
 describe("ProjectListPanel", () => {
-  it("submits a project registration with optional lifecycle mappings", () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+  });
+
+  it("submits a project registration with optional lifecycle mappings", async () => {
     const onRegisterProject = vi.fn();
     renderProjectListPanel({ onRegisterProject });
 
@@ -107,7 +111,7 @@ describe("ProjectListPanel", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Register" }));
 
-    expect(onRegisterProject).toHaveBeenCalledWith({
+    await waitFor(() => expect(onRegisterProject).toHaveBeenCalledWith({
       description: "Local API controlled by an existing script",
       lifecycle_script_path: "E:\\Projects\\local-api\\control.bat",
       mappings: [
@@ -124,7 +128,17 @@ describe("ProjectListPanel", () => {
       ],
       project_root_path: "E:\\Projects\\local-api",
       reference_name: "local-api",
-    });
+    }));
+  });
+
+  it("keeps a draft and reports required fields before registration", async () => {
+    renderProjectListPanel();
+    fireEvent.click(screen.getByRole("button", { name: "Register project" }));
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "draft-project" } });
+    fireEvent.click(screen.getByRole("button", { name: "Register" }));
+
+    expect(await screen.findByText("Choose or enter a lifecycle script path.")).toHaveAttribute("role", "alert");
+    expect(window.localStorage.getItem("orchflow.project-registration-draft")).toContain("draft-project");
   });
 
   it("renders the registration success message", () => {

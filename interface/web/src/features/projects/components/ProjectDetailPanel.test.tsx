@@ -296,7 +296,7 @@ describe("ProjectDetailPanel", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Unlink" }));
 
-    expect(screen.getByRole("dialog", { name: "Unlink project" })).toBeInTheDocument();
+    expect(screen.getByRole("alertdialog", { name: "Unlink project" })).toBeInTheDocument();
     expect(screen.getByText(/The project folder and lifecycle script stay on disk/)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Confirm unlink" }));

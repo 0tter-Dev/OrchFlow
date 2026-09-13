@@ -87,6 +87,7 @@ The exact visual component is not fixed. A warning indicator, details popover, m
 - frontend lint, test, and build scripts are established so later feature work can focus on real operator flows
 - project discovery now supports ordering by name, lifecycle readiness, or runtime state, while registration opens as a focused on-demand flow instead of competing with list inspection
 - existing-script registration now offers authenticated local Windows folder and `.bat` selectors; cancellation preserves manual input, while the API remains the authoritative validation boundary
+- project registration now preserves a local draft and provides field-level client validation before submitting to the existing authoritative registry contract
 
 ## Main Relationships
 
