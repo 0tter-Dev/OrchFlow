@@ -2,6 +2,7 @@ import "./ProjectDetailPanel.css";
 
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
+import * as AlertDialog from "@radix-ui/react-alert-dialog";
 
 import { ErrorNotice } from "../../../shared/components/ErrorNotice";
 import type { UserSummary } from "../../../shared/types/auth";
@@ -684,22 +685,18 @@ export function ProjectDetailPanel({
         </div>
       ) : null}
 
-      {isUnlinkDialogOpen ? (
-        <div className="project-detail__modal-backdrop" role="presentation">
-          <section
-            aria-labelledby="project-unlink-title"
-            className="project-detail__modal project-detail__modal--narrow"
-            role="dialog"
-          >
+      <AlertDialog.Root onOpenChange={setIsUnlinkDialogOpen} open={isUnlinkDialogOpen}>
+        <AlertDialog.Portal>
+          <AlertDialog.Overlay className="project-detail__modal-backdrop" />
+          <AlertDialog.Content className="project-detail__modal project-detail__modal--narrow">
             <div className="project-detail__modal-header">
-              <h3 id="project-unlink-title">Unlink project</h3>
-              <button
+              <AlertDialog.Title>Unlink project</AlertDialog.Title>
+              <AlertDialog.Cancel asChild><button
                 className="project-detail__secondary-action"
-                onClick={() => setIsUnlinkDialogOpen(false)}
                 type="button"
               >
                 Close
-              </button>
+              </button></AlertDialog.Cancel>
             </div>
             <p className="project-detail__copy">
               Remove <strong>{selectedProject.reference_name}</strong> from OrchFlow's local
@@ -710,25 +707,24 @@ export function ProjectDetailPanel({
               <span>{selectedProject.lifecycle_script_path}</span>
             </div>
             <div className="project-detail__modal-actions">
-              <button
+              <AlertDialog.Cancel asChild><button
                 className="project-detail__secondary-action"
-                onClick={() => setIsUnlinkDialogOpen(false)}
                 type="button"
               >
                 Cancel
-              </button>
-              <button
+              </button></AlertDialog.Cancel>
+              <AlertDialog.Action asChild><button
                 className="project-detail__danger-action"
                 disabled={isUnlinkingProject}
                 onClick={confirmProjectUnlink}
                 type="button"
               >
                 {isUnlinkingProject ? "Unlinking..." : "Confirm unlink"}
-              </button>
+              </button></AlertDialog.Action>
             </div>
-          </section>
-        </div>
-      ) : null}
+          </AlertDialog.Content>
+        </AlertDialog.Portal>
+      </AlertDialog.Root>
     </section>
   );
 }

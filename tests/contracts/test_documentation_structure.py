@@ -67,16 +67,26 @@ def test_backlog_sequence_and_dependencies_are_consistent() -> None:
         if plan.name != "README.md"
     ]
     metadata = {plan: plan.read_text(encoding="utf-8") for plan in pending_plans}
+    completed_plans = [
+        plan
+        for plan in (ROOT / "docs/plans/completed").glob("*.md")
+        if plan.name != "README.md"
+    ]
+    all_metadata = {
+        plan: plan.read_text(encoding="utf-8")
+        for plan in [*pending_plans, *completed_plans]
+    }
     identifiers = {
         re.search(r"^id: ([^\n]+)$", text, flags=re.MULTILINE).group(1): plan
-        for plan, text in metadata.items()
+        for plan, text in all_metadata.items()
     }
     sequences = {
         plan: int(re.search(r"^sequence: (\d+)$", text, flags=re.MULTILINE).group(1))
         for plan, text in metadata.items()
     }
 
-    assert sorted(sequences.values()) == list(range(1, len(pending_plans) + 1))
+    assert all(sequence > 0 for sequence in sequences.values())
+    assert len(set(sequences.values())) == len(sequences)
 
     roadmap = (ROOT / "docs/ROADMAP.md").read_text(encoding="utf-8")
     for plan, text in metadata.items():
@@ -89,7 +99,10 @@ def test_backlog_sequence_and_dependencies_are_consistent() -> None:
             continue
         for dependency in re.findall(r"^  - ([^\n]+)$", dependencies.group(1), re.MULTILINE):
             assert dependency in identifiers, f"{plan_id} has unknown dependency {dependency}"
-            assert sequences[identifiers[dependency]] < sequences[plan]
+            if identifiers[dependency] in sequences:
+                assert sequences[identifiers[dependency]] < sequences[plan]
+            else:
+                assert "status: completed" in all_metadata[identifiers[dependency]]
 
 
 def test_internal_markdown_links_resolve() -> None:

@@ -1,6 +1,6 @@
 ---
 id: web-008
-status: backlog
+status: active
 type: feat
 requires_pull_request: true
 expected_version_impact: patch
@@ -58,4 +58,4 @@ Update owning capabilities, user guide, status, and version references as requir
 
 ## Outcome
 
-Backlog candidate; not started.
+Approved by the user in this thread on 2026-09-13 to begin implementation and deliver one pull request. Delivery is in progress.

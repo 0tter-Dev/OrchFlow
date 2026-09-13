@@ -2,7 +2,7 @@
 
 ## Current Project Stage
 
-OrchFlow is in the `v0.3.35` implementation stage as of `2026-09-13`. The local path-selection workflow is implemented and awaiting delivery review.
+OrchFlow is in the `v0.3.35` implementation stage as of `2026-09-13`. The local path-selection workflow is implemented, and guided project forms are in active delivery.
 
 ## Capability Dashboard
 
@@ -15,7 +15,7 @@ OrchFlow is in the `v0.3.35` implementation stage as of `2026-09-13`. The local 
 | Project registry | implemented | [Project Registry](./capabilities/project-registry/README.md) | — |
 | Runtime inspection | implemented | [Runtime Inspection](./capabilities/runtime-inspection/README.md) | — |
 | Persistence and audit | implemented | [Persistence And Audit](./capabilities/persistence-and-audit/README.md) | — |
-| Web operator workspace | in_progress | [Web Operator Workspace](./capabilities/web-operator-workspace/README.md) | [web-007](./plans/review/web-007-local-path-selection-workflow.md) |
+| Web operator workspace | in_progress | [Web Operator Workspace](./capabilities/web-operator-workspace/README.md) | [web-008](./plans/active/web-008-guided-project-forms.md) |
 | External surfaces | in_progress | [External Surfaces](./reference/external-surfaces.md) | — |
 | Delivery and releases | in_progress | [Git And GitHub Flow](./guides/git-and-github-flow.md) | [deps-001](./plans/backlog/deps-001-central-dependency-maintenance-assessment.md) |
 
