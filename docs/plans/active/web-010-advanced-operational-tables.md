@@ -1,6 +1,6 @@
 ---
 id: web-010
-status: backlog
+status: active
 type: feat
 requires_pull_request: true
 expected_version_impact: patch
@@ -57,4 +57,4 @@ Update user guidance, capability status, and version references if implemented.
 
 ## Outcome
 
-Backlog candidate; conditional on a concrete need.
+Approved by the user in this thread on 2026-09-13 to begin implementation and deliver one pull request. Delivery is in progress.
