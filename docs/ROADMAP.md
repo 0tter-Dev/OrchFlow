@@ -6,16 +6,15 @@ This is the ordered index of planned OrchFlow work. Detailed scope, authorized c
 
 ## Active Plans
 
-[web-005: focused project workspace flows](./plans/active/web-005-focused-project-workspace-flows.md)
+[web-006: local path-selection contract](./plans/active/web-006-local-path-selection-contract.md)
 
 ## Backlog
 
 ### Web foundation and dependency maintenance
 
-1. [web-006: local path-selection contract](./plans/backlog/web-006-local-path-selection-contract.md)
-2. [web-007: local path-selection workflow](./plans/backlog/web-007-local-path-selection-workflow.md)
-3. [web-008: guided project forms](./plans/backlog/web-008-guided-project-forms.md)
-4. [web-009: accessible operational feedback](./plans/backlog/web-009-accessible-operational-feedback.md)
+1. [web-007: local path-selection workflow](./plans/backlog/web-007-local-path-selection-workflow.md)
+2. [web-008: guided project forms](./plans/backlog/web-008-guided-project-forms.md)
+3. [web-009: accessible operational feedback](./plans/backlog/web-009-accessible-operational-feedback.md)
 
 ### Deferred web capabilities and toolchain migrations
 
