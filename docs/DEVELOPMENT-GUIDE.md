@@ -69,12 +69,16 @@ Future-oriented extensibility is acceptable when it does not add speculative imp
 - Pull requests must include a semantic version decision and must update all version-bearing files when the change requires a version bump
 - `docs/ROADMAP.md` should remain a concise index; detailed upcoming work belongs in `docs/plans/backlog/` and completed work in `docs/plans/completed/`
 - active plans should be granular enough for one branch and one pull request; broader themes should be split into ordered plans before implementation starts
+- `docs/ROADMAP.md` owns the default plan sequence; a plan's `priority` signals urgency and its `depends_on` list names hard prerequisites, but neither silently overrides the published order
+- work that does not independently merit a pull request belongs as a phase, task, acceptance criterion, or validation item within its parent delivery plan instead of becoming a standalone plan
 - Before implementing an active plan, contributors and AI agents must verify the remote `main` branch state, update local `main` from the remote repository, and create the work branch from that synchronized baseline
 - Changes to established foundations such as the selected stack, business rules, scope boundaries, or non-goals require explicit user approval before they are applied
 
 For AI agents, the root documentation baseline and the active-plan authorization model are defined in `AGENTS.md` and `docs/DOCUMENTATION-GUIDE.md`. Capability access is limited to exact paths authorized by an explicitly user-approved active plan, unless the user separately authorizes additional context.
 
 For a user-approved active plan, `requires_pull_request: true` requires the full scoped delivery sequence: branch from synchronized `main`, implementation, validation, Conventional Commit, push, and pull request. That recorded plan approval is sufficient for those routine delivery actions; it does not replace approvals required for scope, architecture, contracts, dependencies, authentication, authorization, or unlisted capability context.
+
+Only the first eligible Roadmap item may move to `active` by default. Eligibility requires completed hard dependencies and reconciliation of every earlier item; parallel work or a reordered sequence requires explicit user approval and a corresponding Roadmap update.
 
 After any relevant code change, AI agents must re-evaluate the related documentation and update the documents affected by the change. If a context document appears relevant but has not been authorized, the agent must ask for authorization before consulting it.
 
@@ -172,7 +176,7 @@ The current implementation baseline is:
 
 ## Technology Decision Policy
 
-The core technology direction is now selected for `v0.3.33`.
+The core technology direction is now selected for `v0.3.34`.
 
 Future changes should still be evaluated according to:
 

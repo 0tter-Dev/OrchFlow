@@ -2,7 +2,13 @@
 
 ## Purpose
 
-This is the ordered index of planned OrchFlow work. Detailed scope, authorized capability context, validation, version impact, and delivery intent belong in individual plan documents.
+This is the canonical ordered queue of planned OrchFlow work. Detailed scope, authorized capability context, validation, version impact, and delivery intent belong in individual plan documents.
+
+## Execution Rules
+
+`Sequence` defines the default execution order. `Priority` expresses urgency and does not override that order. `Dependencies` lists hard prerequisites only; `—` means none. A plan becomes eligible only when its dependencies are completed and every earlier Roadmap item is reconciled. By default, only the first eligible plan may move to `active`; parallel work or reordering requires explicit user approval and a documented Roadmap update.
+
+Every listed item is one delivery plan and results in one pull request. Research, preparation, documentation, or migration work that does not independently merit review stays as a phase, task, acceptance criterion, or validation item inside its delivery plan rather than becoming a separate plan.
 
 ## Active Plans
 
@@ -10,25 +16,19 @@ No plan is currently active.
 
 ## Backlog
 
-### Web foundation and dependency maintenance
-
-1. [web-007: local path-selection workflow](./plans/backlog/web-007-local-path-selection-workflow.md)
-2. [web-008: guided project forms](./plans/backlog/web-008-guided-project-forms.md)
-3. [web-009: accessible operational feedback](./plans/backlog/web-009-accessible-operational-feedback.md)
-
-### Deferred web capabilities and toolchain migrations
-
-5. [web-010: advanced operational tables](./plans/backlog/web-010-advanced-operational-tables.md)
-6. [web-011: workspace internationalization](./plans/backlog/web-011-workspace-internationalization.md)
-7. [web-012: critical browser workflow tests](./plans/backlog/web-012-critical-browser-workflow-tests.md)
-8. [web-013: Vite toolchain migration](./plans/backlog/web-013-vite-toolchain-migration.md)
-9. [web-014: ESLint toolchain migration](./plans/backlog/web-014-eslint-toolchain-migration.md)
-
-### Central dependency and runtime evaluations
-
-10. [deps-001: central dependency maintenance assessment](./plans/backlog/deps-001-central-dependency-maintenance-assessment.md)
-11. [deps-002: pnpm 12 migration](./plans/backlog/deps-002-pnpm-12-migration.md)
-12. [deps-003: Node.js and Corepack runtime support](./plans/backlog/deps-003-node-corepack-runtime-support.md)
+| Sequence | Plan | Priority | Dependencies |
+| --- | --- | --- | --- |
+| 1 | [web-007: local path-selection workflow](./plans/backlog/web-007-local-path-selection-workflow.md) | high | — |
+| 2 | [web-008: guided project forms](./plans/backlog/web-008-guided-project-forms.md) | high | web-007 |
+| 3 | [web-009: accessible operational feedback](./plans/backlog/web-009-accessible-operational-feedback.md) | medium | web-008 |
+| 4 | [web-010: advanced operational tables](./plans/backlog/web-010-advanced-operational-tables.md) | medium | — |
+| 5 | [web-011: workspace internationalization](./plans/backlog/web-011-workspace-internationalization.md) | medium | — |
+| 6 | [web-012: critical browser workflow tests](./plans/backlog/web-012-critical-browser-workflow-tests.md) | medium | web-007, web-008, web-009 |
+| 7 | [deps-001: central dependency maintenance assessment](./plans/backlog/deps-001-central-dependency-maintenance-assessment.md) | medium | — |
+| 8 | [deps-002: pnpm 12 migration](./plans/backlog/deps-002-pnpm-12-migration.md) | medium | deps-001 |
+| 9 | [deps-003: Node.js and Corepack runtime support](./plans/backlog/deps-003-node-corepack-runtime-support.md) | medium | deps-001 |
+| 10 | [web-013: Vite toolchain migration](./plans/backlog/web-013-vite-toolchain-migration.md) | medium | deps-001 |
+| 11 | [web-014: ESLint toolchain migration](./plans/backlog/web-014-eslint-toolchain-migration.md) | medium | deps-001 |
 
 The listed plans are backlog candidates. They do not authorize implementation, dependency installation, capability access, public API changes, or product-scope changes until explicitly approved and moved to `plans/active/`.
 

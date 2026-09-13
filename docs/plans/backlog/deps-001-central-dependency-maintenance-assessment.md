@@ -4,6 +4,10 @@ status: backlog
 type: docs
 requires_pull_request: true
 expected_version_impact: none
+actual_version_impact: pending
+priority: medium
+sequence: 7
+depends_on: []
 authorized_capabilities: []
 decision_records: []
 validation:

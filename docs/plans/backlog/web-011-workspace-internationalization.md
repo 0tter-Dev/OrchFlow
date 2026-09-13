@@ -4,6 +4,10 @@ status: backlog
 type: feat
 requires_pull_request: true
 expected_version_impact: patch
+actual_version_impact: pending
+priority: medium
+sequence: 5
+depends_on: []
 authorized_capabilities:
   - capabilities/web-operator-workspace/README.md
 decision_records: []

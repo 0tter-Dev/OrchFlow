@@ -14,6 +14,7 @@ def test_documentation_topology_exists() -> None:
         "docs/DOCUMENTATION-GUIDE.md",
         "docs/ROADMAP.md",
         "docs/plans/README.md",
+        "docs/plans/review/README.md",
         "docs/decisions/README.md",
         "docs/capabilities/access-control/README.md",
         "docs/reference/external-surfaces.md",
@@ -24,25 +25,70 @@ def test_documentation_topology_exists() -> None:
         assert (ROOT / relative_path).is_file(), relative_path
 
 
-def test_active_plans_have_required_metadata() -> None:
+def test_nonterminal_plans_have_required_delivery_metadata() -> None:
     required_keys = (
         "id:",
-        "status: active",
         "type:",
         "requires_pull_request:",
         "expected_version_impact:",
+        "actual_version_impact:",
+        "priority:",
+        "sequence:",
+        "depends_on:",
         "authorized_capabilities:",
         "validation:",
         "documentation_updates:",
     )
-    active_plans = list((ROOT / "docs/plans/active").glob("*.md"))
 
-    for plan in active_plans:
-        if plan.name == "README.md":
+    for status in ("backlog", "active", "review"):
+        for plan in (ROOT / "docs/plans" / status).glob("*.md"):
+            if plan.name == "README.md":
+                continue
+            text = plan.read_text(encoding="utf-8")
+            assert f"status: {status}" in text
+            assert "requires_pull_request: true" in text
+            assert re.search(r"^priority: (high|medium|low)$", text, re.MULTILINE)
+            for key in required_keys:
+                assert key in text, f"{plan.relative_to(ROOT)} missing {key}"
+
+
+def test_plan_directory_matches_declared_status() -> None:
+    for status in ("active", "review", "completed"):
+        for plan in (ROOT / "docs/plans" / status).glob("*.md"):
+            if plan.name != "README.md":
+                assert f"status: {status}" in plan.read_text(encoding="utf-8")
+
+
+def test_backlog_sequence_and_dependencies_are_consistent() -> None:
+    backlog = [
+        plan
+        for plan in (ROOT / "docs/plans/backlog").glob("*.md")
+        if plan.name != "README.md"
+    ]
+    metadata = {plan: plan.read_text(encoding="utf-8") for plan in backlog}
+    identifiers = {
+        re.search(r"^id: ([^\n]+)$", text, flags=re.MULTILINE).group(1): plan
+        for plan, text in metadata.items()
+    }
+    sequences = {
+        plan: int(re.search(r"^sequence: (\d+)$", text, flags=re.MULTILINE).group(1))
+        for plan, text in metadata.items()
+    }
+
+    assert sorted(sequences.values()) == list(range(1, len(backlog) + 1))
+
+    roadmap = (ROOT / "docs/ROADMAP.md").read_text(encoding="utf-8")
+    for plan, text in metadata.items():
+        plan_id = re.search(r"^id: ([^\n]+)$", text, flags=re.MULTILINE).group(1)
+        assert f"| {sequences[plan]} | [{plan_id}:" in roadmap
+        dependencies = re.search(
+            r"^depends_on:\n((?:  - [^\n]+\n)*)", text, flags=re.MULTILINE
+        )
+        if dependencies is None:
             continue
-        text = plan.read_text(encoding="utf-8")
-        for key in required_keys:
-            assert key in text, f"{plan.relative_to(ROOT)} missing {key}"
+        for dependency in re.findall(r"^  - ([^\n]+)$", dependencies.group(1), re.MULTILINE):
+            assert dependency in identifiers, f"{plan_id} has unknown dependency {dependency}"
+            assert sequences[identifiers[dependency]] < sequences[plan]
 
 
 def test_internal_markdown_links_resolve() -> None:

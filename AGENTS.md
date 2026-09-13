@@ -12,19 +12,19 @@ Before changing the repository, read in this order:
 2. `docs/DEVELOPMENT-GUIDE.md`
 3. `docs/DOCUMENTATION-GUIDE.md`
 4. `docs/STATUS.md`
-5. the relevant document in `docs/plans/active/`, when one exists
+5. the relevant document in `docs/plans/active/` or `docs/plans/review/`, when one exists
 
 `docs/START-HERE.md` is the navigation entrypoint. The root documents establish scope and engineering policy; capability documents establish current feature behavior; reference documents establish stable contracts; guides establish procedures; ADRs establish durable rationale; and plans establish bounded intended work.
 
 Agents must not read capability documents by default. An active plan authorizes only the exact repository-relative files listed in its `authorized_capabilities` metadata when the plan records explicit user approval. All other capability access requires explicit user authorization. An active plan never authorizes a product-scope, public-contract, architecture, dependency, authentication, or authorization change that independently requires approval.
 
-An active plan is operationally approved only when its body records the user's explicit approval. For such a plan, `requires_pull_request: true` is explicit authorization to perform the documented delivery sequence for that plan only: create the branch from synchronized `main`, make the scoped changes, validate them, commit, push, and open the pull request. Do not request a second authorization solely for those standard delivery actions. Do not create a pull request for an approved active plan with `requires_pull_request: false` unless the user separately requests one.
+An active plan is operationally approved only when its body records the user's explicit approval. Every new delivery plan must set `requires_pull_request: true`; work too small to warrant an independent pull request belongs as a phase or acceptance criterion within its parent delivery plan, not as a separate plan. For an approved delivery plan, that field is explicit authorization to perform the documented delivery sequence only: create the branch from synchronized `main`, make the scoped changes, validate them, commit, push, and open the pull request. Do not request a second authorization solely for those standard delivery actions.
 
 ## Required Behavior
 
 Agents must preserve the local-first purpose, Windows `.bat` lifecycle contract, ideal lifecycle function model, review-driven optional AI layer, LiteLLM adapter boundary, and documentation-code alignment. Prefer small, explicit, auditable changes. Keep `ROADMAP.md` as an index and place detailed future work in `docs/plans/backlog/`.
 
-After relevant code changes, update the owning capability and all affected status, guide, reference, decision, or plan documents. A plan requiring a pull request remains active until its validated delivery commit is pushed and its pull request is open. Completed plans move to `docs/plans/completed/` with outcome, validation, version decision, commit, and pull request references when applicable.
+After relevant code changes, update the owning capability and all affected status, guide, reference, decision, or plan documents. A delivery plan moves from `active` to `review` in the same delivery PR once its validated commit is pushed and the PR is open. It moves to `completed` only after that PR is merged and local `main` is synchronized. Plans transitioned under this policy record outcome, validation, expected and actual version decision, commit, and PR references when completed.
 
 ## Scope Boundaries
 
@@ -36,7 +36,7 @@ Follow clean architecture pragmatically. Keep business rules out of delivery ada
 
 ## Git And Delivery
 
-For Roadmap work, verify remote `main`, synchronize local `main`, and create a short-lived branch from that baseline before implementation. A user-approved active plan with `requires_pull_request: true` explicitly enables the scoped agent-driven workflow; other Git actions still require explicit user authorization. Use only `git` and `gh`, the repository-specific identity `0tter-Dev-AI <otter.dev.ai@gmail.com>` unless replaced by maintainers, Conventional Commits, the PR template, version-decision discipline, validation, push, and a PR into `main`. Never merge an agent-authored PR.
+For Roadmap work, first reconcile every `active` and `review` plan against GitHub and local `main`. `docs/ROADMAP.md` defines the default execution sequence; only its first eligible item may move to `active` unless the user explicitly approves parallel work or a reordered sequence. An item is eligible only when its declared `depends_on` plans are completed and no earlier item is unreconciled. Then synchronize `main` and create the short-lived branch. A user-approved active plan explicitly enables the scoped agent-driven workflow; other Git actions still require explicit user authorization. Use only `git` and `gh`, the repository-specific identity `0tter-Dev-AI <otter.dev.ai@gmail.com>` unless replaced by maintainers, Conventional Commits, the PR template, version-decision discipline, validation, push, and a PR into `main`. Never merge an agent-authored PR.
 
 ## Safety Rules
 

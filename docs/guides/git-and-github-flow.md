@@ -31,7 +31,7 @@ This means:
 - branches should be deleted after merge
 - work may be authored either by a human contributor or by an authorized AI agent using a dedicated repository identity
 
-This project should not adopt a heavy Git Flow model in `v0.3.33`.
+This project should not adopt a heavy Git Flow model in `v0.3.34`.
 
 The repository is still in an early product stage, so a simpler branch model reduces process weight and makes maintenance easier.
 
@@ -102,7 +102,7 @@ This is a future exception flow, not the normal path for current development.
 
 Each branch should solve one coherent problem.
 
-Roadmap items in `docs/ROADMAP.md` should be written at the same granularity as pull requests. A numbered roadmap step should normally map to one short-lived branch, one coherent Conventional Commit change unit, and one pull request. If a roadmap theme would require multiple pull requests, split it into smaller ordered steps before implementation starts.
+Roadmap items in `docs/ROADMAP.md` should be written at the same granularity as pull requests. A numbered roadmap step maps to one short-lived branch, one coherent Conventional Commit change unit, and one pull request. Its published sequence is the default execution order; `priority` signals urgency and `depends_on` names hard prerequisites. Only the first eligible item may be activated by default. If a roadmap theme would require multiple pull requests, split it into smaller ordered steps before implementation starts; work that does not merit its own pull request remains a phase or task within the parent delivery plan.
 
 Good examples:
 
@@ -325,7 +325,7 @@ For the current backend baseline, the expected validation direction is:
 - `uv run alembic upgrade head`
 - `uv run pytest`
 
-The selected frontend package manager for `v0.3.33` is `pnpm`.
+The selected frontend package manager for `v0.3.34` is `pnpm`.
 
 The expected frontend validation direction is:
 
@@ -389,7 +389,7 @@ CI should continue evolving in stages.
 
 ### Stage 1
 
-The repository now has the backend and frontend quality baseline needed for `v0.3.33`.
+The repository now has the backend and frontend quality baseline needed for `v0.3.34`.
 
 ### Stage 2
 
