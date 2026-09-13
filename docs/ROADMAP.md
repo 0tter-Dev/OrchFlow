@@ -12,13 +12,13 @@ Every listed item is one delivery plan and results in one pull request. Research
 
 ## Active Plans
 
-| Sequence | Plan | Priority | Dependencies |
-| --- | --- | --- | --- |
-| 6 | [web-012: critical browser workflow tests](./plans/active/web-012-critical-browser-workflow-tests.md) | medium | web-007, web-008, web-009 |
+No plan is currently active.
 
 ## Plans Awaiting Review
 
-No plan is currently awaiting review.
+| Sequence | Plan | Priority | Dependencies |
+| --- | --- | --- | --- |
+| 6 | [web-012: critical browser workflow tests](./plans/review/web-012-critical-browser-workflow-tests.md) | medium | web-007, web-008, web-009 |
 
 ## Backlog
 
