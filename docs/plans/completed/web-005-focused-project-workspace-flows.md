@@ -1,6 +1,6 @@
 ---
 id: web-005
-status: active
+status: completed
 type: feat
 requires_pull_request: true
 expected_version_impact: patch

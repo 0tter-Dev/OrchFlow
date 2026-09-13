@@ -6,7 +6,7 @@ This is the ordered index of planned OrchFlow work. Detailed scope, authorized c
 
 ## Active Plans
 
-[web-006: local path-selection contract](./plans/active/web-006-local-path-selection-contract.md)
+No plan is currently active.
 
 ## Backlog
 
@@ -34,4 +34,4 @@ The listed plans are backlog candidates. They do not authorize implementation, d
 
 ## Completed Plans
 
-See [web-004 API-backed workspace state](./plans/completed/web-004-api-backed-workspace-state.md), [web-003 authenticated workspace navigation](./plans/completed/web-003-authenticated-workspace-navigation.md), [web-002 React runtime compatibility update](./plans/completed/web-002-react-runtime-compatibility-update.md), [web-001 compatible web dependency maintenance](./plans/completed/web-001-compatible-web-dependency-maintenance.md), and [documentation governance modularization](./plans/completed/docs-001-documentation-governance.md). Historical work completed before this documentation model remains traceable through Git history, releases, and [Feature Status](./STATUS.md).
+See [web-006 local path-selection contract](./plans/completed/web-006-local-path-selection-contract.md), [web-005 focused project workspace flows](./plans/completed/web-005-focused-project-workspace-flows.md), [web-004 API-backed workspace state](./plans/completed/web-004-api-backed-workspace-state.md), [web-003 authenticated workspace navigation](./plans/completed/web-003-authenticated-workspace-navigation.md), [web-002 React runtime compatibility update](./plans/completed/web-002-react-runtime-compatibility-update.md), [web-001 compatible web dependency maintenance](./plans/completed/web-001-compatible-web-dependency-maintenance.md), and [documentation governance modularization](./plans/completed/docs-001-documentation-governance.md). Historical work completed before this documentation model remains traceable through Git history, releases, and [Feature Status](./STATUS.md).
