@@ -123,6 +123,10 @@ These non-goals should not be treated as a reason to hard-couple the codebase ag
 
 ## Functional Boundaries
 
+### Local Path Selection
+
+When a local web operator needs a project folder or lifecycle script path, the browser must request it from an authenticated local OrchFlow API. The API may invoke a native Windows dialog only on the same machine, returns only the selected absolute path, and records selection, cancellation, rejection, and failure audit events without storing arbitrary directory listings. The service must reject non-local deployment modes, unauthenticated callers, unsupported picker kinds, and paths outside the local host. Native dialog implementation and web controls are deferred to the separately approved `web-007` plan.
+
 OrchFlow should:
 
 - register projects
