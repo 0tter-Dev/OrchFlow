@@ -1,6 +1,6 @@
 ---
 id: web-011
-status: backlog
+status: active
 type: feat
 requires_pull_request: true
 expected_version_impact: patch
@@ -56,4 +56,4 @@ Update the web capability, user guide, status, and version references.
 
 ## Outcome
 
-Backlog candidate; not started.
+The user explicitly approved `i18next` and `react-i18next` in this thread on 2026-09-13. Delivery is in progress.
