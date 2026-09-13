@@ -1,6 +1,6 @@
 ---
 id: web-006
-status: backlog
+status: active
 type: docs
 requires_pull_request: true
 expected_version_impact: none
@@ -25,7 +25,7 @@ Define the reviewed local-backend contract required for choosing a project folde
 
 ## Context
 
-A browser file picker cannot reliably provide an absolute path usable by the local backend. A native Windows dialog would introduce an authenticated public API and audit/security responsibilities.
+A browser file picker cannot reliably provide an absolute path usable by the local backend. A native Windows dialog would introduce an authenticated public API and audit/security responsibilities. The requesting user explicitly approved activation and implementation on 2026-09-12.
 
 ## Decisions
 
@@ -53,4 +53,4 @@ Update architecture, external-surface reference, relevant capability documents, 
 
 ## Outcome
 
-Backlog candidate; implementation requires separate explicit approval.
+Completed contract definition; implementation remains deferred to `web-007`.
