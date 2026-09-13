@@ -81,3 +81,11 @@ jobs:
       - name: Run frontend build
         working-directory: interface/web
         run: pnpm build
+
+      - name: Install Chromium for browser workflows
+        working-directory: interface/web
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run critical browser workflows
+        working-directory: interface/web
+        run: pnpm test:e2e

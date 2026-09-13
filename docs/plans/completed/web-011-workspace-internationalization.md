@@ -1,6 +1,6 @@
 ---
 id: web-011
-status: review
+status: completed
 type: feat
 requires_pull_request: true
 expected_version_impact: patch
@@ -56,4 +56,4 @@ Update the web capability, user guide, status, and version references.
 
 ## Outcome
 
-Implemented in commit `b4573e3` and delivered through [PR #68](https://github.com/0tter-Dev/OrchFlow/pull/68). The approved `i18next` and `react-i18next` dependencies centralize selected `pt-BR` and `en-US` workspace and preference strings while the authenticated persisted locale remains authoritative. Version `0.3.35` advances to `0.3.36`, as expected. Validation passed: 50 API/CLI/documentation contract tests, frontend lint, 50 frontend tests, and frontend build. Awaiting review and merge.
+Implemented in commit `b4573e3` and delivered through [PR #68](https://github.com/0tter-Dev/OrchFlow/pull/68), merged as `0c275b04cb8e5933eff854e51053f7a1d944b0e7` on 2026-09-13. The approved `i18next` and `react-i18next` dependencies centralize selected `pt-BR` and `en-US` workspace and preference strings while the authenticated persisted locale remains authoritative. Version `0.3.35` advanced to `0.3.36`, as expected. Validation passed: 50 API/CLI/documentation contract tests, frontend lint, 50 frontend tests, frontend build, and the passing GitHub Actions backend and frontend checks. Local `main` was synchronized after the merge.

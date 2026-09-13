@@ -150,6 +150,7 @@ export function ProjectDetailPanel({
   const [isMappingPanelOpen, setIsMappingPanelOpen] = useState(false);
   const [mappingFormState, setMappingFormState] = useState<MappingFormState | null>(null);
   const [isUnlinkDialogOpen, setIsUnlinkDialogOpen] = useState(false);
+  const [pendingLifecycleAction, setPendingLifecycleAction] = useState<CanonicalLifecycleAction | null>(null);
 
   useEffect(() => {
     if (selectedProject === null) {
@@ -273,6 +274,12 @@ export function ProjectDetailPanel({
   function confirmProjectUnlink() {
     onUnlinkProject();
     setIsUnlinkDialogOpen(false);
+  }
+
+  function confirmLifecycleAction() {
+    if (pendingLifecycleAction === null) return;
+    onRunLifecycleAction(pendingLifecycleAction);
+    setPendingLifecycleAction(null);
   }
 
   return (
@@ -447,7 +454,13 @@ export function ProjectDetailPanel({
                 data-state={configuration?.state ?? "undefined"}
                 disabled={activeAction !== null || !isConfigured}
                 key={action}
-                onClick={() => onRunLifecycleAction(action)}
+                onClick={() => {
+                  if (action === "status") {
+                    onRunLifecycleAction(action);
+                    return;
+                  }
+                  setPendingLifecycleAction(action);
+                }}
                 type="button"
               >
                 <span>{activeAction === action ? `Running ${action}...` : action}</span>
@@ -721,6 +734,25 @@ export function ProjectDetailPanel({
               >
                 {isUnlinkingProject ? "Unlinking..." : "Confirm unlink"}
               </button></AlertDialog.Action>
+            </div>
+          </AlertDialog.Content>
+        </AlertDialog.Portal>
+      </AlertDialog.Root>
+
+      <AlertDialog.Root
+        onOpenChange={(isOpen) => {
+          if (!isOpen) setPendingLifecycleAction(null);
+        }}
+        open={pendingLifecycleAction !== null}
+      >
+        <AlertDialog.Portal>
+          <AlertDialog.Overlay className="project-detail__modal-backdrop" />
+          <AlertDialog.Content className="project-detail__modal project-detail__modal--narrow">
+            <div className="project-detail__modal-header"><AlertDialog.Title>Confirm lifecycle action</AlertDialog.Title></div>
+            <p className="project-detail__copy">Run <strong>{pendingLifecycleAction}</strong> for {selectedProject.reference_name}?</p>
+            <div className="project-detail__modal-actions">
+              <AlertDialog.Cancel asChild><button className="project-detail__secondary-action" type="button">Cancel</button></AlertDialog.Cancel>
+              <AlertDialog.Action asChild><button className="project-detail__primary-action" onClick={confirmLifecycleAction} type="button">Run {pendingLifecycleAction}</button></AlertDialog.Action>
             </div>
           </AlertDialog.Content>
         </AlertDialog.Portal>

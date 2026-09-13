@@ -1,6 +1,6 @@
 ---
 id: web-012
-status: backlog
+status: active
 type: test
 requires_pull_request: true
 expected_version_impact: none
@@ -58,4 +58,4 @@ Update testing guidance and status when browser coverage is adopted.
 
 ## Outcome
 
-Backlog candidate; depends on stabilized workflows.
+The user explicitly approved beginning the next eligible Roadmap plan in this thread on 2026-09-13. Delivery is pending explicit authorization for the complete Playwright dependency and browser-installation set.
