@@ -26,9 +26,9 @@ Use this page to choose the shortest reliable route through OrchFlow documentati
 3. [Development Guide](./DEVELOPMENT-GUIDE.md)
 4. [Documentation Guide](./DOCUMENTATION-GUIDE.md)
 5. [Current Status](./STATUS.md)
-6. The relevant active plan in [plans/active](./plans/active/)
+6. The relevant active or review plan in [plans/active](./plans/active/) or [plans/review](./plans/review/)
 
-An active plan may authorize the exact capability documents needed for its work. Documents outside that list require explicit user authorization.
+An active plan may authorize the exact capability documents needed for its work. A review plan records the delivered scope and validation for the open pull request. Documents outside an active plan's authorization list require explicit user authorization.
 
 ## Documentation Areas
 

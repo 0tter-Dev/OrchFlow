@@ -1,10 +1,10 @@
 ---
 id: web-007
-status: active
+status: review
 type: feat
 requires_pull_request: true
 expected_version_impact: patch
-actual_version_impact: pending
+actual_version_impact: patch
 priority: high
 sequence: 1
 depends_on: []
@@ -59,4 +59,6 @@ Update owning capabilities, external-surface reference, user guide, status, and 
 
 ## Outcome
 
-Approved by the user in this thread to begin implementation and deliver one pull request. Delivery is in progress.
+Approved by the user in this thread to begin implementation and deliver one pull request. Delivery completed in PR [#64](https://github.com/0tter-Dev/OrchFlow/pull/64) with commit `684164a9048b4681012aed19ff40d44258333a6b`.
+
+Validation completed: backend quality and contract checks, frontend quality and build checks, and the focused local frontend/API validations recorded in the PR all passed. The delivered version impact is `patch`, advancing `0.3.34` to `0.3.35`, as expected.

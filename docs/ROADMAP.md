@@ -12,9 +12,13 @@ Every listed item is one delivery plan and results in one pull request. Research
 
 ## Active Plans
 
+No plan is currently active.
+
+## Plans Awaiting Review
+
 | Sequence | Plan | Priority | Dependencies |
 | --- | --- | --- | --- |
-| 1 | [web-007: local path-selection workflow](./plans/active/web-007-local-path-selection-workflow.md) | high | — |
+| 1 | [web-007: local path-selection workflow](./plans/review/web-007-local-path-selection-workflow.md) | high | — |
 
 ## Backlog
 
