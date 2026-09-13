@@ -85,6 +85,7 @@ The exact visual component is not fixed. A warning indicator, details popover, m
 - web API failures now surface richer operator-facing notices that preserve status context and FastAPI validation messages from the shared API client
 - the web client keeps the backend contract stable during local development by using a proxy-friendly API base URL convention
 - frontend lint, test, and build scripts are established so later feature work can focus on real operator flows
+- Playwright now covers deterministic browser-level account creation, authenticated project registration with path selection, and confirmation before a mutable lifecycle action; API routes are mocked within the browser suite so tests do not require local credentials or filesystem paths
 - project discovery now supports ordering by name, lifecycle readiness, or runtime state, while registration opens as a focused on-demand flow instead of competing with list inspection
 - existing-script registration now offers authenticated local Windows folder and `.bat` selectors; cancellation preserves manual input, while the API remains the authoritative validation boundary
 - project registration now preserves a local draft and provides field-level client validation before submitting to the existing authoritative registry contract

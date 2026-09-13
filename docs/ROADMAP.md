@@ -18,13 +18,12 @@ No plan is currently active.
 
 | Sequence | Plan | Priority | Dependencies |
 | --- | --- | --- | --- |
-| 5 | [web-011: workspace internationalization](./plans/review/web-011-workspace-internationalization.md) | medium | — |
+| 6 | [web-012: critical browser workflow tests](./plans/review/web-012-critical-browser-workflow-tests.md) | medium | web-007, web-008, web-009 |
 
 ## Backlog
 
 | Sequence | Plan | Priority | Dependencies |
 | --- | --- | --- | --- |
-| 6 | [web-012: critical browser workflow tests](./plans/backlog/web-012-critical-browser-workflow-tests.md) | medium | web-007, web-008, web-009 |
 | 7 | [deps-001: central dependency maintenance assessment](./plans/backlog/deps-001-central-dependency-maintenance-assessment.md) | medium | — |
 | 8 | [deps-002: pnpm 12 migration](./plans/backlog/deps-002-pnpm-12-migration.md) | medium | deps-001 |
 | 9 | [deps-003: Node.js and Corepack runtime support](./plans/backlog/deps-003-node-corepack-runtime-support.md) | medium | deps-001 |
@@ -35,4 +34,4 @@ The listed plans are backlog candidates. They do not authorize implementation, d
 
 ## Completed Plans
 
-See [web-010 advanced operational tables](./plans/completed/web-010-advanced-operational-tables.md), [web-009 accessible operational feedback](./plans/completed/web-009-accessible-operational-feedback.md), [web-008 guided project forms](./plans/completed/web-008-guided-project-forms.md), [web-007 local path-selection workflow](./plans/completed/web-007-local-path-selection-workflow.md), [web-006 local path-selection contract](./plans/completed/web-006-local-path-selection-contract.md), [web-005 focused project workspace flows](./plans/completed/web-005-focused-project-workspace-flows.md), [web-004 API-backed workspace state](./plans/completed/web-004-api-backed-workspace-state.md), [web-003 authenticated workspace navigation](./plans/completed/web-003-authenticated-workspace-navigation.md), [web-002 React runtime compatibility update](./plans/completed/web-002-react-runtime-compatibility-update.md), [web-001 compatible web dependency maintenance](./plans/completed/web-001-compatible-web-dependency-maintenance.md), and [documentation governance modularization](./plans/completed/docs-001-documentation-governance.md). Historical work completed before this documentation model remains traceable through Git history, releases, and [Feature Status](./STATUS.md).
+See [web-011 workspace internationalization](./plans/completed/web-011-workspace-internationalization.md), [web-010 advanced operational tables](./plans/completed/web-010-advanced-operational-tables.md), [web-009 accessible operational feedback](./plans/completed/web-009-accessible-operational-feedback.md), [web-008 guided project forms](./plans/completed/web-008-guided-project-forms.md), [web-007 local path-selection workflow](./plans/completed/web-007-local-path-selection-workflow.md), [web-006 local path-selection contract](./plans/completed/web-006-local-path-selection-contract.md), [web-005 focused project workspace flows](./plans/completed/web-005-focused-project-workspace-flows.md), [web-004 API-backed workspace state](./plans/completed/web-004-api-backed-workspace-state.md), [web-003 authenticated workspace navigation](./plans/completed/web-003-authenticated-workspace-navigation.md), [web-002 React runtime compatibility update](./plans/completed/web-002-react-runtime-compatibility-update.md), [web-001 compatible web dependency maintenance](./plans/completed/web-001-compatible-web-dependency-maintenance.md), and [documentation governance modularization](./plans/completed/docs-001-documentation-governance.md). Historical work completed before this documentation model remains traceable through Git history, releases, and [Feature Status](./STATUS.md).

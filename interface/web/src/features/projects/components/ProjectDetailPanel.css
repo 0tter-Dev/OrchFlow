@@ -319,6 +319,14 @@
   width: min(520px, 100%);
 }
 
+.project-detail__modal[role="alertdialog"] {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 21;
+  transform: translate(-50%, -50%);
+}
+
 .project-detail__modal-header,
 .project-detail__modal-actions {
   display: flex;

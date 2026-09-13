@@ -150,6 +150,7 @@ export function ProjectDetailPanel({
   const [isMappingPanelOpen, setIsMappingPanelOpen] = useState(false);
   const [mappingFormState, setMappingFormState] = useState<MappingFormState | null>(null);
   const [isUnlinkDialogOpen, setIsUnlinkDialogOpen] = useState(false);
+  const [pendingLifecycleAction, setPendingLifecycleAction] = useState<CanonicalLifecycleAction | null>(null);
 
   useEffect(() => {
     if (selectedProject === null) {
@@ -273,6 +274,12 @@ export function ProjectDetailPanel({
   function confirmProjectUnlink() {
     onUnlinkProject();
     setIsUnlinkDialogOpen(false);
+  }
+
+  function confirmLifecycleAction() {
+    if (pendingLifecycleAction === null) return;
+    onRunLifecycleAction(pendingLifecycleAction);
+    setPendingLifecycleAction(null);
   }
 
   return (
@@ -447,7 +454,13 @@ export function ProjectDetailPanel({
                 data-state={configuration?.state ?? "undefined"}
                 disabled={activeAction !== null || !isConfigured}
                 key={action}
-                onClick={() => onRunLifecycleAction(action)}
+                onClick={() => {
+                  if (action === "status") {
+                    onRunLifecycleAction(action);
+                    return;
+                  }
+                  setPendingLifecycleAction(action);
+                }}
                 type="button"
               >
                 <span>{activeAction === action ? `Running ${action}...` : action}</span>
@@ -725,6 +738,26 @@ export function ProjectDetailPanel({
           </AlertDialog.Content>
         </AlertDialog.Portal>
       </AlertDialog.Root>
+
+      {pendingLifecycleAction === null ? null : (
+        <div className="project-detail__modal-backdrop" role="presentation">
+          <section
+            aria-labelledby="lifecycle-action-confirmation-title"
+            aria-modal="true"
+            className="project-detail__modal project-detail__modal--narrow"
+            role="dialog"
+          >
+            <div className="project-detail__modal-header">
+              <h3 id="lifecycle-action-confirmation-title">Confirm lifecycle action</h3>
+            </div>
+            <p className="project-detail__copy">Run <strong>{pendingLifecycleAction}</strong> for {selectedProject.reference_name}?</p>
+            <div className="project-detail__modal-actions">
+              <button className="project-detail__secondary-action" onClick={() => setPendingLifecycleAction(null)} type="button">Cancel</button>
+              <button className="project-detail__primary-action" onClick={confirmLifecycleAction} type="button">Run {pendingLifecycleAction}</button>
+            </div>
+          </section>
+        </div>
+      )}
     </section>
   );
 }

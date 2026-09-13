@@ -1,10 +1,10 @@
 ---
 id: web-012
-status: backlog
+status: review
 type: test
 requires_pull_request: true
 expected_version_impact: none
-actual_version_impact: pending
+actual_version_impact: none
 priority: medium
 sequence: 6
 depends_on:
@@ -58,4 +58,4 @@ Update testing guidance and status when browser coverage is adopted.
 
 ## Outcome
 
-Backlog candidate; depends on stabilized workflows.
+Implemented in commit `4f0cedb` and delivered through [PR #69](https://github.com/0tter-Dev/OrchFlow/pull/69). The user approved `@playwright/test` and its Chromium installation; the browser suite covers deterministic account creation, authenticated project registration with path selection, and confirmation before mutable lifecycle actions. Validation passed: frontend lint, 50 frontend tests, frontend build, 3 Playwright browser workflows, and 5 documentation-structure tests. No release version change is required. Awaiting review and merge.
