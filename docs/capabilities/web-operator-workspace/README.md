@@ -41,7 +41,7 @@ Provide a clean separation between the backend core and multiple user-facing cli
 - interface clients should remain consumers of platform capabilities, not their owners
 - interface clients should rely on the API-facing surface rather than bypassing application boundaries
 - the `interface/` folder should act as a physical boundary between the backend core and client implementations
-- visual complexity should remain secondary to operational clarity in `v0.3.34`; the web workspace should feel like a focused operator tool rather than a marketing or bootstrap page
+- visual complexity should remain secondary to operational clarity in `v0.3.35`; the web workspace should feel like a focused operator tool rather than a marketing or bootstrap page
 - unauthenticated web screens should stay focused on authentication and account creation instead of rendering the authenticated workspace chrome, top status bar, or system health probe
 - authenticated health refresh should preserve the latest known API snapshot during loading or transient error states instead of clearing visible status details
 - server state for health and project lists should use shared query keys, bounded retry behavior, and mutation invalidation instead of independently managed request caches
@@ -86,6 +86,7 @@ The exact visual component is not fixed. A warning indicator, details popover, m
 - the web client keeps the backend contract stable during local development by using a proxy-friendly API base URL convention
 - frontend lint, test, and build scripts are established so later feature work can focus on real operator flows
 - project discovery now supports ordering by name, lifecycle readiness, or runtime state, while registration opens as a focused on-demand flow instead of competing with list inspection
+- existing-script registration now offers authenticated local Windows folder and `.bat` selectors; cancellation preserves manual input, while the API remains the authoritative validation boundary
 
 ## Main Relationships
 

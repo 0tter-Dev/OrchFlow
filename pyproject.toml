@@ -1,6 +1,6 @@
 [project]
 name = "orchflow"
-version = "0.3.34"
+version = "0.3.35"
 description = "Local-first project lifecycle orchestrator with CLI, API, UI, and AI-assisted bat generation."
 readme = "README.md"
 authors = [

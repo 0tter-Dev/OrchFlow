@@ -24,6 +24,7 @@ def test_openapi_contract_exposes_current_operator_routes() -> None:
         ("/auth/users", "get"),
         ("/auth/users/{user_id}", "patch"),
         ("/audit/events", "get"),
+        ("/local-path-selection", "post"),
         ("/projects", "get"),
         ("/projects", "post"),
         ("/projects/reload", "post"),
@@ -119,12 +120,12 @@ def test_ai_assistance_openapi_contract_includes_safe_gateway_status() -> None:
 
 def test_ai_assistance_openapi_contract_includes_health_and_model_discovery() -> None:
     schema = create_app().openapi()
-    health_properties = schema["components"]["schemas"][
-        "AIAssistanceGatewayHealthResponse"
-    ]["properties"]
-    catalog_properties = schema["components"]["schemas"][
-        "AIAssistanceModelCatalogResponse"
-    ]["properties"]
+    health_properties = schema["components"]["schemas"]["AIAssistanceGatewayHealthResponse"][
+        "properties"
+    ]
+    catalog_properties = schema["components"]["schemas"]["AIAssistanceModelCatalogResponse"][
+        "properties"
+    ]
 
     assert "checked" in health_properties
     assert "status_code" in health_properties
@@ -135,9 +136,9 @@ def test_ai_assistance_openapi_contract_includes_health_and_model_discovery() ->
 
 def test_ai_assistance_openapi_contract_includes_authorized_context_manifest() -> None:
     schema = create_app().openapi()
-    manifest_properties = schema["components"]["schemas"][
-        "AuthorizedContextManifestResponse"
-    ]["properties"]
+    manifest_properties = schema["components"]["schemas"]["AuthorizedContextManifestResponse"][
+        "properties"
+    ]
 
     assert "project_id" in manifest_properties
     assert "selected_model" in manifest_properties
@@ -148,9 +149,9 @@ def test_ai_assistance_openapi_contract_includes_authorized_context_manifest() -
 
 def test_ai_assistance_openapi_contract_includes_analysis_proposal() -> None:
     schema = create_app().openapi()
-    proposal_properties = schema["components"]["schemas"][
-        "AIAnalysisProposalResponse"
-    ]["properties"]
+    proposal_properties = schema["components"]["schemas"]["AIAnalysisProposalResponse"][
+        "properties"
+    ]
 
     assert "manifest_id" in proposal_properties
     assert "lifecycle_strategy" in proposal_properties
@@ -162,9 +163,9 @@ def test_ai_assistance_openapi_contract_includes_analysis_proposal() -> None:
 
 def test_ai_assistance_openapi_contract_includes_proposal_review() -> None:
     schema = create_app().openapi()
-    review_properties = schema["components"]["schemas"][
-        "AIAnalysisProposalReviewResponse"
-    ]["properties"]
+    review_properties = schema["components"]["schemas"]["AIAnalysisProposalReviewResponse"][
+        "properties"
+    ]
 
     assert "proposal_id" in review_properties
     assert "decision" in review_properties

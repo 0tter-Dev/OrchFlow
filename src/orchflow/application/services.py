@@ -5,6 +5,7 @@ from orchflow.application.ai_assistance import AIAssistanceService
 from orchflow.application.audit_history import AuditHistoryService
 from orchflow.application.bootstrap import BootstrapStatusService
 from orchflow.application.lifecycle import LifecycleOrchestrationService
+from orchflow.application.local_path_selection import LocalPathSelectionService
 from orchflow.application.project_registry import ProjectRegistryService
 from orchflow.application.runtime_inspection import RuntimeInspectionService
 from orchflow.application.user_preferences import UserPreferencesService
@@ -94,6 +95,22 @@ def create_runtime_inspection_service(
         project_registry_service=project_registry_service,
         current_user_resolver=access_control_service,
         inspector=inspector,
+    )
+
+
+def create_local_path_selection_service(
+    settings: AppSettings | None = None,
+) -> LocalPathSelectionService:
+    """Create the authenticated local Windows path-selection service."""
+    current_settings = settings or get_settings()
+    initialize_database(current_settings)
+    session_factory = create_session_factory(current_settings)
+    repository = SqlAlchemyProjectRegistryRepository(session_factory)
+    access_control_service = create_access_control_service(current_settings)
+    return LocalPathSelectionService(
+        current_user_resolver=access_control_service,
+        audit_recorder=repository,
+        api_host=current_settings.api_host,
     )
 
 

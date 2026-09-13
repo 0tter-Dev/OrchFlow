@@ -58,6 +58,7 @@ The user selects a project folder, OrchFlow analyzes it through the LiteLLM-back
 - scripts that define labels or menus but do not dispatch from `%~1` or `%1` should be rejected with actionable operator-facing guidance
 - AI-generated script proposals must not be persisted without user review
 - the first concrete registration flow may focus on existing `.bat` files before AI-assisted onboarding is introduced
+- local path selection may return only a user-selected absolute folder or `.bat` path through the authenticated local API; registry validation remains authoritative when the project is saved
 
 ## Main Relationships
 

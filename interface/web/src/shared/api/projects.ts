@@ -11,6 +11,24 @@ import type {
   RuntimeInspectionSnapshot,
 } from "../types/project";
 
+export type LocalPathSelectionKind = "project_root" | "lifecycle_script";
+
+export type LocalPathSelectionResult = {
+  path: string | null;
+  status: "selected" | "cancelled";
+};
+
+export function selectLocalPath(
+  token: string,
+  kind: LocalPathSelectionKind,
+): Promise<LocalPathSelectionResult> {
+  return requestJson<LocalPathSelectionResult>("/local-path-selection", {
+    body: { kind },
+    method: "POST",
+    token,
+  });
+}
+
 export function listProjects(token: string): Promise<ProjectSummary[]> {
   return requestJson<ProjectSummary[]>("/projects", { token });
 }

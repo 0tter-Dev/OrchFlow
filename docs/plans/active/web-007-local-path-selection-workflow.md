@@ -1,6 +1,6 @@
 ---
 id: web-007
-status: backlog
+status: active
 type: feat
 requires_pull_request: true
 expected_version_impact: patch
@@ -59,4 +59,4 @@ Update owning capabilities, external-surface reference, user guide, status, and 
 
 ## Outcome
 
-Backlog candidate; requires explicit approval for its public API change.
+Approved by the user in this thread to begin implementation and deliver one pull request. Delivery is in progress.
