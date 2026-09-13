@@ -1,6 +1,6 @@
 ---
 id: web-008
-status: active
+status: completed
 type: feat
 requires_pull_request: true
 expected_version_impact: patch
@@ -58,4 +58,4 @@ Update owning capabilities, user guide, status, and version references as requir
 
 ## Outcome
 
-Approved by the user in this thread on 2026-09-13 to begin implementation and deliver one pull request. Delivery is in progress.
+Delivered in PR [#65](https://github.com/0tter-Dev/OrchFlow/pull/65), merged as `5d55ad8` after frontend and documentation validation passed. The actual version impact is `patch`, as expected.
