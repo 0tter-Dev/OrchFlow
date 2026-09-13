@@ -2,7 +2,7 @@
 
 ## Current Project Stage
 
-OrchFlow is in the `v0.3.33` implementation stage as of `2026-09-13`. The product baseline and focused project workspace flows are implemented; `web-007` is the next backlog item.
+OrchFlow is in the `v0.3.34` implementation stage as of `2026-09-13`. The product baseline and focused project workspace flows are implemented; `web-007` is the next backlog item.
 
 ## Capability Dashboard
 

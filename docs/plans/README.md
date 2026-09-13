@@ -1,6 +1,6 @@
 # Plans
 
-Plans are focused work records. `backlog` holds approved future candidates, `active` holds the one or more explicitly approved work items being executed, and `completed` retains delivery outcomes.
+Plans are focused work records with lifecycle `backlog → active → review → completed`; `cancelled` is the terminal alternative. `review` holds open delivery PRs and `completed` holds merged outcomes.
 
 ## Plan Template
 
@@ -11,6 +11,10 @@ status: backlog
 type: docs
 requires_pull_request: true
 expected_version_impact: patch
+actual_version_impact: pending
+priority: medium
+sequence: 0
+depends_on: []
 authorized_capabilities: []
 decision_records: []
 validation: []
@@ -18,10 +22,14 @@ documentation_updates: []
 ---
 ```
 
-Every plan body must contain `Objective`, `Context`, `Decisions`, `Scope`, `Out Of Scope`, `Acceptance Criteria`, `Validation`, `Documentation Updates`, and `Outcome`. An active plan must also record explicit user approval.
+Every plan body must contain `Objective`, `Context`, `Decisions`, `Scope`, `Out Of Scope`, `Acceptance Criteria`, `Validation`, `Documentation Updates`, and `Outcome`. An active plan must also record explicit user approval. `priority` expresses urgency, `sequence` identifies the Roadmap position, and `depends_on` names only hard prerequisite plan IDs. Review plans and plans completed under this lifecycle record PR URL, delivery commit, validation, and final `actual_version_impact`; a difference from expected impact is justified in `Outcome`.
 
 ## Delivery Semantics
 
-`requires_pull_request` is a required execution contract, not a reporting hint. An active plan whose body records explicit user approval and whose metadata sets `requires_pull_request: true` authorizes its agent to create the scoped branch from synchronized `main`, validate, commit, push, and open the pull request. It remains active until the pull request is open. `false` prohibits an agent-created pull request unless the user separately requests one.
+`requires_pull_request` is a required execution contract, not a reporting hint. Every new plan is a delivery plan and must set it to `true`. Work that does not independently need a pull request is a phase, task, or acceptance criterion within its parent delivery plan and has no independent plan lifecycle. An active plan whose body records explicit user approval authorizes its agent to create the scoped branch from synchronized `main`, validate, commit, push, and open the pull request. It moves to `review` in that PR and to `completed` only after merge plus local `main` synchronization.
+
+## Ordering And Eligibility
+
+`docs/ROADMAP.md` is the canonical ordered queue. Its `Sequence` defines the default order; `priority` is a triage signal (`high`, `medium`, or `low`) and must not silently reorder work. `depends_on` lists only hard prerequisite plan IDs. A backlog plan is eligible when every dependency is completed and there is no earlier Roadmap item that remains active, in review, blocked, or otherwise unreconciled. Only the first eligible plan may move to `active` by default. Parallel activation or a sequence change requires explicit user approval and a corresponding Roadmap update.
 
 Plan approval is intentionally narrow: it authorizes only the plan scope and the exact `authorized_capabilities` paths. It does not authorize additional capability reading, product-scope changes, public API changes, architectural decisions, strategic dependencies, or other actions that independently require approval.

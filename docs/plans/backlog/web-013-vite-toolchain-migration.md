@@ -4,6 +4,11 @@ status: backlog
 type: chore
 requires_pull_request: true
 expected_version_impact: none
+actual_version_impact: pending
+priority: medium
+sequence: 10
+depends_on:
+  - deps-001
 authorized_capabilities:
   - capabilities/web-operator-workspace/README.md
 decision_records: []

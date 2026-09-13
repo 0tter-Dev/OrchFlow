@@ -4,6 +4,13 @@ status: backlog
 type: test
 requires_pull_request: true
 expected_version_impact: none
+actual_version_impact: pending
+priority: medium
+sequence: 6
+depends_on:
+  - web-007
+  - web-008
+  - web-009
 authorized_capabilities:
   - capabilities/web-operator-workspace/README.md
 decision_records: []

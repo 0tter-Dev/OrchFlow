@@ -4,6 +4,11 @@ status: backlog
 type: chore
 requires_pull_request: true
 expected_version_impact: patch
+actual_version_impact: pending
+priority: medium
+sequence: 9
+depends_on:
+  - deps-001
 authorized_capabilities: []
 decision_records: []
 validation:
