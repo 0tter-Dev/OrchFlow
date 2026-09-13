@@ -1,10 +1,10 @@
 ---
 id: web-009
-status: active
+status: completed
 type: test
 requires_pull_request: true
 expected_version_impact: none
-actual_version_impact: pending
+actual_version_impact: none
 priority: medium
 sequence: 3
 depends_on:
@@ -57,4 +57,4 @@ Update the web capability and status if operator-visible behavior changes.
 
 ## Outcome
 
-Approved by the user in this thread on 2026-09-13 to begin implementation and deliver one pull request. Delivery is in progress.
+Delivered in PR [#66](https://github.com/0tter-Dev/OrchFlow/pull/66), merged on 2026-09-13 after frontend and documentation checks passed. No version bump was required because the delivery added focused validation and documentation only.

@@ -3,6 +3,7 @@ import "./ProjectListPanel.css";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as Select from "@radix-ui/react-select";
+import { getCoreRowModel, useLegacyTable } from "@tanstack/react-table/legacy";
 import { z } from "zod";
 
 import { ErrorNotice } from "../../../shared/components/ErrorNotice";
@@ -222,6 +223,7 @@ export function ProjectListPanel({
     }
     return left.reference_name.localeCompare(right.reference_name);
   });
+  const table = useLegacyTable({ columns: [], data: sortedProjects, getCoreRowModel: getCoreRowModel() });
 
   return (
     <aside className="project-list">
@@ -364,7 +366,7 @@ export function ProjectListPanel({
         </div>
       ) : (
         <div className="project-list__items" data-view={projectViewMode}>
-          {sortedProjects.map((project) => {
+          {table.getRowModel().rows.map(({ original: project }) => {
             const runtimeSnapshot = runtimeSnapshotsByProjectId[project.id];
             return (
               <button
