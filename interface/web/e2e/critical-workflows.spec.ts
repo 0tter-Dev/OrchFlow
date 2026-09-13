@@ -108,8 +108,8 @@ test("requires confirmation before running a mutable lifecycle action", async ({
   const requests = await installApiMock(page, [completeProject()]);
   await page.goto("/projects");
   await page.getByRole("button", { name: "start configured", exact: true }).click();
-  await expect(page.getByRole("alertdialog", { name: "Confirm lifecycle action" })).toBeVisible();
+  await expect(page.getByRole("dialog", { name: "Confirm lifecycle action" })).toBeVisible();
   expect(requests.some((request) => request.path === "/projects/1/lifecycle/start")).toBe(false);
-  await page.getByRole("alertdialog", { name: "Confirm lifecycle action" }).getByRole("button", { name: "Run start" }).click();
+  await page.getByRole("dialog", { name: "Confirm lifecycle action" }).getByRole("button", { name: "Run start" }).click();
   await expect.poll(() => requests.some((request) => request.path === "/projects/1/lifecycle/start")).toBe(true);
 });

@@ -739,24 +739,25 @@ export function ProjectDetailPanel({
         </AlertDialog.Portal>
       </AlertDialog.Root>
 
-      <AlertDialog.Root
-        onOpenChange={(isOpen) => {
-          if (!isOpen) setPendingLifecycleAction(null);
-        }}
-        open={pendingLifecycleAction !== null}
-      >
-        <AlertDialog.Portal>
-          <AlertDialog.Overlay className="project-detail__modal-backdrop" />
-          <AlertDialog.Content className="project-detail__modal project-detail__modal--narrow">
-            <div className="project-detail__modal-header"><AlertDialog.Title>Confirm lifecycle action</AlertDialog.Title></div>
+      {pendingLifecycleAction === null ? null : (
+        <div className="project-detail__modal-backdrop" role="presentation">
+          <section
+            aria-labelledby="lifecycle-action-confirmation-title"
+            aria-modal="true"
+            className="project-detail__modal project-detail__modal--narrow"
+            role="dialog"
+          >
+            <div className="project-detail__modal-header">
+              <h3 id="lifecycle-action-confirmation-title">Confirm lifecycle action</h3>
+            </div>
             <p className="project-detail__copy">Run <strong>{pendingLifecycleAction}</strong> for {selectedProject.reference_name}?</p>
             <div className="project-detail__modal-actions">
-              <AlertDialog.Cancel asChild><button className="project-detail__secondary-action" type="button">Cancel</button></AlertDialog.Cancel>
+              <button className="project-detail__secondary-action" onClick={() => setPendingLifecycleAction(null)} type="button">Cancel</button>
               <button className="project-detail__primary-action" onClick={confirmLifecycleAction} type="button">Run {pendingLifecycleAction}</button>
             </div>
-          </AlertDialog.Content>
-        </AlertDialog.Portal>
-      </AlertDialog.Root>
+          </section>
+        </div>
+      )}
     </section>
   );
 }
