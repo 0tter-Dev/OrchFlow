@@ -752,7 +752,7 @@ export function ProjectDetailPanel({
             <p className="project-detail__copy">Run <strong>{pendingLifecycleAction}</strong> for {selectedProject.reference_name}?</p>
             <div className="project-detail__modal-actions">
               <AlertDialog.Cancel asChild><button className="project-detail__secondary-action" type="button">Cancel</button></AlertDialog.Cancel>
-              <AlertDialog.Action asChild><button className="project-detail__primary-action" onClick={confirmLifecycleAction} type="button">Run {pendingLifecycleAction}</button></AlertDialog.Action>
+              <button className="project-detail__primary-action" onClick={confirmLifecycleAction} type="button">Run {pendingLifecycleAction}</button>
             </div>
           </AlertDialog.Content>
         </AlertDialog.Portal>
