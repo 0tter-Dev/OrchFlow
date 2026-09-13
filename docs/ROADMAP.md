@@ -14,7 +14,7 @@ Every listed item is one delivery plan and results in one pull request. Research
 
 | Sequence | Plan | Priority | Dependencies |
 | --- | --- | --- | --- |
-| 3 | [web-009: accessible operational feedback](./plans/active/web-009-accessible-operational-feedback.md) | medium | web-008 |
+| 4 | [web-010: advanced operational tables](./plans/active/web-010-advanced-operational-tables.md) | medium | — |
 
 ## Plans Awaiting Review
 
@@ -24,7 +24,6 @@ No plan is currently awaiting review.
 
 | Sequence | Plan | Priority | Dependencies |
 | --- | --- | --- | --- |
-| 4 | [web-010: advanced operational tables](./plans/backlog/web-010-advanced-operational-tables.md) | medium | — |
 | 5 | [web-011: workspace internationalization](./plans/backlog/web-011-workspace-internationalization.md) | medium | — |
 | 6 | [web-012: critical browser workflow tests](./plans/backlog/web-012-critical-browser-workflow-tests.md) | medium | web-007, web-008, web-009 |
 | 7 | [deps-001: central dependency maintenance assessment](./plans/backlog/deps-001-central-dependency-maintenance-assessment.md) | medium | — |
