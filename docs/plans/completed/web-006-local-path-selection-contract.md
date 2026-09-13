@@ -1,6 +1,6 @@
 ---
 id: web-006
-status: active
+status: completed
 type: docs
 requires_pull_request: true
 expected_version_impact: none
