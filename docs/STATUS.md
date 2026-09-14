@@ -17,7 +17,7 @@ OrchFlow is in the `v0.3.36` implementation stage as of `2026-09-13`. Workspace 
 | Persistence and audit | implemented | [Persistence And Audit](./capabilities/persistence-and-audit/README.md) | — |
 | Web operator workspace | in_progress | [Web Operator Workspace](./capabilities/web-operator-workspace/README.md) | — |
 | External surfaces | in_progress | [External Surfaces](./reference/external-surfaces.md) | — |
-| Delivery and releases | in_progress | [Git And GitHub Flow](./guides/git-and-github-flow.md) | [deps-001](./plans/backlog/deps-001-central-dependency-maintenance-assessment.md) |
+| Delivery and releases | in_progress | [Git And GitHub Flow](./guides/git-and-github-flow.md) | [deps-001](./plans/review/deps-001-central-dependency-maintenance-assessment.md) |
 
 ## Recent Governance Work
 
