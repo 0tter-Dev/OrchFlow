@@ -16,13 +16,14 @@ No plan is currently active.
 
 ## Plans Awaiting Review
 
-No plan is currently awaiting review.
+| Sequence | Plan | Priority | Dependencies |
+| --- | --- | --- | --- |
+| 7 | [deps-001: central dependency maintenance assessment](./plans/review/deps-001-central-dependency-maintenance-assessment.md) | medium | — |
 
 ## Backlog
 
 | Sequence | Plan | Priority | Dependencies |
 | --- | --- | --- | --- |
-| 7 | [deps-001: central dependency maintenance assessment](./plans/backlog/deps-001-central-dependency-maintenance-assessment.md) | medium | — |
 | 8 | [deps-002: pnpm 12 migration](./plans/backlog/deps-002-pnpm-12-migration.md) | medium | deps-001 |
 | 9 | [deps-003: Node.js and Corepack runtime support](./plans/backlog/deps-003-node-corepack-runtime-support.md) | medium | deps-001 |
 | 10 | [web-013: Vite toolchain migration](./plans/backlog/web-013-vite-toolchain-migration.md) | medium | deps-001 |
