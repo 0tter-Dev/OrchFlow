@@ -1,10 +1,10 @@
 ---
 id: deps-002
-status: backlog
+status: review
 type: chore
 requires_pull_request: true
 expected_version_impact: patch
-actual_version_impact: pending
+actual_version_impact: patch
 priority: medium
 sequence: 8
 depends_on:
@@ -58,4 +58,6 @@ Update contributor, installer, status, and version references as required.
 
 ## Outcome
 
-Backlog candidate; not started.
+User approval was recorded on `2026-09-14`. The project pin now targets pnpm `12.4.1`; pnpm regenerated the lockfile to record the package-manager dependency while application dependency versions remain unchanged. The release version advanced from `0.3.36` to `0.3.37` because the supported package-manager and installation workflow changed.
+
+Validation passed: Corepack resolved pnpm `12.4.1` from `interface/web`; frozen frontend install; frontend lint; 51 frontend tests; production build; 2 Chromium browser workflows; the Windows setup launcher check (including preserved `.env` files and Corepack-managed installation); Ruff; mypy; 152 backend tests; and 19 version, documentation, and launcher contract tests. Delivered in commit `f294a53` through [PR #72](https://github.com/0tter-Dev/OrchFlow/pull/72), awaiting review and merge.

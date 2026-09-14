@@ -1,10 +1,10 @@
 ---
 id: deps-001
-status: review
+status: completed
 type: docs
 requires_pull_request: true
 expected_version_impact: none
-actual_version_impact: pending
+actual_version_impact: none
 priority: medium
 sequence: 7
 depends_on: []
@@ -58,4 +58,4 @@ Update the Roadmap, status, and any resulting focused backlog plans.
 
 User approval was recorded on `2026-09-13`. The assessment retained the current resolved baseline: `uv lock --dry-run` resolved 98 packages with no lockfile changes; backend lint and type checks passed; and the complete backend suite passed (152 tests) with isolated Windows temporary directories. The evidence-backed sequencing decision is recorded in [ADR-0005](../../decisions/ADR-0005-central-dependency-maintenance-sequencing.md).
 
-The assessment recommends no immediate central dependency upgrade and no release version change. FastAPI, Starlette, Pydantic, SQLAlchemy, Alembic, bcrypt, cryptography, JWT-related dependencies, and backend tooling remain on their resolved stable lines. LiteLLM is explicitly deferred because its rapid release and packaging cadence require a dedicated adapter-boundary compatibility plan. The existing focused backlog plans remain the approved follow-up path for pnpm 12 (`deps-002`), Node.js and Corepack (`deps-003`), Vite (`web-013`), and ESLint (`web-014`); each must obtain its own explicit approval before implementation. CI also reported that `actions/setup-node@v4` is being forced from its deprecated Node 20 action runtime to Node 24; this is recorded for `deps-003` and does not authorize a runtime or workflow change here. Delivered in commits `dd08abb` and `e1259cf` through [PR #71](https://github.com/0tter-Dev/OrchFlow/pull/71), awaiting review and merge.
+The assessment recommends no immediate central dependency upgrade and no release version change. FastAPI, Starlette, Pydantic, SQLAlchemy, Alembic, bcrypt, cryptography, JWT-related dependencies, and backend tooling remain on their resolved stable lines. LiteLLM is explicitly deferred because its rapid release and packaging cadence require a dedicated adapter-boundary compatibility plan. The existing focused backlog plans remain the approved follow-up path for pnpm 12 (`deps-002`), Node.js and Corepack (`deps-003`), Vite (`web-013`), and ESLint (`web-014`); each must obtain its own explicit approval before implementation. CI also reported that `actions/setup-node@v4` is being forced from its deprecated Node 20 action runtime to Node 24; this is recorded for `deps-003` and does not authorize a runtime or workflow change here. Delivered in commits `dd08abb`, `e1259cf`, and `ade9fee` through [PR #71](https://github.com/0tter-Dev/OrchFlow/pull/71), merged on `2026-09-14`. No release version change was required.
