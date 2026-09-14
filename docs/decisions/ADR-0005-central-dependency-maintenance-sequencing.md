@@ -15,6 +15,7 @@ Treat central maintenance as compatibility work grouped by integration boundary:
 - defer LiteLLM changes until a dedicated AI-boundary compatibility plan can exercise the adapter, manifest, proposal, review, and application contracts;
 - keep FastAPI, Starlette, Pydantic, SQLAlchemy, Alembic, and authentication/cryptography packages on their resolved stable lines unless a concrete security advisory or supported release requires a focused plan;
 - keep the pnpm, Node.js, Corepack, Vite, and ESLint follow-ups separated in the existing `deps-002`, `deps-003`, `web-013`, and `web-014` plans;
+- require `deps-003` to assess the GitHub Actions warning that `actions/setup-node@v4` is being forced from its deprecated Node 20 action runtime to Node 24, together with the supported Node.js and Corepack line;
 - require release-note review, dry-run resolution, and the affected validation surface before any selected package group changes.
 
 ## Consequences
@@ -22,6 +23,8 @@ Treat central maintenance as compatibility work grouped by integration boundary:
 The current lockfile remains reproducible and every later upgrade has a narrow regression surface. This intentionally delays available upstream releases where their compatibility, packaging, or behavioral impact has not been demonstrated against OrchFlow's local-first contracts.
 
 FastAPI's resolved 0.141.1 line is current in its release notes. SQLAlchemy 2.1 has documented migration behavior and is therefore not a patch-level refresh. Typer 0.27 introduced breaking changes before the currently resolved 0.27.1, and LiteLLM's rapid release cadence and packaging distinctions require adapter-level validation rather than an unreviewed uplift. The security-related resolved packages are left unchanged because this assessment found no repository-specific evidence requiring an immediate migration.
+
+The `deps-001` PR validation also recorded a GitHub Actions annotation about the deprecated Node 20 action runtime in `actions/setup-node@v4`; it did not fail CI. This is a compatibility signal for `deps-003`, not authorization to change the supported Node.js line or GitHub Action in this assessment.
 
 ## Alternatives Considered
 
