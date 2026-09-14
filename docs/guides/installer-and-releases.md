@@ -47,7 +47,7 @@ The bootstrap executable:
 - outputs `dist/windows/orchflow-bootstrap.exe` as an ignored local artifact
 - locates the OrchFlow repository root from its own directory, the current directory, parent folders, or `--repo <path>`
 - verify that `orchflow.bat` exists before attempting startup
-- verify required local prerequisites: `uv`, Node.js, and Corepack
+- verify required local prerequisites: `uv`, Node.js, and Corepack; Corepack resolves the pnpm `12.4.1` project pin without global shim writes
 - report missing prerequisites with short, actionable messages
 - call documented delegated flows instead of reimplementing setup logic
 - run the equivalent of checks plus startup through the existing launcher path

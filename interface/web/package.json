@@ -1,9 +1,9 @@
 {
   "name": "orchflow-web",
   "private": true,
-  "version": "0.3.36",
+  "version": "0.3.37",
   "type": "module",
-  "packageManager": "pnpm@11.19.0",
+  "packageManager": "pnpm@12.4.1",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
