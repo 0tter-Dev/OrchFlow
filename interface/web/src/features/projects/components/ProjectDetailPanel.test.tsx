@@ -158,6 +158,63 @@ describe("ProjectDetailPanel", () => {
     expect(onRunLifecycleAction).toHaveBeenCalledWith("status");
   });
 
+  it("requires confirmation before running a mutable lifecycle action", () => {
+    const onRunLifecycleAction = vi.fn();
+    const projectWithConfiguredStart: ProjectSummary = {
+      ...selectedProject,
+      action_mappings: [
+        ...selectedProject.action_mappings,
+        {
+          canonical_action: "start",
+          configured_by_user_id: 1,
+          script_label: "START",
+          source: "user_defined",
+        },
+      ],
+      lifecycle_function_configurations: selectedProject.lifecycle_function_configurations.map(
+        (configuration) =>
+          configuration.canonical_action === "start"
+            ? { ...configuration, script_label: "START", state: "configured" }
+            : configuration,
+      ),
+    };
+
+    render(
+      <ProjectDetailPanel
+        activeAction={null}
+        configurationMessage={null}
+        currentUser={currentUser}
+        errorMessage={null}
+        isLoadingDetail={false}
+        isReloadingProject={false}
+        isUnlinkingProject={false}
+        isUpdatingProject={false}
+        isUpdatingLifecycleConfiguration={false}
+        lifecycleResult={null}
+        onLogout={vi.fn()}
+        onRefreshProject={vi.fn()}
+        onReloadProject={vi.fn()}
+        onRunLifecycleAction={onRunLifecycleAction}
+        onUnlinkProject={vi.fn()}
+        onUpdateProject={vi.fn()}
+        onUpdateLifecycleConfiguration={vi.fn()}
+        projectUpdateMessage={null}
+        runtimeSnapshot={runtimeSnapshot}
+        selectedProject={projectWithConfiguredStart}
+        unlinkMessage={null}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /start configured/ }));
+
+    expect(screen.getByRole("dialog", { name: "Confirm lifecycle action" })).toBeInTheDocument();
+    expect(onRunLifecycleAction).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Run start" }));
+
+    expect(onRunLifecycleAction).toHaveBeenCalledWith("start");
+  });
+
   it("submits manual lifecycle configuration from the mapping dialog", () => {
     const onUpdateLifecycleConfiguration = vi.fn();
 

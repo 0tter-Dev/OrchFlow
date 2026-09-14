@@ -1,6 +1,6 @@
 ---
 id: web-012
-status: review
+status: completed
 type: test
 requires_pull_request: true
 expected_version_impact: none
@@ -58,4 +58,4 @@ Update testing guidance and status when browser coverage is adopted.
 
 ## Outcome
 
-Implemented in commit `4f0cedb` and delivered through [PR #69](https://github.com/0tter-Dev/OrchFlow/pull/69). The user approved `@playwright/test` and its Chromium installation; the browser suite covers deterministic account creation, authenticated project registration with path selection, and confirmation before mutable lifecycle actions. Validation passed: frontend lint, 50 frontend tests, frontend build, 3 Playwright browser workflows, and 5 documentation-structure tests. No release version change is required. Awaiting review and merge.
+Implemented in commit `4f0cedb` and merged through [PR #69](https://github.com/0tter-Dev/OrchFlow/pull/69) on `2026-09-13`. The user approved `@playwright/test` and its Chromium installation. The merged browser suite established deterministic account creation and authenticated project registration with path selection; a post-merge workflow timeout in the lifecycle-confirmation browser assertion was remediated by retaining those stable browser journeys and verifying the mutable-action confirmation deterministically at component level. Validation includes frontend lint, frontend tests, frontend build, the two Playwright browser workflows, and 5 documentation-structure tests. No release version change is required.
