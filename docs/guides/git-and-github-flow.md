@@ -382,7 +382,7 @@ Frontend gates:
 - frontend lint
 - frontend tests
 - frontend build verification
-- Playwright Chromium installation and deterministic critical browser workflows
+- Playwright Chromium installation and deterministic account-creation and project-registration browser workflows
 
 ## CI Direction
 
