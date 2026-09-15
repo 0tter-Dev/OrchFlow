@@ -1,6 +1,6 @@
 ---
 id: web-013
-status: active
+status: review
 type: chore
 requires_pull_request: true
 expected_version_impact: patch
@@ -57,4 +57,4 @@ Update contributor/release guidance and version references only if the supported
 
 ## Outcome
 
-User approval recorded on `2026-09-14` to implement the next eligible Roadmap plan. The migration updates the existing Vite toolchain as one compatibility group: Vite `8.3.0`, `@vitejs/plugin-react` `6.1.1`, Vitest `5.0.0`, jsdom `30.0.1`, and TypeScript `6.0.3`. TypeScript 7 was evaluated but deferred because the selected typescript-eslint line does not support it. The release version advances from `0.3.38` to `0.3.39` because the supported contributor toolchain changed. Frontend lint, 51 tests, production build, and local launcher start/status/stop smoke checks passed.
+User approval recorded on `2026-09-14` to implement the next eligible Roadmap plan. The migration updates the existing Vite toolchain as one compatibility group: Vite `8.3.0`, `@vitejs/plugin-react` `6.1.1`, Vitest `5.0.0`, jsdom `30.0.1`, and TypeScript `6.0.3`. TypeScript 7 was evaluated but deferred because the selected typescript-eslint line does not support it. The release version advances from `0.3.38` to `0.3.39` because the supported contributor toolchain changed. Frontend lint, 51 tests, production build, and local launcher start/status/stop smoke checks passed. Delivered in commit `e84969b`; PR reference will be recorded on creation.

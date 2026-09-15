@@ -12,13 +12,13 @@ Every listed item is one delivery plan and results in one pull request. Research
 
 ## Active Plans
 
-| Sequence | Plan | Priority | Dependencies |
-| --- | --- | --- | --- |
-| 10 | [web-013: Vite toolchain migration](./plans/active/web-013-vite-toolchain-migration.md) | medium | deps-001 |
+No plan is currently active.
 
 ## Plans Awaiting Review
 
-No plan is currently awaiting review.
+| Sequence | Plan | Priority | Dependencies |
+| --- | --- | --- | --- |
+| 10 | [web-013: Vite toolchain migration](./plans/review/web-013-vite-toolchain-migration.md) | medium | deps-001 |
 
 ## Backlog
 
