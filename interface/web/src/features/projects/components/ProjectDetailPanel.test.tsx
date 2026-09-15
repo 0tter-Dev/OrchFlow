@@ -153,7 +153,7 @@ describe("ProjectDetailPanel", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: /status configured/ }));
+    fireEvent.click(screen.getByRole("button", { name: /status\s*configured/ }));
 
     expect(onRunLifecycleAction).toHaveBeenCalledWith("status");
   });
@@ -205,7 +205,7 @@ describe("ProjectDetailPanel", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: /start configured/ }));
+    fireEvent.click(screen.getByRole("button", { name: /start\s*configured/ }));
 
     expect(screen.getByRole("dialog", { name: "Confirm lifecycle action" })).toBeInTheDocument();
     expect(onRunLifecycleAction).not.toHaveBeenCalled();
