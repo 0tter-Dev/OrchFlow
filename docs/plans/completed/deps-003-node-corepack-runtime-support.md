@@ -1,6 +1,6 @@
 ---
 id: deps-003
-status: review
+status: completed
 type: chore
 requires_pull_request: true
 expected_version_impact: patch
@@ -56,4 +56,4 @@ Update installer, contributor, status, and version references when the supported
 
 ## Outcome
 
-User approval recorded on `2026-09-14` to download and validate the selected Node.js/Corepack tooling and update the supported runtime and CI action as needed. The selected line is Node.js `24` LTS, pinned to `24.21.0` in CI. Corepack remains the Node-bundled package-manager bridge; no separately global Corepack installation or shim is authorized. The release version advances from `0.3.37` to `0.3.38` because the supported Node runtime and CI action changed. Windows setup/control smoke checks, Corepack pnpm install, frontend lint/tests/build, backend lint/type checks, and focused launcher/API contracts passed. The full backend suite was also attempted with a workspace-local temporary directory; CI remains the authoritative complete-suite validation. Delivered in commit `b40feb8` through PR [#73](https://github.com/0tter-Dev/OrchFlow/pull/73), opened on `2026-09-14`.
+User approval recorded on `2026-09-14` to download and validate the selected Node.js/Corepack tooling and update the supported runtime and CI action as needed. The selected line is Node.js `24` LTS, pinned to `24.21.0` in CI. Corepack remains the Node-bundled package-manager bridge; no separately global Corepack installation or shim is authorized. The release version advances from `0.3.37` to `0.3.38` because the supported Node runtime and CI action changed. Windows setup/control smoke checks, Corepack pnpm install, frontend lint/tests/build, backend lint/type checks, and focused launcher/API contracts passed. The full backend suite was also attempted with a workspace-local temporary directory; CI remained the authoritative complete-suite validation. Delivered in commit `b40feb8` through PR [#73](https://github.com/0tter-Dev/OrchFlow/pull/73), merged on `2026-09-15` and reconciled with local `main`.
