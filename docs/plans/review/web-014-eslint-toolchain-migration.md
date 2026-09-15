@@ -1,10 +1,10 @@
 ---
 id: web-014
-status: backlog
+status: review
 type: chore
 requires_pull_request: true
-expected_version_impact: none
-actual_version_impact: pending
+expected_version_impact: patch
+actual_version_impact: patch
 priority: medium
 sequence: 11
 depends_on:
@@ -56,4 +56,4 @@ Update contributor guidance if lint commands, support, or policy changes.
 
 ## Outcome
 
-Backlog candidate; not started.
+User approval recorded on `2026-09-15` to add ESLint `10.10.0`, eslint-plugin-react-hooks `7.1.1`, and globals `17.12.0`. React Hooks 7 folds React Compiler checks into `rules-of-hooks`; the project explicitly preserves exhaustive dependency checking while deferring the existing Effect Event orchestration refactor outside this migration. Five Effect Event dependency arrays were corrected, and lint, 51 frontend tests, and the production build passed. The release version advances from `0.3.39` to `0.3.40` because the supported lint toolchain changed.

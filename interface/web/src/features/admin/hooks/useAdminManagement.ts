@@ -61,7 +61,7 @@ export function useAdminManagement(token: string | null, currentUser: UserSummar
     }
 
     void refreshUsers();
-  }, [canManage, refreshUsers]);
+  }, [canManage]);
 
   const changeUserRole = useEffectEvent(async (userId: number, role: UserRole) => {
     if (!canManage || token === null) {
