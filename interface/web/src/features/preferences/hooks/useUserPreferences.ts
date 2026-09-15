@@ -67,7 +67,7 @@ export function useUserPreferences(token: string | null) {
     }
 
     void refresh();
-  }, [refresh, token]);
+  }, [token]);
 
   const update = useEffectEvent(async (payload: UserPreferencesUpdate) => {
     if (token === null) {

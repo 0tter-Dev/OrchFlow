@@ -194,7 +194,7 @@ export function useProjectWorkspace(token: string | null) {
     }
 
     void refreshProjects(token);
-  }, [refreshProjects, token]);
+  }, [token]);
 
   function selectProject(projectId: number) {
     startTransition(() => {

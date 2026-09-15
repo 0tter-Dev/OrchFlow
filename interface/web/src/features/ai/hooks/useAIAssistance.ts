@@ -106,7 +106,7 @@ export function useAIAssistance(
       review: null,
     }));
     void refreshStatus();
-  }, [canUseAIAssistance, refreshStatus, selectedProject?.id]);
+  }, [canUseAIAssistance, selectedProject?.id]);
 
   const createProposal = useEffectEvent(
     async (

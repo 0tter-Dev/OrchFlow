@@ -65,7 +65,7 @@ export function useAuditEvents(token: string | null, currentUser: UserSummary | 
     }
 
     void refresh();
-  }, [canLoadAuditEvents, refresh]);
+  }, [canLoadAuditEvents]);
 
   return {
     canLoadAuditEvents,

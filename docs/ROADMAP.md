@@ -18,13 +18,12 @@ No plan is currently active.
 
 | Sequence | Plan | Priority | Dependencies |
 | --- | --- | --- | --- |
-| 10 | [web-013: Vite toolchain migration](./plans/review/web-013-vite-toolchain-migration.md) | medium | deps-001 |
+| 11 | [web-014: ESLint toolchain migration](./plans/review/web-014-eslint-toolchain-migration.md) | medium | deps-001 |
 
 ## Backlog
 
 | Sequence | Plan | Priority | Dependencies |
 | --- | --- | --- | --- |
-| 11 | [web-014: ESLint toolchain migration](./plans/backlog/web-014-eslint-toolchain-migration.md) | medium | deps-001 |
 
 The listed plans are backlog candidates. They do not authorize implementation, dependency installation, capability access, public API changes, or product-scope changes until explicitly approved and moved to `plans/active/`.
 
