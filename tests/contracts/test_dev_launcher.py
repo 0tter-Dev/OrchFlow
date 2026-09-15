@@ -13,6 +13,8 @@ BOOTSTRAP_DIR = TOOLS_DIR / "bootstrap"
 BOOTSTRAP_PROJECT = BOOTSTRAP_DIR / "OrchFlow.Bootstrap.csproj"
 BOOTSTRAP_SOURCE = BOOTSTRAP_DIR / "Program.cs"
 CONTROL_SCRIPT = ROOT / "scripts" / "orchflow-local-process-control.ps1"
+NODE_VERSION_FILE = ROOT / ".node-version"
+VALIDATION_WORKFLOW = ROOT / ".github" / "workflows" / "OrchFlow-FullValidation.yml"
 
 
 def _launcher_text(path: Path) -> str:
@@ -28,6 +30,8 @@ def test_windows_launchers_use_single_root_entrypoint_and_tools_directory() -> N
     assert BOOTSTRAP_PROJECT.exists()
     assert BOOTSTRAP_SOURCE.exists()
     assert CONTROL_SCRIPT.exists()
+    assert NODE_VERSION_FILE.read_text(encoding="utf-8").strip() == "24.21.0"
+    assert VALIDATION_WORKFLOW.exists()
     assert not (ROOT / "orchflow-dev.bat").exists()
     assert not (ROOT / "orchflow-setup.bat").exists()
     assert not (ROOT / "orchflow-control.bat").exists()
@@ -78,6 +82,9 @@ def test_windows_setup_launcher_covers_core_setup_and_runtime_commands() -> None
 
     for command in expected_commands:
         assert command in text
+
+    assert 'node -p "process.versions.node"' in text
+    assert "Install Node.js 24 LTS" in text
 
 
 def test_windows_setup_launcher_keeps_simple_setup_menu_and_cli_validation_scope() -> None:
@@ -143,6 +150,14 @@ def test_windows_process_control_script_tracks_owned_local_processes() -> None:
 
     for fragment in expected_fragments:
         assert fragment in text
+
+
+def test_validation_workflow_uses_the_pinned_node_lts_runtime() -> None:
+    workflow = _launcher_text(VALIDATION_WORKFLOW)
+
+    assert "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020" in workflow
+    assert 'node-version-file: ".node-version"' in workflow
+    assert "package-manager-cache: false" in workflow
 
 
 def test_windows_bootstrap_build_script_publishes_reviewable_executable() -> None:

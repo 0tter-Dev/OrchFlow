@@ -18,7 +18,7 @@ It guides local checks, setup, API and web startup, and routine process control.
 - Mirrored CLI, API, and web operator workflows.
 - Optional LiteLLM-backed assistance that produces reviewable proposals; it never replaces the `.bat` lifecycle contract or human approval.
 
-Out of scope in `v0.3.37`: container orchestration, multi-host control, automatic model downloads, and autonomous lifecycle control.
+Out of scope in `v0.3.38`: container orchestration, multi-host control, automatic model downloads, and autonomous lifecycle control.
 
 ## Documentation
 
