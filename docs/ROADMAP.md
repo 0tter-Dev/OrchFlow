@@ -12,13 +12,13 @@ Every listed item is one delivery plan and results in one pull request. Research
 
 ## Active Plans
 
-| Sequence | Plan | Priority | Dependencies |
-| --- | --- | --- | --- |
-| 9 | [deps-003: Node.js and Corepack runtime support](./plans/active/deps-003-node-corepack-runtime-support.md) | medium | deps-001 |
+No plan is currently active.
 
 ## Plans Awaiting Review
 
-No plan is currently awaiting review.
+| Sequence | Plan | Priority | Dependencies |
+| --- | --- | --- | --- |
+| 9 | [deps-003: Node.js and Corepack runtime support](./plans/review/deps-003-node-corepack-runtime-support.md) | medium | deps-001 |
 
 ## Backlog
 
