@@ -2,7 +2,7 @@
 
 ## Current Project Stage
 
-OrchFlow is in the `v0.3.37` implementation stage as of `2026-09-14`. Workspace internationalization and critical browser workflow coverage are implemented; browser coverage exercises stable account-creation and project-registration journeys, while the mutable lifecycle confirmation is verified deterministically at component level. The pnpm `12.4.1` tooling migration is awaiting delivery review.
+OrchFlow is in the `v0.3.38` implementation stage as of `2026-09-14`. Workspace internationalization and critical browser workflow coverage are implemented; browser coverage exercises stable account-creation and project-registration journeys, while the mutable lifecycle confirmation is verified deterministically at component level. Node.js/Corepack runtime support is ready for delivery review.
 
 ## Capability Dashboard
 
@@ -17,7 +17,7 @@ OrchFlow is in the `v0.3.37` implementation stage as of `2026-09-14`. Workspace 
 | Persistence and audit | implemented | [Persistence And Audit](./capabilities/persistence-and-audit/README.md) | — |
 | Web operator workspace | in_progress | [Web Operator Workspace](./capabilities/web-operator-workspace/README.md) | — |
 | External surfaces | in_progress | [External Surfaces](./reference/external-surfaces.md) | — |
-| Delivery and releases | in_progress | [Git And GitHub Flow](./guides/git-and-github-flow.md) | [deps-002](./plans/review/deps-002-pnpm-12-migration.md) |
+| Delivery and releases | in_progress | [Git And GitHub Flow](./guides/git-and-github-flow.md) | [deps-003](./plans/review/deps-003-node-corepack-runtime-support.md) |
 
 ## Recent Governance Work
 

@@ -53,7 +53,7 @@ echo.
 echo Checking required local tools...
 set "MISSING_TOOLS=0"
 call :CHECK_TOOL uv "Install uv from https://docs.astral.sh/uv/"
-call :CHECK_TOOL node "Install Node.js from https://nodejs.org/"
+call :CHECK_NODE_LTS
 call :CHECK_TOOL corepack "Install a Node.js version that includes Corepack."
 
 if "%MISSING_TOOLS%"=="1" (
@@ -74,6 +74,18 @@ if errorlevel 1 (
   set "MISSING_TOOLS=1"
 ) else (
   echo [ok] %~1
+)
+exit /b 0
+
+:CHECK_NODE_LTS
+set "NODE_MAJOR="
+for /f "tokens=1 delims=." %%A in ('node -p "process.versions.node" 2^>nul') do set "NODE_MAJOR=%%A"
+if not "%NODE_MAJOR%"=="24" (
+  echo [unsupported] node
+  echo               Install Node.js 24 LTS from https://nodejs.org/
+  set "MISSING_TOOLS=1"
+) else (
+  echo [ok] node %NODE_MAJOR% LTS
 )
 exit /b 0
 
