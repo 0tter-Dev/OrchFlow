@@ -5,10 +5,19 @@ from __future__ import annotations
 from functools import lru_cache
 from pathlib import Path
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+from orchflow.infrastructure.config.contract import CONFIGURATION_CONTRACT
 
 SQLITE_URL_PREFIXES = ("sqlite:///", "sqlite+pysqlite:///")
 PROJECT_ROOT = Path(__file__).resolve().parents[4]
+
+
+def _contract_default(name: str) -> str:
+    default = next(variable.default for variable in CONFIGURATION_CONTRACT if variable.name == name)
+    assert default is not None
+    return default
 
 
 def _resolve_project_path(value: Path) -> Path:
@@ -38,23 +47,30 @@ class AppSettings(BaseSettings):
         extra="ignore",
     )
 
-    env: str = "development"
-    api_host: str = "localhost"
-    api_port: int = 8000
-    database_url: str = "sqlite:///./data/orchflow.db"
-    jwt_secret: str = "change-this-in-local-env"
-    jwt_algorithm: str = "HS256"
-    jwt_access_token_expire_minutes: int = 60
-    ai_enabled: bool = False
-    litellm_mode: str = "sdk"
-    litellm_base_url: str = "http://localhost:4000"
-    litellm_api_key: str = ""
-    litellm_default_model: str = "ollama/llama2"
-    litellm_timeout_seconds: int = 60
-    local_ai_provider_url: str = "http://localhost:11434"
-    runtime_dir: Path = Path("./runtime")
-    data_dir: Path = Path("./data")
-    log_level: str = "INFO"
+    env: str = _contract_default("ORCHFLOW_ENV")
+    api_host: str = _contract_default("ORCHFLOW_API_HOST")
+    api_port: int = Field(
+        default=int(_contract_default("ORCHFLOW_API_PORT")),
+        ge=1,
+        le=65535,
+    )
+    database_url: str = _contract_default("ORCHFLOW_DATABASE_URL")
+    jwt_secret: str = _contract_default("ORCHFLOW_JWT_SECRET")
+    jwt_algorithm: str = _contract_default("ORCHFLOW_JWT_ALGORITHM")
+    jwt_access_token_expire_minutes: int = Field(
+        default=int(_contract_default("ORCHFLOW_JWT_ACCESS_TOKEN_EXPIRE_MINUTES")),
+        gt=0,
+    )
+    ai_enabled: bool = _contract_default("ORCHFLOW_AI_ENABLED").lower() == "true"
+    litellm_mode: str = _contract_default("ORCHFLOW_LITELLM_MODE")
+    litellm_base_url: str = _contract_default("ORCHFLOW_LITELLM_BASE_URL")
+    litellm_api_key: str = _contract_default("ORCHFLOW_LITELLM_API_KEY")
+    litellm_default_model: str = _contract_default("ORCHFLOW_LITELLM_DEFAULT_MODEL")
+    litellm_timeout_seconds: int = int(_contract_default("ORCHFLOW_LITELLM_TIMEOUT_SECONDS"))
+    local_ai_provider_url: str = _contract_default("ORCHFLOW_LOCAL_AI_PROVIDER_URL")
+    runtime_dir: Path = Path(_contract_default("ORCHFLOW_RUNTIME_DIR"))
+    data_dir: Path = Path(_contract_default("ORCHFLOW_DATA_DIR"))
+    log_level: str = _contract_default("ORCHFLOW_LOG_LEVEL")
 
     @property
     def api_base_url(self) -> str:
