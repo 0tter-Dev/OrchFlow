@@ -22,6 +22,10 @@ No plan is currently awaiting review.
 
 | Sequence | Plan | Priority | Dependencies |
 | --- | --- | --- | --- |
+| 12 | [cfg-001: configuration contract inventory](./plans/backlog/cfg-001-configuration-contract-inventory.md) | high | — |
+| 13 | [cfg-002: safe configuration health diagnostics](./plans/backlog/cfg-002-configuration-health-diagnostics.md) | high | cfg-001 |
+| 14 | [web-015: guided project operational readiness](./plans/backlog/web-015-guided-operational-readiness.md) | high | cfg-002 |
+| 15 | [web-016: contextual operational history](./plans/backlog/web-016-contextual-operational-history.md) | medium | web-015 |
 
 The listed plans are backlog candidates. They do not authorize implementation, dependency installation, capability access, public API changes, or product-scope changes until explicitly approved and moved to `plans/active/`.
 
