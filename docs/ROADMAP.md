@@ -12,13 +12,13 @@ Every listed item is one delivery plan and results in one pull request. Research
 
 ## Active Plans
 
-| Sequence | Plan | Priority | Dependencies |
-| --- | --- | --- | --- |
-| 12 | [cfg-001: configuration contract inventory](./plans/active/cfg-001-configuration-contract-inventory.md) | high | — |
+No plan is currently active.
 
 ## Plans Awaiting Review
 
-No plan is currently awaiting review.
+| Sequence | Plan | Priority | Dependencies |
+| --- | --- | --- | --- |
+| 12 | [cfg-001: configuration contract inventory](./plans/review/cfg-001-configuration-contract-inventory.md) | high | — |
 
 ## Backlog
 

@@ -1,6 +1,6 @@
 ---
 id: cfg-001
-status: active
+status: review
 type: feat
 requires_pull_request: true
 expected_version_impact: patch
@@ -53,4 +53,12 @@ The implementation should introduce no new runtime dependency unless separately 
 
 ## Outcome
 
-Backlog candidate; not started.
+Implemented in [PR #78](https://github.com/0tter-Dev/OrchFlow/pull/78).
+
+- Delivery commit: `b095abfd281dbfb627bb428adfa0c9890631e77a`.
+- Expected and actual version impact: `patch`, advancing `0.3.40` to `0.3.41`.
+- Validation passed: backend Ruff, mypy, the full 158-test backend suite with an
+  isolated workspace temporary directory, frontend lint/test/build, and
+  version/documentation contract checks.
+- The inventory now drives backend default values, verifies example-file coverage,
+  and provides the redaction rule required by later safe diagnostics work.
