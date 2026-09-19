@@ -57,6 +57,7 @@ from orchflow.application.services import (
     create_ai_assistance_service,
     create_audit_history_service,
     create_bootstrap_service,
+    create_configuration_health_service,
     create_lifecycle_orchestration_service,
     create_project_registry_service,
     create_runtime_inspection_service,
@@ -199,9 +200,7 @@ def _parse_datetime_option(value: str | None, option_name: str) -> datetime | No
     try:
         return datetime.fromisoformat(value)
     except ValueError as error:
-        raise AuditHistoryValidationError(
-            f"{option_name} must be an ISO 8601 datetime."
-        ) from error
+        raise AuditHistoryValidationError(f"{option_name} must be an ISO 8601 datetime.") from error
 
 
 def _execute_lifecycle_action(
@@ -240,6 +239,15 @@ def health() -> None:
 def config() -> None:
     """Show the current safe runtime configuration summary."""
     typer.echo(_render_configuration(create_bootstrap_service()))
+
+
+@app.command("config-health")
+def config_health() -> None:
+    """Show the safe local configuration readiness diagnosis."""
+    health = create_configuration_health_service().diagnose()
+    typer.echo(f"status: {health.status}")
+    for group in health.groups:
+        typer.echo(f"{group.concern}: {group.status} - {group.remediation}")
 
 
 @app.command("database")
@@ -323,9 +331,7 @@ def update_preferences(
                 token=token,
                 locale=UserLocale(locale) if locale is not None else None,
                 project_view_mode=(
-                    ProjectViewMode(project_view_mode)
-                    if project_view_mode is not None
-                    else None
+                    ProjectViewMode(project_view_mode) if project_view_mode is not None else None
                 ),
                 status_refresh_interval_seconds=status_refresh_interval_seconds,
             )
@@ -481,9 +487,7 @@ def unlink_project(token: str = typer.Option(...), project_id: int = typer.Optio
     """Unlink a project from OrchFlow without deleting local files."""
     service = create_project_registry_service()
     try:
-        result = service.unlink_project(
-            UnlinkProjectCommand(token=token, project_id=project_id)
-        )
+        result = service.unlink_project(UnlinkProjectCommand(token=token, project_id=project_id))
     except (ProjectRegistryError, AccessControlError) as error:
         _exit_with_error(error)
     typer.echo(render_project_unlink_result(result))
@@ -530,9 +534,7 @@ def reload_project(token: str = typer.Option(...), project_id: int = typer.Optio
     """Reload lifecycle function detection for one visible project."""
     service = create_project_registry_service()
     try:
-        result = service.reload_project(
-            ReloadProjectCommand(token=token, project_id=project_id)
-        )
+        result = service.reload_project(ReloadProjectCommand(token=token, project_id=project_id))
     except (ProjectRegistryError, AccessControlError) as error:
         _exit_with_error(error)
     typer.echo(render_project_reload_result(result))

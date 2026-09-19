@@ -4,6 +4,7 @@ from orchflow.application.access_control import AccessControlService
 from orchflow.application.ai_assistance import AIAssistanceService
 from orchflow.application.audit_history import AuditHistoryService
 from orchflow.application.bootstrap import BootstrapStatusService
+from orchflow.application.configuration_health import ConfigurationHealthService
 from orchflow.application.lifecycle import LifecycleOrchestrationService
 from orchflow.application.local_path_selection import LocalPathSelectionService
 from orchflow.application.project_registry import ProjectRegistryService
@@ -34,6 +35,13 @@ from orchflow.infrastructure.security.auth import BcryptPasswordHasher, JwtToken
 def create_bootstrap_service(settings: AppSettings | None = None) -> BootstrapStatusService:
     """Create the bootstrap service with the current settings."""
     return BootstrapStatusService(settings=settings or get_settings())
+
+
+def create_configuration_health_service(
+    settings: AppSettings | None = None,
+) -> ConfigurationHealthService:
+    """Create the shared local configuration diagnosis service."""
+    return ConfigurationHealthService(settings or get_settings())
 
 
 def create_access_control_service(settings: AppSettings | None = None) -> AccessControlService:

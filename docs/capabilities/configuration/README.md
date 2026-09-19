@@ -75,6 +75,16 @@ Sensitive values are never included in the existing CLI/API configuration
 summary, and any future configuration diagnostic must use the contract's
 redaction helper rather than expose a raw secret.
 
+## Configuration Health
+
+`GET /system/config/health` and `orchflow config-health` return the same safe
+readiness result, grouped into runtime paths, database, endpoints,
+authentication, and optional AI. Each group includes only key names, status,
+source category, and a remediation message. A disabled AI integration is an
+intentional `disabled` state, not a failure. The Windows setup check invokes
+the CLI summary after its established migrations and bootstrap checks; it does
+not replace prerequisite or process-control authority.
+
 ## Likely Configuration Areas
 
 - application environment

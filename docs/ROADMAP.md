@@ -12,13 +12,15 @@ Every listed item is one delivery plan and results in one pull request. Research
 
 ## Active Plans
 
-No plan is currently active.
+| Sequence | Plan | Priority | Dependencies |
+| --- | --- | --- | --- |
+| 13 | [cfg-002: safe configuration health diagnostics](./plans/active/cfg-002-configuration-health-diagnostics.md) | high | cfg-001 |
 
 ## Plans Awaiting Review
 
 | Sequence | Plan | Priority | Dependencies |
 | --- | --- | --- | --- |
-| 12 | [cfg-001: configuration contract inventory](./plans/review/cfg-001-configuration-contract-inventory.md) | high | — |
+No plan is currently awaiting review.
 
 ## Backlog
 

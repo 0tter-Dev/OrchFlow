@@ -174,6 +174,8 @@ if errorlevel 1 exit /b 1
 call uv run orchflow health
 if errorlevel 1 exit /b 1
 call uv run orchflow database
+if errorlevel 1 exit /b 1
+call uv run orchflow config-health
 exit /b %ERRORLEVEL%
 
 :START_ALL

@@ -1,6 +1,6 @@
 ---
 id: cfg-002
-status: backlog
+status: active
 type: feat
 requires_pull_request: true
 expected_version_impact: patch
@@ -38,6 +38,10 @@ Add a shared application-level diagnosis that groups configuration readiness by 
 ## Out Of Scope
 
 New secret stores, browser-based secret editing, automatic installation of tools, remote host checks, or changes to `.bat` lifecycle authority.
+
+## Approval
+
+The requesting user explicitly approved activation and implementation on 2026-09-19.
 
 ## Acceptance Criteria
 

@@ -77,6 +77,7 @@ def test_windows_setup_launcher_covers_core_setup_and_runtime_commands() -> None
         "uv run orchflow info",
         "uv run orchflow health",
         "uv run orchflow database",
+        "uv run orchflow config-health",
         'call "%CONTROL_LAUNCHER%" start',
     ]
 

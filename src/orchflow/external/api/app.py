@@ -69,6 +69,7 @@ from orchflow.application.services import (
     create_ai_assistance_service,
     create_audit_history_service,
     create_bootstrap_service,
+    create_configuration_health_service,
     create_lifecycle_orchestration_service,
     create_local_path_selection_service,
     create_project_registry_service,
@@ -105,6 +106,19 @@ class ConfigurationResponse(BaseModel):
     data_dir: str
     runtime_dir: str
     log_level: str
+
+
+class ConfigurationHealthGroupResponse(BaseModel):
+    concern: str
+    status: str
+    keys: list[str]
+    remediation: str
+    source: str
+
+
+class ConfigurationHealthResponse(BaseModel):
+    status: str
+    groups: list[ConfigurationHealthGroupResponse]
 
 
 class DatabaseResponse(BaseModel):
@@ -756,6 +770,23 @@ def create_app() -> FastAPI:
         return ConfigurationResponse.model_validate(
             bootstrap_service.get_configuration_summary(),
             from_attributes=True,
+        )
+
+    @app.get("/system/config/health", response_model=ConfigurationHealthResponse, tags=["system"])
+    def read_configuration_health() -> ConfigurationHealthResponse:
+        health = create_configuration_health_service().diagnose()
+        return ConfigurationHealthResponse(
+            status=health.status,
+            groups=[
+                ConfigurationHealthGroupResponse(
+                    concern=group.concern,
+                    status=group.status,
+                    keys=list(group.keys),
+                    remediation=group.remediation,
+                    source=group.source,
+                )
+                for group in health.groups
+            ],
         )
 
     @app.get("/system/database", response_model=DatabaseResponse, tags=["system"])
