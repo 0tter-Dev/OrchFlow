@@ -37,7 +37,7 @@ The AI assistance layer is optional and assistive. Its integration model uses `L
 - Enforce authentication and authorization through application users, roles, and project ownership
 - Establish a disciplined engineering foundation for Git, GitHub, testing, and CI
 
-## Non-Goals For v0.3.41
+## Non-Goals For v0.3.42
 
 - Container orchestration
 - Multi-host orchestration
@@ -141,7 +141,7 @@ OrchFlow should:
 - mediate optional AI-assisted project analysis and script generation
 - expose consistent operational capabilities through CLI, API, and interface adapters
 
-OrchFlow should not, in `v0.3.41`:
+OrchFlow should not, in `v0.3.42`:
 
 - behave as a container orchestrator
 - assume remote infrastructure control
@@ -202,7 +202,7 @@ These interface clients should consume the API rather than bypassing the backend
 
 `SQLite` is the initial persistence candidate because it supports a lightweight local-first workflow while still allowing robust enough storage for users, user preferences, projects, ownership metadata, lifecycle metadata, and audit events.
 
-For `v0.3.41`, the selected backend persistence stack is `SQLite` with `SQLAlchemy` and `Alembic`.
+For `v0.3.42`, the selected backend persistence stack is `SQLite` with `SQLAlchemy` and `Alembic`.
 
 ## Selected Technology Direction
 
@@ -238,3 +238,4 @@ The project should evolve in this order:
 - maintainable architecture
 - minimal duplication of business rules
 - documentation-code alignment
+

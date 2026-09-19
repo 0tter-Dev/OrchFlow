@@ -26,7 +26,7 @@ No plan is currently awaiting review.
 
 | Sequence | Plan | Priority | Dependencies |
 | --- | --- | --- | --- |
-| 13 | [cfg-002: safe configuration health diagnostics](./plans/backlog/cfg-002-configuration-health-diagnostics.md) | high | cfg-001 |
+| 13 | [cfg-002: safe configuration health diagnostics](./plans/active/cfg-002-configuration-health-diagnostics.md) | high | cfg-001 |
 | 14 | [web-015: guided project operational readiness](./plans/backlog/web-015-guided-operational-readiness.md) | high | cfg-002 |
 | 15 | [web-016: contextual operational history](./plans/backlog/web-016-contextual-operational-history.md) | medium | web-015 |
 
@@ -35,3 +35,4 @@ The listed plans are backlog candidates. They do not authorize implementation, d
 ## Completed Plans
 
 See [web-014 ESLint toolchain migration](./plans/completed/web-014-eslint-toolchain-migration.md), [deps-003 Node.js and Corepack runtime support](./plans/completed/deps-003-node-corepack-runtime-support.md), [deps-002 pnpm 12 migration](./plans/completed/deps-002-pnpm-12-migration.md), [deps-001 central dependency maintenance assessment](./plans/completed/deps-001-central-dependency-maintenance-assessment.md), [web-012 critical browser workflow tests](./plans/completed/web-012-critical-browser-workflow-tests.md), [web-011 workspace internationalization](./plans/completed/web-011-workspace-internationalization.md), [web-010 advanced operational tables](./plans/completed/web-010-advanced-operational-tables.md), [web-009 accessible operational feedback](./plans/completed/web-009-accessible-operational-feedback.md), [web-008 guided project forms](./plans/completed/web-008-guided-project-forms.md), [web-007 local path-selection workflow](./plans/completed/web-007-local-path-selection-workflow.md), [web-006 local path-selection contract](./plans/completed/web-006-local-path-selection-contract.md), [web-005 focused project workspace flows](./plans/completed/web-005-focused-project-workspace-flows.md), [web-004 API-backed workspace state](./plans/completed/web-004-api-backed-workspace-state.md), [web-003 authenticated workspace navigation](./plans/completed/web-003-authenticated-workspace-navigation.md), [web-002 React runtime compatibility update](./plans/completed/web-002-react-runtime-compatibility-update.md), [web-001 compatible web dependency maintenance](./plans/completed/web-001-compatible-web-dependency-maintenance.md), and [documentation governance modularization](./plans/completed/docs-001-documentation-governance.md). Historical work completed before this documentation model remains traceable through Git history, releases, and [Feature Status](./STATUS.md).
+
