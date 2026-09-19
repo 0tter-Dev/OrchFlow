@@ -1,6 +1,6 @@
 ---
 id: cfg-001
-status: review
+status: completed
 type: feat
 requires_pull_request: true
 expected_version_impact: patch

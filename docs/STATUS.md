@@ -2,7 +2,7 @@
 
 ## Current Project Stage
 
-OrchFlow is in the `v0.3.41` implementation stage as of `2026-09-19`. Workspace internationalization, critical browser workflow coverage, and the Node.js/Corepack, Vite, and ESLint toolchain migrations are implemented. The configuration contract inventory is awaiting review in PR #78; safe configuration diagnostics follows after its merge.
+OrchFlow is in the `v0.3.42` implementation stage as of `2026-09-19`. The configuration contract inventory is completed; safe configuration diagnostics is in progress.
 
 ## Capability Dashboard
 
@@ -10,7 +10,7 @@ OrchFlow is in the `v0.3.41` implementation stage as of `2026-09-19`. Workspace 
 | --- | --- | --- | --- |
 | Access control | implemented | [Access Control](./capabilities/access-control/README.md) | — |
 | AI assistance | implemented | [AI Assistance](./capabilities/ai-assistance/README.md) | — |
-| Configuration | in_progress | [Configuration](./capabilities/configuration/README.md) | [cfg-001](./plans/review/cfg-001-configuration-contract-inventory.md) |
+| Configuration | in_progress | [Configuration](./capabilities/configuration/README.md) | [cfg-002](./plans/active/cfg-002-configuration-health-diagnostics.md) |
 | Lifecycle management | implemented | [Lifecycle Management](./capabilities/lifecycle-management/README.md) | — |
 | Project registry | implemented | [Project Registry](./capabilities/project-registry/README.md) | — |
 | Runtime inspection | implemented | [Runtime Inspection](./capabilities/runtime-inspection/README.md) | — |
