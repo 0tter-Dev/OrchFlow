@@ -28,6 +28,17 @@ Every plan body must contain `Objective`, `Context`, `Decisions`, `Scope`, `Out 
 
 `requires_pull_request` is a required execution contract, not a reporting hint. Every new plan is a delivery plan and must set it to `true`. Work that does not independently need a pull request is a phase, task, or acceptance criterion within its parent delivery plan and has no independent plan lifecycle. An active plan whose body records explicit user approval authorizes its agent to create the scoped branch from synchronized `main`, validate, commit, push, and open the pull request. It moves to `review` in that PR and to `completed` only after merge plus local `main` synchronization.
 
+## Required Plan Execution Mode
+
+After a plan records explicit approval, agents and contributors must execute it
+as one continuous delivery flow: reconcile and synchronize local `main`, create
+the scoped branch, implement code and/or documentation, validate, audit the
+diff, align documentation, commit, push, and open the pull request. This is the
+default execution mode for approved plans, not optional guidance. Do not add
+discretionary pauses between its stages; pause only when a new explicit
+authorization is genuinely required or a clear, material problem or
+vulnerability needs maintainer intervention.
+
 ### Delivery Checklist
 
 | Phase | Required plan and delivery actions |

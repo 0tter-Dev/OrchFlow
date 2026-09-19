@@ -1,6 +1,6 @@
 ---
 id: cfg-001
-status: review
+status: completed
 type: feat
 requires_pull_request: true
 expected_version_impact: patch
@@ -53,7 +53,8 @@ The implementation should introduce no new runtime dependency unless separately 
 
 ## Outcome
 
-Implemented in [PR #78](https://github.com/0tter-Dev/OrchFlow/pull/78).
+Implemented in [PR #78](https://github.com/0tter-Dev/OrchFlow/pull/78), merged as
+`0f01a0c` and reconciled with local `main` on 2026-09-19.
 
 - Delivery commit: `b095abfd281dbfb627bb428adfa0c9890631e77a`.
 - Expected and actual version impact: `patch`, advancing `0.3.40` to `0.3.41`.

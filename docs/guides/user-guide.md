@@ -42,6 +42,10 @@ The launchers preserve existing local `.env` files and do not install missing gl
 
 Local runtime settings are documented in the [Configuration And Environment](../capabilities/configuration/README.md) contract. Copying an example file is a starting point, not a reason to commit a real `.env`: process environment values override local files, and JWT or LiteLLM secrets remain local. The normal `orchflow config` command and `GET /system/config` return only a safe runtime summary; they do not reveal secret values.
 
+For an actionable local readiness summary, use `orchflow config-health` or
+`GET /system/config/health`. The result names the affected configuration keys
+and next action without returning configured values or secrets.
+
 Users who want an experimental executable entrypoint can build it locally:
 
 ```bat

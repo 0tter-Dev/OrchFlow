@@ -31,7 +31,7 @@ This means:
 - branches should be deleted after merge
 - work may be authored either by a human contributor or by an authorized AI agent using a dedicated repository identity
 
-This project should not adopt a heavy Git Flow model in `v0.3.41`.
+This project should not adopt a heavy Git Flow model in `v0.3.42`.
 
 The repository is still in an early product stage, so a simpler branch model reduces process weight and makes maintenance easier.
 
@@ -325,7 +325,7 @@ For the current backend baseline, the expected validation direction is:
 - `uv run alembic upgrade head`
 - `uv run pytest`
 
-The supported frontend runtime for `v0.3.41` is Node.js `24` LTS, pinned for CI in `.node-version` at `24.21.0`. The selected package manager is pnpm `12.4.1`, pinned in `interface/web/package.json` and resolved by the Corepack bundled with that Node.js line without global shim writes. Corepack `0.34.6` was validated with the pin; a separate global Corepack installation is not part of the supported workflow. The supported toolchain is Vite `8.3.0`, `@vitejs/plugin-react` `6.1.1`, Vitest `5.0.0`, jsdom `30.0.1`, TypeScript `6.0.3`, ESLint `10.10.0`, eslint-plugin-react-hooks `7.1.1`, and globals `17.12.0`; TypeScript 7 remains deferred until typescript-eslint supports it.
+The supported frontend runtime for `v0.3.42` is Node.js `24` LTS, pinned for CI in `.node-version` at `24.21.0`. The selected package manager is pnpm `12.4.1`, pinned in `interface/web/package.json` and resolved by the Corepack bundled with that Node.js line without global shim writes. Corepack `0.34.6` was validated with the pin; a separate global Corepack installation is not part of the supported workflow. The supported toolchain is Vite `8.3.0`, `@vitejs/plugin-react` `6.1.1`, Vitest `5.0.0`, jsdom `30.0.1`, TypeScript `6.0.3`, ESLint `10.10.0`, eslint-plugin-react-hooks `7.1.1`, and globals `17.12.0`; TypeScript 7 remains deferred until typescript-eslint supports it.
 
 The expected frontend validation direction is:
 
@@ -390,7 +390,7 @@ CI should continue evolving in stages.
 
 ### Stage 1
 
-The repository now has the backend and frontend quality baseline needed for `v0.3.41`.
+The repository now has the backend and frontend quality baseline needed for `v0.3.42`.
 
 ### Stage 2
 
@@ -524,3 +524,4 @@ The repository should continue evolving with:
 - release automation
 - deeper CI quality gates as implementation scope grows
 - any future team-scaling rules that become necessary beyond the current maintainer plus agent model
+
