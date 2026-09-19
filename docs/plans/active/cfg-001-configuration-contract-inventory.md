@@ -1,6 +1,6 @@
 ---
 id: cfg-001
-status: backlog
+status: active
 type: feat
 requires_pull_request: true
 expected_version_impact: patch
@@ -34,6 +34,10 @@ Consolidate the backend, launcher, API/web, database, runtime-directory, authent
 ## Out Of Scope
 
 Editing local `.env` files from the browser, returning secret values, changing authentication semantics, adding remote configuration, or duplicating existing launcher prerequisite checks.
+
+## Approval
+
+The requesting user explicitly approved activation and implementation on 2026-09-19.
 
 ## Acceptance Criteria
 

@@ -40,6 +40,8 @@ The combined development entrypoint remains available at `tools\windows\orchflow
 
 The launchers preserve existing local `.env` files and do not install missing global tools automatically. Contributors should use Node.js `24` LTS; CI pins `24.21.0`, while the local launcher accepts the supported Node 24 line. If `uv`, Node, or Corepack is missing, the setup/check flow reports the missing prerequisite so the user can install it explicitly. Corepack bundled with Node 24 invokes the project-pinned `pnpm` directly, without attempting to write global Node.js shims.
 
+Local runtime settings are documented in the [Configuration And Environment](../capabilities/configuration/README.md) contract. Copying an example file is a starting point, not a reason to commit a real `.env`: process environment values override local files, and JWT or LiteLLM secrets remain local. The normal `orchflow config` command and `GET /system/config` return only a safe runtime summary; they do not reveal secret values.
+
 Users who want an experimental executable entrypoint can build it locally:
 
 ```bat
