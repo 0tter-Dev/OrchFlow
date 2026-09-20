@@ -1,10 +1,10 @@
 ---
 id: web-015
-status: backlog
+status: review
 type: feat
 requires_pull_request: true
 expected_version_impact: patch
-actual_version_impact: pending
+actual_version_impact: patch
 priority: high
 sequence: 14
 depends_on:
@@ -37,6 +37,10 @@ Compose already-authoritative backend data for project registration, lifecycle s
 
 Browser editing of secrets, UI-only readiness decisions, automatic project control, remote orchestration, or replacing the `.bat` lifecycle contract.
 
+## Approval
+
+The requesting user explicitly approved activation and implementation on 2026-09-19.
+
 ## Acceptance Criteria
 
 - the workspace distinguishes complete, partial, blocked, and unavailable states with explanations;
@@ -47,4 +51,16 @@ Browser editing of secrets, UI-only readiness decisions, automatic project contr
 
 ## Outcome
 
-Backlog candidate; not started.
+Implemented on the delivery branch and awaiting review in
+[PR #80](https://github.com/0tter-Dev/OrchFlow/pull/80).
+
+- Delivery commits: `f77b3a5`, `99e2850`, `f9f4949`, `4e142a8`, and `9c0cdeb`.
+- Expected and actual version impact: `patch`, advancing `0.3.42` to `0.3.43`.
+- Validation passed: frontend lint, 52 frontend unit tests, production build, and
+  three deterministic Playwright workflows (account creation, project registration
+  with local path selection, and blocked-project mapping recovery); backend Ruff
+  and mypy; and eight documentation/version contract tests.
+- The selected-project checklist composes existing lifecycle and runtime signals
+  with only the redacted remediation supplied by configuration health. It retains
+  direct reload, mapping, and runtime-refresh actions without treating browser
+  state as authoritative or exposing local values and secrets.

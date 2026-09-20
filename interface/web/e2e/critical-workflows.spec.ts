@@ -39,6 +39,23 @@ function completeProject(): Project {
   };
 }
 
+function blockedProject(): Project {
+  const project = completeProject();
+
+  return {
+    ...project,
+    action_mappings: [],
+    lifecycle_configuration_health: "blocked",
+    lifecycle_function_configurations: project.lifecycle_function_configurations.map(
+      (configuration) => ({
+        ...configuration,
+        script_label: null,
+        state: "undefined",
+      }),
+    ),
+  };
+}
+
 async function installApiMock(page: Page, initialProjects: Project[] = []) {
   const requests: Array<{ body: unknown; method: string; path: string }> = [];
   let projects = initialProjects;
@@ -50,7 +67,8 @@ async function installApiMock(page: Page, initialProjects: Project[] = []) {
     requests.push({ body, method: request.method(), path });
     const respond = (payload: unknown) => route.fulfill({ body: JSON.stringify(payload), contentType: "application/json", status: 200 });
 
-    if (path === "/health") return respond({ name: "OrchFlow", stage: "implementation", status: "ok", version: "0.3.42" });
+    if (path === "/health") return respond({ name: "OrchFlow", stage: "implementation", status: "ok", version: "0.3.43" });
+    if (path === "/system/config/health") return respond({ groups: [], status: "ready" });
     if (path === "/auth/register" && request.method() === "POST") return respond(member);
     if (path === "/auth/login" && request.method() === "POST") return respond({ access_token: "browser-token", expires_in_seconds: 3600, token_type: "bearer" });
     if (path === "/auth/me") return respond(member);
@@ -101,4 +119,17 @@ test("registers a project using authenticated path selection", async ({ page }) 
   await expect(page.getByText("browser-fixture registered successfully.")).toBeVisible();
   expect(requests.filter((request) => request.path === "/local-path-selection")).toHaveLength(2);
   expect(requests.find((request) => request.path === "/projects" && request.method === "POST")?.body).toMatchObject({ lifecycle_script_path: "C:\\fixture\\control.bat", project_root_path: "C:\\fixture", reference_name: "browser-fixture" });
+});
+
+test("guides a blocked project to lifecycle mapping recovery", async ({ page }) => {
+  await page.addInitScript(() => window.localStorage.setItem("orchflow.auth.token", "browser-token"));
+  await installApiMock(page, [blockedProject()]);
+  await page.goto("/projects");
+
+  await page.getByRole("button", { name: "browser-fixture" }).click();
+
+  await expect(page.getByText("Selected project is blocked")).toBeVisible();
+  await expect(page.getByText("No lifecycle function is configured for execution.")).toBeVisible();
+  await page.getByRole("button", { name: "Open mappings" }).click();
+  await expect(page.getByRole("dialog", { name: "Lifecycle configuration" })).toBeVisible();
 });

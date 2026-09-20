@@ -1,8 +1,13 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { getConfigurationHealth } from "../../../shared/api/system";
 import type { ProjectSummary, RuntimeInspectionSnapshot } from "../../../shared/types/project";
 import { ProjectOnboardingPanel } from "./ProjectOnboardingPanel";
+
+vi.mock("../../../shared/api/system", () => ({
+  getConfigurationHealth: vi.fn(),
+}));
 
 const completeProject: ProjectSummary = {
   action_mappings: [],
@@ -91,6 +96,10 @@ function renderPanelWithRuntime(runtimeSnapshotOverride: RuntimeInspectionSnapsh
 }
 
 describe("ProjectOnboardingPanel", () => {
+  beforeEach(() => {
+    vi.mocked(getConfigurationHealth).mockResolvedValue({ groups: [], status: "ready" });
+  });
+
   it("shows ready state when lifecycle and runtime signals are complete", () => {
     renderPanel();
 
@@ -118,5 +127,25 @@ describe("ProjectOnboardingPanel", () => {
     expect(
       screen.getByText("Current signal: No APP_PORT or APP_URL hint was found."),
     ).toBeInTheDocument();
+  });
+
+  it("shows actionable local configuration guidance when diagnostics need attention", async () => {
+    vi.mocked(getConfigurationHealth).mockResolvedValue({
+      groups: [
+        {
+          concern: "Authentication",
+          remediation: "Set ORCHFLOW_JWT_SECRET in the local environment.",
+          status: "warning",
+        },
+      ],
+      status: "warning",
+    });
+
+    renderPanel();
+
+    expect(
+      await screen.findByText("Set ORCHFLOW_JWT_SECRET in the local environment."),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Needs review")).toBeInTheDocument();
   });
 });
