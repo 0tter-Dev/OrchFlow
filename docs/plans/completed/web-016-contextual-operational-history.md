@@ -1,6 +1,6 @@
 ---
 id: web-016
-status: review
+status: completed
 type: feat
 requires_pull_request: true
 expected_version_impact: patch
@@ -51,8 +51,8 @@ Replacing the audit capability, creating a full observability platform, exposing
 
 ## Outcome
 
-Implemented on the delivery branch and awaiting review in
-[PR #81](https://github.com/0tter-Dev/OrchFlow/pull/81).
+Implemented in [PR #81](https://github.com/0tter-Dev/OrchFlow/pull/81), merged as
+`978e491` and reconciled with local `main` on 2026-09-20.
 
 - Delivery commit: `889524c`.
 - Expected and actual version impact: `patch`, advancing `0.3.43` to `0.3.44`.

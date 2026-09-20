@@ -2,7 +2,7 @@
 
 ## Current Project Stage
 
-OrchFlow is in the `v0.3.44` implementation stage as of `2026-09-20`. Safe configuration diagnostics and guided project operational readiness are completed; contextual operational history is awaiting review.
+OrchFlow is in the `v0.3.44` implementation stage as of `2026-09-20`. Safe configuration diagnostics, guided project operational readiness, and contextual operational history are completed.
 
 ## Capability Dashboard
 
@@ -15,7 +15,7 @@ OrchFlow is in the `v0.3.44` implementation stage as of `2026-09-20`. Safe confi
 | Project registry | implemented | [Project Registry](./capabilities/project-registry/README.md) | — |
 | Runtime inspection | implemented | [Runtime Inspection](./capabilities/runtime-inspection/README.md) | — |
 | Persistence and audit | implemented | [Persistence And Audit](./capabilities/persistence-and-audit/README.md) | — |
-| Web operator workspace | in_progress | [Web Operator Workspace](./capabilities/web-operator-workspace/README.md) | [web-016](./plans/review/web-016-contextual-operational-history.md) |
+| Web operator workspace | in_progress | [Web Operator Workspace](./capabilities/web-operator-workspace/README.md) | — |
 | External surfaces | in_progress | [External Surfaces](./reference/external-surfaces.md) | — |
 | Delivery and releases | implemented | [Git And GitHub Flow](./guides/git-and-github-flow.md) | — |
 
