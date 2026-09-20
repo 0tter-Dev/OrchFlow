@@ -67,7 +67,7 @@ async function installApiMock(page: Page, initialProjects: Project[] = []) {
     requests.push({ body, method: request.method(), path });
     const respond = (payload: unknown) => route.fulfill({ body: JSON.stringify(payload), contentType: "application/json", status: 200 });
 
-    if (path === "/health") return respond({ name: "OrchFlow", stage: "implementation", status: "ok", version: "0.3.43" });
+    if (path === "/health") return respond({ name: "OrchFlow", stage: "implementation", status: "ok", version: "0.3.44" });
     if (path === "/system/config/health") return respond({ groups: [], status: "ready" });
     if (path === "/auth/register" && request.method() === "POST") return respond(member);
     if (path === "/auth/login" && request.method() === "POST") return respond({ access_token: "browser-token", expires_in_seconds: 3600, token_type: "bearer" });

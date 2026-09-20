@@ -1,6 +1,6 @@
 ---
 id: web-015
-status: review
+status: completed
 type: feat
 requires_pull_request: true
 expected_version_impact: patch
@@ -51,8 +51,8 @@ The requesting user explicitly approved activation and implementation on 2026-09
 
 ## Outcome
 
-Implemented on the delivery branch and awaiting review in
-[PR #80](https://github.com/0tter-Dev/OrchFlow/pull/80).
+Implemented in [PR #80](https://github.com/0tter-Dev/OrchFlow/pull/80), merged as
+`24dd1b5` and reconciled with local `main` on 2026-09-20.
 
 - Delivery commits: `f77b3a5`, `99e2850`, `f9f4949`, `4e142a8`, and `9c0cdeb`.
 - Expected and actual version impact: `patch`, advancing `0.3.42` to `0.3.43`.

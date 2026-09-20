@@ -18,13 +18,13 @@ No plan is currently active.
 
 | Sequence | Plan | Priority | Dependencies |
 | --- | --- | --- | --- |
-| 14 | [web-015: guided project operational readiness](./plans/review/web-015-guided-operational-readiness.md) | high | cfg-002 |
+| 15 | [web-016: contextual operational history](./plans/review/web-016-contextual-operational-history.md) | medium | web-015 |
 
 ## Backlog
 
 | Sequence | Plan | Priority | Dependencies |
 | --- | --- | --- | --- |
-| 15 | [web-016: contextual operational history](./plans/backlog/web-016-contextual-operational-history.md) | medium | web-015 |
+| 15 | [web-016: contextual operational history](./plans/review/web-016-contextual-operational-history.md) | medium | web-015 |
 
 The listed plans are backlog candidates. They do not authorize implementation, dependency installation, capability access, public API changes, or product-scope changes until explicitly approved and moved to `plans/active/`.
 
