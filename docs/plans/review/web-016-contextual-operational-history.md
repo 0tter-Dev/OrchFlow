@@ -1,10 +1,10 @@
 ---
 id: web-016
-status: active
+status: review
 type: feat
 requires_pull_request: true
 expected_version_impact: patch
-actual_version_impact: pending
+actual_version_impact: patch
 priority: medium
 sequence: 15
 depends_on:
@@ -51,4 +51,14 @@ Replacing the audit capability, creating a full observability platform, exposing
 
 ## Outcome
 
-Backlog candidate; not started.
+Implemented on the delivery branch and awaiting review in
+[PR #81](https://github.com/0tter-Dev/OrchFlow/pull/81).
+
+- Delivery commit: `889524c`.
+- Expected and actual version impact: `patch`, advancing `0.3.43` to `0.3.44`.
+- Validation passed: frontend lint, 54 frontend unit tests, production build, and
+  three deterministic Playwright workflows; backend Ruff and mypy; and eight
+  documentation/version contract tests.
+- The project detail view reuses the existing administrator-authorized audit
+  query, limits its contextual summary to the selected project, and links to
+  Activity for the canonical complete history.
