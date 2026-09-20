@@ -133,10 +133,20 @@ function buildProjectOnboardingSteps({
 }
 
 export function ProjectOnboardingPanel(props: ProjectOnboardingPanelProps) {
-  const [configurationHealth, setConfigurationHealth] = useState<ConfigurationHealth | null>(null);
-  useEffect(() => { void getConfigurationHealth().then(setConfigurationHealth).catch(() => setConfigurationHealth(null)); }, []);
+  const [configurationHealth, setConfigurationHealth] =
+    useState<ConfigurationHealth | null>(null);
+
+  useEffect(() => {
+    void getConfigurationHealth()
+      .then(setConfigurationHealth)
+      .catch(() => setConfigurationHealth(null));
+  }, []);
+
   const steps = buildProjectOnboardingSteps(props);
-  const configurationGroup = configurationHealth?.groups.find((group) => group.status !== "ready" && group.status !== "disabled");
+  const configurationGroup = configurationHealth?.groups.find(
+    (group) => group.status !== "ready" && group.status !== "disabled",
+  );
+
   if (configurationGroup !== undefined) steps.splice(2, 0, { detail: configurationGroup.remediation, id: "configuration", label: "Local configuration", state: "attention" });
   const blockedCount = steps.filter((step) => step.state === "blocked").length;
   const attentionCount = steps.filter((step) => step.state === "attention").length;
