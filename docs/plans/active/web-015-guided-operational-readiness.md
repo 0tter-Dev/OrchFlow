@@ -1,6 +1,6 @@
 ---
 id: web-015
-status: backlog
+status: active
 type: feat
 requires_pull_request: true
 expected_version_impact: patch
@@ -36,6 +36,10 @@ Compose already-authoritative backend data for project registration, lifecycle s
 ## Out Of Scope
 
 Browser editing of secrets, UI-only readiness decisions, automatic project control, remote orchestration, or replacing the `.bat` lifecycle contract.
+
+## Approval
+
+The requesting user explicitly approved activation and implementation on 2026-09-19.
 
 ## Acceptance Criteria
 
