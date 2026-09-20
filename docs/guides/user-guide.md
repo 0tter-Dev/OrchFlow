@@ -188,7 +188,7 @@ Only configured lifecycle actions can be executed. If the user requests an undef
 
 At the current implementation stage, configured lifecycle actions are available through the mirrored `CLI` and `API` surfaces, and the web workspace can trigger only configured actions for authenticated users, with runtime status summaries returned when inspection is available. The web workspace requests explicit confirmation before a mutable `start`, `stop`, or `restart` action; the read-only `status` action remains direct.
 
-The web project detail view also shows lifecycle configuration health, function-level configured or missing states, operational readiness, a reload action for rereading the `.bat` script, and a manual configuration dialog for mapping script labels or explicitly leaving ideal functions unconfigured.
+The web project detail view also shows lifecycle configuration health, function-level configured or missing states, operational readiness, a compact recent operational-history summary for authorized administrators, a reload action for rereading the `.bat` script, and a manual configuration dialog for mapping script labels or explicitly leaving ideal functions unconfigured. The summary links to the canonical Activity history for complete filtered audit detail and does not expose events to users without audit authorization.
 
 ### 4.1. Update A Registered Project
 

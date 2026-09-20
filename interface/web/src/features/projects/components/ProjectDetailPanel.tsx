@@ -15,11 +15,15 @@ import type {
   RuntimeInspectionSnapshot,
 } from "../../../shared/types/project";
 import { ProjectOnboardingPanel } from "./ProjectOnboardingPanel";
+import { ProjectOperationalHistory } from "./ProjectOperationalHistory";
+import type { AuditEventSummary } from "../../../shared/types/audit";
 
 const lifecycleActions: CanonicalLifecycleAction[] = ["status", "start", "stop", "restart"];
 
 type ProjectDetailPanelProps = {
   activeAction: CanonicalLifecycleAction | null;
+  canLoadAuditEvents?: boolean;
+  auditEvents?: AuditEventSummary[];
   configurationMessage: string | null;
   currentUser: UserSummary;
   errorMessage: string | null;
@@ -122,6 +126,8 @@ function formatTimestamp(value: string | null | undefined): string {
 
 export function ProjectDetailPanel({
   activeAction,
+  auditEvents = [],
+  canLoadAuditEvents = false,
   configurationMessage,
   currentUser,
   errorMessage,
@@ -380,6 +386,7 @@ export function ProjectDetailPanel({
         project={selectedProject}
         runtimeSnapshot={runtimeSnapshot}
       />
+      <ProjectOperationalHistory canLoadAuditEvents={canLoadAuditEvents} events={auditEvents} projectId={selectedProject.id} />
 
       <div className="project-detail__grid">
         <article className="project-detail__card">

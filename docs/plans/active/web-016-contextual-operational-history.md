@@ -1,6 +1,6 @@
 ---
 id: web-016
-status: backlog
+status: active
 type: feat
 requires_pull_request: true
 expected_version_impact: patch
@@ -28,6 +28,10 @@ documentation_updates:
 ## Objective
 
 Give an operator the most relevant recent operational outcome beside the project readiness and control experience, while keeping the audit history backend-authoritative.
+
+## Approval
+
+The requesting user explicitly approved activation and implementation on 2026-09-20.
 
 ## Scope
 
