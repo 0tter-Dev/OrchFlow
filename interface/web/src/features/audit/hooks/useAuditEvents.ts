@@ -26,10 +26,23 @@ const initialFilters: AuditEventFilters = {
   projectId: "",
 };
 
-export function useAuditEvents(token: string | null, currentUser: UserSummary | null) {
+export function useAuditEvents(
+  token: string | null,
+  currentUser: UserSummary | null,
+  routeProjectId?: string,
+) {
   const [state, setState] = useState<AuditEventsState>(initialState);
   const [filters, setFilters] = useState<AuditEventFilters>(initialFilters);
   const canLoadAuditEvents = token !== null && currentUser?.role === "admin";
+
+  useEffect(() => {
+    if (routeProjectId === undefined) return;
+    setFilters((currentFilters) =>
+      currentFilters.projectId === routeProjectId
+        ? currentFilters
+        : { ...currentFilters, projectId: routeProjectId },
+    );
+  }, [routeProjectId]);
 
   const refresh = useEffectEvent(async () => {
     if (!canLoadAuditEvents || token === null) {

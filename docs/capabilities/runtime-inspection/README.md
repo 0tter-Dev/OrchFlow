@@ -42,6 +42,7 @@ Expose practical operational facts for local project control and troubleshooting
 - exposes the inspection timestamp with the runtime snapshot
 - is available as a direct inspection use case, a requested multi-project batch inspection use case, and as a post-lifecycle validation step
 - batch inspection accepts explicit project identifiers, deduplicates repeated IDs, preserves the requested project order, and inspects only projects visible to the authenticated operator
+- a failed inspection of one visible project degrades to an `unsupported` snapshot with safe remediation so the remaining project workspace does not fail as a batch
 - does not persist runtime snapshots yet; snapshot persistence was evaluated during runtime maturity work and remains deferred until there is a concrete review or history need beyond audit events and on-demand inspection
 
 ## Main Relationships

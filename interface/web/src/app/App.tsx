@@ -1,7 +1,7 @@
 import "./App.css";
 
 import { useEffect } from "react";
-import { BrowserRouter, Navigate, NavLink, Route, Routes } from "react-router";
+import { BrowserRouter, Navigate, NavLink, Route, Routes, useLocation } from "react-router";
 import { useTranslation } from "react-i18next";
 
 import { AdminManagementPanel } from "../features/admin/components/AdminManagementPanel";
@@ -40,8 +40,12 @@ type AuthenticatedWorkspaceProps = { currentUser: UserSummary; onLogout: () => v
 
 function AuthenticatedWorkspace({ currentUser, onLogout, token }: AuthenticatedWorkspaceProps) {
   const { i18n, t } = useTranslation();
+  const location = useLocation();
   const adminManagement = useAdminManagement(token, currentUser);
-  const auditEvents = useAuditEvents(token, currentUser);
+  const routeProjectId = location.pathname === "/activity"
+    ? new URLSearchParams(location.search).get("project_id") ?? ""
+    : undefined;
+  const auditEvents = useAuditEvents(token, currentUser, routeProjectId);
   const userPreferences = useUserPreferences(token);
   const projectWorkspace = useProjectWorkspace(token);
   const refreshProjects = projectWorkspace.refresh;

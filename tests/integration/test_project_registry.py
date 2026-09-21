@@ -725,6 +725,43 @@ def test_registration_rejects_scripts_without_first_argument_dispatch(
         )
 
 
+def test_registration_explains_menu_script_automation_requirement(
+    isolated_environment: None,
+    tmp_path: Path,
+) -> None:
+    access_control_service = create_access_control_service()
+    project_registry_service = create_project_registry_service()
+    access_control_service.register_user(
+        RegisterUserCommand(username="menu-script-user", password="password123")
+    )
+    token = access_control_service.login(
+        LoginCommand(username="menu-script-user", password="password123")
+    ).access_token
+
+    project_dir = tmp_path / "menu-script-project"
+    project_dir.mkdir()
+    lifecycle_script = project_dir / "control.bat"
+    lifecycle_script.write_text(
+        "@echo off\r\n"
+        ":MENU\r\n"
+        "set /p \"CHOICE=Choose: \"\r\n"
+        "if \"%CHOICE%\"==\"1\" goto STATUS\r\n"
+        ":STATUS\r\n"
+        "echo status-ok\r\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ProjectValidationError, match="interactive menu"):
+        project_registry_service.register_project(
+            RegisterProjectCommand(
+                token=token,
+                reference_name="menu-script-project",
+                project_root_path=str(project_dir),
+                lifecycle_script_path=str(lifecycle_script),
+            )
+        )
+
+
 def test_registration_rejects_missing_mapped_dispatch_handler(
     isolated_environment: None,
     tmp_path: Path,
