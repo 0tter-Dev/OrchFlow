@@ -1,6 +1,8 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import "../../../app/i18n";
+
 import type { AuditEventSummary } from "../../../shared/types/audit";
 import { AuditEventsPanel } from "./AuditEventsPanel";
 
@@ -58,7 +60,7 @@ describe("AuditEventsPanel", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Refresh" }));
+    fireEvent.click(screen.getByRole("button"));
 
     expect(screen.getByText("Admin role is required to view audit history.")).toBeInTheDocument();
     expect(onRefresh).not.toHaveBeenCalled();

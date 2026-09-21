@@ -1,6 +1,6 @@
 ---
 id: web-018
-status: backlog
+status: active
 type: fix
 requires_pull_request: true
 expected_version_impact: patch
@@ -31,7 +31,7 @@ Make every operator-facing web workspace message consistently follow the authent
 
 ## Approval
 
-Awaiting explicit user approval to move to `active`.
+The requesting user explicitly approved activation and implementation on 2026-09-21.
 
 ## Scope
 

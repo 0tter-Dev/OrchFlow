@@ -2,6 +2,8 @@ import "./AIAssistancePanel.css";
 
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
+import { useTranslation } from "react-i18next";
+import "../../../app/i18n";
 
 import { ErrorNotice } from "../../../shared/components/ErrorNotice";
 import type { AIAnalysisProposal } from "../../../shared/types/ai";
@@ -82,6 +84,7 @@ export function AIAssistancePanel({
   selectedProject,
   statusMessage,
 }: AIAssistancePanelProps) {
+  const { t } = useTranslation();
   const [confirmFileWrite, setConfirmFileWrite] = useState(false);
   const [confirmMappingPersistence, setConfirmMappingPersistence] = useState(false);
   const [excludePatterns, setExcludePatterns] = useState(".env, .venv, node_modules, dist");
@@ -138,8 +141,8 @@ export function AIAssistancePanel({
     <section className="ai-panel">
       <header className="ai-panel__header">
         <div>
-          <span className="ai-panel__eyebrow">AI assistance</span>
-          <h2 className="ai-panel__title">Proposal review</h2>
+          <span className="ai-panel__eyebrow">{t("workspace.ai")}</span>
+          <h2 className="ai-panel__title">{t("workspace.aiProposalReview")}</h2>
         </div>
         <button
           className="ai-panel__button"
@@ -147,12 +150,12 @@ export function AIAssistancePanel({
           onClick={onRefreshStatus}
           type="button"
         >
-          {isLoadingStatus ? "Checking..." : "Check status"}
+          {isLoadingStatus ? t("workspace.checking") : t("workspace.checkStatus")}
         </button>
       </header>
 
       {selectedProject === null ? (
-        <div className="ai-panel__empty">Select a project to review AI lifecycle proposals.</div>
+        <div className="ai-panel__empty">{t("workspace.selectProjectAi")}</div>
       ) : null}
 
       {statusMessage !== null ? <div className="ai-panel__status">{statusMessage}</div> : null}
@@ -161,13 +164,13 @@ export function AIAssistancePanel({
         <ErrorNotice
           className="ai-panel__error"
           message={errorMessage}
-          title="AI assistance needs review"
+          title={t("workspace.aiAttention")}
         />
       ) : null}
 
       <form className="ai-panel__form" onSubmit={submitProposal}>
         <label>
-          <span>Model</span>
+          <span>{t("workspace.model")}</span>
           <input
             disabled={!canUseAIAssistance}
             list="ai-model-options"
@@ -182,7 +185,7 @@ export function AIAssistancePanel({
           </datalist>
         </label>
         <label>
-          <span>Operation</span>
+          <span>{t("workspace.operation")}</span>
           <select
             disabled={!canUseAIAssistance}
             onChange={(event) =>
@@ -197,7 +200,7 @@ export function AIAssistancePanel({
           </select>
         </label>
         <label>
-          <span>Include patterns</span>
+          <span>{t("workspace.includePatterns")}</span>
           <input
             disabled={!canUseAIAssistance}
             onChange={(event) => setIncludePatterns(event.target.value)}
@@ -205,7 +208,7 @@ export function AIAssistancePanel({
           />
         </label>
         <label>
-          <span>Exclude patterns</span>
+          <span>{t("workspace.excludePatterns")}</span>
           <input
             disabled={!canUseAIAssistance}
             onChange={(event) => setExcludePatterns(event.target.value)}
@@ -213,7 +216,7 @@ export function AIAssistancePanel({
           />
         </label>
         <label>
-          <span>Max file bytes</span>
+          <span>{t("workspace.maxFileBytes")}</span>
           <input
             disabled={!canUseAIAssistance}
             min="1"
@@ -223,7 +226,7 @@ export function AIAssistancePanel({
           />
         </label>
         <label>
-          <span>Max total bytes</span>
+          <span>{t("workspace.maxTotalBytes")}</span>
           <input
             disabled={!canUseAIAssistance}
             min="1"
@@ -233,7 +236,7 @@ export function AIAssistancePanel({
           />
         </label>
         <label className="ai-panel__wide">
-          <span>Reviewer instructions</span>
+          <span>{t("workspace.reviewerInstructions")}</span>
           <textarea
             disabled={!canUseAIAssistance}
             onChange={(event) => setUserInstructions(event.target.value)}
@@ -241,7 +244,7 @@ export function AIAssistancePanel({
           />
         </label>
         <button className="ai-panel__primary" disabled={!canCreateProposal} type="submit">
-          {isCreatingProposal ? "Creating..." : "Create proposal"}
+          {isCreatingProposal ? t("workspace.creating") : t("workspace.createProposal")}
         </button>
       </form>
 
@@ -249,7 +252,7 @@ export function AIAssistancePanel({
         <div className="ai-panel__review">
           <pre className="ai-panel__proposal">{renderProposal(proposal)}</pre>
           <label className="ai-panel__wide">
-            <span>Review notes</span>
+            <span>{t("workspace.reviewNotes")}</span>
             <textarea
               onChange={(event) => setReviewerNotes(event.target.value)}
               value={reviewerNotes}
@@ -262,7 +265,7 @@ export function AIAssistancePanel({
               onClick={() => onReviewProposal("rejected", reviewerNotes.trim() || null)}
               type="button"
             >
-              Reject
+              {t("workspace.reject")}
             </button>
             <button
               className="ai-panel__primary"
@@ -270,7 +273,7 @@ export function AIAssistancePanel({
               onClick={() => onReviewProposal("approved", reviewerNotes.trim() || null)}
               type="button"
             >
-              {isReviewing ? "Reviewing..." : "Approve"}
+              {isReviewing ? t("workspace.reviewing") : t("workspace.approve")}
             </button>
           </div>
           <div className="ai-panel__confirmations">
@@ -280,7 +283,7 @@ export function AIAssistancePanel({
                 onChange={(event) => setConfirmFileWrite(event.target.checked)}
                 type="checkbox"
               />
-              <span>Confirm lifecycle script file write</span>
+              <span>{t("workspace.confirmFileWrite")}</span>
             </label>
             <label>
               <input
@@ -288,7 +291,7 @@ export function AIAssistancePanel({
                 onChange={(event) => setConfirmMappingPersistence(event.target.checked)}
                 type="checkbox"
               />
-              <span>Confirm mapping persistence</span>
+              <span>{t("workspace.confirmMappingPersistence")}</span>
             </label>
           </div>
           <button
@@ -297,7 +300,7 @@ export function AIAssistancePanel({
             onClick={onApplyProposal}
             type="button"
           >
-            {isApplying ? "Applying..." : "Apply approved proposal"}
+            {isApplying ? t("workspace.applying") : t("workspace.applyApprovedProposal")}
           </button>
         </div>
       ) : null}

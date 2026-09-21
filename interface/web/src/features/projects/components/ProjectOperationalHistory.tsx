@@ -1,4 +1,6 @@
 import { Link } from "react-router";
+import { useTranslation } from "react-i18next";
+import "../../../app/i18n";
 
 import type { AuditEventSummary } from "../../../shared/types/audit";
 
@@ -8,20 +10,20 @@ type ProjectOperationalHistoryProps = {
   projectId: number;
 };
 
-function outcome(event: AuditEventSummary): string {
-  if (event.details?.includes("succeeded:true")) return "Succeeded";
-  if (event.details?.includes("succeeded:false")) return "Failed";
-  if (event.action.includes("reject") || event.action.includes("blocked")) return "Rejected";
-  return "Recorded";
-}
-
 export function ProjectOperationalHistory({
   canLoadAuditEvents,
   events,
   projectId,
 }: ProjectOperationalHistoryProps) {
+  const { i18n, t } = useTranslation();
+  const outcome = (event: AuditEventSummary): string => {
+    if (event.details?.includes("succeeded:true")) return t("workspace.succeeded");
+    if (event.details?.includes("succeeded:false")) return t("workspace.failed");
+    if (event.action.includes("reject") || event.action.includes("blocked")) return t("workspace.rejected");
+    return t("workspace.recorded");
+  };
   if (!canLoadAuditEvents) {
-    return <section className="project-detail__history"><h3>Recent operational history</h3><p>Operational history remains available through the administrator Activity workspace.</p></section>;
+    return <section className="project-detail__history"><h3>{t("workspace.recentHistory")}</h3><p>{t("workspace.historyAdminOnly")}</p></section>;
   }
 
   const projectEvents = events
@@ -32,8 +34,8 @@ export function ProjectOperationalHistory({
 
   return (
     <section className="project-detail__history">
-      <div className="project-list__title-row"><h3 className="project-list__title">Recent operational history</h3><Link to={`/activity?project_id=${projectId}`}>Open full history</Link></div>
-      {projectEvents.length === 0 ? <p>No authorized operational events are available for this project yet.</p> : <div className="project-detail__mappings">{projectEvents.map((event) => <article className="project-detail__mapping" key={event.id}><strong>{event.action}</strong><span>{outcome(event)} · {new Date(event.created_at).toLocaleString()}</span></article>)}</div>}
+      <div className="project-list__title-row"><h3 className="project-list__title">{t("workspace.recentHistory")}</h3><Link to={`/activity?project_id=${projectId}`}>{t("workspace.openFullHistory")}</Link></div>
+      {projectEvents.length === 0 ? <p>{t("workspace.noProjectEvents")}</p> : <div className="project-detail__mappings">{projectEvents.map((event) => <article className="project-detail__mapping" key={event.id}><strong>{event.action}</strong><span>{outcome(event)} · {new Date(event.created_at).toLocaleString(i18n.language)}</span></article>)}</div>}
     </section>
   );
 }

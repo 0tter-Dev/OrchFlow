@@ -1,10 +1,10 @@
 ---
 id: web-017
-status: active
+status: completed
 type: fix
 requires_pull_request: true
 expected_version_impact: patch
-actual_version_impact: pending
+actual_version_impact: patch
 priority: high
 sequence: 16
 depends_on:
@@ -65,4 +65,12 @@ Changing lifecycle authority away from Windows `.bat` scripts, executing arbitra
 
 ## Outcome
 
-Not started.
+Implemented in [PR #84](https://github.com/0tter-Dev/OrchFlow/pull/84), merged as
+`a2a946f` and reconciled with local `main` on 2026-09-21.
+
+- Delivery commit: `1e8fc2f`.
+- Expected and actual version impact: `patch`.
+- Validation passed: Ruff, mypy, pytest, frontend tests, lint, production build,
+  and both required GitHub checks.
+- Batch inspection now degrades individual failures, menu-driven scripts receive
+  safe automation guidance, and contextual history is target-type safe.

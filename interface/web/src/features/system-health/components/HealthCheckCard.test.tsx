@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import i18n from "../../../app/i18n";
 import type { SystemHealthSnapshot } from "../../../shared/types/system";
 import { HealthCheckCard } from "./HealthCheckCard";
 
@@ -12,6 +13,10 @@ const snapshot: SystemHealthSnapshot = {
 };
 
 describe("HealthCheckCard", () => {
+  beforeEach(async () => {
+    await i18n.changeLanguage("en-US");
+  });
+
   it("renders the successful backend health response", () => {
     render(
       <HealthCheckCard
@@ -61,7 +66,7 @@ describe("HealthCheckCard", () => {
     expect(screen.getByText("Refreshing latest API status...")).toBeInTheDocument();
     expect(screen.getByText("ok")).toBeInTheDocument();
     expect(screen.getByText("bootstrap")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Refreshing..." })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Saving..." })).toBeInTheDocument();
   });
 
   it("keeps the latest health snapshot visible with a refresh error", () => {
@@ -79,5 +84,12 @@ describe("HealthCheckCard", () => {
     expect(screen.getByText("Transient network failure")).toBeInTheDocument();
     expect(screen.getByText("ok")).toBeInTheDocument();
     expect(screen.getByText("0.2.9")).toBeInTheDocument();
+  });
+
+  it("uses Portuguese labels when the saved locale is Portuguese", async () => {
+    await i18n.changeLanguage("pt-BR");
+    render(<HealthCheckCard apiBaseUrl="http://localhost:8000" errorMessage={null} healthStatus={snapshot} isLoading={false} lastUpdated={null} onRefresh={vi.fn()} />);
+    expect(screen.getByText("Status do backend")).toBeInTheDocument();
+    expect(screen.getByText("Destino")).toBeInTheDocument();
   });
 });
