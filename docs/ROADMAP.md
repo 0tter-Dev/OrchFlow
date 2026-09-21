@@ -10,15 +10,11 @@ This is the canonical ordered queue of planned OrchFlow work. Detailed scope, au
 
 Every listed item is one delivery plan and results in one pull request. Research, preparation, documentation, or migration work that does not independently merit review stays as a phase, task, acceptance criterion, or validation item inside its delivery plan rather than becoming a separate plan.
 
-## Active Plans
+## Plans Awaiting Review
 
 | Sequence | Plan | Priority | Dependencies |
 | --- | --- | --- | --- |
-| 17 | [web-018: workspace localization consistency](./plans/active/web-018-workspace-localization-consistency.md) | high | `web-017` |
-
-## Plans Awaiting Review
-
-No plan is currently awaiting review.
+| 17 | [web-018: workspace localization consistency](./plans/review/web-018-workspace-localization-consistency.md) | high | `web-017` |
 
 ## Backlog
 
