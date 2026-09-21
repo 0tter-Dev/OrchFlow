@@ -55,7 +55,7 @@ The user selects a project folder, OrchFlow analyzes it through the LiteLLM-back
 - users should be able to update registered project metadata, lifecycle script paths, and action mappings without AI assistance while preserving validation and auditability
 - users should be able to unlink a project through authorized, audited registry workflows
 - existing `.bat` registration must validate first-argument dispatch compatibility before persisting the project definition
-- scripts that define labels or menus but do not dispatch from `%~1` or `%1` should be rejected with actionable operator-facing guidance
+- scripts that define labels or interactive menus but do not dispatch from `%~1` or `%1` should be rejected with actionable guidance that explains OrchFlow cannot safely automate menu selections; operators may preserve a no-argument menu for direct use while adding a non-interactive dispatch path for OrchFlow
 - AI-generated script proposals must not be persisted without user review
 - the first concrete registration flow may focus on existing `.bat` files before AI-assisted onboarding is introduced
 - local path selection may return only a user-selected absolute folder or `.bat` path through the authenticated local API; registry validation remains authoritative when the project is saved

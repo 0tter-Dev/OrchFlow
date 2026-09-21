@@ -119,7 +119,6 @@ def test_runtime_inspection_reports_running_process_and_port(
             lifecycle_script_path=str(lifecycle_script),
         )
     )
-
     server_process = subprocess.Popen(
         [sys.executable, "-m", "http.server", str(port), "--bind", "127.0.0.1"],
         cwd=project.project_root_path,
@@ -317,6 +316,42 @@ def test_runtime_inspection_batch_reuses_project_visibility(
             InspectRuntimeBatchCommand(token=member_token, project_ids=(project.id,))
         )
 
+
+def test_runtime_inspection_batch_degrades_unavailable_script_to_snapshot(
+    isolated_environment: None,
+    tmp_path: Path,
+) -> None:
+    access_control_service = create_access_control_service()
+    project_registry_service = create_project_registry_service()
+    runtime_service = create_runtime_inspection_service()
+    access_control_service.register_user(
+        RegisterUserCommand(username="runtime-unavailable-script", password="password123")
+    )
+    token = access_control_service.login(
+        LoginCommand(username="runtime-unavailable-script", password="password123")
+    ).access_token
+
+    project_dir = tmp_path / "runtime-unavailable-script"
+    project_dir.mkdir()
+    lifecycle_script = project_dir / "control.bat"
+    _write_runtime_no_hint_batch(lifecycle_script)
+    project = project_registry_service.register_project(
+        RegisterProjectCommand(
+            token=token,
+            reference_name="runtime-unavailable-script",
+            project_root_path=str(project_dir),
+            lifecycle_script_path=str(lifecycle_script),
+        )
+    )
+    lifecycle_script.unlink()
+
+    snapshots = runtime_service.inspect_runtime_batch(
+        InspectRuntimeBatchCommand(token=token, project_ids=(project.id,))
+    )
+
+    assert len(snapshots) == 1
+    assert snapshots[0].status == "unsupported"
+    assert "could not complete" in snapshots[0].status_reason
 
 def test_runtime_inspection_explains_app_url_timeout(
     tmp_path: Path,

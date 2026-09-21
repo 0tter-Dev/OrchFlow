@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from typing import Protocol
 
 from orchflow.application.project_registry import CurrentUserResolver, ProjectRegistryService
@@ -68,5 +69,24 @@ class RuntimeInspectionService:
                 continue
             seen_project_ids.add(project_id)
             project = self._project_registry_service.get_project(command.token, project_id)
-            snapshots.append(self._inspector.inspect(project))
+            try:
+                snapshots.append(self._inspector.inspect(project))
+            except (RuntimeInspectionError, OSError, ValueError):
+                snapshots.append(
+                    RuntimeInspectionSnapshot(
+                        project_id=project.id,
+                        status="unsupported",
+                        status_reason=(
+                            "Runtime inspection could not complete for this project. "
+                            "Check that its lifecycle script remains available and has valid "
+                            "runtime hints."
+                        ),
+                        known_port=None,
+                        application_url=None,
+                        application_reachable=None,
+                        uptime_seconds=None,
+                        process_snapshots=(),
+                        inspected_at=datetime.now(UTC),
+                    )
+                )
         return snapshots

@@ -648,10 +648,17 @@ class ProjectRegistryService:
 
         script_content = lifecycle_script.read_text(encoding="utf-8", errors="ignore")
         if not ProjectRegistryService._has_first_argument_dispatch(script_content):
+            menu_guidance = (
+                " This script appears to use an interactive menu. OrchFlow cannot safely "
+                "automate menu selections; keep the menu for direct use and add explicit "
+                "first-argument dispatch lines for automated lifecycle actions."
+                if ProjectRegistryService._appears_menu_driven(script_content)
+                else ""
+            )
             raise ProjectValidationError(
                 "Lifecycle script must dispatch lifecycle actions from the first command "
                 "argument (%~1 or %1). OrchFlow currently executes scripts as "
-                "'control.bat ACTION'."
+                f"'control.bat ACTION'.{menu_guidance}"
             )
         return script_content
 
@@ -825,6 +832,11 @@ class ProjectRegistryService:
     def _has_first_argument_dispatch(script_content: str) -> bool:
         normalized_content = script_content.upper()
         return any(token in normalized_content for token in FIRST_ARGUMENT_TOKENS)
+
+    @staticmethod
+    def _appears_menu_driven(script_content: str) -> bool:
+        normalized_content = script_content.upper()
+        return "SET /P" in normalized_content and "GOTO" in normalized_content
 
     @staticmethod
     def _has_dispatch_handler(script_content: str, identifier: str) -> bool:

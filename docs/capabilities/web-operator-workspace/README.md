@@ -81,7 +81,7 @@ The exact visual component is not fixed. A warning indicator, details popover, m
 - project editing is now available through backend API and CLI contracts and through the web project detail view
 - AI proposal review/application is now available through the web operator workspace using the existing authenticated AI assistance API contracts
 - operational readiness now gives selected projects a compact lifecycle/runtime checklist with direct actions for reload, mapping configuration, and runtime refresh; it surfaces redacted configuration-health remediation only when the existing safe backend diagnostic reports attention is needed
-- selected projects now show a compact, authorization-preserving summary of their recent operational audit outcomes and route administrators to the canonical filtered Activity history for full detail
+- selected projects now show a compact, authorization-preserving summary of their recent project-target audit outcomes and route administrators to the canonical Activity history with the project filter preserved
 - project list onboarding guidance now covers first-project registration, visible projects with no selection, and selected project readiness states
 - web API failures now surface richer operator-facing notices that preserve status context and FastAPI validation messages from the shared API client
 - the web client keeps the backend contract stable during local development by using a proxy-friendly API base URL convention
