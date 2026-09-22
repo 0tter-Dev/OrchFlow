@@ -102,7 +102,7 @@ test("creates an account and opens the authenticated workspace", async ({ page }
   await page.locator('input[name="password"]').fill("password123");
   await page.getByRole("button", { name: "Create account" }).click();
 
-  await expect(page.locator(".topbar__user")).toContainText("browser-user");
+  await expect(page.locator(".topbar__account")).toContainText("browser-user");
   expect(requests.map((request) => request.path)).toEqual(expect.arrayContaining(["/auth/register", "/auth/login", "/auth/me"]));
 });
 
