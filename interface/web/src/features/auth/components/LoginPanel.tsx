@@ -1,6 +1,8 @@
 import * as Tabs from "@radix-ui/react-tabs";
 import { Eye, EyeOff, LoaderCircle, LogIn, UserPlus } from "lucide-react";
 import { FormEvent, useState } from "react";
+import { useTranslation } from "react-i18next";
+import "../../../app/i18n";
 
 import "./LoginPanel.css";
 import { ErrorNotice } from "../../../shared/components/ErrorNotice";
@@ -22,6 +24,7 @@ export function LoginPanel({
   onSubmit,
   statusMessage,
 }: LoginPanelProps) {
+  const { t } = useTranslation();
   const [mode, setMode] = useState<AuthMode>("login");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [username, setUsername] = useState("");
@@ -38,7 +41,7 @@ export function LoginPanel({
   }
 
   return (
-    <section className="login-panel" aria-label="OrchFlow authentication">
+    <section className="login-panel" aria-label={t("workspace.authTitle")}>
       <header className="login-panel__header">
         <h1 className="login-panel__title">OrchFlow</h1>
       </header>
@@ -50,7 +53,7 @@ export function LoginPanel({
       >
         <Tabs.List
           className="login-panel__mode"
-          aria-label="Authentication mode"
+          aria-label={t("workspace.authTitle")}
         >
           <Tabs.Trigger
             className="login-panel__mode-button"
@@ -58,7 +61,7 @@ export function LoginPanel({
             value="login"
           >
             <LogIn aria-hidden="true" size={16} strokeWidth={2.4} />
-            <span>Login</span>
+            <span>{t("workspace.login")}</span>
           </Tabs.Trigger>
           <Tabs.Trigger
             className="login-panel__mode-button"
@@ -66,14 +69,14 @@ export function LoginPanel({
             value="create"
           >
             <UserPlus aria-hidden="true" size={16} strokeWidth={2.4} />
-            <span>Create account</span>
+            <span>{t("workspace.createAccount")}</span>
           </Tabs.Trigger>
         </Tabs.List>
       </Tabs.Root>
 
       <form className="login-panel__form" onSubmit={handleSubmit}>
         <label className="login-panel__field">
-          <span>Username</span>
+          <span>{t("workspace.username")}</span>
           <input
             autoComplete="username"
             name="username"
@@ -84,7 +87,7 @@ export function LoginPanel({
         </label>
 
         <label className="login-panel__field">
-          <span>Password</span>
+          <span>{t("workspace.password")}</span>
           <span className="login-panel__password-control">
             <input
               autoComplete={mode === "create" ? "new-password" : "current-password"}
@@ -95,7 +98,7 @@ export function LoginPanel({
               value={password}
             />
             <button
-              aria-label={isPasswordVisible ? "Hide password" : "Show password"}
+              aria-label={isPasswordVisible ? t("workspace.hidePassword") : t("workspace.showPassword")}
               className="login-panel__password-toggle"
               onClick={() => setIsPasswordVisible((currentValue) => !currentValue)}
               type="button"
@@ -138,10 +141,10 @@ export function LoginPanel({
               />
             )}
             {isLoading
-              ? statusMessage ?? "Working..."
+              ? statusMessage ?? t("workspace.working")
               : mode === "create"
-                ? "Create account"
-                : "Login"}
+                ? t("workspace.createAccount")
+                : t("workspace.login")}
           </button>
           {statusMessage !== null ? (
             <p className="login-panel__status" role="status">
@@ -153,7 +156,7 @@ export function LoginPanel({
               className="login-panel__error"
               message={errorMessage}
               title={
-                mode === "create" ? "Account creation failed" : "Login failed"
+                mode === "create" ? t("workspace.accountCreationFailed") : t("workspace.loginFailed")
               }
             />
           ) : null}

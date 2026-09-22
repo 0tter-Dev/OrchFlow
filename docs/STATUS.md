@@ -2,7 +2,7 @@
 
 ## Current Project Stage
 
-OrchFlow is in the `v0.3.44` implementation stage as of `2026-09-20`. Safe configuration diagnostics, guided project operational readiness, and contextual operational history are completed.
+OrchFlow is in the `v0.3.45` implementation stage as of `2026-09-21`. Workspace localization now consistently covers Portuguese and English operator feedback, including project registration, history, system state, AI review, and administration.
 
 ## Capability Dashboard
 
@@ -15,7 +15,7 @@ OrchFlow is in the `v0.3.44` implementation stage as of `2026-09-20`. Safe confi
 | Project registry | implemented | [Project Registry](./capabilities/project-registry/README.md) | — |
 | Runtime inspection | implemented | [Runtime Inspection](./capabilities/runtime-inspection/README.md) | — |
 | Persistence and audit | implemented | [Persistence And Audit](./capabilities/persistence-and-audit/README.md) | — |
-| Web operator workspace | in_progress | [Web Operator Workspace](./capabilities/web-operator-workspace/README.md) | [web-017 project workflow reliability](./plans/active/web-017-project-workflow-reliability.md) |
+| Web operator workspace | in_progress | [Web Operator Workspace](./capabilities/web-operator-workspace/README.md) | [web-018 workspace localization consistency](./plans/review/web-018-workspace-localization-consistency.md) |
 | External surfaces | in_progress | [External Surfaces](./reference/external-surfaces.md) | — |
 | Delivery and releases | implemented | [Git And GitHub Flow](./guides/git-and-github-flow.md) | — |
 

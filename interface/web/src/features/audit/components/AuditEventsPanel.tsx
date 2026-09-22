@@ -1,6 +1,8 @@
 import "./AuditEventsPanel.css";
 
 import type { Dispatch, SetStateAction } from "react";
+import { useTranslation } from "react-i18next";
+import "../../../app/i18n";
 
 import { ErrorNotice } from "../../../shared/components/ErrorNotice";
 import type { AuditEventFilters, AuditEventSummary } from "../../../shared/types/audit";
@@ -15,12 +17,12 @@ type AuditEventsPanelProps = {
   onUpdateFilters: Dispatch<SetStateAction<AuditEventFilters>>;
 };
 
-function formatTimestamp(value: string): string {
+function formatTimestamp(value: string, locale: string): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
     return value;
   }
-  return date.toLocaleString();
+  return date.toLocaleString(locale);
 }
 
 export function AuditEventsPanel({
@@ -32,6 +34,7 @@ export function AuditEventsPanel({
   onRefresh,
   onUpdateFilters,
 }: AuditEventsPanelProps) {
+  const { i18n, t } = useTranslation();
   const updateFilter = (name: keyof AuditEventFilters, value: string) => {
     onUpdateFilters((currentFilters) => ({ ...currentFilters, [name]: value }));
   };
@@ -40,8 +43,8 @@ export function AuditEventsPanel({
     <section className="audit-panel">
       <header className="audit-panel__header">
         <div>
-          <span className="audit-panel__eyebrow">Audit history</span>
-          <h2 className="audit-panel__title">Recent operational events</h2>
+          <span className="audit-panel__eyebrow">{t("workspace.auditHistory")}</span>
+          <h2 className="audit-panel__title">{t("workspace.recentOperationalEvents")}</h2>
         </div>
         <button
           className="audit-panel__button"
@@ -49,18 +52,18 @@ export function AuditEventsPanel({
           onClick={onRefresh}
           type="button"
         >
-          {isLoading ? "Loading..." : "Refresh"}
+          {isLoading ? t("workspace.loading") : t("workspace.refresh")}
         </button>
       </header>
 
       {!canLoadAuditEvents ? (
-        <div className="audit-panel__empty">Admin role is required to view audit history.</div>
+        <div className="audit-panel__empty">{t("workspace.adminRequiredAudit")}</div>
       ) : null}
 
       {canLoadAuditEvents ? (
         <div className="audit-panel__filters">
           <label className="audit-panel__field">
-            <span>Limit</span>
+            <span>{t("workspace.limit")}</span>
             <input
               min="1"
               max="100"
@@ -70,7 +73,7 @@ export function AuditEventsPanel({
             />
           </label>
           <label className="audit-panel__field">
-            <span>Action</span>
+            <span>{t("workspace.action")}</span>
             <input
               onChange={(event) => updateFilter("action", event.target.value)}
               placeholder="project.register"
@@ -78,7 +81,7 @@ export function AuditEventsPanel({
             />
           </label>
           <label className="audit-panel__field">
-            <span>Actor</span>
+            <span>{t("workspace.actor")}</span>
             <input
               min="1"
               onChange={(event) => updateFilter("actorUserId", event.target.value)}
@@ -87,7 +90,7 @@ export function AuditEventsPanel({
             />
           </label>
           <label className="audit-panel__field">
-            <span>Project</span>
+            <span>{t("workspace.project")}</span>
             <input
               min="1"
               onChange={(event) => updateFilter("projectId", event.target.value)}
@@ -96,7 +99,7 @@ export function AuditEventsPanel({
             />
           </label>
           <label className="audit-panel__field">
-            <span>From</span>
+            <span>{t("workspace.from")}</span>
             <input
               onChange={(event) => updateFilter("createdFrom", event.target.value)}
               type="datetime-local"
@@ -104,7 +107,7 @@ export function AuditEventsPanel({
             />
           </label>
           <label className="audit-panel__field">
-            <span>To</span>
+            <span>{t("workspace.to")}</span>
             <input
               onChange={(event) => updateFilter("createdTo", event.target.value)}
               type="datetime-local"
@@ -118,12 +121,12 @@ export function AuditEventsPanel({
         <ErrorNotice
           className="audit-panel__error"
           message={errorMessage}
-          title="Audit history unavailable"
+          title={t("workspace.auditUnavailable")}
         />
       ) : null}
 
       {canLoadAuditEvents && events.length === 0 && !isLoading ? (
-        <div className="audit-panel__empty">No audit events are available yet.</div>
+        <div className="audit-panel__empty">{t("workspace.noAuditEvents")}</div>
       ) : null}
 
       {events.length > 0 ? (
@@ -132,10 +135,10 @@ export function AuditEventsPanel({
             <article className="audit-panel__event" key={event.id}>
               <div className="audit-panel__event-header">
                 <strong>{event.action}</strong>
-                <span>{formatTimestamp(event.created_at)}</span>
+                <span>{formatTimestamp(event.created_at, i18n.language)}</span>
               </div>
               <div className="audit-panel__event-meta">
-                actor: {event.actor_user_id ?? "system"} · target: {event.target_type}
+                {t("workspace.actorLabel")}: {event.actor_user_id ?? t("workspace.systemActor")} · {t("workspace.targetLabel")}: {event.target_type}
                 {event.target_id === null ? "" : `#${event.target_id}`}
               </div>
               {event.details !== null ? (

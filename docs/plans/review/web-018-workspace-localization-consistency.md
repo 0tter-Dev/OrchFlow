@@ -1,10 +1,10 @@
 ---
 id: web-018
-status: backlog
+status: review
 type: fix
 requires_pull_request: true
 expected_version_impact: patch
-actual_version_impact: pending
+actual_version_impact: patch
 priority: high
 sequence: 17
 depends_on:
@@ -31,7 +31,7 @@ Make every operator-facing web workspace message consistently follow the authent
 
 ## Approval
 
-Awaiting explicit user approval to move to `active`.
+The requesting user explicitly approved activation and implementation on 2026-09-21.
 
 ## Scope
 
@@ -58,4 +58,11 @@ Spanish is a prospective additional locale. This plan must keep translations and
 
 ## Outcome
 
-Not started.
+Implemented in [PR #85](https://github.com/0tter-Dev/OrchFlow/pull/85) with delivery
+commit `42f007f` on 2026-09-21.
+
+- Expected and actual version impact: `patch`, advancing `0.3.44` to `0.3.45`.
+- Centralized `pt-BR` and `en-US` copy now covers the authenticated workspace
+  surfaces delivered by this plan, with locale-aware health and audit timestamps.
+- Validation passed: 45 backend contract tests, 55 frontend tests, frontend lint,
+  production build, and three critical Playwright workflows.

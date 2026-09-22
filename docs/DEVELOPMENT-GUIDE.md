@@ -128,6 +128,8 @@ When an AI agent is allowed to execute Git operations for this repository, it sh
 
 For code-changing agent work, the expected delivery path is: verify and update local `main` from the remote when the change implements a Roadmap step, create a specific short-lived branch from that synchronized baseline, implement the focused change, update the relevant documentation, run the relevant backend and/or frontend validations, inspect the diff, commit with a Conventional Commit message, push, and open a pull request into `main`.
 
+For a user-approved active Roadmap plan, this path is continuous. Intermediate tool output, successful checks, routine validation or lint failures, and in-scope implementation decisions do not justify a pause or completion response; contributors must resolve them and continue through the pull request. Only an approval boundary, a clear security or data-loss risk, an unresolved external dependency, or a superseding user request may interrupt delivery.
+
 Pull request descriptions should use `.github/PULL_REQUEST_TEMPLATE.md` as the standard repository template. Contributors and AI agents should fill that structure when creating PRs, including the summary, decision notes, validation checklist, documentation checklist, and review notes that apply to the change.
 
 Every pull request should explicitly state the version bump decision. If the change updates behavior, dependencies, public contracts, operational workflow, or documentation-defined scope, the project version should be advanced according to semantic versioning and kept synchronized across package metadata, runtime version reporting, tests, lockfiles, README, status documentation, and any other version-bearing documentation. If no version bump is made, the pull request should explain why.
@@ -176,7 +178,7 @@ The current implementation baseline is:
 
 ## Technology Decision Policy
 
-The core technology direction is now selected for `v0.3.44`.
+The core technology direction is now selected for `v0.3.45`.
 
 Future changes should still be evaluated according to:
 

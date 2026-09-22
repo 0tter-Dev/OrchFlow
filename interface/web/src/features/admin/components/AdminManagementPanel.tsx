@@ -1,6 +1,8 @@
 import "./AdminManagementPanel.css";
 
 import { ErrorNotice } from "../../../shared/components/ErrorNotice";
+import { useTranslation } from "react-i18next";
+import "../../../app/i18n";
 import type { UserRole, UserSummary } from "../../../shared/types/auth";
 import type { ProjectSummary } from "../../../shared/types/project";
 
@@ -41,6 +43,7 @@ export function AdminManagementPanel({
   successMessage,
   users,
 }: AdminManagementPanelProps) {
+  const { t } = useTranslation();
   const availableOwnerCandidates = users.filter(
     (user) => selectedProject?.owner_user_ids.includes(user.id) !== true && user.is_active,
   );
@@ -49,8 +52,8 @@ export function AdminManagementPanel({
     <section className="admin-panel">
       <header className="admin-panel__header">
         <div>
-          <span className="admin-panel__eyebrow">Admin management</span>
-          <h2 className="admin-panel__title">Users and ownership</h2>
+          <span className="admin-panel__eyebrow">{t("workspace.adminManagement")}</span>
+          <h2 className="admin-panel__title">{t("workspace.usersAndOwnership")}</h2>
         </div>
         <button
           className="admin-panel__button"
@@ -58,19 +61,19 @@ export function AdminManagementPanel({
           onClick={onRefreshUsers}
           type="button"
         >
-          {isLoading ? "Loading..." : "Refresh users"}
+          {isLoading ? t("workspace.loading") : t("workspace.refreshUsers")}
         </button>
       </header>
 
       {!canManage ? (
-        <div className="admin-panel__empty">Admin role is required to manage users and owners.</div>
+        <div className="admin-panel__empty">{t("workspace.adminRequiredManagement")}</div>
       ) : null}
 
       {errorMessage !== null ? (
         <ErrorNotice
           className="admin-panel__error"
           message={errorMessage}
-          title="Admin action needs attention"
+          title={t("workspace.adminActionAttention")}
         />
       ) : null}
       {successMessage !== null ? (
@@ -85,12 +88,12 @@ export function AdminManagementPanel({
                 <div>
                   <strong>{user.username}</strong>
                   <span>
-                    id: {user.id} · {user.is_active ? "active" : "inactive"}
+                    id: {user.id} · {user.is_active ? t("workspace.active") : t("workspace.inactive")}
                   </span>
                 </div>
                 <div className="admin-panel__actions">
                   <select
-                    aria-label={`Role for ${user.username}`}
+                    aria-label={t("workspace.roleFor", { username: user.username })}
                     disabled={isMutating}
                     onChange={(event) =>
                       onChangeUserRole(user.id, event.target.value as UserRole)
@@ -106,7 +109,7 @@ export function AdminManagementPanel({
                     onClick={() => onChangeUserActivation(user.id, !user.is_active)}
                     type="button"
                   >
-                    {user.is_active ? "Deactivate" : "Activate"}
+                    {user.is_active ? t("workspace.deactivate") : t("workspace.activate")}
                   </button>
                 </div>
               </article>
@@ -114,22 +117,22 @@ export function AdminManagementPanel({
           </div>
 
           <section className="admin-panel__ownership">
-            <h3 className="admin-panel__subtitle">Selected project owners</h3>
+            <h3 className="admin-panel__subtitle">{t("workspace.selectedProjectOwners")}</h3>
             {selectedProject === null ? (
-              <div className="admin-panel__empty">Select a project to manage ownership.</div>
+              <div className="admin-panel__empty">{t("workspace.selectProjectOwners")}</div>
             ) : (
               <>
                 <div className="admin-panel__owner-list">
                   {selectedProject.owner_user_ids.map((ownerId) => (
                     <div className="admin-panel__owner" key={ownerId}>
-                      <span>user {ownerId}</span>
+                      <span>{t("workspace.user")} {ownerId}</span>
                       <button
                         className="admin-panel__button"
                         disabled={isMutating || selectedProject.owner_user_ids.length <= 1}
                         onClick={() => onRemoveOwner(selectedProject, ownerId, onRefreshProject)}
                         type="button"
                       >
-                        Remove
+                        {t("workspace.remove")}
                       </button>
                     </div>
                   ))}
@@ -144,7 +147,7 @@ export function AdminManagementPanel({
                         onClick={() => onAddOwner(selectedProject, user.id, onRefreshProject)}
                         type="button"
                       >
-                        Add {user.username}
+                        {t("workspace.add", { username: user.username })}
                       </button>
                     ))}
                   </div>

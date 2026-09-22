@@ -5,6 +5,8 @@ import { useForm } from "react-hook-form";
 import * as Select from "@radix-ui/react-select";
 import { getCoreRowModel, useLegacyTable } from "@tanstack/react-table/legacy";
 import { z } from "zod";
+import { useTranslation } from "react-i18next";
+import "../../../app/i18n";
 
 import { ErrorNotice } from "../../../shared/components/ErrorNotice";
 import type { UserSummary } from "../../../shared/types/auth";
@@ -105,12 +107,13 @@ function buildMappings(formState: ProjectRegistrationFormState) {
 function buildProjectGuidance(
   projects: ProjectSummary[],
   selectedProjectId: number | null,
+  t: (key: string) => string,
 ): ProjectGuidance {
   if (projects.length === 0) {
     return {
       detail:
-        "Connect an existing lifecycle .bat script so OrchFlow can import its first project.",
-      title: "Register the first managed project",
+        t("workspace.firstProjectDetail"),
+      title: t("workspace.firstProject"),
       tone: "attention",
     };
   }
@@ -123,8 +126,8 @@ function buildProjectGuidance(
   if (selectedProject === null) {
     return {
       detail:
-        "Choose one visible project to open details, runtime diagnostics, lifecycle controls, and readiness guidance.",
-      title: "Select a project to continue",
+        t("workspace.selectProjectDetail"),
+      title: t("workspace.selectProject"),
       tone: "attention",
     };
   }
@@ -132,8 +135,8 @@ function buildProjectGuidance(
   if (selectedProject.lifecycle_configuration_health === "blocked") {
     return {
       detail:
-        "Open mappings for the selected project before running lifecycle actions.",
-      title: "Selected project is blocked",
+        t("workspace.selectedBlockedDetail"),
+      title: t("workspace.selectedBlocked"),
       tone: "blocked",
     };
   }
@@ -141,16 +144,16 @@ function buildProjectGuidance(
   if (selectedProject.lifecycle_configuration_health === "partial") {
     return {
       detail:
-        "Configured actions remain usable while missing lifecycle functions wait for manual mapping or AI-assisted review.",
-      title: "Selected project needs readiness review",
+        t("workspace.selectedNeedsReviewDetail"),
+      title: t("workspace.selectedNeedsReview"),
       tone: "attention",
     };
   }
 
   return {
     detail:
-      "Lifecycle mappings are complete; use the detail panel to inspect runtime state or run actions.",
-    title: "Selected project is ready",
+        t("workspace.selectedReadyDetail"),
+    title: t("workspace.selectedReady"),
     tone: "ready",
   };
 }
@@ -172,6 +175,7 @@ export function ProjectListPanel({
   searchQuery,
   selectedProjectId,
 }: ProjectListPanelProps) {
+  const { t } = useTranslation();
   const registrationForm = useForm<ProjectRegistrationFormState>({ defaultValues: loadRegistrationDraft() });
   const [isRegistrationOpen, setIsRegistrationOpen] = useState(false);
   const [sort, setSort] = useState<ProjectSort>("name");
@@ -211,7 +215,7 @@ export function ProjectListPanel({
     });
   }
 
-  const guidance = buildProjectGuidance(projects, selectedProjectId);
+  const guidance = buildProjectGuidance(projects, selectedProjectId, t);
   const sortedProjects = [...projects].sort((left, right) => {
     if (sort === "readiness") {
       return left.lifecycle_configuration_health.localeCompare(right.lifecycle_configuration_health);
@@ -228,30 +232,30 @@ export function ProjectListPanel({
   return (
     <aside className="project-list">
       <header className="project-list__header">
-        <span className="project-list__eyebrow">Managed projects</span>
+        <span className="project-list__eyebrow">{t("workspace.managedProjects")}</span>
         <div className="project-list__title-row">
-          <h2 className="project-list__title">Visible to {currentUser.username}</h2>
+          <h2 className="project-list__title">{t("workspace.visibleTo", { username: currentUser.username })}</h2>
           <button className="project-list__button" onClick={onRefresh} type="button">
-            Refresh
+            {t("workspace.refresh")}
           </button>
         </div>
         <input
           className="project-list__search"
           onChange={(event) => onSearchQueryChange(event.target.value)}
-          placeholder="Filter by name or description"
+          placeholder={t("workspace.filterProjects")}
           value={searchQuery}
         />
         <p className="project-list__status">
-          {isLoading ? "Loading project registry..." : `${projects.length} project(s) visible`}
+          {isLoading ? t("workspace.loadingProjects") : t("workspace.projectsVisible", { count: projects.length })}
         </p>
         <div className="project-list__sort">
-          <span>Sort by</span>
+          <span>{t("workspace.sortBy")}</span>
           <Select.Root onValueChange={(value) => setSort(value as ProjectSort)} value={sort}>
-            <Select.Trigger aria-label="Sort projects"><Select.Value /></Select.Trigger>
+            <Select.Trigger aria-label={t("workspace.sortProjects")}><Select.Value /></Select.Trigger>
             <Select.Portal><Select.Content className="project-list__select-content"><Select.Viewport>
-              <Select.Item value="name"><Select.ItemText>Name</Select.ItemText></Select.Item>
-              <Select.Item value="readiness"><Select.ItemText>Lifecycle readiness</Select.ItemText></Select.Item>
-              <Select.Item value="runtime"><Select.ItemText>Runtime status</Select.ItemText></Select.Item>
+              <Select.Item value="name"><Select.ItemText>{t("workspace.sortName")}</Select.ItemText></Select.Item>
+              <Select.Item value="readiness"><Select.ItemText>{t("workspace.lifecycleReadiness")}</Select.ItemText></Select.Item>
+              <Select.Item value="runtime"><Select.ItemText>{t("workspace.runtimeStatus")}</Select.ItemText></Select.Item>
             </Select.Viewport></Select.Content></Select.Portal>
           </Select.Root>
         </div>
@@ -269,7 +273,7 @@ export function ProjectListPanel({
         <ErrorNotice
           className="project-list__error"
           message={errorMessage}
-          title="Project registry needs attention"
+          title={t("workspace.registryAttention")}
         />
       ) : null}
       {registrationMessage !== null ? (
@@ -281,23 +285,23 @@ export function ProjectListPanel({
         onClick={() => setIsRegistrationOpen((isOpen) => !isOpen)}
         type="button"
       >
-        {isRegistrationOpen ? "Close registration" : "Register project"}
+        {isRegistrationOpen ? t("workspace.closeRegistration") : t("workspace.registerProject")}
       </button>
 
       {isRegistrationOpen ? <form className="project-list__registration" noValidate onSubmit={registrationForm.handleSubmit(submitRegistration)}>
         <div className="project-list__registration-header">
-          <h3 className="project-list__registration-title">Register existing project</h3>
+          <h3 className="project-list__registration-title">{t("workspace.registerExistingProject")}</h3>
           <button
             className="project-list__button"
             disabled={isRegisteringProject}
             type="submit"
           >
-            {isRegisteringProject ? "Registering..." : "Register"}
+            {isRegisteringProject ? t("workspace.registering") : t("workspace.register")}
           </button>
         </div>
 
         <label className="project-list__field">
-          <span>Name</span>
+          <span>{t("workspace.name")}</span>
           <input
             aria-invalid={registrationForm.formState.errors.reference_name !== undefined}
             {...registrationForm.register("reference_name")}
@@ -307,7 +311,7 @@ export function ProjectListPanel({
         </label>
 
         <label className="project-list__field">
-          <span>Description</span>
+          <span>{t("workspace.description")}</span>
           <textarea
             {...registrationForm.register("description")}
             placeholder="Local API project managed by an existing control.bat script"
@@ -316,41 +320,41 @@ export function ProjectListPanel({
         </label>
 
         <label className="project-list__field">
-          <span>Project root path</span>
-          <div className="project-list__path-input"><input aria-invalid={registrationForm.formState.errors.project_root_path !== undefined} {...registrationForm.register("project_root_path")} placeholder="E:\\Projects\\local-api" /><button onClick={() => void pickPath("project_root")} type="button">Browse</button></div>
+          <span>{t("workspace.projectRootPath")}</span>
+          <div className="project-list__path-input"><input aria-invalid={registrationForm.formState.errors.project_root_path !== undefined} {...registrationForm.register("project_root_path")} placeholder="E:\\Projects\\local-api" /><button onClick={() => void pickPath("project_root")} type="button">{t("workspace.browse")}</button></div>
           {registrationForm.formState.errors.project_root_path ? <span role="alert">{registrationForm.formState.errors.project_root_path.message}</span> : null}
         </label>
 
         <label className="project-list__field">
-          <span>Lifecycle script path</span>
-          <div className="project-list__path-input"><input aria-invalid={registrationForm.formState.errors.lifecycle_script_path !== undefined} {...registrationForm.register("lifecycle_script_path")} placeholder="E:\\Projects\\local-api\\control.bat" /><button onClick={() => void pickPath("lifecycle_script")} type="button">Browse</button></div>
+          <span>{t("workspace.lifecycleScriptPath")}</span>
+          <div className="project-list__path-input"><input aria-invalid={registrationForm.formState.errors.lifecycle_script_path !== undefined} {...registrationForm.register("lifecycle_script_path")} placeholder="E:\\Projects\\local-api\\control.bat" /><button onClick={() => void pickPath("lifecycle_script")} type="button">{t("workspace.browse")}</button></div>
           {registrationForm.formState.errors.lifecycle_script_path ? <span role="alert">{registrationForm.formState.errors.lifecycle_script_path.message}</span> : null}
         </label>
 
-        <div className="project-list__mapping-grid" aria-label="Lifecycle action mappings">
+        <div className="project-list__mapping-grid" aria-label={t("workspace.lifecycleMappings")}>
           <label className="project-list__field">
-            <span>Status mapping</span>
+            <span>{t("workspace.statusMapping")}</span>
             <input
               {...registrationForm.register("map_status")}
               placeholder="STATUS"
             />
           </label>
           <label className="project-list__field">
-            <span>Start mapping</span>
+            <span>{t("workspace.startMapping")}</span>
             <input
               {...registrationForm.register("map_start")}
               placeholder="INICIAR"
             />
           </label>
           <label className="project-list__field">
-            <span>Stop mapping</span>
+            <span>{t("workspace.stopMapping")}</span>
             <input
               {...registrationForm.register("map_stop")}
               placeholder="PARAR"
             />
           </label>
           <label className="project-list__field">
-            <span>Restart mapping</span>
+            <span>{t("workspace.restartMapping")}</span>
             <input
               {...registrationForm.register("map_restart")}
               placeholder="REINICIAR"
@@ -361,8 +365,7 @@ export function ProjectListPanel({
 
       {sortedProjects.length === 0 ? (
         <div className="project-list__empty">
-          No managed project is visible here yet. Register an existing project with a compatible
-          lifecycle `.bat` script to start operating it from this workspace.
+          {t("workspace.emptyProjects")}
         </div>
       ) : (
         <div className="project-list__items" data-view={projectViewMode}>
@@ -388,19 +391,19 @@ export function ProjectListPanel({
                     className="project-list__runtime-status"
                     data-status={runtimeSnapshot?.status ?? "loading"}
                   >
-                    {runtimeSnapshot?.status ?? "runtime loading"}
+                    {runtimeSnapshot?.status ?? t("workspace.runtimeLoading")}
                   </span>
                 </span>
                 <span className="project-list__description">
-                  {project.description ?? "No description registered for this project yet."}
+                  {project.description ?? t("workspace.noDescription")}
                 </span>
                 <span className="project-list__owners">
-                  Owners: {project.owner_user_ids.join(", ")}
+                  {t("workspace.owners")}: {project.owner_user_ids.join(", ")}
                 </span>
                 <span className="project-list__runtime-meta">
                   {runtimeSnapshot?.known_port
-                    ? `Port ${runtimeSnapshot.known_port}`
-                    : "No runtime port"}
+                    ? t("workspace.port", { port: runtimeSnapshot.known_port })
+                    : t("workspace.noRuntimePort")}
                 </span>
               </button>
             );

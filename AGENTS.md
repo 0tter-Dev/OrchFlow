@@ -26,6 +26,14 @@ Agents must preserve the local-first purpose, Windows `.bat` lifecycle contract,
 
 After relevant code changes, update the owning capability and all affected status, guide, reference, decision, or plan documents. A delivery plan moves from `active` to `review` in the same delivery PR once its validated commit is pushed and the PR is open. It moves to `completed` only after that PR is merged and local `main` is synchronized. Plans transitioned under this policy record outcome, validation, expected and actual version decision, commit, and PR references when completed.
 
+## Continuous Roadmap Delivery
+
+When a user approves an eligible Roadmap plan, execute its entire delivery sequence as one continuous task: reconcile GitHub and local `main`; synchronize `main`; create the branch; implement the approved scope; update documentation; run and repair validation; inspect the diff; commit; push; open the pull request; and move the plan to `review` with delivery metadata.
+
+Do not end a turn, request routine confirmation, or wait for user input between those ordinary steps. Tool output, successful checks, routine test or lint failures, and in-scope implementation decisions are progress signals to resolve, not stopping points. Commentary is progress-only and never means delivery completion.
+
+Stop only for a missing approval at a documented boundary, a clear security or data-loss risk, an external dependency that cannot be resolved safely, or a user request that supersedes the active plan.
+
 ## Scope Boundaries
 
 Agents may change implementation details within the documented architecture; tests and behavior-preserving refactors; and documentation clarity. Explicit approval is required for changes to the `.bat` lifecycle authority, lifecycle configuration semantics, architecture, persistence assumptions, authentication or authorization semantics, public APIs, strategic dependencies, stack direction, or local-first scope.

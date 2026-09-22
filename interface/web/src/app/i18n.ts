@@ -6,7 +6,14 @@ export const supportedLocales = ["pt-BR", "en-US"] as const;
 const resources = {
   "en-US": {
     translation: {
-      workspace: {
+        workspace: {
+        auditHistory: "Audit history",
+        recentOperationalEvents: "Recent operational events",
+        loading: "Loading...",
+        systemProbe: "System probe",
+        backendStatus: "Backend status",
+        lastUpdated: "Last updated",
+        notRefreshedYet: "Not refreshed yet",
         activity: "Activity",
         admin: "Admin",
         ai: "AI assistance",
@@ -44,12 +51,25 @@ const resources = {
         tools: "Tools",
         unknown: "unknown",
         workspace: "Workspace",
+        authTitle: "OrchFlow authentication", login: "Login", createAccount: "Create account", username: "Username", password: "Password", showPassword: "Show password", hidePassword: "Hide password", working: "Working...", loginFailed: "Login failed", accountCreationFailed: "Account creation failed",
+        target: "Target", inspectingHealth: "Inspecting the OrchFlow API health endpoint...", refreshingHealth: "Refreshing latest API status...", apiUnavailable: "Unable to reach the OrchFlow API.", name: "Name", status: "Status", stage: "Stage", version: "Version",
+        adminRequiredAudit: "Admin role is required to view audit history.", limit: "Limit", action: "Action", actor: "Actor", project: "Project", from: "From", to: "To", auditUnavailable: "Audit history unavailable", noAuditEvents: "No audit events are available yet.", actorLabel: "actor", targetLabel: "target", systemActor: "system",
+        adminManagement: "Admin management", usersAndOwnership: "Users and ownership", refreshUsers: "Refresh users", adminRequiredManagement: "Admin role is required to manage users and owners.", adminActionAttention: "Admin action needs attention", active: "active", inactive: "inactive", roleFor: "Role for {{username}}", deactivate: "Deactivate", activate: "Activate", selectedProjectOwners: "Selected project owners", selectProjectOwners: "Select a project to manage ownership.", user: "user", remove: "Remove", add: "Add {{username}}",
+        managedProjects: "Managed projects", visibleTo: "Visible to {{username}}", filterProjects: "Filter by name or description", loadingProjects: "Loading project registry...", projectsVisible: "{{count}} project(s) visible", sortBy: "Sort by", sortProjects: "Sort projects", sortName: "Name", lifecycleReadiness: "Lifecycle readiness", runtimeStatus: "Runtime status", registryAttention: "Project registry needs attention", closeRegistration: "Close registration", registerProject: "Register project", registerExistingProject: "Register existing project", registering: "Registering...", register: "Register", description: "Description", projectRootPath: "Project root path", lifecycleScriptPath: "Lifecycle script path", browse: "Browse", lifecycleMappings: "Lifecycle action mappings", statusMapping: "Status mapping", startMapping: "Start mapping", stopMapping: "Stop mapping", restartMapping: "Restart mapping", noDescription: "No description registered for this project yet.", owners: "Owners", port: "Port {{port}}", noRuntimePort: "No runtime port", runtimeLoading: "runtime loading", emptyProjects: "No managed project is visible here yet. Register an existing project with a compatible lifecycle .bat script to start operating it from this workspace.", firstProject: "Register the first managed project", firstProjectDetail: "Connect an existing lifecycle .bat script so OrchFlow can import its first project.", selectProject: "Select a project to continue", selectProjectDetail: "Choose one visible project to open details, runtime diagnostics, lifecycle controls, and readiness guidance.", selectedBlocked: "Selected project is blocked", selectedBlockedDetail: "Open mappings for the selected project before running lifecycle actions.", selectedNeedsReview: "Selected project needs readiness review", selectedNeedsReviewDetail: "Configured actions remain usable while missing lifecycle functions wait for manual mapping or AI-assisted review.", selectedReady: "Selected project is ready", selectedReadyDetail: "Lifecycle mappings are complete; use the detail panel to inspect runtime state or run actions.", chooseScriptPath: "Choose or enter a lifecycle script path.", chooseRootPath: "Choose or enter a project root path.", enterReferenceName: "Enter a project reference name.",
+        aiProposalReview: "Proposal review", checkStatus: "Check status", checking: "Checking...", selectProjectAi: "Select a project to review AI lifecycle proposals.", aiAttention: "AI assistance needs review", model: "Model", operation: "Operation", includePatterns: "Include patterns", excludePatterns: "Exclude patterns", maxFileBytes: "Max file bytes", maxTotalBytes: "Max total bytes", reviewerInstructions: "Reviewer instructions", creating: "Creating...", createProposal: "Create proposal", reviewNotes: "Review notes", reject: "Reject", approve: "Approve", reviewing: "Reviewing...", confirmFileWrite: "Confirm lifecycle script file write", confirmMappingPersistence: "Confirm mapping persistence", applying: "Applying...", applyApprovedProposal: "Apply approved proposal", recentHistory: "Recent operational history", historyAdminOnly: "Operational history remains available through the administrator Activity workspace.", openFullHistory: "Open full history", noProjectEvents: "No authorized operational events are available for this project yet.", succeeded: "Succeeded", failed: "Failed", rejected: "Rejected", recorded: "Recorded",
       },
     },
   },
   "pt-BR": {
     translation: {
-      workspace: {
+        workspace: {
+        auditHistory: "Histórico de auditoria",
+        recentOperationalEvents: "Eventos operacionais recentes",
+        loading: "Carregando...",
+        systemProbe: "Verificação do sistema",
+        backendStatus: "Status do backend",
+        lastUpdated: "Última atualização",
+        notRefreshedYet: "Ainda não atualizado",
         activity: "Atividade",
         admin: "Administração",
         ai: "Assistência de IA",
@@ -87,6 +107,12 @@ const resources = {
         tools: "Ferramentas",
         unknown: "desconhecido",
         workspace: "Espaço de trabalho",
+        authTitle: "Autenticação do OrchFlow", login: "Entrar", createAccount: "Criar conta", username: "Nome de usuário", password: "Senha", showPassword: "Mostrar senha", hidePassword: "Ocultar senha", working: "Processando...", loginFailed: "Falha no login", accountCreationFailed: "Falha ao criar conta",
+        target: "Destino", inspectingHealth: "Verificando o endpoint de saúde da API do OrchFlow...", refreshingHealth: "Atualizando o status mais recente da API...", apiUnavailable: "Não foi possível acessar a API do OrchFlow.", name: "Nome", status: "Status", stage: "Estágio", version: "Versão",
+        adminRequiredAudit: "A função de administrador é necessária para ver o histórico de auditoria.", limit: "Limite", action: "Ação", actor: "Autor", project: "Projeto", from: "De", to: "Até", auditUnavailable: "Histórico de auditoria indisponível", noAuditEvents: "Ainda não há eventos de auditoria disponíveis.", actorLabel: "autor", targetLabel: "destino", systemActor: "sistema",
+        adminManagement: "Administração", usersAndOwnership: "Usuários e propriedade", refreshUsers: "Atualizar usuários", adminRequiredManagement: "A função de administrador é necessária para gerenciar usuários e proprietários.", adminActionAttention: "A ação administrativa exige atenção", active: "ativo", inactive: "inativo", roleFor: "Função de {{username}}", deactivate: "Desativar", activate: "Ativar", selectedProjectOwners: "Proprietários do projeto selecionado", selectProjectOwners: "Selecione um projeto para gerenciar a propriedade.", user: "usuário", remove: "Remover", add: "Adicionar {{username}}",
+        managedProjects: "Projetos gerenciados", visibleTo: "Visível para {{username}}", filterProjects: "Filtre por nome ou descrição", loadingProjects: "Carregando o registro de projetos...", projectsVisible: "{{count}} projeto(s) visível(is)", sortBy: "Ordenar por", sortProjects: "Ordenar projetos", sortName: "Nome", lifecycleReadiness: "Prontidão do ciclo de vida", runtimeStatus: "Status de execução", registryAttention: "O registro de projetos exige atenção", closeRegistration: "Fechar cadastro", registerProject: "Cadastrar projeto", registerExistingProject: "Cadastrar projeto existente", registering: "Cadastrando...", register: "Cadastrar", description: "Descrição", projectRootPath: "Caminho raiz do projeto", lifecycleScriptPath: "Caminho do script de ciclo de vida", browse: "Procurar", lifecycleMappings: "Mapeamentos de ações do ciclo de vida", statusMapping: "Mapeamento de status", startMapping: "Mapeamento de início", stopMapping: "Mapeamento de parada", restartMapping: "Mapeamento de reinício", noDescription: "Ainda não há uma descrição cadastrada para este projeto.", owners: "Proprietários", port: "Porta {{port}}", noRuntimePort: "Sem porta de execução", runtimeLoading: "carregando execução", emptyProjects: "Ainda não há projeto gerenciado visível aqui. Cadastre um projeto existente com um script .bat de ciclo de vida compatível para operá-lo neste espaço de trabalho.", firstProject: "Cadastre o primeiro projeto gerenciado", firstProjectDetail: "Conecte um script .bat de ciclo de vida existente para que o OrchFlow importe seu primeiro projeto.", selectProject: "Selecione um projeto para continuar", selectProjectDetail: "Escolha um projeto visível para abrir detalhes, diagnósticos de execução, controles de ciclo de vida e orientações de prontidão.", selectedBlocked: "O projeto selecionado está bloqueado", selectedBlockedDetail: "Abra os mapeamentos do projeto selecionado antes de executar ações de ciclo de vida.", selectedNeedsReview: "O projeto selecionado precisa de revisão de prontidão", selectedNeedsReviewDetail: "As ações configuradas permanecem utilizáveis enquanto as funções ausentes aguardam mapeamento manual ou revisão assistida por IA.", selectedReady: "O projeto selecionado está pronto", selectedReadyDetail: "Os mapeamentos de ciclo de vida estão completos; use o painel de detalhes para inspecionar a execução ou executar ações.", chooseScriptPath: "Escolha ou informe um caminho de script de ciclo de vida.", chooseRootPath: "Escolha ou informe um caminho raiz do projeto.", enterReferenceName: "Informe um nome de referência para o projeto.",
+        aiProposalReview: "Revisão de proposta", checkStatus: "Verificar status", checking: "Verificando...", selectProjectAi: "Selecione um projeto para revisar propostas de ciclo de vida com IA.", aiAttention: "A assistência de IA exige revisão", model: "Modelo", operation: "Operação", includePatterns: "Padrões incluídos", excludePatterns: "Padrões excluídos", maxFileBytes: "Máximo de bytes por arquivo", maxTotalBytes: "Máximo total de bytes", reviewerInstructions: "Instruções do revisor", creating: "Criando...", createProposal: "Criar proposta", reviewNotes: "Notas de revisão", reject: "Rejeitar", approve: "Aprovar", reviewing: "Revisando...", confirmFileWrite: "Confirmar gravação do arquivo de script de ciclo de vida", confirmMappingPersistence: "Confirmar persistência dos mapeamentos", applying: "Aplicando...", applyApprovedProposal: "Aplicar proposta aprovada", recentHistory: "Histórico operacional recente", historyAdminOnly: "O histórico operacional permanece disponível no espaço de trabalho Atividade do administrador.", openFullHistory: "Abrir histórico completo", noProjectEvents: "Ainda não há eventos operacionais autorizados para este projeto.", succeeded: "Concluído", failed: "Falhou", rejected: "Rejeitado", recorded: "Registrado",
       },
     },
   },
@@ -95,7 +121,7 @@ const resources = {
 void i18n.use(initReactI18next).init({
   fallbackLng: "en-US",
   interpolation: { escapeValue: false },
-  lng: "pt-BR",
+  lng: "en-US",
   resources,
   supportedLngs: supportedLocales,
 });
