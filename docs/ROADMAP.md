@@ -10,17 +10,16 @@ This is the canonical ordered queue of planned OrchFlow work. Detailed scope, au
 
 Every listed item is one delivery plan and results in one pull request. Research, preparation, documentation, or migration work that does not independently merit review stays as a phase, task, acceptance criterion, or validation item inside its delivery plan rather than becoming a separate plan.
 
-## Plans Awaiting Review
+## Active Plans
 
 | Sequence | Plan | Priority | Dependencies |
 | --- | --- | --- | --- |
-| 17 | [web-018: workspace localization consistency](./plans/review/web-018-workspace-localization-consistency.md) | high | `web-017` |
+| 18 | [web-019: focused operator shell](./plans/active/web-019-focused-operator-shell.md) | medium | `web-018` |
 
 ## Backlog
 
 | Sequence | Plan | Priority | Dependencies |
 | --- | --- | --- | --- |
-| 18 | [web-019: focused operator shell](./plans/backlog/web-019-focused-operator-shell.md) | medium | `web-018` |
 | 19 | [web-020: user visual preferences](./plans/backlog/web-020-user-visual-preferences.md) | medium | `web-019` |
 | 20 | [web-021: operational workspace hierarchy](./plans/backlog/web-021-operational-workspace-hierarchy.md) | medium | `web-020` |
 | 21 | [web-022: reusable visual system](./plans/backlog/web-022-reusable-visual-system.md) | medium | `web-021` |

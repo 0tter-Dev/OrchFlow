@@ -1,8 +1,10 @@
 import "./App.css";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { BrowserRouter, Navigate, NavLink, Route, Routes, useLocation } from "react-router";
 import { useTranslation } from "react-i18next";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import { Menu, UserRound } from "lucide-react";
 
 import { AdminManagementPanel } from "../features/admin/components/AdminManagementPanel";
 import { useAdminManagement } from "../features/admin/hooks/useAdminManagement";
@@ -40,6 +42,7 @@ type AuthenticatedWorkspaceProps = { currentUser: UserSummary; onLogout: () => v
 
 function AuthenticatedWorkspace({ currentUser, onLogout, token }: AuthenticatedWorkspaceProps) {
   const { i18n, t } = useTranslation();
+  const [isNavigationOpen, setIsNavigationOpen] = useState(false);
   const location = useLocation();
   const adminManagement = useAdminManagement(token, currentUser);
   const routeProjectId = location.pathname === "/activity"
@@ -57,7 +60,7 @@ function AuthenticatedWorkspace({ currentUser, onLogout, token }: AuthenticatedW
     activity: t("workspace.activity"), admin: t("workspace.admin"), ai: t("workspace.ai"), apiHealth: t("workspace.apiHealth"), attention: t("workspace.attention"),
     commandCenter: t("workspace.commandCenter"), commandCenterDescription: t("workspace.commandCenterDescription"), connectedAs: t("workspace.connectedAs"), guestTitle: t("workspace.guestTitle"), lifecycleHealth: t("workspace.lifecycleHealth"), noSelection: t("workspace.noSelection"),
     overview: t("workspace.overview"), profile: t("workspace.profile"), projects: t("workspace.projects"), refresh: t("workspace.refresh"), running: t("workspace.running"),
-    settings: t("workspace.settings"), signOut: t("workspace.signOut"), system: t("workspace.system"), tools: t("workspace.tools"), unknown: t("workspace.unknown"), workspace: t("workspace.workspace"),
+    settings: t("workspace.settings"), signOut: t("workspace.signOut"), system: t("workspace.system"), tools: t("workspace.tools"), unknown: t("workspace.unknown"), workspace: t("workspace.workspace"), menu: t("workspace.menu"), account: t("workspace.account"),
   };
   const modelIds = Array.from(new Set([aiAssistance.modelCatalog?.default_model, ...(aiAssistance.modelCatalog?.models.map((model) => model.id) ?? [])].filter((modelId): modelId is string => Boolean(modelId))));
 
@@ -83,12 +86,13 @@ function AuthenticatedWorkspace({ currentUser, onLogout, token }: AuthenticatedW
   return (
     <main className="app-shell">
       <header className="topbar">
-        <div className="topbar__brand"><span className="topbar__mark" aria-hidden="true">OF</span><div><strong>{copy.guestTitle}</strong><span>{copy.workspace}</span></div></div>
-        <div className="topbar__status"><span className="topbar__api" data-status={healthStatus?.status ?? "unknown"}>{copy.apiHealth}: {healthStatus?.status ?? (isLoading ? "loading" : copy.unknown)}</span><span className="topbar__user">{copy.connectedAs} {currentUser.username}</span></div>
+        <button aria-controls="workspace-navigation" aria-expanded={isNavigationOpen} aria-label={copy.menu} className="topbar__menu" onClick={() => setIsNavigationOpen((open) => !open)} type="button"><Menu aria-hidden="true" size={20} /></button>
+        <div className="topbar__brand"><span className="topbar__mark" aria-hidden="true">OF</span><strong>{copy.guestTitle}</strong></div>
+        <div className="topbar__status"><span className="topbar__api" data-status={healthStatus?.status ?? "unknown"}>{copy.apiHealth}: {healthStatus?.status ?? (isLoading ? "loading" : copy.unknown)}</span><DropdownMenu.Root><DropdownMenu.Trigger asChild><button aria-label={copy.account} className="topbar__account" type="button"><UserRound aria-hidden="true" size={18} /><span>{currentUser.username}</span></button></DropdownMenu.Trigger><DropdownMenu.Portal><DropdownMenu.Content align="end" className="account-menu" sideOffset={8}><DropdownMenu.Label>{currentUser.username}</DropdownMenu.Label><DropdownMenu.Item asChild><NavLink to="/profile">{copy.profile}</NavLink></DropdownMenu.Item><DropdownMenu.Separator /><DropdownMenu.Item onSelect={onLogout}>{copy.signOut}</DropdownMenu.Item></DropdownMenu.Content></DropdownMenu.Portal></DropdownMenu.Root></div>
       </header>
       <div className="workspace-layout">
-        <nav className="workspace-navigation" aria-label={copy.workspace}>
-          {workspaceNavigationItems(currentUser.role, copy).map((item) => <NavLink className={({ isActive }) => isActive ? "workspace-navigation__link workspace-navigation__link--active" : "workspace-navigation__link"} key={item.to} to={item.to}>{item.label}</NavLink>)}
+        <nav className="workspace-navigation" data-open={isNavigationOpen} id="workspace-navigation" aria-label={copy.workspace}>
+          {workspaceNavigationItems(currentUser.role, copy).map((item) => <NavLink className={({ isActive }) => isActive ? "workspace-navigation__link workspace-navigation__link--active" : "workspace-navigation__link"} key={item.to} onClick={() => setIsNavigationOpen(false)} to={item.to}>{item.label}</NavLink>)}
         </nav>
         <section className="workspace-page">
           <Routes>

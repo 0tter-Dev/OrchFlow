@@ -89,6 +89,7 @@ The exact visual component is not fixed. A warning indicator, details popover, m
 - Playwright covers deterministic browser-level account creation and authenticated project registration with path selection; component coverage verifies confirmation before a mutable lifecycle action, while API routes are mocked in the browser suite so tests do not require local credentials or filesystem paths
 - project discovery now supports ordering by name, lifecycle readiness, or runtime state, while registration opens as a focused on-demand flow instead of competing with list inspection
 - existing-script registration now offers authenticated local Windows folder and `.bat` selectors; cancellation preserves manual input, while the API remains the authoritative validation boundary
+- the authenticated shell now keeps navigation behind a keyboard-accessible menu and exposes profile and session actions through an avatar account menu, leaving central operator work visually dominant on notebook and desktop widths
 - project registration now preserves a local draft and provides field-level client validation before submitting to the existing authoritative registry contract
 
 ## Main Relationships

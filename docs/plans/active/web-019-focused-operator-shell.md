@@ -1,6 +1,6 @@
 ---
 id: web-019
-status: backlog
+status: active
 type: feat
 requires_pull_request: true
 expected_version_impact: patch
@@ -31,7 +31,7 @@ Evolve the desktop-first workspace into a calm, directed operator shell with foc
 
 ## Approval
 
-Awaiting explicit user approval to move to `active`.
+The requesting user explicitly approved activation and implementation on 2026-09-21.
 
 ## Scope
 

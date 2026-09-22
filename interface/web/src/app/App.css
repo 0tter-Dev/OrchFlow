@@ -78,6 +78,42 @@
   color: #9ee4da;
 }
 
+.topbar__menu,
+.topbar__account {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+  border: 1px solid #3a3d39;
+  border-radius: 8px;
+  background: #202220;
+  color: #f7f2e8;
+  cursor: pointer;
+}
+
+.topbar__menu { width: 2.5rem; }
+.topbar__account { gap: 0.45rem; padding: 0.35rem 0.65rem; font-weight: 700; }
+
+.account-menu {
+  display: grid;
+  min-width: 11rem;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  border: 1px solid #3a3d39;
+  border-radius: 8px;
+  background: #202220;
+  color: #f7f2e8;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+}
+
+.account-menu [role="menuitem"],
+.account-menu a { padding: 0.55rem 0.65rem; border-radius: 5px; color: inherit; cursor: pointer; font-size: 0.9rem; text-decoration: none; }
+.account-menu [role="menuitem"]:focus,
+.account-menu [role="menuitem"]:hover,
+.account-menu a:focus,
+.account-menu a:hover { outline: none; background: #2f8f83; color: #07110f; }
+.account-menu [role="separator"] { height: 1px; background: #3a3d39; }
+
 .workspace-layout {
   width: min(1480px, calc(100% - 2rem));
   margin: 0 auto;
@@ -110,12 +146,7 @@
   place-items: center;
 }
 
-.workspace-layout {
-  display: grid;
-  grid-template-columns: minmax(185px, 0.16fr) minmax(0, 1fr);
-  gap: 1rem;
-  align-items: start;
-}
+.workspace-layout { display: block; }
 
 .workspace-page,
 .workspace-overview,
@@ -124,15 +155,19 @@
 }
 
 .workspace-navigation {
-  display: grid;
-  position: sticky;
-  top: 5rem;
+  display: none;
+  position: absolute;
+  z-index: 9;
+  top: 4.75rem;
+  left: max(1rem, calc((100% - 1480px) / 2));
   gap: 0.35rem;
   padding: 0.5rem;
   border: 1px solid #303230;
   border-radius: 8px;
   background: #1d1f1d;
 }
+
+.workspace-navigation[data-open="true"] { display: grid; width: min(18rem, calc(100vw - 2rem)); }
 
 .workspace-navigation__link {
   display: block;

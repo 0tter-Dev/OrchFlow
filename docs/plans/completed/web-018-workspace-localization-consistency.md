@@ -1,6 +1,6 @@
 ---
 id: web-018
-status: review
+status: completed
 type: fix
 requires_pull_request: true
 expected_version_impact: patch
@@ -59,7 +59,8 @@ Spanish is a prospective additional locale. This plan must keep translations and
 ## Outcome
 
 Implemented in [PR #85](https://github.com/0tter-Dev/OrchFlow/pull/85) with delivery
-commit `42f007f` on 2026-09-21.
+commit `42f007f`, followed by version-consistency fix `c49f3b1`, and merged as
+`014566b` on 2026-09-22.
 
 - Expected and actual version impact: `patch`, advancing `0.3.44` to `0.3.45`.
 - Centralized `pt-BR` and `en-US` copy now covers the authenticated workspace
