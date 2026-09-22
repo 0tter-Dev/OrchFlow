@@ -88,7 +88,13 @@ from orchflow.domain.lifecycle_function_model import (
 )
 from orchflow.domain.project_registry import CanonicalLifecycleAction, MappingSource, Project
 from orchflow.domain.runtime_inspection import RuntimeInspectionSnapshot
-from orchflow.domain.user_preferences import ProjectViewMode, UserLocale, UserPreferences
+from orchflow.domain.user_preferences import (
+    AccentColor,
+    AppearanceMode,
+    ProjectViewMode,
+    UserLocale,
+    UserPreferences,
+)
 
 
 class StatusResponse(BaseModel):
@@ -159,6 +165,12 @@ class UpdateUserRequest(BaseModel):
 class UserPreferencesRequest(BaseModel):
     locale: Literal["pt-BR", "en-US"] | None = None
     project_view_mode: Literal["list", "table"] | None = None
+    appearance_mode: (
+        Literal["cream-light", "white-high-contrast", "gray-dark", "black-high-contrast"] | None
+    ) = None
+    accent_color: Literal["blue", "green", "red", "yellow", "orange", "purple", "pink"] | None = (
+        None
+    )
     status_refresh_interval_seconds: int | None = Field(default=None, ge=10, le=300)
 
 
@@ -177,6 +189,10 @@ class UserPreferencesResponse(BaseModel):
     user_id: int
     locale: Literal["pt-BR", "en-US"]
     project_view_mode: Literal["list", "table"]
+    appearance_mode: Literal[
+        "cream-light", "white-high-contrast", "gray-dark", "black-high-contrast"
+    ]
+    accent_color: Literal["blue", "green", "red", "yellow", "orange", "purple", "pink"]
     status_refresh_interval_seconds: int
 
 
@@ -459,6 +475,8 @@ def _to_user_preferences_response(
         user_id=preferences.user_id,
         locale=preferences.locale.value,
         project_view_mode=preferences.project_view_mode.value,
+        appearance_mode=preferences.appearance_mode.value,
+        accent_color=preferences.accent_color.value,
         status_refresh_interval_seconds=preferences.status_refresh_interval_seconds,
     )
 
@@ -917,6 +935,16 @@ def create_app() -> FastAPI:
                     project_view_mode=(
                         ProjectViewMode(payload.project_view_mode)
                         if payload.project_view_mode is not None
+                        else None
+                    ),
+                    appearance_mode=(
+                        AppearanceMode(payload.appearance_mode)
+                        if payload.appearance_mode is not None
+                        else None
+                    ),
+                    accent_color=(
+                        AccentColor(payload.accent_color)
+                        if payload.accent_color is not None
                         else None
                     ),
                     status_refresh_interval_seconds=(payload.status_refresh_interval_seconds),

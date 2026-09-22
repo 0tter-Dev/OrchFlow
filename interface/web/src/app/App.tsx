@@ -56,6 +56,8 @@ function AuthenticatedWorkspace({ currentUser, onLogout, token }: AuthenticatedW
   const { errorMessage, healthStatus, isLoading, lastUpdated, refresh } = useHealthStatus();
   const preferences = userPreferences.preferences;
   const locale = preferences?.locale ?? "pt-BR";
+  const appearanceMode = preferences?.appearance_mode ?? "gray-dark";
+  const accentColor = preferences?.accent_color ?? "green";
   const copy = {
     activity: t("workspace.activity"), admin: t("workspace.admin"), ai: t("workspace.ai"), apiHealth: t("workspace.apiHealth"), attention: t("workspace.attention"),
     commandCenter: t("workspace.commandCenter"), commandCenterDescription: t("workspace.commandCenterDescription"), connectedAs: t("workspace.connectedAs"), guestTitle: t("workspace.guestTitle"), lifecycleHealth: t("workspace.lifecycleHealth"), noSelection: t("workspace.noSelection"),
@@ -68,6 +70,10 @@ function AuthenticatedWorkspace({ currentUser, onLogout, token }: AuthenticatedW
     void i18n.changeLanguage(locale);
     document.documentElement.lang = locale;
   }, [i18n, locale]);
+  useEffect(() => {
+    document.documentElement.dataset.appearance = appearanceMode;
+    document.documentElement.dataset.accent = accentColor;
+  }, [accentColor, appearanceMode]);
   useEffect(() => {
     if (preferences === null) return;
     const intervalId = window.setInterval(() => { refresh(); refreshProjects(); }, preferences.status_refresh_interval_seconds * 1000);
@@ -84,7 +90,7 @@ function AuthenticatedWorkspace({ currentUser, onLogout, token }: AuthenticatedW
   );
 
   return (
-    <main className="app-shell">
+    <main className="app-shell" data-accent={accentColor} data-appearance={appearanceMode}>
       <header className="topbar">
         <button aria-controls="workspace-navigation" aria-expanded={isNavigationOpen} aria-label={copy.menu} className="topbar__menu" onClick={() => setIsNavigationOpen((open) => !open)} type="button"><Menu aria-hidden="true" size={20} /></button>
         <div className="topbar__brand"><span className="topbar__mark" aria-hidden="true">OF</span><strong>{copy.guestTitle}</strong></div>

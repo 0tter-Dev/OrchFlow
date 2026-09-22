@@ -14,13 +14,12 @@ Every listed item is one delivery plan and results in one pull request. Research
 
 | Sequence | Plan | Priority | Dependencies |
 | --- | --- | --- | --- |
-| 18 | [web-019: focused operator shell](./plans/active/web-019-focused-operator-shell.md) | medium | `web-018` |
+| 19 | [web-020: user visual preferences](./plans/active/web-020-user-visual-preferences.md) | medium | `web-019` |
 
 ## Backlog
 
 | Sequence | Plan | Priority | Dependencies |
 | --- | --- | --- | --- |
-| 19 | [web-020: user visual preferences](./plans/backlog/web-020-user-visual-preferences.md) | medium | `web-019` |
 | 20 | [web-021: operational workspace hierarchy](./plans/backlog/web-021-operational-workspace-hierarchy.md) | medium | `web-020` |
 | 21 | [web-022: reusable visual system](./plans/backlog/web-022-reusable-visual-system.md) | medium | `web-021` |
 | 22 | [web-023: desktop UX and accessibility audit](./plans/backlog/web-023-desktop-ux-accessibility-audit.md) | medium | `web-022` |

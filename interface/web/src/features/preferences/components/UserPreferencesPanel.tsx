@@ -6,6 +6,8 @@ import { useTranslation } from "react-i18next";
 
 import { ErrorNotice } from "../../../shared/components/ErrorNotice";
 import type {
+  AccentColor,
+  AppearanceMode,
   ProjectViewMode,
   UserLocale,
   UserPreferences,
@@ -26,12 +28,16 @@ type UserPreferencesPanelProps = {
 type UserPreferencesFormState = {
   locale: UserLocale;
   project_view_mode: ProjectViewMode;
+  appearance_mode: AppearanceMode;
+  accent_color: AccentColor;
   status_refresh_interval_seconds: string;
 };
 
 const defaultFormState: UserPreferencesFormState = {
   locale: "pt-BR",
   project_view_mode: "list",
+  appearance_mode: "gray-dark",
+  accent_color: "green",
   status_refresh_interval_seconds: "30",
 };
 
@@ -45,6 +51,8 @@ function formStateFromPreferences(
   return {
     locale: preferences.locale,
     project_view_mode: preferences.project_view_mode,
+    appearance_mode: preferences.appearance_mode,
+    accent_color: preferences.accent_color,
     status_refresh_interval_seconds: String(preferences.status_refresh_interval_seconds),
   };
 }
@@ -82,6 +90,8 @@ export function UserPreferencesPanel({
     onUpdate({
       locale: formState.locale,
       project_view_mode: formState.project_view_mode,
+      appearance_mode: formState.appearance_mode,
+      accent_color: formState.accent_color,
       status_refresh_interval_seconds: Number(formState.status_refresh_interval_seconds),
     });
   }
@@ -117,6 +127,37 @@ export function UserPreferencesPanel({
           >
             <option value="pt-BR">{t("workspace.preferencesPortuguese")}</option>
             <option value="en-US">{t("workspace.preferencesEnglish")}</option>
+          </select>
+        </label>
+
+        <label className="preferences-panel__field">
+          <span>{t("workspace.preferencesAppearance")}</span>
+          <select
+            disabled={isLoading || isSaving}
+            onChange={(event) => updateField("appearance_mode", event.target.value as AppearanceMode)}
+            value={formState.appearance_mode}
+          >
+            <option value="cream-light">{t("workspace.preferencesAppearanceCream")}</option>
+            <option value="white-high-contrast">{t("workspace.preferencesAppearanceWhite")}</option>
+            <option value="gray-dark">{t("workspace.preferencesAppearanceGray")}</option>
+            <option value="black-high-contrast">{t("workspace.preferencesAppearanceBlack")}</option>
+          </select>
+        </label>
+
+        <label className="preferences-panel__field">
+          <span>{t("workspace.preferencesAccent")}</span>
+          <select
+            disabled={isLoading || isSaving}
+            onChange={(event) => updateField("accent_color", event.target.value as AccentColor)}
+            value={formState.accent_color}
+          >
+            <option value="blue">{t("workspace.preferencesAccentBlue")}</option>
+            <option value="green">{t("workspace.preferencesAccentGreen")}</option>
+            <option value="red">{t("workspace.preferencesAccentRed")}</option>
+            <option value="yellow">{t("workspace.preferencesAccentYellow")}</option>
+            <option value="orange">{t("workspace.preferencesAccentOrange")}</option>
+            <option value="purple">{t("workspace.preferencesAccentPurple")}</option>
+            <option value="pink">{t("workspace.preferencesAccentPink")}</option>
           </select>
         </label>
 

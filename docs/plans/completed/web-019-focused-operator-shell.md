@@ -1,10 +1,10 @@
 ---
 id: web-019
-status: active
+status: completed
 type: feat
 requires_pull_request: true
 expected_version_impact: patch
-actual_version_impact: pending
+actual_version_impact: none
 priority: medium
 sequence: 18
 depends_on:
@@ -56,4 +56,4 @@ Mobile-first redesign, a new visual brand, removal of authorized routes, authent
 
 ## Outcome
 
-Not started.
+Delivered through PR [#86](https://github.com/0tter-Dev/OrchFlow/pull/86), merged on 2026-09-22 in commit `a16635b`. The focused shell provides a keyboard-accessible navigation menu and avatar account menu while retaining route-level authorization. Frontend lint, test, build, and browser workflow checks passed. The expected patch version impact was not applied in this historical delivery; actual impact was `none`.

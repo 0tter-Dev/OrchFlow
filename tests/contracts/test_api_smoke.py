@@ -35,7 +35,7 @@ def test_root_returns_bootstrap_metadata() -> None:
     assert response.status_code == 200
     assert response.json() == {
         "name": "OrchFlow",
-        "version": "0.3.45",
+        "version": "0.3.46",
         "status": "ok",
         "stage": "bootstrap",
     }
@@ -124,6 +124,8 @@ def test_user_preferences_flow_is_exposed_in_api(isolated_environment: None) -> 
         "user_id": 1,
         "locale": "pt-BR",
         "project_view_mode": "list",
+        "appearance_mode": "gray-dark",
+        "accent_color": "green",
         "status_refresh_interval_seconds": 30,
     }
 
@@ -133,6 +135,8 @@ def test_user_preferences_flow_is_exposed_in_api(isolated_environment: None) -> 
         json={
             "locale": "en-US",
             "project_view_mode": "table",
+            "appearance_mode": "cream-light",
+            "accent_color": "blue",
             "status_refresh_interval_seconds": 45,
         },
     )
@@ -140,6 +144,8 @@ def test_user_preferences_flow_is_exposed_in_api(isolated_environment: None) -> 
     assert update_response.status_code == 200
     assert update_response.json()["locale"] == "en-US"
     assert update_response.json()["project_view_mode"] == "table"
+    assert update_response.json()["appearance_mode"] == "cream-light"
+    assert update_response.json()["accent_color"] == "blue"
     assert update_response.json()["status_refresh_interval_seconds"] == 45
 
 
@@ -305,9 +311,7 @@ def test_ai_context_manifest_flow_is_exposed_through_authenticated_api(
     (project_dir / "dist" / "bundle.js").write_text("generated\n", encoding="utf-8")
     lifecycle_script = project_dir / "control.bat"
     lifecycle_script.write_text(
-        "@echo off\r\n"
-        "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
-        "exit /b 1\r\n",
+        '@echo off\r\nif /I "%~1"=="STATUS" echo status-ok & exit /b 0\r\nexit /b 1\r\n',
         encoding="utf-8",
     )
     register_response = client.post(
@@ -391,9 +395,7 @@ def test_ai_analysis_proposal_flow_is_exposed_through_authenticated_api(
     (project_dir / "app.py").write_text("print('approved proposal context')\n", encoding="utf-8")
     lifecycle_script = project_dir / "control.bat"
     lifecycle_script.write_text(
-        "@echo off\r\n"
-        "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
-        "exit /b 1\r\n",
+        '@echo off\r\nif /I "%~1"=="STATUS" echo status-ok & exit /b 0\r\nexit /b 1\r\n',
         encoding="utf-8",
     )
     register_response = client.post(
@@ -479,9 +481,9 @@ def test_ai_analysis_proposal_flow_is_exposed_through_authenticated_api(
     assert application["project_id"] == project_id
     assert len(application["persisted_mappings"]) == 4
     assert application["project"]["lifecycle_configuration_health"] == "complete"
-    assert {
-        mapping["source"] for mapping in application["project"]["action_mappings"]
-    } == {"ai_approved"}
+    assert {mapping["source"] for mapping in application["project"]["action_mappings"]} == {
+        "ai_approved"
+    }
     assert "START" in lifecycle_script.read_text(encoding="utf-8")
 
 
@@ -562,10 +564,10 @@ def test_project_registry_flow_is_exposed_in_api(
     lifecycle_script = project_dir / "control.bat"
     lifecycle_script.write_text(
         "@echo off\r\n"
-        "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
-        "if /I \"%~1\"==\"INICIAR\" echo start-ok & exit /b 0\r\n"
-        "if /I \"%~1\"==\"PARAR\" echo stop-ok & exit /b 0\r\n"
-        "if /I \"%~1\"==\"RESTART\" echo restart-ok & exit /b 0\r\n"
+        'if /I "%~1"=="STATUS" echo status-ok & exit /b 0\r\n'
+        'if /I "%~1"=="INICIAR" echo start-ok & exit /b 0\r\n'
+        'if /I "%~1"=="PARAR" echo stop-ok & exit /b 0\r\n'
+        'if /I "%~1"=="RESTART" echo restart-ok & exit /b 0\r\n'
         "exit /b 1\r\n",
         encoding="utf-8",
     )
@@ -601,8 +603,8 @@ def test_project_registry_flow_is_exposed_in_api(
     replacement_script = project_dir / "orchflow.bat"
     replacement_script.write_text(
         "@echo off\r\n"
-        "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
-        "if /I \"%~1\"==\"START\" echo start-ok & exit /b 0\r\n"
+        'if /I "%~1"=="STATUS" echo status-ok & exit /b 0\r\n'
+        'if /I "%~1"=="START" echo start-ok & exit /b 0\r\n'
         "exit /b 1\r\n",
         encoding="utf-8",
     )
@@ -669,9 +671,7 @@ def test_project_registry_api_exposes_partial_lifecycle_configuration(
     project_dir.mkdir()
     lifecycle_script = project_dir / "control.bat"
     lifecycle_script.write_text(
-        "@echo off\r\n"
-        "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
-        "exit /b 1\r\n",
+        '@echo off\r\nif /I "%~1"=="STATUS" echo status-ok & exit /b 0\r\nexit /b 1\r\n',
         encoding="utf-8",
     )
 
@@ -727,9 +727,9 @@ def test_project_lifecycle_configuration_update_is_exposed_in_api(
     lifecycle_script = project_dir / "control.bat"
     lifecycle_script.write_text(
         "@echo off\r\n"
-        "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
-        "if /I \"%~1\"==\"INICIAR\" echo start-ok & exit /b 0\r\n"
-        "if /I \"%~1\"==\"STOP\" echo stop-ok & exit /b 0\r\n"
+        'if /I "%~1"=="STATUS" echo status-ok & exit /b 0\r\n'
+        'if /I "%~1"=="INICIAR" echo start-ok & exit /b 0\r\n'
+        'if /I "%~1"=="STOP" echo stop-ok & exit /b 0\r\n'
         "exit /b 1\r\n",
         encoding="utf-8",
     )
@@ -794,9 +794,7 @@ def test_project_reload_flow_is_exposed_in_api(
     project_dir.mkdir()
     lifecycle_script = project_dir / "control.bat"
     lifecycle_script.write_text(
-        "@echo off\r\n"
-        "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
-        "exit /b 1\r\n",
+        '@echo off\r\nif /I "%~1"=="STATUS" echo status-ok & exit /b 0\r\nexit /b 1\r\n',
         encoding="utf-8",
     )
     register_response = client.post(
@@ -811,10 +809,10 @@ def test_project_reload_flow_is_exposed_in_api(
     project_id = register_response.json()["id"]
     lifecycle_script.write_text(
         "@echo off\r\n"
-        "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
-        "if /I \"%~1\"==\"START\" echo start-ok & exit /b 0\r\n"
-        "if /I \"%~1\"==\"STOP\" echo stop-ok & exit /b 0\r\n"
-        "if /I \"%~1\"==\"RESTART\" echo restart-ok & exit /b 0\r\n"
+        'if /I "%~1"=="STATUS" echo status-ok & exit /b 0\r\n'
+        'if /I "%~1"=="START" echo start-ok & exit /b 0\r\n'
+        'if /I "%~1"=="STOP" echo stop-ok & exit /b 0\r\n'
+        'if /I "%~1"=="RESTART" echo restart-ok & exit /b 0\r\n'
         "exit /b 1\r\n",
         encoding="utf-8",
     )
@@ -858,9 +856,7 @@ def test_lifecycle_api_rejects_unconfigured_actions(
     project_dir.mkdir()
     lifecycle_script = project_dir / "control.bat"
     lifecycle_script.write_text(
-        "@echo off\r\n"
-        "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
-        "exit /b 1\r\n",
+        '@echo off\r\nif /I "%~1"=="STATUS" echo status-ok & exit /b 0\r\nexit /b 1\r\n',
         encoding="utf-8",
     )
     register_response = client.post(
@@ -911,10 +907,10 @@ def test_project_owner_management_flow_is_exposed_in_api(
     lifecycle_script = project_dir / "control.bat"
     lifecycle_script.write_text(
         "@echo off\r\n"
-        "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
-        "if /I \"%~1\"==\"START\" echo start-ok & exit /b 0\r\n"
-        "if /I \"%~1\"==\"STOP\" echo stop-ok & exit /b 0\r\n"
-        "if /I \"%~1\"==\"RESTART\" echo restart-ok & exit /b 0\r\n"
+        'if /I "%~1"=="STATUS" echo status-ok & exit /b 0\r\n'
+        'if /I "%~1"=="START" echo start-ok & exit /b 0\r\n'
+        'if /I "%~1"=="STOP" echo stop-ok & exit /b 0\r\n'
+        'if /I "%~1"=="RESTART" echo restart-ok & exit /b 0\r\n'
         "exit /b 1\r\n",
         encoding="utf-8",
     )
@@ -965,10 +961,10 @@ def test_lifecycle_flow_is_exposed_in_api(
     lifecycle_script = project_dir / "control.bat"
     lifecycle_script.write_text(
         "@echo off\r\n"
-        "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
-        "if /I \"%~1\"==\"START\" echo started-ok & exit /b 0\r\n"
-        "if /I \"%~1\"==\"STOP\" echo stopped-ok & exit /b 0\r\n"
-        "if /I \"%~1\"==\"RESTART\" echo restarted-ok & exit /b 0\r\n"
+        'if /I "%~1"=="STATUS" echo status-ok & exit /b 0\r\n'
+        'if /I "%~1"=="START" echo started-ok & exit /b 0\r\n'
+        'if /I "%~1"=="STOP" echo stopped-ok & exit /b 0\r\n'
+        'if /I "%~1"=="RESTART" echo restarted-ok & exit /b 0\r\n'
         "exit /b 1\r\n",
         encoding="utf-8",
     )
@@ -1014,12 +1010,12 @@ def test_runtime_inspection_is_exposed_in_api(
     lifecycle_script = project_dir / "control.bat"
     lifecycle_script.write_text(
         "@echo off\r\n"
-        "set \"APP_PORT=49190\"\r\n"
-        "set \"APP_URL=http://localhost:49190\"\r\n"
-        "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
-        "if /I \"%~1\"==\"START\" echo start-ok & exit /b 0\r\n"
-        "if /I \"%~1\"==\"STOP\" echo stop-ok & exit /b 0\r\n"
-        "if /I \"%~1\"==\"RESTART\" echo restart-ok & exit /b 0\r\n"
+        'set "APP_PORT=49190"\r\n'
+        'set "APP_URL=http://localhost:49190"\r\n'
+        'if /I "%~1"=="STATUS" echo status-ok & exit /b 0\r\n'
+        'if /I "%~1"=="START" echo start-ok & exit /b 0\r\n'
+        'if /I "%~1"=="STOP" echo stop-ok & exit /b 0\r\n'
+        'if /I "%~1"=="RESTART" echo restart-ok & exit /b 0\r\n'
         "exit /b 0\r\n",
         encoding="utf-8",
     )
@@ -1071,11 +1067,11 @@ def test_runtime_batch_inspection_is_exposed_in_api(
         lifecycle_script = project_dir / "control.bat"
         lifecycle_script.write_text(
             "@echo off\r\n"
-            f"set \"APP_PORT={port}\"\r\n"
-            "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
-            "if /I \"%~1\"==\"START\" echo start-ok & exit /b 0\r\n"
-            "if /I \"%~1\"==\"STOP\" echo stop-ok & exit /b 0\r\n"
-            "if /I \"%~1\"==\"RESTART\" echo restart-ok & exit /b 0\r\n"
+            f'set "APP_PORT={port}"\r\n'
+            'if /I "%~1"=="STATUS" echo status-ok & exit /b 0\r\n'
+            'if /I "%~1"=="START" echo start-ok & exit /b 0\r\n'
+            'if /I "%~1"=="STOP" echo stop-ok & exit /b 0\r\n'
+            'if /I "%~1"=="RESTART" echo restart-ok & exit /b 0\r\n'
             "exit /b 0\r\n",
             encoding="utf-8",
         )

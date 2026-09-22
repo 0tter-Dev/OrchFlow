@@ -10,7 +10,12 @@ from orchflow.application.services import (
     create_user_preferences_service,
 )
 from orchflow.application.user_preferences import UpdateUserPreferencesCommand
-from orchflow.domain.user_preferences import ProjectViewMode, UserLocale
+from orchflow.domain.user_preferences import (
+    AccentColor,
+    AppearanceMode,
+    ProjectViewMode,
+    UserLocale,
+)
 from orchflow.infrastructure.config.settings import get_settings
 from orchflow.infrastructure.persistence.session import create_engine_from_settings
 
@@ -31,6 +36,8 @@ def test_user_preferences_default_to_web_operator_baseline(
 
     assert preferences.locale is UserLocale.PT_BR
     assert preferences.project_view_mode is ProjectViewMode.LIST
+    assert preferences.appearance_mode is AppearanceMode.GRAY_DARK
+    assert preferences.accent_color is AccentColor.GREEN
     assert preferences.status_refresh_interval_seconds == 30
 
 
@@ -50,25 +57,28 @@ def test_user_preferences_can_be_updated_partially_and_audited(
         UpdateUserPreferencesCommand(
             token=token.access_token,
             project_view_mode=ProjectViewMode.TABLE,
+            appearance_mode=AppearanceMode.WHITE_HIGH_CONTRAST,
+            accent_color=AccentColor.PURPLE,
             status_refresh_interval_seconds=45,
         )
     )
 
     assert updated_preferences.locale is UserLocale.PT_BR
     assert updated_preferences.project_view_mode is ProjectViewMode.TABLE
+    assert updated_preferences.appearance_mode is AppearanceMode.WHITE_HIGH_CONTRAST
+    assert updated_preferences.accent_color is AccentColor.PURPLE
     assert updated_preferences.status_refresh_interval_seconds == 45
 
     engine = create_engine_from_settings(get_settings())
     try:
         with engine.connect() as connection:
             audit_details = connection.execute(
-                text(
-                    "SELECT details FROM audit_events "
-                    "WHERE action = 'user.preferences.update'"
-                )
+                text("SELECT details FROM audit_events WHERE action = 'user.preferences.update'")
             ).scalar_one()
     finally:
         engine.dispose()
 
     assert "project_view_mode:list->table" in audit_details
+    assert "appearance_mode:gray-dark->white-high-contrast" in audit_details
+    assert "accent_color:green->purple" in audit_details
     assert "status_refresh_interval_seconds:30->45" in audit_details

@@ -14,7 +14,7 @@ type Project = {
 };
 
 const member = { id: 1, is_active: true, role: "member", username: "browser-user" };
-const preferences = { locale: "en-US", project_view_mode: "list", status_refresh_interval_seconds: 300, user_id: 1 };
+const preferences = { accent_color: "green", appearance_mode: "gray-dark", locale: "en-US", project_view_mode: "list", status_refresh_interval_seconds: 300, user_id: 1 };
 const runtimeSnapshot = { application_reachable: null, application_url: null, inspected_at: "2026-09-13T00:00:00Z", known_port: null, process_snapshots: [], project_id: 1, status: "stopped", status_reason: "The project is not running.", uptime_seconds: null };
 
 function completeProject(): Project {
@@ -59,6 +59,7 @@ function blockedProject(): Project {
 async function installApiMock(page: Page, initialProjects: Project[] = []) {
   const requests: Array<{ body: unknown; method: string; path: string }> = [];
   let projects = initialProjects;
+  let currentPreferences = preferences;
 
   await page.route("**/orchflow-api/**", async (route) => {
     const request = route.request();
@@ -67,12 +68,15 @@ async function installApiMock(page: Page, initialProjects: Project[] = []) {
     requests.push({ body, method: request.method(), path });
     const respond = (payload: unknown) => route.fulfill({ body: JSON.stringify(payload), contentType: "application/json", status: 200 });
 
-    if (path === "/health") return respond({ name: "OrchFlow", stage: "implementation", status: "ok", version: "0.3.45" });
+    if (path === "/health") return respond({ name: "OrchFlow", stage: "implementation", status: "ok", version: "0.3.46" });
     if (path === "/system/config/health") return respond({ groups: [], status: "ready" });
     if (path === "/auth/register" && request.method() === "POST") return respond(member);
     if (path === "/auth/login" && request.method() === "POST") return respond({ access_token: "browser-token", expires_in_seconds: 3600, token_type: "bearer" });
     if (path === "/auth/me") return respond(member);
-    if (path === "/auth/me/preferences") return respond(preferences);
+    if (path === "/auth/me/preferences" && request.method() === "PATCH") {
+      currentPreferences = { ...currentPreferences, ...(body as Partial<typeof preferences>) };
+    }
+    if (path === "/auth/me/preferences") return respond(currentPreferences);
     if (path === "/projects" && request.method() === "GET") return respond(projects);
     if (path === "/projects" && request.method() === "POST") {
       const registration = body as { description: string | null; lifecycle_script_path: string; project_root_path: string; reference_name: string };
@@ -119,6 +123,19 @@ test("registers a project using authenticated path selection", async ({ page }) 
   await expect(page.getByText("browser-fixture registered successfully.")).toBeVisible();
   expect(requests.filter((request) => request.path === "/local-path-selection")).toHaveLength(2);
   expect(requests.find((request) => request.path === "/projects" && request.method === "POST")?.body).toMatchObject({ lifecycle_script_path: "C:\\fixture\\control.bat", project_root_path: "C:\\fixture", reference_name: "browser-fixture" });
+});
+
+test("saves visual preferences and applies the selected presentation", async ({ page }) => {
+  await page.addInitScript(() => window.localStorage.setItem("orchflow.auth.token", "browser-token"));
+  const requests = await installApiMock(page);
+  await page.goto("/settings");
+  await page.getByLabel("Appearance").selectOption("white-high-contrast");
+  await page.getByLabel("Accent color").selectOption("purple");
+  await page.getByRole("button", { name: "Save preferences" }).click();
+
+  await expect(page.locator(".app-shell")).toHaveAttribute("data-appearance", "white-high-contrast");
+  await expect(page.locator(".app-shell")).toHaveAttribute("data-accent", "purple");
+  expect(requests.find((request) => request.path === "/auth/me/preferences" && request.method === "PATCH")?.body).toMatchObject({ accent_color: "purple", appearance_mode: "white-high-contrast" });
 });
 
 test("guides a blocked project to lifecycle mapping recovery", async ({ page }) => {

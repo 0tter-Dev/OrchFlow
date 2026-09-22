@@ -1,6 +1,6 @@
 ---
 id: web-020
-status: backlog
+status: active
 type: feat
 requires_pull_request: true
 expected_version_impact: patch
@@ -36,7 +36,7 @@ Let each authenticated operator choose a restrained visual presentation that rem
 
 ## Approval
 
-Awaiting explicit user approval to move to `active`. Persisted preference fields and their API contract must be explicitly reviewed at activation before implementation.
+The requesting user explicitly approved activation, implementation, and the persisted/API preference contract on 2026-09-22. The approved fields are `appearance_mode` (`cream-light`, `white-high-contrast`, `gray-dark`, `black-high-contrast`) and `accent_color` (`blue`, `green`, `red`, `yellow`, `orange`, `purple`, `pink`).
 
 ## Scope
 

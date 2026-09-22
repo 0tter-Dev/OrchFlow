@@ -42,7 +42,7 @@ def test_info_command_displays_bootstrap_metadata() -> None:
     result = runner.invoke(app, ["info"])
 
     assert result.exit_code == 0
-    assert "OrchFlow 0.3.45" in result.stdout
+    assert "OrchFlow 0.3.46" in result.stdout
     assert "stage: bootstrap" in result.stdout
 
 
@@ -117,6 +117,8 @@ def test_cli_user_preferences_flow_is_available(isolated_environment: None) -> N
     assert preferences_result.exit_code == 0
     assert "locale: pt-BR" in preferences_result.stdout
     assert "project_view_mode: list" in preferences_result.stdout
+    assert "appearance_mode: gray-dark" in preferences_result.stdout
+    assert "accent_color: green" in preferences_result.stdout
     assert "status_refresh_interval_seconds: 30" in preferences_result.stdout
 
     update_result = runner.invoke(
@@ -130,6 +132,10 @@ def test_cli_user_preferences_flow_is_available(isolated_environment: None) -> N
             "en-US",
             "--project-view-mode",
             "table",
+            "--appearance-mode",
+            "cream-light",
+            "--accent-color",
+            "blue",
             "--status-refresh-interval-seconds",
             "45",
         ],
@@ -138,6 +144,8 @@ def test_cli_user_preferences_flow_is_available(isolated_environment: None) -> N
     assert update_result.exit_code == 0
     assert "locale: en-US" in update_result.stdout
     assert "project_view_mode: table" in update_result.stdout
+    assert "appearance_mode: cream-light" in update_result.stdout
+    assert "accent_color: blue" in update_result.stdout
     assert "status_refresh_interval_seconds: 45" in update_result.stdout
 
 
@@ -264,9 +272,7 @@ def test_cli_ai_context_manifest_flow_is_available(
     (project_dir / ".env").write_text("SECRET=value\n", encoding="utf-8")
     lifecycle_script = project_dir / "control.bat"
     lifecycle_script.write_text(
-        "@echo off\r\n"
-        "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
-        "exit /b 1\r\n",
+        '@echo off\r\nif /I "%~1"=="STATUS" echo status-ok & exit /b 0\r\nexit /b 1\r\n',
         encoding="utf-8",
     )
     register_result = runner.invoke(
@@ -371,9 +377,7 @@ def test_cli_ai_analysis_proposal_flow_is_available(
     (project_dir / "app.py").write_text("print('approved proposal context')\n", encoding="utf-8")
     lifecycle_script = project_dir / "control.bat"
     lifecycle_script.write_text(
-        "@echo off\r\n"
-        "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
-        "exit /b 1\r\n",
+        '@echo off\r\nif /I "%~1"=="STATUS" echo status-ok & exit /b 0\r\nexit /b 1\r\n',
         encoding="utf-8",
     )
     register_result = runner.invoke(
@@ -567,10 +571,10 @@ def test_cli_project_registry_flow_is_available(
     lifecycle_script = project_dir / "control.bat"
     lifecycle_script.write_text(
         "@echo off\r\n"
-        "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
-        "if /I \"%~1\"==\"INICIAR\" echo start-ok & exit /b 0\r\n"
-        "if /I \"%~1\"==\"STOP\" echo stop-ok & exit /b 0\r\n"
-        "if /I \"%~1\"==\"RESTART\" echo restart-ok & exit /b 0\r\n"
+        'if /I "%~1"=="STATUS" echo status-ok & exit /b 0\r\n'
+        'if /I "%~1"=="INICIAR" echo start-ok & exit /b 0\r\n'
+        'if /I "%~1"=="STOP" echo stop-ok & exit /b 0\r\n'
+        'if /I "%~1"=="RESTART" echo restart-ok & exit /b 0\r\n'
         "exit /b 1\r\n",
         encoding="utf-8",
     )
@@ -603,8 +607,8 @@ def test_cli_project_registry_flow_is_available(
     replacement_script = project_dir / "orchflow.bat"
     replacement_script.write_text(
         "@echo off\r\n"
-        "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
-        "if /I \"%~1\"==\"START\" echo start-ok & exit /b 0\r\n"
+        'if /I "%~1"=="STATUS" echo status-ok & exit /b 0\r\n'
+        'if /I "%~1"=="START" echo start-ok & exit /b 0\r\n'
         "exit /b 1\r\n",
         encoding="utf-8",
     )
@@ -669,9 +673,9 @@ def test_cli_project_lifecycle_configuration_flow_is_available(
     lifecycle_script = project_dir / "control.bat"
     lifecycle_script.write_text(
         "@echo off\r\n"
-        "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
-        "if /I \"%~1\"==\"INICIAR\" echo start-ok & exit /b 0\r\n"
-        "if /I \"%~1\"==\"STOP\" echo stop-ok & exit /b 0\r\n"
+        'if /I "%~1"=="STATUS" echo status-ok & exit /b 0\r\n'
+        'if /I "%~1"=="INICIAR" echo start-ok & exit /b 0\r\n'
+        'if /I "%~1"=="STOP" echo stop-ok & exit /b 0\r\n'
         "exit /b 1\r\n",
         encoding="utf-8",
     )
@@ -740,9 +744,7 @@ def test_cli_project_reload_flow_is_available(
     project_dir.mkdir()
     lifecycle_script = project_dir / "control.bat"
     lifecycle_script.write_text(
-        "@echo off\r\n"
-        "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
-        "exit /b 1\r\n",
+        '@echo off\r\nif /I "%~1"=="STATUS" echo status-ok & exit /b 0\r\nexit /b 1\r\n',
         encoding="utf-8",
     )
     register_result = runner.invoke(
@@ -767,10 +769,10 @@ def test_cli_project_reload_flow_is_available(
     )
     lifecycle_script.write_text(
         "@echo off\r\n"
-        "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
-        "if /I \"%~1\"==\"START\" echo start-ok & exit /b 0\r\n"
-        "if /I \"%~1\"==\"STOP\" echo stop-ok & exit /b 0\r\n"
-        "if /I \"%~1\"==\"RESTART\" echo restart-ok & exit /b 0\r\n"
+        'if /I "%~1"=="STATUS" echo status-ok & exit /b 0\r\n'
+        'if /I "%~1"=="START" echo start-ok & exit /b 0\r\n'
+        'if /I "%~1"=="STOP" echo stop-ok & exit /b 0\r\n'
+        'if /I "%~1"=="RESTART" echo restart-ok & exit /b 0\r\n'
         "exit /b 1\r\n",
         encoding="utf-8",
     )
@@ -827,10 +829,10 @@ def test_cli_project_owner_management_flow_is_available(
     lifecycle_script = project_dir / "control.bat"
     lifecycle_script.write_text(
         "@echo off\r\n"
-        "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
-        "if /I \"%~1\"==\"START\" echo start-ok & exit /b 0\r\n"
-        "if /I \"%~1\"==\"STOP\" echo stop-ok & exit /b 0\r\n"
-        "if /I \"%~1\"==\"RESTART\" echo restart-ok & exit /b 0\r\n"
+        'if /I "%~1"=="STATUS" echo status-ok & exit /b 0\r\n'
+        'if /I "%~1"=="START" echo start-ok & exit /b 0\r\n'
+        'if /I "%~1"=="STOP" echo stop-ok & exit /b 0\r\n'
+        'if /I "%~1"=="RESTART" echo restart-ok & exit /b 0\r\n'
         "exit /b 1\r\n",
         encoding="utf-8",
     )
@@ -909,9 +911,7 @@ def test_cli_lifecycle_rejects_unconfigured_actions(
     project_dir.mkdir()
     lifecycle_script = project_dir / "control.bat"
     lifecycle_script.write_text(
-        "@echo off\r\n"
-        "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
-        "exit /b 1\r\n",
+        '@echo off\r\nif /I "%~1"=="STATUS" echo status-ok & exit /b 0\r\nexit /b 1\r\n',
         encoding="utf-8",
     )
     register_result = runner.invoke(
@@ -967,10 +967,10 @@ def test_cli_lifecycle_flow_is_available(
     lifecycle_script = project_dir / "control.bat"
     lifecycle_script.write_text(
         "@echo off\r\n"
-        "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
-        "if /I \"%~1\"==\"START\" echo started-ok & exit /b 0\r\n"
-        "if /I \"%~1\"==\"STOP\" echo stopped-ok & exit /b 0\r\n"
-        "if /I \"%~1\"==\"RESTART\" echo restarted-ok & exit /b 0\r\n"
+        'if /I "%~1"=="STATUS" echo status-ok & exit /b 0\r\n'
+        'if /I "%~1"=="START" echo started-ok & exit /b 0\r\n'
+        'if /I "%~1"=="STOP" echo stopped-ok & exit /b 0\r\n'
+        'if /I "%~1"=="RESTART" echo restarted-ok & exit /b 0\r\n'
         "exit /b 1\r\n",
         encoding="utf-8",
     )
@@ -1028,12 +1028,12 @@ def test_cli_runtime_inspection_flow_is_available(
     lifecycle_script = project_dir / "control.bat"
     lifecycle_script.write_text(
         "@echo off\r\n"
-        "set \"APP_PORT=49191\"\r\n"
-        "set \"APP_URL=http://localhost:49191\"\r\n"
-        "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
-        "if /I \"%~1\"==\"START\" echo start-ok & exit /b 0\r\n"
-        "if /I \"%~1\"==\"STOP\" echo stop-ok & exit /b 0\r\n"
-        "if /I \"%~1\"==\"RESTART\" echo restart-ok & exit /b 0\r\n"
+        'set "APP_PORT=49191"\r\n'
+        'set "APP_URL=http://localhost:49191"\r\n'
+        'if /I "%~1"=="STATUS" echo status-ok & exit /b 0\r\n'
+        'if /I "%~1"=="START" echo start-ok & exit /b 0\r\n'
+        'if /I "%~1"=="STOP" echo stop-ok & exit /b 0\r\n'
+        'if /I "%~1"=="RESTART" echo restart-ok & exit /b 0\r\n'
         "exit /b 0\r\n",
         encoding="utf-8",
     )
@@ -1094,11 +1094,11 @@ def test_cli_runtime_batch_inspection_flow_is_available(
         lifecycle_script = project_dir / "control.bat"
         lifecycle_script.write_text(
             "@echo off\r\n"
-            f"set \"APP_PORT={port}\"\r\n"
-            "if /I \"%~1\"==\"STATUS\" echo status-ok & exit /b 0\r\n"
-            "if /I \"%~1\"==\"START\" echo start-ok & exit /b 0\r\n"
-            "if /I \"%~1\"==\"STOP\" echo stop-ok & exit /b 0\r\n"
-            "if /I \"%~1\"==\"RESTART\" echo restart-ok & exit /b 0\r\n"
+            f'set "APP_PORT={port}"\r\n'
+            'if /I "%~1"=="STATUS" echo status-ok & exit /b 0\r\n'
+            'if /I "%~1"=="START" echo start-ok & exit /b 0\r\n'
+            'if /I "%~1"=="STOP" echo stop-ok & exit /b 0\r\n'
+            'if /I "%~1"=="RESTART" echo restart-ok & exit /b 0\r\n'
             "exit /b 0\r\n",
             encoding="utf-8",
         )

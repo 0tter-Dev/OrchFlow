@@ -20,8 +20,31 @@ class ProjectViewMode(StrEnum):
     TABLE = "table"
 
 
+class AppearanceMode(StrEnum):
+    """Supported, accessible interface appearance modes."""
+
+    CREAM_LIGHT = "cream-light"
+    WHITE_HIGH_CONTRAST = "white-high-contrast"
+    GRAY_DARK = "gray-dark"
+    BLACK_HIGH_CONTRAST = "black-high-contrast"
+
+
+class AccentColor(StrEnum):
+    """Curated accent color families for interface controls."""
+
+    BLUE = "blue"
+    GREEN = "green"
+    RED = "red"
+    YELLOW = "yellow"
+    ORANGE = "orange"
+    PURPLE = "purple"
+    PINK = "pink"
+
+
 DEFAULT_LOCALE = UserLocale.PT_BR
 DEFAULT_PROJECT_VIEW_MODE = ProjectViewMode.LIST
+DEFAULT_APPEARANCE_MODE = AppearanceMode.GRAY_DARK
+DEFAULT_ACCENT_COLOR = AccentColor.GREEN
 DEFAULT_STATUS_REFRESH_INTERVAL_SECONDS = 30
 MIN_STATUS_REFRESH_INTERVAL_SECONDS = 10
 MAX_STATUS_REFRESH_INTERVAL_SECONDS = 300
@@ -34,4 +57,6 @@ class UserPreferences:
     user_id: int
     locale: UserLocale
     project_view_mode: ProjectViewMode
+    appearance_mode: AppearanceMode
+    accent_color: AccentColor
     status_refresh_interval_seconds: int

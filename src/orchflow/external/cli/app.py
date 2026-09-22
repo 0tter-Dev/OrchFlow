@@ -69,7 +69,12 @@ from orchflow.application.user_preferences import (
 )
 from orchflow.domain.access_control import AccessToken, UserRole
 from orchflow.domain.project_registry import CanonicalLifecycleAction, MappingSource
-from orchflow.domain.user_preferences import ProjectViewMode, UserLocale
+from orchflow.domain.user_preferences import (
+    AccentColor,
+    AppearanceMode,
+    ProjectViewMode,
+    UserLocale,
+)
 from orchflow.external.presenters import (
     render_ai_analysis_proposal,
     render_ai_analysis_proposal_application,
@@ -321,6 +326,8 @@ def update_preferences(
     token: str = typer.Option(...),
     locale: str | None = typer.Option(default=None),
     project_view_mode: str | None = typer.Option(default=None),
+    appearance_mode: str | None = typer.Option(default=None),
+    accent_color: str | None = typer.Option(default=None),
     status_refresh_interval_seconds: int | None = typer.Option(default=None),
 ) -> None:
     """Update preferences for the currently authenticated user."""
@@ -333,6 +340,10 @@ def update_preferences(
                 project_view_mode=(
                     ProjectViewMode(project_view_mode) if project_view_mode is not None else None
                 ),
+                appearance_mode=(
+                    AppearanceMode(appearance_mode) if appearance_mode is not None else None
+                ),
+                accent_color=AccentColor(accent_color) if accent_color is not None else None,
                 status_refresh_interval_seconds=status_refresh_interval_seconds,
             )
         )

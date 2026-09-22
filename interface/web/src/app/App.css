@@ -1,9 +1,35 @@
 .app-shell {
+  --surface: #151615;
+  --surface-raised: #1d1f1d;
+  --surface-control: #262925;
+  --border: #303230;
+  --border-strong: #3a3d39;
+  --text: #f7f2e8;
+  --text-soft: #d9d2c4;
+  --text-muted: #c9c1b4;
+  --accent: #2f8f83;
+  --accent-muted: #d3a24f;
+  --accent-contrast: #07110f;
+  --success-surface: rgba(47, 143, 131, 0.16);
+  --success-text: #9ee4da;
+  --danger-surface: rgba(143, 77, 61, 0.16);
+  --danger-text: #f2b3a3;
   min-height: 100vh;
   padding: 0;
-  color: #f7f2e8;
-  background: #151615;
+  color: var(--text);
+  background: var(--surface);
 }
+
+.app-shell[data-appearance="cream-light"] { --surface: #f7f0df; --surface-raised: #fffaf0; --surface-control: #eee3cd; --border: #cbbfa8; --border-strong: #a99b83; --text: #252019; --text-soft: #493f32; --text-muted: #665b4c; --accent-muted: #73521a; --accent-contrast: #fff; --success-surface: #dff1e8; --success-text: #145a3d; --danger-surface: #f9dfd8; --danger-text: #8a2517; }
+.app-shell[data-appearance="white-high-contrast"] { --surface: #fff; --surface-raised: #fff; --surface-control: #f2f2f2; --border: #303030; --border-strong: #111; --text: #000; --text-soft: #161616; --text-muted: #353535; --accent-muted: #604000; --accent-contrast: #fff; --success-surface: #d6f5df; --success-text: #075a2a; --danger-surface: #ffe0dc; --danger-text: #8d1308; }
+.app-shell[data-appearance="black-high-contrast"] { --surface: #000; --surface-raised: #090909; --surface-control: #171717; --border: #bdbdbd; --border-strong: #fff; --text: #fff; --text-soft: #f1f1f1; --text-muted: #dedede; --accent-muted: #ffe082; --accent-contrast: #000; --success-surface: #053a20; --success-text: #a9f5c6; --danger-surface: #541911; --danger-text: #ffd2cc; }
+.app-shell[data-accent="blue"] { --accent: #1769e0; }
+.app-shell[data-accent="green"] { --accent: #2f8f83; }
+.app-shell[data-accent="red"] { --accent: #c7352c; }
+.app-shell[data-accent="yellow"] { --accent: #8b6500; --accent-contrast: #fff; }
+.app-shell[data-accent="orange"] { --accent: #bd5600; }
+.app-shell[data-accent="purple"] { --accent: #7543bb; }
+.app-shell[data-accent="pink"] { --accent: #b63278; }
 
 .app-shell--auth {
   display: grid;

@@ -44,6 +44,8 @@ class UserPreferenceModel(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     locale: Mapped[str] = mapped_column(String(16), nullable=False)
     project_view_mode: Mapped[str] = mapped_column(String(16), nullable=False)
+    appearance_mode: Mapped[str] = mapped_column(String(32), nullable=False)
+    accent_color: Mapped[str] = mapped_column(String(16), nullable=False)
     status_refresh_interval_seconds: Mapped[int] = mapped_column(nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
