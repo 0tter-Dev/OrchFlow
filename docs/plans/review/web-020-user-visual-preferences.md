@@ -1,10 +1,10 @@
 ---
 id: web-020
-status: active
+status: review
 type: feat
 requires_pull_request: true
 expected_version_impact: patch
-actual_version_impact: pending
+actual_version_impact: patch
 priority: medium
 sequence: 19
 depends_on:
@@ -61,4 +61,4 @@ Arbitrary color pickers, user-uploaded themes, cross-user theme sharing, changin
 
 ## Outcome
 
-Not started.
+Delivered in commit `ed9164b` and submitted for review in PR [#87](https://github.com/0tter-Dev/OrchFlow/pull/87). The delivery adds user-scoped persistence, migration fallback, API and CLI contracts, shared visual tokens, preference controls, and browser coverage for visual preference restoration. Validation passed: backend lint, type check, and 163 tests; frontend lint, 55 component tests, production build, and four critical browser workflows. Expected version impact: `patch`; actual version impact: `patch` (`0.3.46`).
