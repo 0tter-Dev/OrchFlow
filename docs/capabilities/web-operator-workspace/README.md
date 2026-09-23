@@ -90,6 +90,7 @@ The exact visual component is not fixed. A warning indicator, details popover, m
 - project discovery now supports ordering by name, lifecycle readiness, or runtime state, while registration opens as a focused on-demand flow instead of competing with list inspection
 - existing-script registration now offers authenticated local Windows folder and `.bat` selectors; cancellation preserves manual input, while the API remains the authoritative validation boundary
 - the authenticated shell now keeps navigation behind a keyboard-accessible menu and exposes profile and session actions through an avatar account menu, leaving central operator work visually dominant on notebook and desktop widths
+- the Projects workspace now begins selected-project inspection with a concise operational summary that names the runtime state, explains the evidence, and offers the next useful action without hiding registration, configuration, lifecycle, or history workflows
 - project registration now preserves a local draft and provides field-level client validation before submitting to the existing authoritative registry contract
 
 ## Main Relationships
