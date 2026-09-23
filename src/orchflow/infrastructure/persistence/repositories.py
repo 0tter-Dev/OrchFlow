@@ -13,7 +13,13 @@ from orchflow.application.access_control import UserRepository
 from orchflow.application.audit_history import AuditEventFilters, AuditHistoryRepository
 from orchflow.application.user_preferences import UserPreferencesRepository
 from orchflow.domain.access_control import AuditEvent, User, UserRole
-from orchflow.domain.user_preferences import ProjectViewMode, UserLocale, UserPreferences
+from orchflow.domain.user_preferences import (
+    AccentColor,
+    AppearanceMode,
+    ProjectViewMode,
+    UserLocale,
+    UserPreferences,
+)
 from orchflow.infrastructure.persistence.models import (
     AuditEventModel,
     UserModel,
@@ -53,6 +59,8 @@ def _to_user_preferences(model: UserPreferenceModel) -> UserPreferences:
         user_id=model.user_id,
         locale=UserLocale(model.locale),
         project_view_mode=ProjectViewMode(model.project_view_mode),
+        appearance_mode=AppearanceMode(model.appearance_mode),
+        accent_color=AccentColor(model.accent_color),
         status_refresh_interval_seconds=model.status_refresh_interval_seconds,
     )
 
@@ -90,9 +98,7 @@ class SqlAlchemyAuditHistoryRepository(AuditHistoryRepository):
         with self._session_scope() as session:
             statement = select(AuditEventModel)
             if filters.actor_user_id is not None:
-                statement = statement.where(
-                    AuditEventModel.actor_user_id == filters.actor_user_id
-                )
+                statement = statement.where(AuditEventModel.actor_user_id == filters.actor_user_id)
             if filters.action is not None:
                 statement = statement.where(AuditEventModel.action == filters.action)
             if filters.project_id is not None:
@@ -102,17 +108,14 @@ class SqlAlchemyAuditHistoryRepository(AuditHistoryRepository):
                 )
             if filters.created_from is not None:
                 statement = statement.where(
-                    AuditEventModel.created_at
-                    >= _to_persistence_datetime(filters.created_from)
+                    AuditEventModel.created_at >= _to_persistence_datetime(filters.created_from)
                 )
             if filters.created_to is not None:
                 statement = statement.where(
                     AuditEventModel.created_at <= _to_persistence_datetime(filters.created_to)
                 )
             models = (
-                session.execute(
-                    statement.order_by(AuditEventModel.id.desc()).limit(limit)
-                )
+                session.execute(statement.order_by(AuditEventModel.id.desc()).limit(limit))
                 .scalars()
                 .all()
             )
@@ -268,9 +271,7 @@ class SqlAlchemyUserPreferencesRepository(UserPreferencesRepository):
         with self._session_scope() as session:
             model = (
                 session.execute(
-                    select(UserPreferenceModel).where(
-                        UserPreferenceModel.user_id == user_id
-                    )
+                    select(UserPreferenceModel).where(UserPreferenceModel.user_id == user_id)
                 )
                 .scalars()
                 .one_or_none()
@@ -292,9 +293,9 @@ class SqlAlchemyUserPreferencesRepository(UserPreferencesRepository):
                 model = UserPreferenceModel(user_id=preferences.user_id)
             model.locale = preferences.locale.value
             model.project_view_mode = preferences.project_view_mode.value
-            model.status_refresh_interval_seconds = (
-                preferences.status_refresh_interval_seconds
-            )
+            model.appearance_mode = preferences.appearance_mode.value
+            model.accent_color = preferences.accent_color.value
+            model.status_refresh_interval_seconds = preferences.status_refresh_interval_seconds
             session.add(model)
             session.flush()
             session.refresh(model)

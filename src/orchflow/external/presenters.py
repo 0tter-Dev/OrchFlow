@@ -41,6 +41,8 @@ def render_user_preferences(preferences: UserPreferences) -> str:
         f"user_id: {preferences.user_id}\n"
         f"locale: {preferences.locale.value}\n"
         f"project_view_mode: {preferences.project_view_mode.value}\n"
+        f"appearance_mode: {preferences.appearance_mode.value}\n"
+        f"accent_color: {preferences.accent_color.value}\n"
         "status_refresh_interval_seconds: "
         f"{preferences.status_refresh_interval_seconds}"
     )
@@ -214,10 +216,7 @@ def render_audit_event(event: AuditEvent) -> str:
 def render_project(project: Project) -> str:
     """Render a project into a simple CLI-friendly representation."""
     lifecycle_function_configurations = build_lifecycle_function_configurations(
-        {
-            mapping.canonical_action: mapping.script_label
-            for mapping in project.action_mappings
-        },
+        {mapping.canonical_action: mapping.script_label for mapping in project.action_mappings},
         unconfigured_actions_for_project(project),
     )
     lifecycle_configuration_health = derive_project_configuration_health(

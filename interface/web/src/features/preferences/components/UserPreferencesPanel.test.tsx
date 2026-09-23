@@ -8,6 +8,8 @@ import { UserPreferencesPanel } from "./UserPreferencesPanel";
 const preferences: UserPreferences = {
   locale: "pt-BR",
   project_view_mode: "list",
+  appearance_mode: "gray-dark",
+  accent_color: "green",
   status_refresh_interval_seconds: 30,
   user_id: 1,
 };
@@ -46,6 +48,8 @@ describe("UserPreferencesPanel", () => {
     expect(screen.getByText("Configurações de exibição")).toBeInTheDocument();
     expect(screen.getByLabelText("Idioma")).toHaveValue("pt-BR");
     expect(screen.getByLabelText("Lista")).toBeChecked();
+    expect(screen.getByLabelText("Aparência")).toHaveValue("gray-dark");
+    expect(screen.getByLabelText("Cor de destaque")).toHaveValue("green");
     expect(screen.getByLabelText("Intervalo de atualização de status")).toHaveValue(30);
   });
 
@@ -57,6 +61,8 @@ describe("UserPreferencesPanel", () => {
       target: { value: "en-US" },
     });
     fireEvent.click(screen.getByLabelText("Tabela"));
+    fireEvent.change(screen.getByLabelText("Aparência"), { target: { value: "cream-light" } });
+    fireEvent.change(screen.getByLabelText("Cor de destaque"), { target: { value: "blue" } });
     fireEvent.change(screen.getByLabelText("Intervalo de atualização de status"), {
       target: { value: "45" },
     });
@@ -65,6 +71,8 @@ describe("UserPreferencesPanel", () => {
     expect(onUpdate).toHaveBeenCalledWith({
       locale: "en-US",
       project_view_mode: "table",
+      appearance_mode: "cream-light",
+      accent_color: "blue",
       status_refresh_interval_seconds: 45,
     });
   });

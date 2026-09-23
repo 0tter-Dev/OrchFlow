@@ -33,7 +33,7 @@ Provide a clean separation between the backend core and multiple user-facing cli
 - audit history visibility
 - admin user and ownership management
 - project unlink confirmation without local file deletion
-- backend-owned user preferences for locale, project display mode, and status refresh interval
+- backend-owned user preferences for locale, project display mode, status refresh interval, appearance mode, and accent color
 - focused, bookmarkable authenticated workspace sections
 
 ## Key Rules
@@ -41,7 +41,7 @@ Provide a clean separation between the backend core and multiple user-facing cli
 - interface clients should remain consumers of platform capabilities, not their owners
 - interface clients should rely on the API-facing surface rather than bypassing application boundaries
 - the `interface/` folder should act as a physical boundary between the backend core and client implementations
-- visual complexity should remain secondary to operational clarity in `v0.3.45`; the web workspace should feel like a focused operator tool rather than a marketing or bootstrap page
+- visual complexity should remain secondary to operational clarity in `v0.3.46`; the web workspace should feel like a focused operator tool rather than a marketing or bootstrap page
 - unauthenticated web screens should stay focused on authentication and account creation instead of rendering the authenticated workspace chrome, top status bar, or system health probe
 - authenticated health refresh should preserve the latest known API snapshot during loading or transient error states instead of clearing visible status details
 - server state for health and project lists should use shared query keys, bounded retry behavior, and mutation invalidation instead of independently managed request caches
@@ -50,7 +50,7 @@ Provide a clean separation between the backend core and multiple user-facing cli
 - future logo, favicon, installer, desktop, or branded interface work should follow the original `OF` monogram direction in `docs/reference/brand-identity.md`
 - interface clients should communicate lifecycle configuration health without blocking partially configured projects
 - interface clients should preserve API failure context in operator-facing error states, including HTTP status, request method/path, and validation details when available
-- interface preferences should be loaded and saved through authenticated API contracts rather than being treated as web-only local state
+- interface preferences should be loaded and saved through authenticated API contracts rather than being treated as web-only local state; visual presentation must use shared design tokens and cannot affect authorization or lifecycle behavior
 - authenticated routes organize the workspace into overview, projects, AI assistance, activity, settings, and profile; the admin route is offered only to administrators
 - route visibility is a navigation affordance, never an authorization mechanism; the backend remains authoritative for every protected operation
 - the first concrete client direction is `web`, but the structure should allow future `mobile` and `desktop` clients
@@ -75,7 +75,7 @@ The exact visual component is not fixed. A warning indicator, details popover, m
 - authenticated navigation now uses `react-router` to make overview, projects, AI assistance, activity, settings, profile, and the administrator workspace directly reachable without turning the interface into a long single page; member navigation excludes the admin entry, while backend authorization continues to protect the underlying operations
 - authenticated health and project-list requests now use `@tanstack/react-query` as the server-state boundary: health keeps the latest successful snapshot through refetch failure, and project mutations invalidate the affected list cache for predictable subsequent refreshes
 - the current web baseline includes a focused unauthenticated `Login` and `Create account` screen using Radix Tabs, a shared Radix Tooltip wrapper, `lucide-react` icons for current auth and refresh controls, session loading, a compact daily operator workspace shell after authentication, stable API health refresh feedback that keeps the latest successful snapshot visible during polling and transient failures, persisted user preferences, project registration for existing `.bat` scripts, project listing with batch runtime status, project details, project metadata and path editing, project unlink confirmation that preserves local files, refined runtime visibility with reachability and status explanations, operational readiness guidance, lifecycle controls, AI proposal review/application, filtered recent audit history visibility for admins, user role/activation management, and project owner management
-- the web workspace now includes a preferences panel for locale, project list/table display mode, and status refresh interval; the selected project display mode is applied to the project list, the persisted locale drives translation and the document language, and the refresh interval drives periodic health/project refreshes
+- the web workspace now includes a preferences panel for locale, project list/table display mode, status refresh interval, and per-user visual presentation. Appearance is restricted to cream light, white high contrast, gray dark, or black high contrast, with a curated accent family; shared design tokens apply it to the shell, forms, and feedback while the selected project display mode, locale, and refresh interval retain their existing behavior
 - `i18next` and `react-i18next` provide centralized `pt-BR` and `en-US` resources for workspace navigation, authentication, project registration and guidance, health, audit, administration, AI review, and preferences; browser-language detection never overrides the authenticated user's persisted locale, and locale-aware dates stay client-owned while safe server diagnostic detail is preserved
 - the project list now requests runtime snapshots for the visible project set in a single API call and displays each project's current runtime status and known port alongside lifecycle configuration health
 - project editing is now available through backend API and CLI contracts and through the web project detail view

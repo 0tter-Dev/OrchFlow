@@ -70,6 +70,8 @@ def test_user_preferences_openapi_contract_includes_web_preferences() -> None:
 
     assert "locale" in preferences_properties
     assert "project_view_mode" in preferences_properties
+    assert "appearance_mode" in preferences_properties
+    assert "accent_color" in preferences_properties
     assert "status_refresh_interval_seconds" in preferences_properties
 
 

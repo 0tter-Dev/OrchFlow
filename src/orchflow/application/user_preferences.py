@@ -7,11 +7,15 @@ from typing import Protocol
 
 from orchflow.application.access_control import AccessControlService
 from orchflow.domain.user_preferences import (
+    DEFAULT_ACCENT_COLOR,
+    DEFAULT_APPEARANCE_MODE,
     DEFAULT_LOCALE,
     DEFAULT_PROJECT_VIEW_MODE,
     DEFAULT_STATUS_REFRESH_INTERVAL_SECONDS,
     MAX_STATUS_REFRESH_INTERVAL_SECONDS,
     MIN_STATUS_REFRESH_INTERVAL_SECONDS,
+    AccentColor,
+    AppearanceMode,
     ProjectViewMode,
     UserLocale,
     UserPreferences,
@@ -29,6 +33,8 @@ class UpdateUserPreferencesCommand:
     token: str
     locale: UserLocale | None = None
     project_view_mode: ProjectViewMode | None = None
+    appearance_mode: AppearanceMode | None = None
+    accent_color: AccentColor | None = None
     status_refresh_interval_seconds: int | None = None
 
 
@@ -72,14 +78,15 @@ class UserPreferencesService:
     def update_preferences(self, command: UpdateUserPreferencesCommand) -> UserPreferences:
         """Persist a partial preference update for the current user."""
         user = self._access_control_service.get_current_user(command.token)
-        current_preferences = (
-            self._repository.get_preferences_by_user_id(user.id)
-            or self._default_preferences_for_user(user.id)
-        )
+        current_preferences = self._repository.get_preferences_by_user_id(
+            user.id
+        ) or self._default_preferences_for_user(user.id)
         next_preferences = UserPreferences(
             user_id=user.id,
             locale=command.locale or current_preferences.locale,
             project_view_mode=command.project_view_mode or current_preferences.project_view_mode,
+            appearance_mode=command.appearance_mode or current_preferences.appearance_mode,
+            accent_color=command.accent_color or current_preferences.accent_color,
             status_refresh_interval_seconds=(
                 command.status_refresh_interval_seconds
                 if command.status_refresh_interval_seconds is not None
@@ -105,6 +112,8 @@ class UserPreferencesService:
             user_id=user_id,
             locale=DEFAULT_LOCALE,
             project_view_mode=DEFAULT_PROJECT_VIEW_MODE,
+            appearance_mode=DEFAULT_APPEARANCE_MODE,
+            accent_color=DEFAULT_ACCENT_COLOR,
             status_refresh_interval_seconds=DEFAULT_STATUS_REFRESH_INTERVAL_SECONDS,
         )
 
@@ -134,10 +143,15 @@ class UserPreferencesService:
                 "project_view_mode:"
                 f"{previous.project_view_mode.value}->{current.project_view_mode.value}"
             )
-        if (
-            previous.status_refresh_interval_seconds
-            != current.status_refresh_interval_seconds
-        ):
+        if previous.appearance_mode is not current.appearance_mode:
+            changes.append(
+                f"appearance_mode:{previous.appearance_mode.value}->{current.appearance_mode.value}"
+            )
+        if previous.accent_color is not current.accent_color:
+            changes.append(
+                f"accent_color:{previous.accent_color.value}->{current.accent_color.value}"
+            )
+        if previous.status_refresh_interval_seconds != current.status_refresh_interval_seconds:
             changes.append(
                 "status_refresh_interval_seconds:"
                 f"{previous.status_refresh_interval_seconds}->"

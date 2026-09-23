@@ -105,7 +105,7 @@ def test_alembic_revision_graph_has_single_base_and_head() -> None:
     script = ScriptDirectory.from_config(config)
 
     assert script.get_bases() == ["6bdc38282503"]
-    assert script.get_heads() == ["b7c4e1d2a9f0"]
+    assert script.get_heads() == ["c8d5e2f1a4b6"]
 
 
 def test_alembic_head_schema_matches_sqlalchemy_metadata(tmp_path: Path) -> None:

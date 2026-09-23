@@ -38,7 +38,7 @@ Ensure that project visibility and lifecycle actions are restricted according to
 - admin-only audit history filtering is implemented for actor, action, project, and time-window troubleshooting
 - project visibility and lifecycle access are enforced through the `admin` role or explicit project ownership
 - project unlink reuses the same visibility rule: non-admin owners can remove their own project relationship for shared projects, while admins can remove visible projects from the active registry
-- authenticated users can read and update their own web preferences through user-scoped contracts without requiring admin privileges
+- authenticated users can read and update their own web preferences, including bounded appearance and accent choices, through user-scoped contracts without requiring admin privileges
 
 ## Key Rules
 
@@ -49,7 +49,7 @@ Ensure that project visibility and lifecycle actions are restricted according to
 - the first registered user may become the bootstrap `admin` so the local-first installation can be initialized without a pre-provisioned account
 - public account creation surfaces must stay role-neutral; clients submit credentials, and the backend decides whether the created user is the bootstrap `admin` or a later `member`
 - API and CLI should expose the same authentication and authorization capabilities when those capabilities are intentionally available to operators
-- user preference access is scoped to the authenticated user and must not expose or mutate another user's preferences
+- user preference access is scoped to the authenticated user and must not expose or mutate another user's preferences; visual choices are presentation-only and cannot change authorization, ownership, or lifecycle execution
 - a separate generic permission table is not part of the current implemented baseline
 
 ## Main Relationships

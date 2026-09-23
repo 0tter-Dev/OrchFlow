@@ -3,8 +3,8 @@
   gap: 1rem;
   padding: 1.25rem;
   border-radius: 8px;
-  background: #1d1f1d;
-  border: 1px solid #303230;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
 }
 
 .preferences-panel__header {
@@ -17,7 +17,7 @@
 .preferences-panel__eyebrow {
   display: inline-flex;
   margin-bottom: 0.35rem;
-  color: #d3a24f;
+  color: var(--accent-muted);
   font-size: 0.76rem;
   letter-spacing: 0;
   text-transform: uppercase;
@@ -32,10 +32,10 @@
 .preferences-panel__submit {
   min-height: 2.75rem;
   padding: 0.7rem 0.85rem;
-  border: 1px solid #3a3d39;
+  border: 1px solid var(--border-strong);
   border-radius: 8px;
-  background: #262925;
-  color: #f7f2e8;
+  background: var(--surface-control);
+  color: var(--text);
   cursor: pointer;
   font: inherit;
   white-space: nowrap;
@@ -55,7 +55,7 @@
 .preferences-panel__field {
   display: grid;
   gap: 0.35rem;
-  color: #c9c1b4;
+  color: var(--text-muted);
   font-size: 0.84rem;
 }
 
@@ -64,15 +64,15 @@
   width: 100%;
   min-height: 2.75rem;
   padding: 0.72rem 0.8rem;
-  border: 1px solid #3a3d39;
+  border: 1px solid var(--border-strong);
   border-radius: 8px;
-  background: #151615;
-  color: #f7f2e8;
+  background: var(--surface);
+  color: var(--text);
   font: inherit;
 }
 
 .preferences-panel__field option {
-  color: #151615;
+  color: var(--text);
 }
 
 .preferences-panel__mode {
@@ -85,7 +85,7 @@
 
 .preferences-panel__mode legend {
   margin-bottom: 0.35rem;
-  color: #c9c1b4;
+  color: var(--text-muted);
   font-size: 0.84rem;
 }
 
@@ -96,17 +96,17 @@
   min-height: 2.6rem;
   padding: 0.65rem 0.75rem;
   border-radius: 8px;
-  background: #242724;
-  color: #d9d2c4;
+  background: var(--surface-control);
+  color: var(--text-soft);
 }
 
 .preferences-panel__mode input {
-  accent-color: #2f8f83;
+  accent-color: var(--accent);
 }
 
 .preferences-panel__submit {
-  background: #2f8f83;
-  color: #07110f;
+  background: var(--accent);
+  color: var(--accent-contrast);
   font-weight: 700;
 }
 
@@ -118,13 +118,13 @@
 }
 
 .preferences-panel__notice {
-  background: rgba(143, 77, 61, 0.16);
-  color: #f2b3a3;
+  background: var(--danger-surface);
+  color: var(--danger-text);
 }
 
 .preferences-panel__success {
-  background: rgba(47, 143, 131, 0.16);
-  color: #9ee4da;
+  background: var(--success-surface);
+  color: var(--success-text);
 }
 
 @media (max-width: 640px) {
