@@ -113,8 +113,8 @@ describe("ProjectDetailPanel", () => {
     expect(screen.getByText("http://localhost:4010")).toBeInTheDocument();
     expect(screen.getByText("Reachable")).toBeInTheDocument();
     expect(
-      screen.getByText("Found 1 process(es) listening on APP_PORT 4010."),
-    ).toBeInTheDocument();
+      screen.getAllByText("Found 1 process(es) listening on APP_PORT 4010."),
+    ).toHaveLength(2);
     expect(screen.getByText(/python \(PID 4242\)/)).toBeInTheDocument();
     expect(screen.getByText("partial")).toBeInTheDocument();
     const startButton = screen
