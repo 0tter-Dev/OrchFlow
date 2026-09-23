@@ -230,6 +230,8 @@ The history view covers already recorded user registration, login, admin listing
 
 ## Operating Expectations
 
+In the web Projects workspace, select a project to see its current runtime evidence and the next useful action first. Blocked or partially configured projects lead directly to lifecycle mapping recovery; ready projects lead to a runtime refresh before optional lifecycle control.
+
 - A project should not be treated as fully managed unless it has a reviewable lifecycle `.bat` definition
 - A project should expose at least one configured lifecycle function before it can be operated through OrchFlow
 - Partially configured projects can remain usable, but the interface should warn users about missing ideal lifecycle functions

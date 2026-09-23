@@ -93,6 +93,26 @@
   justify-content: flex-end;
 }
 
+.project-detail__operator-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.project-detail__operator-summary > div {
+  display: grid;
+  align-content: start;
+  gap: 0.45rem;
+  padding: 1rem;
+  border: 1px solid #303230;
+  border-radius: 8px;
+  background: #242724;
+}
+
+.project-detail__operator-summary strong[data-status="running"] { color: #9ee4da; }
+.project-detail__operator-summary strong[data-status="stopped"] { color: #f2b3a3; }
+.project-detail__operator-summary p { margin: 0; color: #c9c1b4; line-height: 1.55; }
+
 .project-detail__primary-action,
 .project-detail__danger-action,
 .project-detail__secondary-action {
@@ -425,6 +445,7 @@
   }
 
   .project-detail__configuration-banner,
+  .project-detail__operator-summary,
   .project-detail__modal-header,
   .project-detail__modal-actions {
     align-items: stretch;

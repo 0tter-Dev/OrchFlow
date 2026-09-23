@@ -377,6 +377,23 @@ export function ProjectDetailPanel({
         </div>
       </section>
 
+      <section className="project-detail__operator-summary" aria-label="Operational summary">
+        <div>
+          <span className="project-detail__label">Current state</span>
+          <strong data-status={runtimeSnapshot?.status ?? "unknown"}>
+            {runtimeSnapshot?.status ?? "Loading runtime evidence..."}
+          </strong>
+          <p>{runtimeSnapshot?.status_reason ?? "Refresh the runtime snapshot to inspect this project."}</p>
+        </div>
+        <div>
+          <span className="project-detail__label">Next useful action</span>
+          <strong>{blockedProject ? "Configure lifecycle mappings" : partialProject ? "Review incomplete mappings" : "Inspect or run a configured action"}</strong>
+          <button className="project-detail__primary-action" onClick={blockedProject || partialProject ? () => setIsMappingPanelOpen(true) : onRefreshProject} type="button">
+            {blockedProject || partialProject ? "Configure lifecycle" : "Refresh runtime"}
+          </button>
+        </div>
+      </section>
+
       <ProjectOnboardingPanel
         isLoadingRuntime={isLoadingDetail}
         isReloadingProject={isReloadingProject}
