@@ -1589,7 +1589,7 @@ wheels = [
 
 [[package]]
 name = "orchflow"
-version = "0.3.46"
+version = "0.3.47"
 source = { editable = "." }
 dependencies = [
     { name = "alembic" },

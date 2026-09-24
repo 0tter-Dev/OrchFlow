@@ -1,10 +1,10 @@
 ---
 id: web-022
-status: backlog
+status: review
 type: feat
 requires_pull_request: true
 expected_version_impact: patch
-actual_version_impact: pending
+actual_version_impact: patch
 priority: medium
 sequence: 21
 depends_on:
@@ -30,7 +30,7 @@ Consolidate shell and preference decisions into a small, maintainable visual sys
 
 ## Approval
 
-Awaiting explicit user approval to move to `active`.
+The requesting user explicitly approved activation and implementation on 2026-09-23.
 
 ## Scope
 
@@ -53,4 +53,4 @@ Adopting a strategic component-library dependency, unrestricted theming, brandin
 
 ## Outcome
 
-Not started.
+Delivered in commit `f703281` and submitted for review in PR [#89](https://github.com/0tter-Dev/OrchFlow/pull/89). The shared visual system centralizes theme-aware surface, spacing, focus, action, and feedback tokens across the operator shell and its panels. Validation passed: frontend lint, 55 component tests, production build, four critical browser workflows, and version consistency checks. Expected version impact: `patch`; actual version impact: `patch` (`0.3.47`).

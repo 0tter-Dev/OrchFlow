@@ -41,7 +41,7 @@ Provide a clean separation between the backend core and multiple user-facing cli
 - interface clients should remain consumers of platform capabilities, not their owners
 - interface clients should rely on the API-facing surface rather than bypassing application boundaries
 - the `interface/` folder should act as a physical boundary between the backend core and client implementations
-- visual complexity should remain secondary to operational clarity in `v0.3.46`; the web workspace should feel like a focused operator tool rather than a marketing or bootstrap page
+- visual complexity should remain secondary to operational clarity in `v0.3.47`; the web workspace should feel like a focused operator tool rather than a marketing or bootstrap page
 - unauthenticated web screens should stay focused on authentication and account creation instead of rendering the authenticated workspace chrome, top status bar, or system health probe
 - authenticated health refresh should preserve the latest known API snapshot during loading or transient error states instead of clearing visible status details
 - server state for health and project lists should use shared query keys, bounded retry behavior, and mutation invalidation instead of independently managed request caches
@@ -91,6 +91,7 @@ The exact visual component is not fixed. A warning indicator, details popover, m
 - existing-script registration now offers authenticated local Windows folder and `.bat` selectors; cancellation preserves manual input, while the API remains the authoritative validation boundary
 - the authenticated shell now keeps navigation behind a keyboard-accessible menu and exposes profile and session actions through an avatar account menu, leaving central operator work visually dominant on notebook and desktop widths
 - the Projects workspace now begins selected-project inspection with a concise operational summary that names the runtime state, explains the evidence, and offers the next useful action without hiding registration, configuration, lifecycle, or history workflows
+- the reusable visual system centralizes surfaces, spacing, action, feedback, and focus tokens so the approved appearance and accent preferences apply consistently across shell, panels, forms, and operational feedback
 - project registration now preserves a local draft and provides field-level client validation before submitting to the existing authoritative registry contract
 
 ## Main Relationships
