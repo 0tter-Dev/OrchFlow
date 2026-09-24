@@ -1,0 +1,46 @@
+.app-shell {
+  --radius-control: 8px;
+  --space-1: 0.35rem;
+  --space-2: 0.65rem;
+  --space-3: 1rem;
+  --elevation-panel: 0 12px 30px rgba(0, 0, 0, 0.2);
+  --focus-ring: 0 0 0 3px color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.app-shell :where(button, input, textarea, select, [role="menuitem"], a):focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.app-shell :where(.project-list, .project-detail, .preferences-panel, .profile-card, .command-bar) {
+  border-color: var(--border);
+  background: var(--surface-raised);
+  color: var(--text);
+}
+
+.app-shell :where(.project-list__item, .project-detail__card, .project-detail__runtime-card, .project-detail__operator-summary > div, .preferences-panel__mode label, .command-bar__metrics div) {
+  border-color: var(--border);
+  background: var(--surface-control);
+  color: var(--text);
+}
+
+.app-shell :where(.project-list__button, .project-detail__secondary-action, .preferences-panel__button, .command-bar__actions button, .profile-card button) {
+  border-color: var(--border-strong);
+  background: var(--surface-control);
+  color: var(--text);
+}
+
+.app-shell :where(.project-detail__primary-action, .preferences-panel__submit, .command-bar__actions button:first-child) {
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.app-shell :where(.project-list__search, .project-list__field input, .project-list__field textarea, .project-detail__edit-form input, .project-detail__edit-form textarea, .preferences-panel__field input, .preferences-panel__field select) {
+  border-color: var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.app-shell :where(.project-list__error, .project-detail__error, .preferences-panel__notice) { background: var(--danger-surface); color: var(--danger-text); }
+.app-shell :where(.project-list__success, .project-detail__success, .preferences-panel__success) { background: var(--success-surface); color: var(--success-text); }
+.app-shell :where(.project-list__description, .project-detail__copy, .preferences-panel__field) { color: var(--text-muted); }

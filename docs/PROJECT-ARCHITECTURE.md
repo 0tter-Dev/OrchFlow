@@ -20,7 +20,7 @@ The platform must centralize:
 
 ## Core Principle
 
-In `v0.3.46`, every managed project must have a concrete lifecycle control definition based on a Windows `.bat` script. This script is the authoritative operational contract used by OrchFlow to control the project lifecycle.
+In `v0.3.47`, every managed project must have a concrete lifecycle control definition based on a Windows `.bat` script. This script is the authoritative operational contract used by OrchFlow to control the project lifecycle.
 
 OrchFlow may unlink a project from its local registry or from a user's ownership relationship, but that operation must not delete the managed project folder or lifecycle `.bat` file.
 

@@ -1,6 +1,6 @@
 ---
 id: web-021
-status: active
+status: completed
 type: feat
 requires_pull_request: true
 expected_version_impact: patch
@@ -56,4 +56,4 @@ Changing authorization, a general dashboard-builder, mobile-first redesign, or r
 
 ## Outcome
 
-Not started.
+Delivered in PR #88, merged into synchronized `main` on 2026-09-23. The selected-project workspace now leads with runtime evidence and a contextual next action; frontend and browser validation passed.

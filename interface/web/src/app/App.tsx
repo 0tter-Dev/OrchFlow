@@ -1,4 +1,5 @@
 import "./App.css";
+import "./visual-system.css";
 
 import { useEffect, useState } from "react";
 import { BrowserRouter, Navigate, NavLink, Route, Routes, useLocation } from "react-router";

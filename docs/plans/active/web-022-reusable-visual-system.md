@@ -1,6 +1,6 @@
 ---
 id: web-022
-status: backlog
+status: active
 type: feat
 requires_pull_request: true
 expected_version_impact: patch
@@ -30,7 +30,7 @@ Consolidate shell and preference decisions into a small, maintainable visual sys
 
 ## Approval
 
-Awaiting explicit user approval to move to `active`.
+The requesting user explicitly approved activation and implementation on 2026-09-23.
 
 ## Scope
 
