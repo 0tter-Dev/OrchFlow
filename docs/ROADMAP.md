@@ -10,11 +10,15 @@ This is the canonical ordered queue of planned OrchFlow work. Detailed scope, au
 
 Every listed item is one delivery plan and results in one pull request. Research, preparation, documentation, or migration work that does not independently merit review stays as a phase, task, acceptance criterion, or validation item inside its delivery plan rather than becoming a separate plan.
 
-## Active Plans
+## Plans Awaiting Review
 
 | Sequence | Plan | Priority | Dependencies |
 | --- | --- | --- | --- |
-| 21 | [web-022: reusable visual system](./plans/active/web-022-reusable-visual-system.md) | medium | `web-021` |
+| 21 | [web-022: reusable visual system](./plans/review/web-022-reusable-visual-system.md) | medium | `web-021` |
+
+## Active Plans
+
+There are no active plans.
 
 ## Backlog
 
