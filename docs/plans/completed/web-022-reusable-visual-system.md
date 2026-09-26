@@ -1,6 +1,6 @@
 ---
 id: web-022
-status: review
+status: completed
 type: feat
 requires_pull_request: true
 expected_version_impact: patch
@@ -53,4 +53,4 @@ Adopting a strategic component-library dependency, unrestricted theming, brandin
 
 ## Outcome
 
-Delivered in commit `f703281` and submitted for review in PR [#89](https://github.com/0tter-Dev/OrchFlow/pull/89). The shared visual system centralizes theme-aware surface, spacing, focus, action, and feedback tokens across the operator shell and its panels. Validation passed: frontend lint, 55 component tests, production build, four critical browser workflows, and version consistency checks. Expected version impact: `patch`; actual version impact: `patch` (`0.3.47`).
+Delivered in commit `f703281`, reviewed in PR [#89](https://github.com/0tter-Dev/OrchFlow/pull/89), and merged into synchronized local `main` on 2026-09-26. The shared visual system centralizes theme-aware surface, spacing, focus, action, and feedback tokens across the operator shell and its panels. Validation passed: frontend lint, 55 component tests, production build, four critical browser workflows, and version consistency checks. Expected version impact: `patch`; actual version impact: `patch` (`0.3.47`).

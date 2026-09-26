@@ -2,7 +2,7 @@
 
 ## Current Project Stage
 
-OrchFlow is in the `v0.3.47` implementation stage as of `2026-09-24`. Reusable visual system is delivered and awaiting review.
+OrchFlow is in the `v0.3.47` implementation stage as of `2026-09-26`. The reusable visual system is delivered; the next Roadmap candidate is the desktop UX and accessibility audit.
 
 ## Capability Dashboard
 
@@ -15,7 +15,7 @@ OrchFlow is in the `v0.3.47` implementation stage as of `2026-09-24`. Reusable v
 | Project registry | implemented | [Project Registry](./capabilities/project-registry/README.md) | — |
 | Runtime inspection | implemented | [Runtime Inspection](./capabilities/runtime-inspection/README.md) | — |
 | Persistence and audit | implemented | [Persistence And Audit](./capabilities/persistence-and-audit/README.md) | — |
-| Web operator workspace | in_progress | [Web Operator Workspace](./capabilities/web-operator-workspace/README.md) | [web-022 reusable visual system](./plans/review/web-022-reusable-visual-system.md) |
+| Web operator workspace | in_progress | [Web Operator Workspace](./capabilities/web-operator-workspace/README.md) | [web-023 desktop UX and accessibility audit](./plans/backlog/web-023-desktop-ux-accessibility-audit.md) |
 | External surfaces | in_progress | [External Surfaces](./reference/external-surfaces.md) | — |
 | Delivery and releases | implemented | [Git And GitHub Flow](./guides/git-and-github-flow.md) | — |
 
